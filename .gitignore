@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Project junk
+*.tmp
+*.bak
+*.orig
+.cache/
+.pytest_cache/
+
+# Outputs (kept out of repo)
+outputs/
+results/private/
+*.local.xlsx
+*.local.md
+
+# Data files (NEVER commit real client data)
+data/
+*.xlsx
+*.xls
+*.csv
+!data_generator_synthetic.*
+
+# Sanity / quarantine
+.env.local
+.DS_Store
