@@ -15,6 +15,7 @@ Same constraints as the CG solver:
 
 Run as a baseline for the same 400 s wall-clock budget.
 """
+
 from __future__ import annotations
 
 import random
@@ -30,10 +31,15 @@ SHORT_KINK = 15  # nbrs lookup depth for Shaw removal
 class ALNS:
     """Røpke–Pisinger ALNS for the PVRP / visit-scheduling problem."""
 
-    def __init__(self, n: int, freq: Sequence[int], days: int = 20,
-                 col_cost_fn: Callable | None = None,
-                 daily_cap: float | None = None,
-                 seed: int = 42):
+    def __init__(
+        self,
+        n: int,
+        freq: Sequence[int],
+        days: int = 20,
+        col_cost_fn: Callable | None = None,
+        daily_cap: float | None = None,
+        seed: int = 42,
+    ):
         self.n = n
         self.freq = list(freq)
         self.days = days
@@ -54,7 +60,10 @@ class ALNS:
 
     def feasible_insert(self, sol: list[set[int]], cust: int, day: int) -> bool:
         if self.daily_cap is not None:
-            if self.day_time(sol[day]) + self._delta_insert(sol[day], cust) > self.daily_cap:
+            if (
+                self.day_time(sol[day]) + self._delta_insert(sol[day], cust)
+                > self.daily_cap
+            ):
                 return False
         days_c = [k for k in range(self.days) if cust in sol[k]]
         for k in days_c:
@@ -91,8 +100,11 @@ class ALNS:
             placed = 0
             cand_days = sorted(
                 range(self.days),
-                key=lambda d: self._delta_insert(sol[d], cust)
-                if self.feasible_insert(sol, cust, d) else 1e18,
+                key=lambda d: (
+                    self._delta_insert(sol[d], cust)
+                    if self.feasible_insert(sol, cust, d)
+                    else 1e18
+                ),
             )
             for d in cand_days:
                 if placed >= self.freq[cust]:
@@ -100,19 +112,20 @@ class ALNS:
                 if not self.feasible_insert(sol, cust, d):
                     continue
                 remaining = self.freq[cust] - placed - 1
-                if remaining > 0 and sum(1 for k in range(d + self.gap[cust], self.days)) < remaining:
+                if (
+                    remaining > 0
+                    and sum(1 for k in range(d + self.gap[cust], self.days)) < remaining
+                ):
                     continue
                 sol[d].add(cust)
                 placed += 1
-            if placed < self.freq[cust]:
-                # last resort: place anywhere
-                for d in range(self.days):
-                    if placed >= self.freq[cust]:
-                        break
-                    ks = [k for k in range(self.days) if cust in sol[k]]
-                    if all(abs(k - d) >= self.gap[cust] for k in ks):
-                        sol[d].add(cust)
-                        placed += 1
+            # If greedy could not place all required visits for this customer,
+            # we deliberately leave the solution *partially* infeasible (some
+            # customers have fewer than freq[i] visits). The run() loop's
+            # destroy + repair operators will re-insert missing visits. The
+            # previous "last resort" was removed because it checked only
+            # gap and ignored the daily_cap, which could create an incumbent
+            # that violates the 9h cap (the Rep-6 900-min artefact).
         return sol
 
     # ----------------- destroy operators -----------------
@@ -133,7 +146,7 @@ class ALNS:
                 delta = base - self.day_time(nd)
                 scored.append((delta, i, d))
         scored.sort(reverse=True)
-        out = self.rng.sample(scored[:max(2 * q, q)], min(q, len(scored)))
+        out = self.rng.sample(scored[: max(2 * q, q)], min(q, len(scored)))
         out = [(i, d) for _, i, d in out]
         for i, d in out:
             sol[d].discard(i)
@@ -151,7 +164,9 @@ class ALNS:
                 if len(out) >= q:
                     break
                 # similarity: same-region / same-day prefix
-                if i in sol[d] and (i == seed_cust or i in sol[d0] or self.rng.random() < 0.5):
+                if i in sol[d] and (
+                    i == seed_cust or i in sol[d0] or self.rng.random() < 0.5
+                ):
                     out.append((i, d))
                     sol[d].discard(i)
         # top up if needed
@@ -208,8 +223,43 @@ class ALNS:
 
     # ----------------- main loop -----------------
     def run(self, time_budget: int = 400) -> tuple:
-        t0 = time.time()
+        import time as _time
+        t0 = _time.time()
         sol = [set(d) for d in self.initial()]
+
+        # If the initial solution is infeasible, attempt a brief repair
+        # phase using the same r_greedy / r_regret operators before
+        # declaring it the incumbent. Previously run() would set
+        # best = initial even when initial violated daily_cap, which is
+        # what produced the spurious 900-min max-load for Rep-6.
+        repair_budget = min(20, max(5, time_budget // 20))
+        for _ in range(repair_budget):
+            if self.valid(sol):
+                break
+            # destroy half of one day, then re-insert
+            cand = [set(d) for d in sol]
+            active = [d for d in range(self.days) if cand[d]]
+            if not active:
+                break
+            d = self.rng.choice(active)
+            visits = [(i, d) for i in cand[d]]
+            cand[d] = set()
+            self.r_greedy(cand, visits)
+            sol = cand
+
+        if not self.valid(sol):
+            # could not repair within budget; return an empty solution
+            # with a clear "infeasible" flag rather than reporting the
+            # infeasible incumbent as if it were valid.
+            return (
+                [set() for _ in range(self.days)],
+                float("inf"),
+                0,
+                {"days": 0, "max_load": 0, "min_load": 0,
+                 "valid": False, "note": "initial infeasible and "
+                 "could not be repaired within repair_budget"},
+            )
+
         cur = [set(d) for d in sol]
         cur_f = self.total_time(cur)
         best = [set(d) for d in sol]
@@ -245,6 +295,14 @@ class ALNS:
             w_d[di] = RHO * score + (1 - RHO) * w_d[di]
             w_r[ri] = RHO * score + (1 - RHO) * w_r[ri]
         loads = [self.day_time(d) for d in best if d]
-        return best, best_f, it, {"days": len(loads),
-                                     "max_load": max(loads) if loads else 0,
-                                     "min_load": min(loads) if loads else 0}
+        return (
+            best,
+            best_f,
+            it,
+            {
+                "days": len(loads),
+                "max_load": max(loads) if loads else 0,
+                "min_load": min(loads) if loads else 0,
+                "valid": True,
+            },
+        )

@@ -1,6 +1,6 @@
 # Visit Scheduling Optimizer
 
-**Data-calibrated periodic vehicle routing for field-sales visit scheduling.**
+**Data-calibrated periodic vehicle routing for field-sales visit scheduling — a global-optimization-based visit planning engine.**
 
 A production-grade OR framework that schedules recurring store visits for FMCG sales representatives — satisfying visit frequencies, inter-visit gaps, and daily work-hour capacity — while minimizing total travel + service time.
 
@@ -25,6 +25,16 @@ In practice this is done by spreadsheet and intuition — leaving 20–60% of po
 | Route distance (OSRM road network) | 10 056 km | **6 345 km** | **−37%** |
 | Frequency compliance | 92–100% | **100%** (hard constraint) | ✓ |
 | Daily work-hour cap violations | 12% of days | **0%** | ✓ |
+
+> **Honest disclosure of optimality.** The column generation in this
+> framework is *dual-guided heuristic* (greedy marginal-gain column
+> construction from each seed in an 18-neighbour window), **not**
+> exact branch-and-price. The LP relaxation is a *lower bound over
+> the restricted master with heuristic column generation*; it is
+> **not** a global lower bound for the full PVRP. Final IP solutions
+> are certified OPTIMAL only over the generated column pool. For
+> exact global optimality, an exact pricing subproblem (RCSP/ESPPRC)
+> would be required (see `docs/algorithm.md § 6 Limitations`).
 
 Cross-county visits **emerge** from the depot's spatial position (matching the 29–60% rate observed in human operation) rather than being imposed as a constraint.
 

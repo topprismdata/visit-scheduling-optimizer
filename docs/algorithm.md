@@ -102,7 +102,7 @@ For comparison, we implement:
 - **Adaptive weights**: $\rho = 0.1$, score = {3: new best, 2: improved, 1: accepted}
 - **Acceptance**: Record-to-Record Travel, threshold = 5%
 
-Same constraints, same time budget as CG.
+Same constraints (freq, gap, daily cap) and same wall-clock budget as the CG solver. The ALNS main loop only accepts candidate solutions that pass `valid()`, and the initial solution is repaired (via greedy / regret-2 re-insertion) before being used as the incumbent. An infeasible initial that cannot be repaired within the repair budget is reported with `valid=False` rather than as the best.
 
 ## 8. Complexity and scalability
 
@@ -115,13 +115,55 @@ Same constraints, same time budget as CG.
 
 For the studied instances (32–36 customers, 20 days), total solve time is 2–8 minutes per person.
 
-## 9. Optimality certificates
+## 9. Optimality: what is and is not certified
 
-- **Open route**: 6/7 instances achieve LP bound = IP solution (global optimum over column pool)
-- **Closed loop**: 3/7 OPTIMAL, 4/7 FEASIBLE with gap 0.6–4.2% from LP bound
-- **Time caliber**: all instances FEASIBLE within 540-min cap; balance re-assignment reduces max load by 0–80 min
+The final CP-SAT IP solution is certified **OPTIMAL** in the sense that
+it is the best solution supported by the **column pool** found by the
+dual-guided heuristic pricing. This is *not* a proof of global optimality
+of the full PVRP, because:
 
-## 10. References
+1. **Pricing is heuristic**, not exact. A negative-reduced-cost column
+   that the greedy marginal-gain procedure fails to discover does
+   not prove that no such column exists. The column pool is constructed
+   by NN-seeded top-K enumeration plus greedy pricing, not by solving
+   the exact pricing subproblem (which would be an RCSP/ESPPRC).
+2. **The LP relaxation is a lower bound only for the restricted master.**
+   The LP solved in step 2a of the algorithm includes the column-restricted
+   master with all linear constraints (one-column-per-day, coverage,
+   linking, inter-visit gap). Its objective is therefore a lower bound
+   for the *restricted* master. With heuristic pricing this is *not*
+   a global lower bound for the full PVRP.
+
+Reported numbers (anonymized 7-rep study, OSRM road network):
+- **Open route**: 6/7 instances achieve LP bound = IP solution (optimal over
+  the column pool; *not* certified as a global PVRP bound)
+- **Closed loop**: 3/7 OPTIMAL, 4/7 FEASIBLE with residual gap 0.6–4.2%
+  from the restricted-master LP
+- **Time caliber**: all instances FEASIBLE within the 540-min cap;
+  balance re-assignment reduces max daily load by 0–80 min
+
+## 10. Limitations and natural follow-ups
+
+1. **Exact pricing (RCSP/ESPPRC).** The current pricing is a greedy
+   marginal-gain procedure. An exact pricing subproblem that finds
+   *all* negative-reduced-cost columns (or proves none exist) is the
+   missing piece for true branch-and-price. This is the single largest
+   gap to a provably-optimal solver.
+2. **Branch-and-bound outer loop.** Even with exact pricing, integer
+   decisions on customer-day coverage may require a search tree.
+3. **Stochastic service durations.** A distribution over $d_i$ (e.g.
+   sub-Gaussian residuals) could be incorporated via scenario-based
+   re-optimization (Nekooghadirli 2022).
+4. **Rolling-horizon re-planning.** The current implementation plans a
+   single 20-day horizon; a rolling-horizon feedback loop would close
+   the gap to a production scheduling engine.
+5. **Multi-representative joint optimization.** The current solver
+   optimizes each representative independently. A joint formulation
+   with shared capacity (e.g. fleet constraints) would unlock further
+   savings — but at the cost of violating the current one-rep-per-customer
+   customer-relationship preservation.
+
+## 11. References
 
 - Rothenbächer, A. (2017). Branch-and-Price-and-Cut for the PVRP with Flexible Schedule Structures. *JGU Mainz*.
 - Pirkwieser, S. & Raidl, G. (2009). Column Generation for PVRPTW. *TU Wien*.

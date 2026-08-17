@@ -8,6 +8,7 @@ three calibers (open / closed / time-calibrated) plus the ALNS baseline,
 and prints a comparison table. This is the recommended first thing to run
 after cloning.
 """
+
 from __future__ import annotations
 
 import random
@@ -89,22 +90,29 @@ def main():
 
     # --- Caliber 1: open route ---
     print("\n[1] Open route (customer chain only)")
-    a, t, s, st = solver.solve_open_cg(n, D_cust, freq, days=DAYS, time_limit=20, verbose=False)
+    a, t, s, st = solver.solve_open_cg(
+        n, D_cust, freq, days=DAYS, time_limit=20, verbose=False
+    )
     print(f"    total = {t:.1f} km, status = {s}, columns = {st['n_columns']}")
 
     # --- Caliber 2: closed loop (depot round-trip) ---
     print("\n[2] Closed loop (depot round-trip, distance)")
-    a, t, s, st = solver.solve_distance_cg(n, D_full, depot_idx, freq, days=DAYS, time_limit=20, verbose=False)
+    a, t, s, st = solver.solve_distance_cg(
+        n, D_full, depot_idx, freq, days=DAYS, time_limit=20, verbose=False
+    )
     print(f"    total = {t:.1f} km, status = {s}, columns = {st['n_columns']}")
 
     # --- Caliber 3: time-calibrated ---
     print("\n[3] Time-calibrated (workhours, 9h cap)")
     T, t0 = build_time_matrix(D_full, counties, svc)
-    a, t, s, st = solver.solve_time_cg(n, T, t0, svc, freq, days=DAYS,
-                                       daily_cap=540, time_limit=20, verbose=False)
+    a, t, s, st = solver.solve_time_cg(
+        n, T, t0, svc, freq, days=DAYS, daily_cap=540, time_limit=20, verbose=False
+    )
     active = sum(1 for d in a if d) if a else 0
-    print(f"    total = {t:.0f} min ({t/60:.1f} h), status = {s}, "
-          f"active days = {active}, balanced = {st.get('balanced')}")
+    print(
+        f"    total = {t:.0f} min ({t / 60:.1f} h), status = {s}, "
+        f"active days = {active}, balanced = {st.get('balanced')}"
+    )
     if a:
         loads = st.get("loads", [])
         if loads:
@@ -113,12 +121,18 @@ def main():
     # --- ALNS baseline ---
     print("\n[4] ALNS baseline (same constraints, 30 s budget)")
     t0_legs = [D_full[depot_idx][i] for i in range(n)]
-    alns = baselines.ALNS(n, freq, days=DAYS,
-                          col_cost_fn=lambda ids: solver._col_cost_closed(D_cust, t0_legs, ids),
-                          daily_cap=None)
+    alns = baselines.ALNS(
+        n,
+        freq,
+        days=DAYS,
+        col_cost_fn=lambda ids: solver._col_cost_closed(D_cust, t0_legs, ids),
+        daily_cap=None,
+    )
     b, bf, it, ast = alns.run(time_budget=15)
-    print(f"    total = {bf:.1f} km, iterations = {it}, "
-          f"max day load = {ast['max_load']:.0f} visits")
+    print(
+        f"    total = {bf:.1f} km, iterations = {it}, "
+        f"max day load = {ast['max_load']:.0f} visits"
+    )
 
     print("\n" + "=" * 70)
     print("Done. All three calibers + ALNS baseline ran on synthetic data.")

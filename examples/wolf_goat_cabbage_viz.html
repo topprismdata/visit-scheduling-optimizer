@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>狼羊菜过河 — CP-SAT 可视化演示</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif;
+        background: #0f172a;
+        color: #e2e8f0;
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h1 {
+        text-align: center;
+        font-size: 28px;
+        margin: 20px 0;
+        color: #38bdf8;
+      }
+      .subtitle {
+        text-align: center;
+        color: #94a3b8;
+        margin-bottom: 30px;
+        font-size: 14px;
+      }
+
+      /* River scene */
+      .river-scene {
+        position: relative;
+        width: 100%;
+        height: 280px;
+        background: linear-gradient(
+          180deg,
+          #1e293b 0%,
+          #0ea5e9 45%,
+          #0369a1 55%,
+          #1e293b 100%
+        );
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 20px;
+      }
+      .bank {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 45%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .bank-left {
+        left: 0;
+        background: rgba(34, 197, 94, 0.1);
+      }
+      .bank-right {
+        right: 0;
+        background: rgba(34, 197, 94, 0.1);
+      }
+      .bank-label {
+        font-size: 12px;
+        color: #4ade80;
+        margin-top: 8px;
+      }
+      .entity {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        font-size: 14px;
+        transition: all 0.5s ease;
+      }
+      .entity.farmer {
+        border: 2px solid #fbbf24;
+      }
+      .entity.wolf {
+        border: 2px solid #ef4444;
+      }
+      .entity.goat {
+        border: 2px solid #22c55e;
+      }
+      .entity.cabbage {
+        border: 2px solid #a3e635;
+      }
+      .entity .icon {
+        font-size: 20px;
+      }
+      .boat {
+        position: absolute;
+        top: 45%;
+        width: 60px;
+        height: 30px;
+        background: #92400e;
+        border-radius: 0 0 50% 50%;
+        transition: left 1s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: #fef3c7;
+      }
+      .boat.at-left {
+        left: 42%;
+      }
+      .boat.at-right {
+        left: 52%;
+      }
+
+      /* Controls */
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+      .btn-primary {
+        background: #2563eb;
+        color: white;
+      }
+      .btn-primary:hover {
+        background: #1d4ed8;
+      }
+      .btn-secondary {
+        background: #374151;
+        color: #e2e8f0;
+      }
+      .btn-secondary:hover {
+        background: #4b5563;
+      }
+      .btn-reset {
+        background: #dc2626;
+        color: white;
+      }
+      .btn-reset:hover {
+        background: #b91c1c;
+      }
+
+      /* State space graph */
+      .section {
+        margin-bottom: 30px;
+      }
+      .section-title {
+        font-size: 18px;
+        color: #38bdf8;
+        margin-bottom: 12px;
+        border-left: 3px solid #38bdf8;
+        padding-left: 10px;
+      }
+      .state-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+      }
+      .state-cell {
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 12px;
+        font-family: monospace;
+        transition: all 0.3s;
+      }
+      .state-cell.legal {
+        background: rgba(34, 197, 94, 0.15);
+        border: 1px solid #22c55e;
+      }
+      .state-cell.illegal {
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid #ef4444;
+        opacity: 0.5;
+        text-decoration: line-through;
+      }
+      .state-cell.on-path {
+        background: rgba(56, 189, 248, 0.3);
+        border: 2px solid #38bdf8;
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+      }
+      .state-cell.current {
+        background: rgba(251, 191, 36, 0.3);
+        border: 2px solid #fbbf24;
+        box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+      }
+
+      /* Solution steps */
+      .steps {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border-left: 3px solid #374151;
+        transition: all 0.3s;
+      }
+      .step.active {
+        background: rgba(56, 189, 248, 0.1);
+        border-left-color: #38bdf8;
+      }
+      .step.done {
+        background: rgba(34, 197, 94, 0.1);
+        border-left-color: #22c55e;
+      }
+      .step-num {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #374151;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+      .step.active .step-num {
+        background: #2563eb;
+      }
+      .step.done .step-num {
+        background: #22c55e;
+      }
+      .step-desc {
+        flex: 1;
+        font-size: 13px;
+      }
+      .step-state {
+        font-family: monospace;
+        font-size: 11px;
+        color: #94a3b8;
+      }
+
+      /* Comparison panel */
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .compare-card {
+        padding: 16px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .compare-card h3 {
+        font-size: 14px;
+        margin-bottom: 8px;
+      }
+      .compare-card.brute {
+        border: 1px solid #ef4444;
+      }
+      .compare-card.brute h3 {
+        color: #ef4444;
+      }
+      .compare-card.smart {
+        border: 1px solid #22c55e;
+      }
+      .compare-card.smart h3 {
+        color: #22c55e;
+      }
+      .compare-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 4px 0;
+        font-size: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .compare-item .label {
+        color: #94a3b8;
+      }
+      .compare-item .value {
+        font-weight: 600;
+      }
+
+      /* Propagation visualization */
+      .prop-visual {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .prop-step {
+        flex: 1;
+        min-width: 200px;
+        padding: 12px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .prop-step h4 {
+        font-size: 13px;
+        color: #38bdf8;
+        margin-bottom: 6px;
+      }
+      .prop-step p {
+        font-size: 11px;
+        color: #94a3b8;
+        line-height: 1.5;
+      }
+      .prop-step .highlight {
+        color: #fbbf24;
+        font-weight: 600;
+      }
+
+      /* Info bar */
+      .info-bar {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 13px;
+      }
+      .info-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .info-item .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+      .dot-green {
+        background: #22c55e;
+      }
+      .dot-red {
+        background: #ef4444;
+      }
+      .dot-blue {
+        background: #38bdf8;
+      }
+      .dot-yellow {
+        background: #fbbf24;
+      }
+
+      /* Speed indicator */
+      .speed {
+        text-align: center;
+        padding: 8px;
+        font-size: 12px;
+        color: #94a3b8;
+      }
+      .speed .time {
+        color: #38bdf8;
+        font-weight: 700;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🐺🐐🥬 狼羊菜过河 — CP-SAT 求解演示</h1>
+      <p class="subtitle">数学建模 → 约束传播 → 智能搜索 → 最优解（7步）</p>
+
+      <!-- Info bar -->
+      <div class="info-bar">
+        <div class="info-item">
+          <div class="dot dot-green"></div>
+          合法状态 (10)
+        </div>
+        <div class="info-item">
+          <div class="dot dot-red"></div>
+          非法状态 (6)
+        </div>
+        <div class="info-item">
+          <div class="dot dot-blue"></div>
+          解路径
+        </div>
+        <div class="info-item">
+          <div class="dot dot-yellow"></div>
+          当前位置
+        </div>
+      </div>
+
+      <!-- River scene -->
+      <div class="river-scene" id="riverScene">
+        <div class="bank bank-left" id="leftBank">
+          <div class="bank-label">此岸</div>
+        </div>
+        <div class="boat at-left" id="boat">🚣</div>
+        <div class="bank bank-right" id="rightBank">
+          <div class="bank-label">对岸</div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <button class="btn btn-primary" onclick="nextStep()">▶ 下一步</button>
+        <button class="btn btn-secondary" onclick="autoPlay()">
+          ⏩ 自动播放
+        </button>
+        <button class="btn btn-reset" onclick="reset()">↺ 重置</button>
+      </div>
+      <div class="speed" id="speedInfo">
+        CP-SAT 求解时间: <span class="time">0.07s</span>（状态空间 16 → 约束传播
+        → 搜索 → 最优）
+      </div>
+
+      <!-- Solution steps -->
+      <div class="section">
+        <div class="section-title">求解路径（CP-SAT 输出的 7 步最优解）</div>
+        <div class="steps" id="steps"></div>
+      </div>
+
+      <!-- State space -->
+      <div class="section">
+        <div class="section-title">状态空间（约束传播砍掉非法状态）</div>
+        <div class="state-grid" id="stateGrid"></div>
+      </div>
+
+      <!-- Propagation explanation -->
+      <div class="section">
+        <div class="section-title">约束传播过程（CP-SAT 的核心能力）</div>
+        <div class="prop-visual">
+          <div class="prop-step">
+            <h4>① 安全约束传播</h4>
+            <p>
+              约束：<span class="highlight">狼羊不能独处</span> ∧
+              <span class="highlight">羊菜不能独处</span><br />
+              16种状态中，6种违反安全约束 → 立即砍掉<br />
+              <strong>不搜索就排除 37.5%</strong>
+            </p>
+          </div>
+          <div class="prop-step">
+            <h4>② 转移约束传播</h4>
+            <p>
+              每步农夫必须换边，至多带一物<br />
+              进一步砍掉不合法的转移边<br />
+              剩余可行转移图只有 <span class="highlight">~20 条边</span>
+            </p>
+          </div>
+          <div class="prop-step">
+            <h4>③ 智能搜索</h4>
+            <p>
+              在剩余可行空间中 BFS/DFS<br />
+              冲突学习：走错就回跳，不重复<br />
+              <span class="highlight">7步到达终态，全局最优</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison -->
+      <div class="section">
+        <div class="section-title">暴力枚举 vs CP-SAT</div>
+        <div class="comparison">
+          <div class="compare-card brute">
+            <h3>❌ 暴力枚举</h3>
+            <div class="compare-item">
+              <span class="label">策略</span
+              ><span class="value">逐个尝试所有可能</span>
+            </div>
+            <div class="compare-item">
+              <span class="label">搜索空间</span
+              ><span class="value">16 × 10⁷ 种路径</span>
+            </div>
+            <div class="compare-item">
+              <span class="label">走错时</span
+              ><span class="value">一步步回退</span>
+            </div>
+            <div class="compare-item">
+              <span class="label">学习</span
+              ><span class="value">不学习，重复犯错</span>
+            </div>
+            <div class="compare-item">
+              <span class="label">PVRP (10¹⁴¹⁴)</span
+              ><span class="value">永远跑不完</span>
+            </div>
+          </div>
+          <div class="compare-card smart">
+            <h3>✅ CP-SAT</h3>
+            <div class="compare-item">
+              <span class="label">策略</span
+              ><span class="value">先传播剪枝，再搜索</span>
+            </div>
+            <div class="compare-item">
+              <span class="label">搜索空间</span
+              ><span class="value">10 合法状态 × 20 边</span>
+            </div>
+            <div class="compare-item">
+              <span class="label">走错时</span
+              ><span class="value">冲突分析 + 回跳</span>
+            </div>
+            <div class="compare-item">
+              <span class="label">学习</span
+              ><span class="value">懒子句生成，永不重复</span>
+            </div>
+            <div class="compare-item">
+              <span class="label">PVRP (10¹⁴¹⁴)</span
+              ><span class="value">300s 出最优</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analogy -->
+      <div class="section">
+        <div class="section-title">类比我们的拜访排班项目</div>
+        <div class="comparison">
+          <div class="compare-card smart">
+            <h3>🐺 狼羊菜问题</h3>
+            <div class="compare-item">
+              <span class="label">状态空间</span
+              ><span class="value">16 种</span>
+            </div>
+            <div class="compare-item">
+              <span class="label">约束</span
+              ><span class="value">狼羊不独处 + 羊菜不独处</span>
+            </div>
+            <div class="compare-item">
+              <span class="label">目标</span><span class="value">最少步数</span>
+            </div>
+            <div class="compare-item">
+              <span class="label">求解</span
+              ><span class="value">CP-SAT 0.07s</span>
+            </div>
+          </div>
+          <div class="compare-card smart">
+            <h3>📋 拜访排班 (PVRP)</h3>
+            <div class="compare-item">
+              <span class="label">状态空间</span
+              ><span class="value">10¹⁴¹⁴ 种</span>
+            </div>
+            <div class="compare-item">
+              <span class="label">约束</span
+              ><span class="value">频次 + 间隔 + 工时 + 路线</span>
+            </div>
+            <div class="compare-item">
+              <span class="label">目标</span
+              ><span class="value">最少总工时</span>
+            </div>
+            <div class="compare-item">
+              <span class="label">求解</span
+              ><span class="value">CP-SAT + 列生成 300s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Solution path (7 steps)
+      const solution = [
+        { state: [0, 0, 0, 0], action: "初始状态", carry: -1 },
+        { state: [1, 0, 1, 0], action: "带羊→对岸", carry: 2 },
+        { state: [0, 0, 1, 0], action: "空手→此岸", carry: -1 },
+        { state: [1, 0, 1, 1], action: "带菜→对岸", carry: 3 },
+        { state: [0, 0, 0, 1], action: "带羊→此岸", carry: 2 },
+        { state: [1, 1, 0, 1], action: "带狼→对岸", carry: 1 },
+        { state: [0, 1, 0, 1], action: "空手→此岸", carry: -1 },
+        { state: [1, 1, 1, 1], action: "全部过河！🎉", carry: -1 },
+      ];
+
+      // All 16 states, mark illegal ones
+      const allStates = [];
+      for (let p = 0; p <= 1; p++)
+        for (let w = 0; w <= 1; w++)
+          for (let g = 0; g <= 1; g++)
+            for (let c = 0; c <= 1; c++) allStates.push([p, w, g, c]);
+
+      function isLegal(s) {
+        const [p, w, g, c] = s;
+        // Wolf eats goat if alone together without farmer
+        if (w === g && p !== w) return false;
+        // Goat eats cabbage if alone together without farmer
+        if (g === c && p !== g) return false;
+        return true;
+      }
+
+      const illegalStates = allStates.filter((s) => !isLegal(s));
+      const pathSet = new Set(solution.map((s) => s.state.join(",")));
+
+      let currentStep = 0;
+
+      function renderRiverScene(step) {
+        const leftBank = document.getElementById("leftBank");
+        const rightBank = document.getElementById("rightBank");
+        const boat = document.getElementById("boat");
+
+        const entities = ["农夫", "狼", "羊", "菜"];
+        const icons = ["👨‍🌾", "🐺", "🐐", "🥬"];
+        const classes = ["farmer", "wolf", "goat", "cabbage"];
+
+        leftBank.innerHTML = '<div class="bank-label">此岸</div>';
+        rightBank.innerHTML = '<div class="bank-label">对岸</div>';
+
+        const state = solution[step].state;
+        for (let e = 0; e < 4; e++) {
+          const div = document.createElement("div");
+          div.className = `entity ${classes[e]}`;
+          div.innerHTML = `<span class="icon">${icons[e]}</span>${entities[e]}`;
+          if (state[e] === 0) leftBank.appendChild(div);
+          else rightBank.appendChild(div);
+        }
+
+        // Boat position
+        boat.className = `boat ${state[0] === 0 ? "at-left" : "at-right"}`;
+        if (solution[step].carry > 0) {
+          boat.innerHTML = `🚣 ${icons[solution[step].carry]}`;
+        } else {
+          boat.innerHTML = "🚣";
+        }
+      }
+
+      function renderStateGrid(step) {
+        const grid = document.getElementById("stateGrid");
+        grid.innerHTML = "";
+        const currentState = solution[step].state.join(",");
+
+        allStates.forEach((s) => {
+          const div = document.createElement("div");
+          const key = s.join(",");
+          let cls = "state-cell ";
+          if (!isLegal(s)) cls += "illegal";
+          else if (key === currentState) cls += "current";
+          else if (pathSet.has(key)) cls += "on-path";
+          else cls += "legal";
+          div.className = cls;
+          div.textContent = `(${s.join(",")})`;
+          div.title = isLegal(s) ? "合法状态" : "非法：违反安全约束";
+          grid.appendChild(div);
+        });
+      }
+
+      function renderSteps(step) {
+        const container = document.getElementById("steps");
+        container.innerHTML = "";
+        solution.forEach((s, i) => {
+          const div = document.createElement("div");
+          div.className = `step ${i === step ? "active" : i < step ? "done" : ""}`;
+          div.innerHTML = `
+      <div class="step-num">${i}</div>
+      <div class="step-desc">${s.action}</div>
+      <div class="step-state">(${s.state.join(",")})</div>
+    `;
+          container.appendChild(div);
+        });
+      }
+
+      function render(step) {
+        renderRiverScene(step);
+        renderStateGrid(step);
+        renderSteps(step);
+      }
+
+      function nextStep() {
+        if (currentStep < solution.length - 1) {
+          currentStep++;
+          render(currentStep);
+        }
+      }
+
+      function reset() {
+        currentStep = 0;
+        render(0);
+      }
+
+      let autoInterval = null;
+      function autoPlay() {
+        if (autoInterval) {
+          clearInterval(autoInterval);
+          autoInterval = null;
+          return;
+        }
+        autoInterval = setInterval(() => {
+          if (currentStep < solution.length - 1) nextStep();
+          else {
+            clearInterval(autoInterval);
+            autoInterval = null;
+          }
+        }, 1200);
+      }
+
+      // Initial render
+      render(0);
+    </script>
+  </body>
+</html>

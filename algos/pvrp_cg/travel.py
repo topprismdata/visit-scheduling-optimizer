@@ -3,6 +3,7 @@ Exact closed/open Held–Karp TSP and NN+2-opt fallback for small (n ≤ 9) sets
 
 Used as the column-cost oracle in the set-partitioning master.
 """
+
 from __future__ import annotations
 
 import math
@@ -84,7 +85,7 @@ def nn2opt_closed(D: list[list[float]], t0: Sequence[float]) -> float:
         improved = False
         for i in range(len(order)):
             for j in range(i + 1, len(order)):
-                nb = order[:i] + order[i:j + 1][::-1] + order[j + 1:]
+                nb = order[:i] + order[i : j + 1][::-1] + order[j + 1 :]
                 if td(nb) < best - 1e-2:
                     order, best, improved = nb, td(nb), True
                     break

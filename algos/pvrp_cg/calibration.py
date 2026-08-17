@@ -20,16 +20,17 @@ overhead dominates short legs) and converges to a fixed highway speed
 Public entry point:
   build_time_matrix(lats, lons, dep_latlons, segments) -> (T, t0, svc_county)
 """
+
 from __future__ import annotations
 
 import math
 from collections import defaultdict
 from collections.abc import Sequence
 
-LONG_RATE = 2.0           # min/km on long legs (≈ 30 km/h steady-state)
-SHORT_KINK = 5.0          # km at which the city-rate stops fully applying
-LONG_KINK = 20.0          # km at which the highway-rate fully takes over
-DEFAULT_GLOBAL_RATE = 6.0 # min/km fallback for counties with < 5 samples
+LONG_RATE = 2.0  # min/km on long legs (≈ 30 km/h steady-state)
+SHORT_KINK = 5.0  # km at which the city-rate stops fully applying
+LONG_KINK = 20.0  # km at which the highway-rate fully takes over
+DEFAULT_GLOBAL_RATE = 6.0  # min/km fallback for counties with < 5 samples
 
 
 def _hav(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -49,9 +50,10 @@ def rate_eff(mpk: float, km: float) -> float:
     return LONG_RATE + (mpk - LONG_RATE) * (LONG_KINK - km) / (LONG_KINK - SHORT_KINK)
 
 
-def fit_county_rates(segments: Sequence[tuple[float, float, float, float, float, str]],
-                     min_samples: int = 5
-                     ) -> dict[str, float]:
+def fit_county_rates(
+    segments: Sequence[tuple[float, float, float, float, float, str]],
+    min_samples: int = 5,
+) -> dict[str, float]:
     """Fit per-county min/km from observed (from_lat, from_lon, to_lat, to_lon,
     obs_min, county) segments.
 
@@ -66,15 +68,18 @@ def fit_county_rates(segments: Sequence[tuple[float, float, float, float, float,
         by_county[county].append(obs / km)
     return {
         c: float(sorted(v)[len(v) // 2])
-        for c, v in by_county.items() if len(v) >= min_samples
+        for c, v in by_county.items()
+        if len(v) >= min_samples
     }
 
 
-def build_time_matrix(lats: Sequence[float], lons: Sequence[float],
-                      dep_latlons: tuple[float, float],
-                      segments: Sequence[tuple[float, float, float, float, float, str]],
-                      fallback_rate: float = DEFAULT_GLOBAL_RATE,
-                      ) -> tuple[list[list[float]], list[float]]:
+def build_time_matrix(
+    lats: Sequence[float],
+    lons: Sequence[float],
+    dep_latlons: tuple[float, float],
+    segments: Sequence[tuple[float, float, float, float, float, str]],
+    fallback_rate: float = DEFAULT_GLOBAL_RATE,
+) -> tuple[list[list[float]], list[float]]:
     """Build a calibrated time matrix T and depot legs t0.
 
     Returns
@@ -94,6 +99,9 @@ def build_time_matrix(lats: Sequence[float], lons: Sequence[float],
             county = ""  # rate by origin would need per-origin county mapping
             mpk = rates.get(county, fallback_rate)
             T[i][j] = rate_eff(mpk, km) * km
-    t0 = [rate_eff(fallback_rate, _hav(dep_lat, dep_lon, lats[i], lons[i]))
-          * _hav(dep_lat, dep_lon, lats[i], lons[i]) for i in range(n)]
+    t0 = [
+        rate_eff(fallback_rate, _hav(dep_lat, dep_lon, lats[i], lons[i]))
+        * _hav(dep_lat, dep_lon, lats[i], lons[i])
+        for i in range(n)
+    ]
     return T, t0
