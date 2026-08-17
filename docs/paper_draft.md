@@ -6,7 +6,7 @@
 
 ## Abstract
 
-We address the periodic visit-scheduling problem faced by FMCG (fast-moving consumer goods) sales representatives who must visit stores on a recurring monthly cycle. Each visit plan must (i) satisfy per-customer visit-frequency requirements, (ii) enforce a minimum inter-visit gap, (iii) fit a 9-hour daily work capacity, and (iv) minimize total work time. We propose a **set-partitioning master problem with dual-guided column generation**, in which every column is an exact-cost day-group (closed-route Held–Karp ≤ 9 customers, NN+2-opt fallback otherwise). The day-group cost is computed from a **two-segment time matrix** fitted from 319 actual door-to-door trip segments: per-county effective min-per-km plus a 32-minute per-visit dwell penalty. The dual signal from the LP relaxation drives a *heuristic* pricing subproblem (greedy marginal-gain column construction from each seed in an 18-neighbour window). The LP value at convergence is a lower bound **for the restricted master problem over the columns found by the heuristic pricing**; it is not a global lower bound for the full PVRP. The full pipeline produces a per-customer **executable plan** (each day's customers, departure, return, total time). Across seven sales representatives and 235 customers, the proposed method reduces in-day work time by **26 %** and active working days by **16 %** compared to the actual human-constructed plans. A Røpke–Pisinger-style ALNS metaheuristic baseline (same constraints, same 400 s budget) finds comparable or slightly better solutions on two of seven instances — the low-dispersion ones — but produces a day-load of 900 minutes for one salesperson, violating the 9-hour cap. The proposed method maintains the cap on every day in every instance. Cross-county visits **emerge** from the depot's spatial position rather than being imposed as a constraint, reproducing the 29–60 % cross-county rate observed in human operation. All artifacts (anonymized operations data, OSRM road-network extracts, time-calibration module, three solver scripts) are released under a reproducible seed.
+We address the periodic visit-scheduling problem faced by FMCG (fast-moving consumer goods) sales representatives who must visit stores on a recurring monthly cycle. Each visit plan must (i) satisfy per-customer visit-frequency requirements, (ii) enforce a minimum inter-visit gap, (iii) fit a 9-hour daily work capacity, and (iv) minimize total work time. We propose a **set-partitioning master problem with dual-guided column generation**, in which every column is an exact-cost day-group (closed-route Held–Karp ≤ 9 customers, NN+2-opt fallback otherwise). The day-group cost is computed from a **two-segment time matrix** fitted from 319 actual door-to-door trip segments: per-county effective min-per-km plus a 32-minute per-visit dwell penalty. The dual signal from the LP relaxation drives a *heuristic* pricing subproblem (greedy marginal-gain column construction from each seed in an 18-neighbour window). The LP value at convergence is a lower bound **for the restricted master problem over the columns found by the heuristic pricing**; it is not a global lower bound for the full PVRP. The full pipeline produces a per-customer **executable plan** (each day's customers, departure, return, total time). Across seven sales representatives and 235 customers, the proposed method reduces in-day work time by **26 %** and active working days by **16 %** compared to the actual human-constructed plans. A Røpke–Pisinger-style ALNS metaheuristic baseline (same constraints, same budget) is included for comparison. A full 7-person real-data comparison is left for future work after the ALNS implementation was corrected to validate all incumbents; a synthetic-instance check confirms both algorithms are feasible and comparable. Cross-county visits **emerge** from the depot's spatial position rather than being imposed as a constraint, reproducing the 29–60 % cross-county rate observed in human operation. All artifacts (anonymized operations data, OSRM road-network extracts, time-calibration module, three solver scripts) are released under a reproducible seed.
 
 ---
 
@@ -34,7 +34,7 @@ This paper contributes:
 - Each customer $i$ requires visits on $f_i$ distinct days in $T$; consecutive visits of the same customer must be separated by at least $\Delta_i = \lfloor T / (f_i+1) \rfloor$ days.
 - **Per-customer visit set** $S_i \subseteq \{0,\dots,T-1\}$ with $|S_i| = f_i$, and consecutive visits at distance $\geq \Delta_i$.
 - **Day load**: a day $t$ visits a subset $G_t \subseteq N$ with route cost $c(G_t)$ (open or closed); $c(G_t) \leq 540$ minutes (calibrated; see §3.3).
-- A column is a feasible day-set $G$ with cost $c(G)$ precomputed; the master problem selects at most one column per day, covering each customer the prescribed number of times.
+- A column is a *feasible day plan* $G \subseteq N$ — that is, $|G| \leq 6$ customers AND $c(G) \leq 540$ minutes (the daily work-hour cap). Infeasible groups are filtered out of the column pool at construction time, so the master problem requires **no per-day time-cap constraint** — the cap is enforced at the column level. The master selects at most one column per day, covering each customer the prescribed number of times.
 
 ### 2.2 Two-Level Objective
 
@@ -163,23 +163,35 @@ The **−22 working days** (a 16 % reduction) is the directly exploitable busine
 
 The single counter-case (Rep-6 +2 days) is informative: his customer base is the most spatially dispersed (County-C7 at 73 km from depot; county rates 4.7–8.5 min/km). The time-calibrated model correctly identifies that an additional day is needed to keep daily load below the 9-hour cap — the distance model had no way to see this.
 
-#### 4.2.3 Comparison to ALNS Metaheuristic (Same Constraints, Same Budget)
+#### 4.2.3 Comparison to ALNS Metaheuristic (Removed Pending Rerun)
 
-| Salesperson | **CG total time (min)** | **ALNS total time (min)** | Δ (CG − ALNS) | ALNS max daily load (min) |
-| --- | --- | --- | --- | --- |
-| Rep-1 | 7763 | 7391 | +5.2 % (ALNS better) | 539 |
-| Rep-2 | 7329 | 7222 | +1.5 % | 539 |
-| Rep-3 | 6147 | 6173 | −0.4 % | 533 |
-| Rep-4 | 7880 | 7204 | +9.4 % (ALNS better) | 540 |
-| Rep-5 | 5540 | 5575 | −0.6 % | 538 |
-| Rep-6 | 9115 | 10186 | −10.5 % (CG better) | **900 (above 9 h cap!)** |
-| Rep-7 | 7103 | 7339 | −3.2 % | 536 |
+> **Previous real-data comparison table removed pending rerun.** An
+> earlier draft of this paper reported a 7-person real-data comparison
+> between the CG solver and a Røpke–Pisinger ALNS baseline, including a
+> day-load of 900 minutes for one salesperson (Rep-6) — well above the
+> 9-hour cap. We have since identified this as a code artefact in the
+> *previous* ALNS implementation: the `initial()` method included a
+> "last resort" placement that checked only the inter-visit gap
+> constraint, not `daily_cap`, and `run()` stored the initial solution
+> as `best` before any validity check. The current implementation
+> (`algos/pvrp_cg/baselines.py`) removes the "last resort" and repairs
+> the initial solution via the standard destroy+repair operators before
+> declaring an incumbent. All incumbents are now guaranteed to respect
+> `freq`, `gap`, and `daily_cap`. We have verified the fix on synthetic
+> instances (valid=True, max_load within cap) and on the real-data
+> initialization procedure (all days within cap).
+>
+> The full 7-person real-data rerun is computationally expensive (each
+> person is a 32–36-customer / 71–76-visit PVRP requiring >100 s of ALNS
+> wall time) and is left for future work.
 
-Two structural findings:
-
-1. **ALNS is competitive but slower to converge on dense instances.** The ALNS finds comparable or slightly better solutions on two of seven instances (Rep-1, Rep-4), the low-spatial-dispersion ones. This is consistent with the standard trade-off between metaheuristic and exact/column-generation methods: the ALNS neighbourhood moves find better local minima when the customer cluster is geographically tight, while the LP-derived dual signal helps when the structure is more spread out. This motivates a hybrid for production deployment (e.g., ALNS as a warm-start or repair operator for the IP solver).
-
-> **Note on the ALNS implementation.** A previous version of the ALNS baseline (reported in an earlier draft) produced a day-load of 900 minutes for Rep-6 — well above the 9-hour cap. We have since identified this as a code artefact, not an algorithmic property: the previous `initial()` included a "last resort" placement that checked only the gap constraint, not `daily_cap`, and `run()` stored the initial solution as `best` before any validity check. The current implementation (`algos/pvrp_cg/baselines.py`) removes the "last resort" and repairs the initial solution via the standard destroy+repair operators before declaring an incumbent. All incumbents are now guaranteed to respect `freq`, `gap`, and `daily_cap`. We have verified the fix on synthetic instances (valid=True, max_load within cap) and on the real-data initialization procedure (all days within cap). Full rerun of the 7-person comparison on real data is computationally expensive (each person is a 32–36-customer / 71–76-visit PVRP requiring > 100 s of ALNS wall time) and is left for future work; the qualitative findings (CG competitive on 4/7, ALNS competitive on 2/7) are expected to hold.
+**Synthetic benchmark.** As a sanity check, we ran both algorithms on the
+synthetic 10-customer instance from `examples/synthetic_pvrp_cg.py` with
+the same 30-second time budget. Both algorithms respect the daily cap
+and produce feasible solutions with comparable route cost. The
+qualitative finding — that the CG solver is competitive with a
+well-implemented ALNS baseline on the same constraints and budget — is
+expected to hold on real data.
 
 ### 4.3 Cross-County Behavior: An Emergent Property
 

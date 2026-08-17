@@ -183,14 +183,21 @@ def _price_columns(
     col_cost_fn: Callable,
     pool_set: set[frozenset],
     nbrs20: list[list[int]],
+    daily_cap: float | None = None,
 ) -> list[tuple[frozenset, float, float, int]]:
-    """For each (day, seed), greedily build a set S with most-negative rc."""
+    """For each (day, seed), greedily build a set S with most-negative rc.
+
+    Columns that exceed daily_cap (if set) are skipped: a day plan that
+    cannot be executed in a single working day is not a valid column.
+    """
     found: dict = {}
     for d in range(days):
         mud = mu[d] if mu else 0.0
         for seed in range(n):
             S = [seed]
             c_cur = col_cost_fn(S)
+            if daily_cap is not None and c_cur > daily_cap + 1e-6:
+                continue  # singleton alone exceeds cap, skip seed
             total_pi = pi[seed][d]
             improved = True
             while improved and len(S) < MAX_PER_DAY:
@@ -201,6 +208,8 @@ def _price_columns(
                         continue
                     cand = sorted(S + [j])
                     c_new = col_cost_fn(cand)
+                    if daily_cap is not None and c_new > daily_cap + 1e-6:
+                        continue  # adding j makes the day infeasible, skip
                     gain = pi[j][d] - (c_new - c_cur)
                     if gain > best_gain:
                         best_gain, best_j, best_c = gain, j, c_new
@@ -227,20 +236,31 @@ def _price_columns(
 # Main entry points
 # ---------------------------------------------------------------------------
 def _init_pool(
-    n: int, D, t0, col_cost_fn, freq, days, pool_set: set[frozenset], groups: dict
+    n: int, D, t0, col_cost_fn, freq, days,
+    pool_set: set[frozenset], groups: dict,
+    daily_cap: float | None = None,
 ):
-    """Singletons + NN pairs/triples/.../6 groups (top-K cheapest per seed)."""
-    for i in range(n):
-        fs = frozenset([i])
-        groups[fs] = col_cost_fn([i])
+    """Singletons + NN pairs/triples/.../6 groups (top-K cheapest per seed).
+
+    A column is a *feasible day plan*: |G| ≤ 6 AND c(G) ≤ daily_cap (if set).
+    Infeasible columns are not added to the pool — the master then needs
+    no per-day time-cap constraint (it is enforced at the column level).
+    """
+    def _add(fs: frozenset):
+        c = col_cost_fn(sorted(fs))
+        if daily_cap is not None and c > daily_cap + 1e-6:
+            return  # column is not a feasible day plan, skip
+        groups[fs] = c
         pool_set.add(fs)
+
+    for i in range(n):
+        _add(frozenset([i]))
     nbrs = [sorted(range(n), key=lambda j: D[i][j])[1 : NN_K + 1] for i in range(n)]
     for i in range(n):
         for j in nbrs[i]:
             fs = frozenset([i, j])
             if fs not in groups:
-                groups[fs] = col_cost_fn(sorted(fs))
-                pool_set.add(fs)
+                _add(fs)
     for size in range(3, MAX_PER_DAY + 1):
         for i in range(n):
             cand = []
@@ -251,7 +271,10 @@ def _init_pool(
                 fs = frozenset([i] + list(combo))
                 if fs in groups:
                     continue
-                cand.append((col_cost_fn(sorted(fs)), fs))
+                c = col_cost_fn(sorted(fs))
+                if daily_cap is not None and c > daily_cap + 1e-6:
+                    continue  # infeasible day plan, skip
+                cand.append((c, fs))
             cand.sort(key=lambda z: z[0])
             for cost, fs in cand[:TOP_GROUPS]:
                 groups[fs] = cost
@@ -495,16 +518,21 @@ def solve_time_cg(
 def _solve_core(
     n, D, t0, freq, days, col_cost_fn, closed, t0_vec, daily_cap, time_limit, verbose
 ):
-    # 1. Initial pool
+    # 1. Initial pool (columns filtered by daily_cap at creation time)
     groups: dict = {}
     pool_set: set = set()
-    _init_pool(n, D, t0, col_cost_fn, freq, days, pool_set, groups)
+    _init_pool(n, D, t0, col_cost_fn, freq, days, pool_set, groups,
+               daily_cap=daily_cap)
     # 2. Pass1 seed (lightweight CP-SAT ≤ 6/day + freq + interval, with col-cost-aware tie-breaking)
     seed = _build_seed_cp_sat(
-        n, days, freq, col_cost_fn, t0_vec if closed else None, closed
+        n, days, freq, col_cost_fn, t0_vec if closed else None, closed,
+        daily_cap=daily_cap,
     )
     for d, sd in seed.items():
-        groups[sd] = col_cost_fn(sorted(sd))
+        c = col_cost_fn(sorted(sd))
+        if daily_cap is not None and c > daily_cap + 1e-6:
+            continue  # infeasible day plan, skip
+        groups[sd] = c
         pool_set.add(sd)
 
     # 3. CG loop
@@ -518,7 +546,8 @@ def _solve_core(
         lp_final = lp_obj
         nbrs20 = [sorted(range(n), key=lambda j: D[i][j])[1:19] for i in range(n)]
         new_cols = _price_columns(
-            pi, mu, D, t0_vec, days, n, col_cost_fn, pool_set, nbrs20
+            pi, mu, D, t0_vec, days, n, col_cost_fn, pool_set, nbrs20,
+            daily_cap=daily_cap,
         )
         if not new_cols:
             if verbose:
@@ -565,7 +594,7 @@ def _solve_core(
     return assigns, total, status, stats
 
 
-def _build_seed_cp_sat(n, days, freq, col_cost_fn, t0, closed):
+def _build_seed_cp_sat(n, days, freq, col_cost_fn, t0, closed, daily_cap=None):
     """Build a feasible seed schedule via CP-SAT (≤ 6/day, freq, interval)."""
     m = cp_model.CpModel()
     x = {(i, d): m.NewBoolVar(f"a{i}_{d}") for i in range(n) for d in range(days)}

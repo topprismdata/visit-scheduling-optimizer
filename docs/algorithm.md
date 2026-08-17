@@ -11,10 +11,12 @@ Given $n$ customers, a planning horizon of $T$ days, and a depot:
 
 ## 2. Column definition
 
-A **column** is a feasible day-group $G \subseteq \{1,\dots,n\}$ with:
+A **column** is a *feasible day plan* $G \subseteq \{1,\dots,n\}$ with:
 
-- $|G| \leq 6$
-- Route cost $c(G) \leq 540$ minutes
+- $|G| \leq 6$ customers
+- Route cost $c(G) \leq 540$ minutes (the daily work-hour cap)
+
+Both feasibility checks are enforced at column construction time (`_init_pool`, `_price_columns`, seed builder). Infeasible groups are filtered out of the column pool. The master problem therefore requires **no per-day time-cap constraint** — the cap is enforced at the column level. This keeps the master problem small and clean: only coverage, linking, and inter-visit gap constraints.
 
 The route cost is computed **exactly** via Held–Karp dynamic programming (for $|G| \leq 9$) or NN+2-opt heuristic (for larger groups, ≤ 0.5% gap).
 
@@ -51,7 +53,7 @@ For each (day $t$, seed customer $s$):
 
 ### 4.3 Convergence
 
-Repeat until no negative-reduced-cost column exists. At convergence, the LP objective is a **valid lower bound** on the IP optimum.
+Repeat (≤ CG_ROUNDS) the dual-guided *heuristic* pricing. At convergence, the LP objective is a **lower bound for the restricted master** over the columns found; it is **not** a global lower bound for the full PVRP (the pricing is heuristic).
 
 ### 4.4 Final IP solve
 

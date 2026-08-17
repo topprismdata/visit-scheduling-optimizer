@@ -68,7 +68,7 @@ Cross-county visits **emerge** from the depot's spatial position (matching the 2
 ┌─────────────────────────────────────────────────────────────────┐
 │  OUTPUT                                                         │
 │  Per-day schedule: which stores, departure, return, total time  │
-│  LP lower bound (optimality certificate)                        │
+│  Restricted-master LP bound (over generated column pool)         │
 │  Comparison vs ALNS metaheuristic baseline                      │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -158,16 +158,16 @@ visit-scheduling-optimizer/
 
 ### Set-partitioning master problem
 
-A **column** is a feasible day-group $G \subseteq N$ (≤ 6 customers, route cost ≤ 540 min). The master selects at most one column per day, covering each customer exactly $f_i$ times:
+A **column** is a *feasible day plan* $G \subseteq N$ — that is, $|G| \leq 6$ customers AND $c(G) \leq 540$ min (the daily work-hour cap). Infeasible groups are filtered at construction time, so the master needs **no per-day time-cap constraint** — the cap is enforced at the column level. The master selects at most one column per day, covering each customer exactly $f_i$ times:
 
-$$\min \sum_{G,t} c(G)\,\lambda_{G,t} \quad \text{s.t. coverage, interval, daily cap}$$
+$$\min \sum_{G,t} c(G)\,\lambda_{G,t} \quad \text{s.t. coverage, interval, gap}$$
 
 ### Dual-guided column generation
 
 1. **LP relaxation** (GLOP) → dual prices $\pi_{i,t}$ (customer-day opportunity cost) and $\mu_t$ (day capacity price).
 2. **Pricing**: for each seed customer, greedily build $S$ by adding $j^\star = \arg\max_j (\pi_{j,t} - \Delta c)$ while marginal gain > 0.
 3. **Add** up to 250 most-negative-reduced-cost columns per round.
-4. **Repeat** until no negative-reduced-cost column exists → LP objective is a **valid lower bound**.
+4. **Repeat** (≤ CG_ROUNDS) the dual-guided *heuristic* pricing. The LP value at convergence is a lower bound for the *restricted master* over the columns found; it is **not** a global lower bound for the full PVRP.
 5. **Final IP** (CP-SAT, 300 s) with LP-rounded solution as hint.
 
 ### Data-calibrated time matrix
