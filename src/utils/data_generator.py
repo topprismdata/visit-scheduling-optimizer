@@ -42,7 +42,7 @@ DEFAULT_REGION_CENTROIDS: dict[str, tuple[float, float]] = {
 # Per-region "driver experience" model (overhead minutes, speed km/h)
 DEFAULT_REGION_DRIVING: dict[str, tuple[float, float]] = {
     "R1": (60.0, 18.0),
-    "R2": ( 5.0,  6.0),
+    "R2": (5.0, 6.0),
     "R3": (10.0, 40.0),
     "R4": (15.0, 50.0),
     "R5": (20.0, 35.0),
@@ -194,7 +194,9 @@ def generate_synthetic_customers(
         lon0, lat0 = DEFAULT_REGION_CENTROIDS[region]
         lat = _jitter(lat0, 0.06, rng)
         lon = _jitter(lon0, 0.08, rng)
-        freq = freq_keys[rng.choices(range(len(freq_keys)), weights=freq_weights, k=1)[0]]
+        freq = freq_keys[
+            rng.choices(range(len(freq_keys)), weights=freq_weights, k=1)[0]
+        ]
         customers.append(
             Customer(
                 code=f"C{i:03d}",
@@ -232,7 +234,7 @@ def generate_synthetic_history(
     records: list[HistoricalVisit] = []
     for week in range(weeks):
         for day_idx in range(5):
-            date = f"2026-W{week+1}-D{day_idx+1}"
+            date = f"2026-W{week + 1}-D{day_idx + 1}"
             region = regions[(week * 5 + day_idx + rng.randint(0, 3)) % len(regions)]
             day_customers = [c for c in customers if c.region == region]
             if not day_customers:
@@ -245,7 +247,9 @@ def generate_synthetic_history(
                     km = _haversine_km(120.18, 32.00, c.longitude, c.latitude)
                 else:
                     prev = picked[order - 2]
-                    km = _haversine_km(prev.longitude, prev.latitude, c.longitude, c.latitude)
+                    km = _haversine_km(
+                        prev.longitude, prev.latitude, c.longitude, c.latitude
+                    )
                 speed = b
                 travel_min = a + (km / speed) * 60.0
                 records.append(

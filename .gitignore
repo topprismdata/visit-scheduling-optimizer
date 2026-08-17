@@ -57,3 +57,20 @@ data/
 # Sanity / quarantine
 .env.local
 .DS_Store
+
+# Solver caches and data artifacts (NEVER commit)
+*.pkl
+*.pickle
+*.cache
+_pvrp_*
+osrm_*
+anonymized_*
+anonymization_map*
+
+# OSRM data
+*.osrm
+*.osm
+
+# Temporary
+/tmp/
+*.log

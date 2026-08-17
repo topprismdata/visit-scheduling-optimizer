@@ -39,14 +39,26 @@ def _build_handcrafted_customers() -> list[Customer]:
     # region A  (10 customers: 3 freq-4, 5 freq-2, 2 freq-1)
     # region B  (10 customers: 3 freq-4, 5 freq-2, 2 freq-1)
     plan: list[tuple[str, int, float, float]] = [
-        ("A", 4, 120.16, 32.00), ("A", 4, 120.18, 32.02), ("A", 4, 120.17, 32.04),
-        ("A", 2, 120.16, 32.01), ("A", 2, 120.17, 32.03), ("A", 2, 120.18, 32.00),
-        ("A", 2, 120.19, 32.02), ("A", 2, 120.17, 32.05),
-        ("A", 1, 120.16, 32.00), ("A", 1, 120.18, 32.04),
-        ("B", 4, 120.22, 32.06), ("B", 4, 120.24, 32.08), ("B", 4, 120.23, 32.10),
-        ("B", 2, 120.22, 32.07), ("B", 2, 120.24, 32.09), ("B", 2, 120.23, 32.11),
-        ("B", 2, 120.25, 32.07), ("B", 2, 120.22, 32.10),
-        ("B", 1, 120.24, 32.06), ("B", 1, 120.23, 32.10),
+        ("A", 4, 120.16, 32.00),
+        ("A", 4, 120.18, 32.02),
+        ("A", 4, 120.17, 32.04),
+        ("A", 2, 120.16, 32.01),
+        ("A", 2, 120.17, 32.03),
+        ("A", 2, 120.18, 32.00),
+        ("A", 2, 120.19, 32.02),
+        ("A", 2, 120.17, 32.05),
+        ("A", 1, 120.16, 32.00),
+        ("A", 1, 120.18, 32.04),
+        ("B", 4, 120.22, 32.06),
+        ("B", 4, 120.24, 32.08),
+        ("B", 4, 120.23, 32.10),
+        ("B", 2, 120.22, 32.07),
+        ("B", 2, 120.24, 32.09),
+        ("B", 2, 120.23, 32.11),
+        ("B", 2, 120.25, 32.07),
+        ("B", 2, 120.22, 32.10),
+        ("B", 1, 120.24, 32.06),
+        ("B", 1, 120.23, 32.10),
     ]
     for idx, (reg, freq, lon, lat) in enumerate(plan):
         customers.append(
@@ -67,23 +79,31 @@ def main() -> None:
     customers = _build_handcrafted_customers()
     regions = sorted({c.region for c in customers})
     print("=== Dataset ===")
-    print(f"  customers: {len(customers)} across {len(regions)} regions ({', '.join(regions)})")
-    print(f"  freq distribution: 4→{sum(1 for c in customers if c.frequency==4)}, "
-          f"2→{sum(1 for c in customers if c.frequency==2)}, "
-          f"1→{sum(1 for c in customers if c.frequency==1)}")
+    print(
+        f"  customers: {len(customers)} across {len(regions)} regions ({', '.join(regions)})"
+    )
+    print(
+        f"  freq distribution: 4→{sum(1 for c in customers if c.frequency == 4)}, "
+        f"2→{sum(1 for c in customers if c.frequency == 2)}, "
+        f"1→{sum(1 for c in customers if c.frequency == 1)}"
+    )
     print()
 
     # 2. Generate candidate patterns (the solver's columns)
     patterns = generate_patterns(customers)
     total = sum(len(p) for p in patterns)
     print("=== Pattern enumeration ===")
-    print(f"  total candidate patterns: {total} (avg {total/len(customers):.0f} per customer)")
+    print(
+        f"  total candidate patterns: {total} (avg {total / len(customers):.0f} per customer)"
+    )
     print()
 
     # 3. Solve the unified set-partitioning model
     result = solve_visit_schedule(customers, patterns, time_limit_per_tier=15.0)
     if not result.feasible:
-        print("No feasible solution found. (This should not happen with a hand-crafted dataset.)")
+        print(
+            "No feasible solution found. (This should not happen with a hand-crafted dataset.)"
+        )
         return
 
     print("=== Solver tiers (lexicographic) ===")
@@ -94,8 +114,11 @@ def main() -> None:
     # 4. Summarise the resulting schedule
     active_days = sum(1 for d in range(20) if result.assignments[d])
     visits = sum(len(a) for a in result.assignments)
-    cross = sum(1 for d in range(20)
-                if len({customers[i].region for i in result.assignments[d]}) > 1)
+    cross = sum(
+        1
+        for d in range(20)
+        if len({customers[i].region for i in result.assignments[d]}) > 1
+    )
     region_counts: dict[str, int] = defaultdict(int)
     for d in range(20):
         for i in result.assignments[d]:
@@ -128,8 +151,10 @@ def main() -> None:
     if naive_min > 0:
         print("  (calibrated estimate in production: typical 3-5× the naive number)")
     print()
-    print("Done. The dataset is hand-crafted to be feasible; the generator "
-          "in utils.data_generator can produce larger instances.")
+    print(
+        "Done. The dataset is hand-crafted to be feasible; the generator "
+        "in utils.data_generator can produce larger instances."
+    )
 
 
 if __name__ == "__main__":

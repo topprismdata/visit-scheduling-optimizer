@@ -67,7 +67,7 @@ class Pattern:
 
     days: tuple[int, ...]
     frequency: int = 0
-    consistency_cost: int = 0   # lower = closer to historical weekday habit
+    consistency_cost: int = 0  # lower = closer to historical weekday habit
 
 
 @dataclass
