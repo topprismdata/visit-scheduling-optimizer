@@ -1,11 +1,13 @@
 topprism:
-  purpose: customer_decision
+  purpose: customer-decision
   capability: visit_scheduling
-  platform_layer: decision_engine
+  platform_layer: decision-engine
   maturity: applied
   evidence:
-    type: anonymized_operational_data
+    type: anonymized-operational-data
+    source: anonymized-enterprise-records
     scope: "7 representatives, 235 customers; aggregate statistics only"
+    status: validated-on-study
   customer_data_in_repo: false
   product_context:
     - drtm
@@ -23,13 +25,13 @@ business_question:
     工时完成？
 
 platform:
-  system: decision_intelligence
-  layer: decision_engine
+  system: decision-intelligence
+  layer: decision-engine
   solution: drtm
 
 website:
-  product_path: /decisions/visit
-  evidence_path: /evidence/visit-scheduling
+  status: planned
+  path: /decisions/visit
 
 repository:
   owner: topprismdata
