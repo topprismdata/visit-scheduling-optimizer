@@ -300,20 +300,20 @@ visit-scheduling-optimizer/
 └── LICENSE
 ```
 
-Detailed method explanations belong in `docs/`; the README should remain
-the public decision-and-evidence entry point.
+Detailed method explanations live in `docs/`; the README stays the
+public decision-and-evidence entry point.
 
 ------------------------------------------------------------------------
 
 ## TopPrism metadata
 
-Recommended `topprism.yaml`:
+The `topprism.yaml` shipped with this repository declares:
 
 ``` yaml
 topprism:
   purpose: customer-decision
-  capability: visit-scheduling
-  platform_layer: decision-engine
+  capability: visit_scheduling
+  platform_layer: decision_engine
   maturity: applied
   evidence:
     type: anonymized-operational-data
@@ -321,7 +321,7 @@ topprism:
   customer_data_in_repo: false
   product_context:
     - drtm
-    - field-sales
+    - field_sales
 ```
 
 ------------------------------------------------------------------------
