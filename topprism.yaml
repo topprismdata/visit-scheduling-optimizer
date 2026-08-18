@@ -1,0 +1,36 @@
+topprism:
+  purpose: customer_decision
+  capability: visit_scheduling
+  platform_layer: decision_engine
+  maturity: applied
+  evidence:
+    type: anonymized_operational_data
+    scope: "7 representatives, 235 customers; aggregate statistics only"
+  customer_data_in_repo: false
+  product_context:
+    - drtm
+    - field_sales
+
+business_question:
+  en: >-
+    How should recurring customer visits be distributed across days
+    and sequenced within each day so that service requirements are
+    satisfied with less travel and workload, under recurring-frequency,
+    spacing, routing and daily-capacity constraints?
+  zh: >-
+    在周期频次、间隔、路径和日工时上限约束下，如何把周期性的客户拜访
+    分配到各日并在日内排序，使得在满足服务要求的同时用更少的路程和
+    工时完成？
+
+platform:
+  system: decision_intelligence
+  layer: decision_engine
+  solution: drtm
+
+website:
+  product_path: /decisions/visit
+  evidence_path: /evidence/visit-scheduling
+
+repository:
+  owner: topprismdata
+  public: true

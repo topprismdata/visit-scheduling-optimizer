@@ -1,241 +1,343 @@
 # Visit Scheduling Optimizer
 
-**Data-calibrated periodic vehicle routing for field-sales visit scheduling — a global-optimization-based visit planning engine.**
+**A data-calibrated decision engine for recurring field-sales visit
+planning.**
 
-A production-grade OR framework that schedules recurring store visits for FMCG sales representatives — satisfying visit frequencies, inter-visit gaps, and daily work-hour capacity — while minimizing total travel + service time.
+`CUSTOMER DECISION` · `APPLIED` · `ANONYMIZED OPERATIONAL DATA` · `MIT`
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![OR-Tools](https://img.shields.io/badge/OR--Tools-9.x-green.svg)](https://developers.google.com/optimization)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+> **Decision question:** Who should visit which customers, on which
+> days, under recurring-frequency, spacing, routing, and workload
+> constraints?
 
----
+Part of **TopPrism Decision Intelligence**. This repository focuses on
+the optimization layer behind periodic field-sales planning. It contains
+no customer-level raw data or real coordinates.
 
-## What problem does this solve?
+------------------------------------------------------------------------
 
-A sales representative must visit 20–50 stores on a recurring monthly cycle. Each store has a required visit frequency (1×, 2×, or 4× per month), and consecutive visits to the same store must be spaced apart. The rep works ≤ 9 hours per day. The goal: **minimize total work time** (driving + parking + in-store service) while satisfying all constraints.
+## Why this exists
 
-In practice this is done by spreadsheet and intuition — leaving 20–60% of potential efficiency on the table and routinely breaking frequency rules. This repository solves it properly with operations research.
+Recurring field-sales planning is not a one-route TSP problem.
 
-## Key results (anonymized industry study, 7 reps × 235 customers)
+A representative may need to visit dozens of outlets over a monthly
+cycle. Different outlets require different visit frequencies, repeated
+visits must be separated in time, daily workload is capped, service time
+varies, and the final plan must remain executable on a road network.
 
-| Metric | Business-actual | This framework | Improvement |
-| -------- | ---------------- | ---------------- | ------------- |
-| Active working days (20-day horizon) | 139 | **117** | **−16%** |
-| In-day work hours | 768 h | **569 h** | **−26%** |
-| Route distance (OSRM road network) | 10 056 km | **6 345 km** | **−37%** |
-| Frequency compliance | 92–100% | **100%** (hard constraint) | ✓ |
-| Daily work-hour cap violations | 12% of days | **0%** | ✓ |
+The real decision is therefore:
 
-> **Honest disclosure of optimality.** The column generation in this
-> framework is *dual-guided heuristic* (greedy marginal-gain column
-> construction from each seed in an 18-neighbour window), **not**
-> exact branch-and-price. The LP relaxation is a *lower bound over
-> the restricted master with heuristic column generation*; it is
-> **not** a global lower bound for the full PVRP. Final IP solutions
-> are certified OPTIMAL only over the generated column pool. For
-> exact global optimality, an exact pricing subproblem (RCSP/ESPPRC)
-> would be required (see `docs/algorithm.md § 6 Limitations`).
+> **How should recurring customer visits be distributed across days and
+> sequenced within each day so that service requirements are satisfied
+> with less travel and workload?**
 
-Cross-county visits **emerge** from the depot's spatial position (matching the 29–60% rate observed in human operation) rather than being imposed as a constraint.
+This repository turns that decision into a reproducible optimization
+problem.
 
----
+------------------------------------------------------------------------
+
+## What this engine decides
+
+``` text
+Customers + visit frequency + service time
+                  +
+Historical travel observations + depot
+                  ↓
+          Time calibration
+                  ↓
+ Feasible recurring day-group generation
+                  ↓
+Restricted set-partitioning master problem
+                  ↓
+ Dual-guided heuristic column generation
+                  ↓
+     Final CP-SAT selection
+                  ↓
+      Within-day route ordering
+                  ↓
+Day-by-day executable visit plan
+```
+
+### Inputs
+
+-   customer locations
+-   required recurring visit frequencies
+-   inter-visit spacing rules
+-   service / dwell time
+-   depot location
+-   daily work-hour capacity
+-   optional historical travel observations for calibration
+
+### Outputs
+
+-   customers assigned to each working day
+-   recurring-visit compliance
+-   estimated daily work time
+-   route ordering within each day
+-   aggregate travel / workload metrics
+-   comparison against baseline planning approaches
+
+------------------------------------------------------------------------
+
+## Evidence
+
+The repository includes an **anonymized industry study covering 7
+representatives and 235 customers**. Only aggregate results are
+published.
+
+  ------------------------------------------------------------------------
+  Metric             Business actual          Framework    Observed change
+  --------------- ------------------ ------------------ ------------------
+  Active working                 139                117               -16%
+  days, 20-day                                          
+  horizon                                               
+
+  In-day work                  768 h              569 h               -26%
+  hours                                                 
+
+  OSRM route               10,056 km           6,345 km               -37%
+  distance                                              
+
+  Frequency                 92--100%               100%    hard constraint
+  compliance                                                     satisfied
+
+  Daily                  12% of days                 0%    hard constraint
+  work-hour-cap                                                  satisfied
+  violations                                            
+  ------------------------------------------------------------------------
+
+These figures are **study results, not a universal performance
+guarantee**. Improvement depends on customer geography, frequency
+policy, depot location, workload rules, and the quality of travel-time
+calibration.
+
+### What the evidence supports
+
+-   recurring visit constraints can be modeled explicitly rather than
+    handled only by spreadsheet heuristics;
+-   data-calibrated travel and dwell assumptions materially affect
+    executability;
+-   the framework produced lower aggregate workload and route distance
+    on the anonymized study;
+-   hard frequency and daily-capacity rules can be enforced in the
+    optimization model.
+
+### What the evidence does not support
+
+-   a claim that every deployment will achieve the same percentage
+    improvement;
+-   a claim of full PVRP global optimality;
+-   a claim that the published aggregate study reproduces a live
+    production deployment.
+
+------------------------------------------------------------------------
+
+## Optimization status --- important
+
+This implementation uses **dual-guided heuristic column generation**.
+
+The pricing step greedily constructs promising columns from seed
+customers; it is **not an exact RCSP / ESPPRC pricing oracle**.
+Therefore:
+
+-   the LP objective is a lower bound for the **restricted master over
+    the generated column pool**;
+-   stopping because the heuristic finds no negative-reduced-cost column
+    does **not** certify that no improving column exists in the full
+    PVRP;
+-   the final CP-SAT solution can be reported as optimal **within the
+    generated column pool** when CP-SAT proves that restricted problem
+    optimal;
+-   full global PVRP optimality would require exact pricing /
+    branch-and-price or another valid global-certification mechanism.
+
+This distinction is intentional and should be preserved in papers,
+demos, and downstream product claims.
+
+------------------------------------------------------------------------
 
 ## Architecture
 
+``` text
+┌─────────────────────────────────────────────────────┐
+│ BUSINESS STATE                                      │
+│ customer · frequency · service · depot · capacity   │
+└──────────────────────────┬──────────────────────────┘
+                           ↓
+┌─────────────────────────────────────────────────────┐
+│ 1. TIME CALIBRATION                                 │
+│ historical segments → travel + dwell assumptions    │
+└──────────────────────────┬──────────────────────────┘
+                           ↓
+┌─────────────────────────────────────────────────────┐
+│ 2. DAY-GROUP / COLUMN CONSTRUCTION                  │
+│ feasible customer groups + exact/heuristic routing  │
+└──────────────────────────┬──────────────────────────┘
+                           ↓
+┌─────────────────────────────────────────────────────┐
+│ 3. RESTRICTED SET-PARTITIONING MASTER               │
+│ LP duals → heuristic pricing → expanded column pool │
+└──────────────────────────┬──────────────────────────┘
+                           ↓
+┌─────────────────────────────────────────────────────┐
+│ 4. FINAL CP-SAT SELECTION                           │
+│ coverage · spacing · daily capacity · workload      │
+└──────────────────────────┬──────────────────────────┘
+                           ↓
+┌─────────────────────────────────────────────────────┐
+│ DECISION                                            │
+│ day assignment · route order · workload metrics     │
+└─────────────────────────────────────────────────────┘
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  INPUT                                                          │
-│  customers × coordinates × visit frequencies × service times    │
-│  + historical visit records (for time calibration)              │
-│  + depot location                                               │
-└──────────────────────────────┬──────────────────────────────────┘
-                               ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  1. TIME CALIBRATION  (calibration.py)                          │
-│     319 actual door-to-door segments → per-county min/km        │
-│     Two-segment model: urban density premium + highway speed    │
-└──────────────────────────────┬──────────────────────────────────┘
-                               ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  2. SET-PARTITIONING MASTER + COLUMN GENERATION  (solver.py)    │
-│     Column = feasible day-group G with exact route cost         │
-│     LP relaxation (GLOP) → dual prices π, μ                     │
-│     Pricing: greedy marginal-gain column construction           │
-│     Final IP solve: CP-SAT (300 s, 8 workers)                   │
-│     Workload balancing: min-max day-load re-assignment          │
-└──────────────────────────────┬──────────────────────────────────┘
-                               ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  OUTPUT                                                         │
-│  Per-day schedule: which stores, departure, return, total time  │
-│  Restricted-master LP bound (over generated column pool)         │
-│  Comparison vs ALNS metaheuristic baseline                      │
-└─────────────────────────────────────────────────────────────────┘
+
+------------------------------------------------------------------------
+
+## Where it fits at TopPrism
+
+``` text
+Business World Model
+        ↓
+customer · geography · travel · service · policy
+        ↓
+Visit Scheduling Optimizer
+        ↓
+recurring visit decision
+        ↓
+field execution / SFA / route navigation
+        ↓
+actual travel + service feedback
 ```
 
-### Three distance/time calibers
+This repository is a **Decision Engine**, not the entire DRTM product.
 
-| Caliber | What it measures | Use case |
-| --------- | ----------------- | ---------- |
-| **Open route** | Customer-to-customer chain only | Route efficiency benchmark |
-| **Closed loop** | Depot → customers → depot | Real commuting distance |
-| **Time-calibrated** | Calibrated travel + service + dwell | Executable work plan |
+Related TopPrism capabilities can provide entity resolution, spatial
+structure, opportunity scoring, execution interfaces, and feedback loops
+around this optimization core.
 
----
+------------------------------------------------------------------------
 
 ## Quick start
 
-```bash
-# Clone
+``` bash
 git clone https://github.com/topprismdata/visit-scheduling-optimizer.git
 cd visit-scheduling-optimizer
 
-# Install dependencies
 pip install ortools numpy pandas matplotlib
 
-# Run the synthetic demo (no real data needed)
 python examples/synthetic_pvrp_cg.py
 ```
 
-Expected output: three calibers + ALNS baseline on a 10-customer synthetic instance, all completing in < 60 s.
+The synthetic example contains no real customer data.
 
-### Using the solver on your own data
+------------------------------------------------------------------------
 
-```python
-from algos.pvrp_cg import solver
-from algos.pvrp_cg.calibration import build_time_matrix
-from algos.pvrp_cg.travel import haversine
+## Core implementation
 
-# 1. Build distance matrix (n customers + 1 depot)
-n = len(customers)
-D = [[haversine(lat_i, lon_i, lat_j, lon_j) for j in range(n+1)] for i in range(n+1)]
+  -----------------------------------------------------------------------
+  Component                           Role
+  ----------------------------------- -----------------------------------
+  `algos/pvrp_cg/travel.py`           route cost, Held--Karp TSP, NN +
+                                      2-opt, Haversine
 
-# 2. Calibrate time matrix from historical segments
-T, t0 = build_time_matrix(lats, lons, depot, segments)
+  `algos/pvrp_cg/calibration.py`      travel-time calibration
 
-# 3. Solve (time-calibrated, 9h daily cap)
-assigns, total_min, status, stats = solver.solve_time_cg(
-    n, T, t0, service_times, freq,
-    days=20, daily_cap=540, time_limit=300
-)
-# assigns[d] = list of customer indices visited on day d
-```
+  `algos/pvrp_cg/solver.py`           restricted master, dual-guided
+                                      column generation, CP-SAT
 
----
+  `algos/pvrp_cg/baselines.py`        ALNS comparison baseline
+
+  `examples/`                         synthetic reproducible examples
+
+  `docs/algorithm.md`                 mathematical and algorithmic detail
+
+  `docs/paper_draft.md`               methodology-oriented working paper
+  -----------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+## Data and privacy
+
+This public repository intentionally excludes:
+
+-   customer raw data;
+-   real customer coordinates;
+-   proprietary business rules;
+-   internal identifiers;
+-   customer-specific configuration files.
+
+The published industry study is anonymized and reported only in
+aggregate.
+
+------------------------------------------------------------------------
+
+## Boundaries & limitations
+
+Current limitations include:
+
+1.  heuristic rather than exact pricing in column generation;
+2.  deterministic planning assumptions for travel and service time after
+    calibration;
+3.  no stochastic service-duration model in the current public
+    framework;
+4.  no joint multi-representative optimization in the current public
+    solver;
+5.  aggregate study evidence is not equivalent to a production SLA.
+
+Potential extensions include exact pricing, rolling-horizon re-planning,
+stochastic service times, time windows, and multi-representative
+coordination.
+
+------------------------------------------------------------------------
 
 ## Repository structure
 
-```
+``` text
 visit-scheduling-optimizer/
-├── README.md                     ← you are here
-├── LICENSE                       (MIT)
-├── algos/
-│   └── pvrp_cg/
-│       ├── __init__.py           # package docstring + public API
-│       ├── travel.py             # Held–Karp TSP, NN+2-opt, Haversine
-│       ├── calibration.py        # per-county time-rate fitting
-│       ├── solver.py             # set-partitioning + column generation
-│       └── baselines.py          # Røpke–Pisinger ALNS metaheuristic
-├── src/                          # legacy pattern-based solver (莆田 caliber)
-│   ├── core/
-│   │   ├── data_structures.py
-│   │   ├── patterns.py
-│   │   └── set_partition.py
-│   └── utils/
-│       └── data_generator.py
-├── examples/
-│   ├── synthetic_example.py      # legacy pattern-based demo
-│   └── synthetic_pvrp_cg.py      # column-generation demo (recommended)
+├── algos/pvrp_cg/
 ├── docs/
-│   ├── algorithm.md              # method description + math
-│   └── paper_draft.md            # full paper draft (methodology only)
-└── .gitignore                    # excludes ALL data files
+├── examples/
+├── src/
+├── README.md
+└── LICENSE
 ```
 
----
+Detailed method explanations belong in `docs/`; the README should remain
+the public decision-and-evidence entry point.
 
-## Method summary
+------------------------------------------------------------------------
 
-### Set-partitioning master problem
+## TopPrism metadata
 
-A **column** is a *feasible day plan* $G \subseteq N$ — that is, $|G| \leq 6$ customers AND $c(G) \leq 540$ min (the daily work-hour cap). Infeasible groups are filtered at construction time, so the master needs **no per-day time-cap constraint** — the cap is enforced at the column level. The master selects at most one column per day, covering each customer exactly $f_i$ times:
+Recommended `topprism.yaml`:
 
-$$\min \sum_{G,t} c(G)\,\lambda_{G,t} \quad \text{s.t. coverage, interval, gap}$$
+``` yaml
+topprism:
+  purpose: customer-decision
+  capability: visit-scheduling
+  platform_layer: decision-engine
+  maturity: applied
+  evidence:
+    type: anonymized-operational-data
+    scope: "7 representatives, 235 customers; aggregate statistics only"
+  customer_data_in_repo: false
+  product_context:
+    - drtm
+    - field-sales
+```
 
-### Dual-guided column generation
-
-1. **LP relaxation** (GLOP) → dual prices $\pi_{i,t}$ (customer-day opportunity cost) and $\mu_t$ (day capacity price).
-2. **Pricing**: for each seed customer, greedily build $S$ by adding $j^\star = \arg\max_j (\pi_{j,t} - \Delta c)$ while marginal gain > 0.
-3. **Add** up to 250 most-negative-reduced-cost columns per round.
-4. **Repeat** (≤ CG_ROUNDS) the dual-guided *heuristic* pricing. The LP value at convergence is a lower bound for the *restricted master* over the columns found; it is **not** a global lower bound for the full PVRP.
-5. **Final IP** (CP-SAT, 300 s) with LP-rounded solution as hint.
-
-### Data-calibrated time matrix
-
-Fitted from 319 actual door-to-door trip segments:
-
-$$\rho_{ij} = \begin{cases} r_c(j) & d_{ij} \leq 5 \text{ km} \\ 2.0 + \frac{(r_c(j)-2.0)(20-d_{ij})}{15} & 5 < d_{ij} < 20 \\ 2.0 & d_{ij} \geq 20 \text{ km} \end{cases}$$
-
-Urban counties: 6–11 min/km (parking + mall access). Suburban: 2–4 min/km. Per-visit dwell penalty: 32 min.
-
-### ALNS baseline (Røpke–Pisinger 2006)
-
-4 destroy operators × 2 repair operators, adaptive weights (ρ = 0.1), Record-to-Record acceptance (5%). Same constraints, same time budget. Used to validate that the CG approach is competitive.
-
----
-
-## What is NOT in this repository
-
-- **No customer data.** All `.xlsx`, `.csv`, `.pkl` data files are excluded via `.gitignore`. The synthetic examples generate reproducible fake data.
-- **No real coordinates.** The synthetic demo uses random points around a generic depot.
-- **No proprietary business rules.** The framework is generic; specific frequency/gap/capacity parameters are configurable.
-
-The anonymized industry study (7 reps, 235 customers, 3 regions) is described in `docs/paper_draft.md` with aggregate statistics only.
-
----
-
-## Dependencies
-
-| Package | Version | Purpose |
-| --------- | --------- | --------- |
-| `ortools` | ≥ 9.0 | CP-SAT (IP), pywraplp GLOP (LP) |
-| `numpy` | ≥ 1.20 | Numerical operations |
-| `pandas` | ≥ 1.3 | Data I/O (examples only) |
-| `matplotlib` | ≥ 3.5 | Figures (optional, for paper) |
-
-Python ≥ 3.10 required.
-
----
+------------------------------------------------------------------------
 
 ## Citation
 
-If you use this framework in academic work, please cite:
-
-```bibtex
-@article{visit-scheduling-optimizer-2026,
-  title   = {Data-Calibrated Periodic Vehicle Routing for Field-Sales Visit Scheduling},
-  author  = {[Anonymized for review]},
-  year    = {2026},
-  note    = {Working paper. Set-partitioning + dual-guided column generation
-             with per-county time calibration.}
-}
-```
-
----
+If you use the methodology in academic work, see the citation
+information in the repository and `docs/paper_draft.md`.
 
 ## License
 
-[MIT](LICENSE) — free for academic and commercial use with attribution.
-
----
+MIT.
 
 ## Contributing
 
-Contributions welcome. Areas of interest:
-
-- Time-window extension (PVRPTW)
-- Stochastic service durations
-- Multi-representative joint optimization
-- Rolling-horizon re-planning
-
-Please open an issue or PR. All contributions must not include real customer data.
+Contributions are welcome, especially around exact pricing, stochastic
+planning, time-window extensions, rolling-horizon planning, and
+multi-representative optimization. Do not submit customer-identifiable
+data.
