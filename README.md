@@ -4,6 +4,12 @@
 
 # Visit Scheduling Optimizer
 
+> **Language / 语言:** English primary · 中文概览如下。
+>
+> ### 中文概览
+> 面向周期性外勤拜访的决策引擎，在频次、间隔、路线和工作量约束下生成可解释的拜访计划。
+
+
 **A data-calibrated decision engine for recurring field-sales visit
 planning.**
 
