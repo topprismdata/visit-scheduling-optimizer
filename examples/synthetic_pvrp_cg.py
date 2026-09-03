@@ -18,7 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from algos.pvrp_cg import baselines, solver
-from algos.pvrp_cg.calibration import rate_eff
+from algos.pvrp_cg.calibration import build_time_matrix, rate_eff
 from algos.pvrp_cg.travel import haversine
 
 SEED = 20260815
@@ -63,19 +63,6 @@ def build_matrices(lats, lons):
     return D
 
 
-def build_time_matrix(D, counties, svc):
-    """Calibrated time matrix: per-county rate × distance + service time."""
-    n = len(counties)
-    rates = {"urban": 8.0, "suburban": 3.0}  # min/km
-    T = [[0.0] * n for _ in range(n)]
-    for i in range(n):
-        for j in range(n):
-            km = D[i][j]
-            T[i][j] = rate_eff(rates[counties[j]], km) * km
-    t0 = [rate_eff(rates[counties[i]], D[i][n]) * D[i][n] for i in range(n)]
-    return T, t0
-
-
 def main():
     print("=" * 70)
     print("Synthetic PVRP-CG demo  (no real client data)")
@@ -104,7 +91,24 @@ def main():
 
     # --- Caliber 3: time-calibrated ---
     print("\n[3] Time-calibrated (workhours, 9h cap)")
-    T, t0 = build_time_matrix(D_full, counties, svc)
+    # 合成校准数据: 重现旧演示的 urban≈8 / suburban≈3 min/km 密度差,
+    # 通过 fit_county_rates 真实拟合 (不再硬编码) — 校准实际进入时间矩阵
+    rng_cal = random.Random(SEED)
+    calib_segments = []
+    for _ in range(12):   # urban 短腿: ~1 km × ~8 min/km
+        lat1, lon1 = lats[0] + rng_cal.uniform(-0.004, 0.004), lons[0] + rng_cal.uniform(-0.004, 0.004)
+        calib_segments.append((lat1, lon1, lat1 + 0.006, lon1 + 0.008, rng_cal.uniform(7.0, 9.0), "urban"))
+    for _ in range(12):   # suburban 短腿: ~1 km × ~3 min/km
+        lat1, lon1 = lats[-1] + rng_cal.uniform(-0.01, 0.01), lons[-1] + rng_cal.uniform(-0.01, 0.01)
+        calib_segments.append((lat1, lon1, lat1 + 0.006, lon1 + 0.008, rng_cal.uniform(2.5, 3.5), "suburban"))
+
+    T, t0, calib_diag = build_time_matrix(
+        lats, lons, DEPOT, calib_segments,
+        counties=counties,
+    )
+    print(f"    calibration: fitted={calib_diag['counties_with_rates']}; "
+          f"global-fallback legs: client {calib_diag['fallback_ratio_client_legs']:.0%} / "
+          f"depot {calib_diag['fallback_ratio_depot_legs']:.0%}")
     a, t, s, st = solver.solve_time_cg(
         n, T, t0, svc, freq, days=DAYS, daily_cap=540, time_limit=20, verbose=False
     )

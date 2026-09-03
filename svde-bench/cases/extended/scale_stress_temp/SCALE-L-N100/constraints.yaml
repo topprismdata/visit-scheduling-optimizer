@@ -1,0 +1,224 @@
+hard:
+- id: C_CAP_GLOBAL
+  name: GlobalFleetCapacityLimit
+  type: VEHICLE_CAPACITY
+  hardness: HARD
+  relaxable: false
+- id: C_COLD_GLOBAL
+  name: GlobalColdChainCompartmentMatch
+  type: COLD_CHAIN_MATCH
+  hardness: HARD
+  relaxable: false
+- id: C_LOCK_ORD_003
+  name: VIPTimeLock_003
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_003
+  locked_window:
+  - 296
+  - 416
+  relaxable: false
+- id: C_LOCK_ORD_005
+  name: VIPTimeLock_005
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_005
+  locked_window:
+  - 80
+  - 200
+  relaxable: false
+- id: C_LOCK_ORD_006
+  name: VIPTimeLock_006
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_006
+  locked_window:
+  - 35
+  - 155
+  relaxable: false
+- id: C_LOCK_ORD_008
+  name: VIPTimeLock_008
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_008
+  locked_window:
+  - 296
+  - 416
+  relaxable: false
+- id: C_LOCK_ORD_012
+  name: VIPTimeLock_012
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_012
+  locked_window:
+  - 161
+  - 281
+  relaxable: false
+- id: C_LOCK_ORD_017
+  name: VIPTimeLock_017
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_017
+  locked_window:
+  - 270
+  - 390
+  relaxable: false
+- id: C_LOCK_ORD_018
+  name: VIPTimeLock_018
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_018
+  locked_window:
+  - 53
+  - 173
+  relaxable: false
+- id: C_LOCK_ORD_026
+  name: VIPTimeLock_026
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_026
+  locked_window:
+  - 279
+  - 399
+  relaxable: false
+- id: C_LOCK_ORD_027
+  name: VIPTimeLock_027
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_027
+  locked_window:
+  - 75
+  - 195
+  relaxable: false
+- id: C_LOCK_ORD_034
+  name: VIPTimeLock_034
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_034
+  locked_window:
+  - 19
+  - 139
+  relaxable: false
+- id: C_LOCK_ORD_037
+  name: VIPTimeLock_037
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_037
+  locked_window:
+  - 142
+  - 262
+  relaxable: false
+- id: C_LOCK_ORD_044
+  name: VIPTimeLock_044
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_044
+  locked_window:
+  - 0
+  - 120
+  relaxable: false
+- id: C_LOCK_ORD_056
+  name: VIPTimeLock_056
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_056
+  locked_window:
+  - 158
+  - 278
+  relaxable: false
+- id: C_LOCK_ORD_063
+  name: VIPTimeLock_063
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_063
+  locked_window:
+  - 233
+  - 353
+  relaxable: false
+- id: C_LOCK_ORD_064
+  name: VIPTimeLock_064
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_064
+  locked_window:
+  - 286
+  - 406
+  relaxable: false
+- id: C_LOCK_ORD_071
+  name: VIPTimeLock_071
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_071
+  locked_window:
+  - 109
+  - 229
+  relaxable: false
+- id: C_LOCK_ORD_072
+  name: VIPTimeLock_072
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_072
+  locked_window:
+  - 238
+  - 358
+  relaxable: false
+- id: C_LOCK_ORD_081
+  name: VIPTimeLock_081
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_081
+  locked_window:
+  - 13
+  - 133
+  relaxable: false
+- id: C_LOCK_ORD_082
+  name: VIPTimeLock_082
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_082
+  locked_window:
+  - 93
+  - 213
+  relaxable: false
+- id: C_LOCK_ORD_083
+  name: VIPTimeLock_083
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_083
+  locked_window:
+  - 232
+  - 352
+  relaxable: false
+- id: C_LOCK_ORD_091
+  name: VIPTimeLock_091
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_091
+  locked_window:
+  - 83
+  - 203
+  relaxable: false
+- id: C_LOCK_ORD_095
+  name: VIPTimeLock_095
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_095
+  locked_window:
+  - 61
+  - 181
+  relaxable: false
+- id: C_LOCK_ORD_099
+  name: VIPTimeLock_099
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_099
+  locked_window:
+  - 235
+  - 355
+  relaxable: false
+soft:
+- id: C_DISTANCE_OPT
+  name: MinimizeFleetDistance
+  weight: 1.0
+preference:
+- description: Prioritize on-time VIP fulfillment over dense route consolidation

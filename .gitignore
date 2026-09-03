@@ -1,7 +1,11 @@
 # Output (generated data)
 output/
+
+# Large binary data
 *.npy
-*.csv
+*.xlsx
+*.xls
+*.csv.gz
 
 # OS files
 .DS_Store
@@ -19,7 +23,6 @@ __pycache__/
 *.swp
 
 # Temp
-/tmp/
 *.log
 *.tgz
 
@@ -27,4 +30,9 @@ __pycache__/
 *.pdf
 *.pptx
 *.png
-*.xlsx
+
+# OMP
+.omp/
+
+# Pytest
+.pytest_cache/

@@ -1,0 +1,62 @@
+# DSVL Rule Registry v1.0 — Phase 3.3-③ Artifact 1（Immutable）
+## Decision Semantic Validation Layer 规则集——验证 decision feasibility（非 solution feasibility）
+
+registry_id: DSVL-REG-V1.0
+generated_at: "2026-08-22"
+inputs: [gt_small_semantic_contract_v1_0.yaml, constraint_type_registry_v1_0.yaml, type_check_rules_v1_0.md]
+position: "Type System 后、Math Model Generation 前（KB-GOV-013 pipeline 冻结位）——前置检查；后置位在解产出后（本步实现前置，后置接口预留）"
+mandate: "Type System 回答'这个约束是什么'；DSVL 回答'这些约束**组合起来**还是不是原来的业务决策'"
+
+rule_families:
+
+  # ═══ Family I: Invariant Rules（业务不变量保持——Gate V1）═══
+  - {rule_id: DSVL-I001, family: invariant, name: lock_enforcement_presence,
+     statement: "每个承诺锁（GS-CMT-1..4）在 Typed Constraint 集合中存在执法实例（C07/C08/C09 对应实体）——缺一即 Decision Infeasible",
+     contract_ref: "§2 I1 锁不变式", severity: BLOCKING}
+  - {rule_id: DSVL-I002, family: invariant, name: hard_frequency_equality_form,
+     statement: "非 soft Case 中，HARD 频次（C01 / C02.lo）必须以等式/下界约束形态存在——不得以罚项形态出现",
+     contract_ref: "§2 I2 频次不变式", severity: BLOCKING}
+  - {rule_id: DSVL-I003, family: invariant, name: softening_whitelist_closed,
+     statement: "软化仅限 (case==case_2) ∧ (类型==C02) ∧ (part==lo)；C04/C06/C07/C08/C09/C10 任何 Case 不得软化",
+     contract_ref: "§2 I3 软化白名单", severity: BLOCKING}
+  - {rule_id: DSVL-I004, family: invariant, name: service_time_single_source,
+     statement: "L5 口径唯一：服务时长仅来自 expected_service_min；stop_time 证据参数不出现在任何 Typed Constraint 的 translation",
+     contract_ref: "§2 I4 口径唯一（AC-8）", severity: BLOCKING}
+
+  # ═══ Family S: Constraint Semantic Rules（约束语义保持——Gate V2）═══
+  - {rule_id: DSVL-S001, family: semantic, name: no_silent_constraint_drop,
+     statement: "契约 C1-C10 每类型在装配件有语义触发时必有对应 Typed 实例——覆盖矩阵零空洞（10 客户 × 触发类全对账）",
+     contract_ref: "§1 十类覆盖声明（A002）", severity: BLOCKING}
+  - {rule_id: DSVL-S002, family: semantic, name: no_phantom_constraint,
+     statement: "反向：不存在无契约来源的 Typed 实例（phantom 约束零容忍——每实例 provenance 可溯）",
+     contract_ref: "Contract→Type 禁反推（registry 铁律）", severity: BLOCKING}
+  - {rule_id: DSVL-S003, family: semantic, name: hardness_coherence,
+     statement: "实例 hardness 必须 ⊆ 类型 hardness 声明（如 C02 实例 lo 分部 HARD 合法；C04 实例 SOFT 非法——与 TC-001 双层）",
+     contract_ref: "registry hardness 枚举", severity: BLOCKING}
+  - {rule_id: DSVL-S004, family: semantic, name: objective_space_isolation,
+     statement: "OBJECTIVE_PENALTY 空间居民仅 C03 类型；CONSTRAINT 空间不得含 C03（与 TC-003 双层——DSVL 查集合级，TC 查生成级）",
+     contract_ref: "§1 C3", severity: BLOCKING}
+  - {rule_id: DSVL-S005, family: semantic, name: instance_cardinality_rule,
+     statement: "类型唯一性 ≠ 实例唯一性：同一类型多实例合法（B 类 4×C03），但同 (类型,实体) 不得重复同分部（C02 的 lo/hi 分部除外）",
+     contract_ref: "3.3-② 评审裁定 Instance Cardinality Rule", severity: BLOCKING}
+
+  # ═══ Family T: Trace Rules（追溯一致——Gate V3）═══
+  - {rule_id: DSVL-T001, family: trace, name: bijection_decision_to_type,
+     statement: "Decision IR（装配件语义字段）↔ Typed Constraint 实例双射：每字段至少一实例、每实例 provenance 指回唯一字段",
+     contract_ref: "§2 I5 trace 双射", severity: BLOCKING}
+  - {rule_id: DSVL-T002, family: trace, name: provenance_chain_complete,
+     statement: "每实例 provenance 链完整：domain_object → requirement → typed（三级可检索，缺级即断链）",
+     contract_ref: "KB-GOV-016 constraint_chain", severity: BLOCKING}
+  - {rule_id: DSVL-T003, family: trace, name: solver_binding_projection_ready,
+     statement: "每实例的 registry solver_bindings 三形态投影键齐备（F1/F2/F3 各有绑定路径——④ 步编译的合法前置）",
+     contract_ref: "registry solver_bindings", severity: WARNING}   # 警告级：不阻断但记录（④ 才消费）
+
+gates:
+  V1_invariant_preservation: "I001-I004 全 PASS"
+  V2_constraint_semantic_preservation: "S001-S005 全 PASS"
+  V3_trace_consistency: "T001-T003 全 PASS（T003 允许 WARNING）"
+overall_rule: "任一 BLOCKING FAIL → Decision Infeasible 判定——不进入 ④ Math Model Generation"
+
+postcheck_interface:   # 后置位接口预留（KB-GOV-013 前置+后置）
+  timing: "解产出后、trace 落盘前"
+  duties: "解对每个不变式的满足回验（锁实际零移动/频次实际足额）——④⑤ 产物消费，本步不实现"

@@ -1,0 +1,7 @@
+primary_objective: maximize_vip_commitment_fulfillment
+secondary_objectives:
+- minimize_overtime_cost
+priority_rules:
+  vip_customer: high
+  cost: low
+  service_level: high

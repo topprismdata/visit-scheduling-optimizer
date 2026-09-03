@@ -1,0 +1,7 @@
+primary_objective: "maximize_visit_compliance"
+secondary_objectives:
+  - "minimize_travel_overhead"
+priority_rules:
+  vip_customer: "high"
+  cost: "low"
+  service_level: "high"

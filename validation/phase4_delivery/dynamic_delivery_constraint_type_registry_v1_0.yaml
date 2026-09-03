@@ -1,0 +1,117 @@
+# Dynamic Delivery Constraint Type Registry v1.0 — Phase 4.3 Artifact 2（Immutable）
+## 动态配送调度约束类型系统 · 运行时强类型定义与生成期安全检查
+
+registry_id: DD-CTR-V1.0
+generated_at: "2026-08-22"
+input: dynamic_delivery_semantic_contract_v1_0.yaml
+direction_rule: "Contract + State(t) → Type —— 动态约束类型由契约与运行时状态共同投影生成"
+
+semantic_class_enum: [VehicleCapacity, TimeWindow, ColdChain, CommitmentLock, DriverSafety, HistoryImmutability, DisruptionBudget, Objective]
+hardness_enum: [HARD, SOFT_PREFERENCE, OBJECTIVE_PENALTY]
+
+types:
+
+  DC01:
+    name: VehicleCapacityLimit
+    contract_ref: C1（车辆配载重量上限）
+    semantic_class: VehicleCapacity
+    cardinality: {op: "<=", limit_param: "cap_weight_kg"}
+    hardness: HARD
+    relaxable: false
+    translation: "Σ_{o∈Route(v)} weight[o] <= cap_weight[v] (∀v)"
+    domain_provenance: ["Vehicle Payload Engineering Rating", "Road Traffic Safety Law"]
+    solver_bindings: {MIP: "AddLinearConstraint Payload", CP_SAT: "Add(sum(w*x) <= cap)"}
+
+  DC02:
+    name: HardTimeWindow
+    contract_ref: C2（客户硬时间窗）
+    semantic_class: TimeWindow
+    cardinality: {op: "interval_box", early: "tw_early", late: "tw_late"}
+    hardness: HARD
+    relaxable: false
+    translation: "arrival_time[o] >= tw_early[o] ∧ arrival_time[o] <= tw_late[o]"
+    domain_provenance: ["Customer SLA Agreement", "Retail Receiving Dock Rules"]
+    solver_bindings: {MIP: "Big-M 时间窗不等式", CP_SAT: "Add(arrival >= early), Add(arrival <= late)"}
+
+  DC03:
+    name: ColdChainRequirement
+    contract_ref: C3（冷链车辆匹配）
+    semantic_class: ColdChain
+    cardinality: {op: "mask", match: "is_cold_chain == true"}
+    hardness: HARD
+    relaxable: false
+    translation: "x[o, v] == 0 (∀o s.t. req_cold==true, ∀v s.t. is_cold_chain==false)"
+    domain_provenance: ["Food Safety Cold Chain Transport Standards"]
+    solver_bindings: {MIP: "变量禁用/裁剪", CP_SAT: "变量不创建"}
+
+  DC04:
+    name: TimeWindowLock
+    contract_ref: C4（承诺时间窗锁定）
+    semantic_class: CommitmentLock
+    cardinality: {op: "interval_lock", locked_interval: "locked_tw"}
+    hardness: HARD
+    relaxable: false
+    translation: "arrival_time[o_locked] ∈ [locked_early, locked_late] ∧ assigned_veh == v_initial"
+    domain_provenance: ["VIP Customer Confirmed Commitment"]
+    solver_bindings: {MIP: "严格时间界限与变量固定", CP_SAT: "Add(arrival >= lock_e), Add(arrival <= lock_l)"}
+
+  DC05:
+    name: DriverMaxHoursLimit
+    contract_ref: C5（司机驾驶与总工时上限）
+    semantic_class: DriverSafety
+    cardinality: {op: "<=", max_minutes: 600}
+    hardness: HARD
+    relaxable: false
+    translation: "total_shift_duration[v] <= 600"
+    domain_provenance: ["Labor Law Driver Fatigue Regulations"]
+    solver_bindings: {MIP: "AddLinearConstraint ShiftTime <= 600", CP_SAT: "Add(end_time - start_time <= 600)"}
+
+  DC06:
+    name: PastHistoryImmutability
+    contract_ref: C6（已执行历史不可逆）
+    semantic_class: HistoryImmutability
+    cardinality: {op: "fixed_constant", state: ["AT_STOP", "DELIVERED"]}
+    hardness: HARD
+    relaxable: false
+    translation: "x[o_past, v] == 1 (常数固定) ∧ o_past 离开决策候选池"
+    domain_provenance: ["Execution Reality State Immutability Principle"]
+    solver_bindings: {MIP: "常数剔除/前缀固定", CP_SAT: "已发生事件移出变量池"}
+
+  DC07:
+    name: MinimalRerouteDisruption
+    contract_ref: C7（重排扰动惩罚）
+    semantic_class: DisruptionBudget
+    cardinality: null
+    hardness: SOFT_PREFERENCE
+    relaxable: true
+    translation: "min Σ |x[o, v] - x_initial[o, v]|"
+    domain_provenance: ["Fleet Operational Stability Guideline"]
+    solver_bindings: {MIP: "目标项改派变动加权", CP_SAT: "目标项惩罚"}
+
+  DC08:
+    name: OptionalOrderInsertion
+    contract_ref: C8（弹性订单准入）
+    semantic_class: Objective
+    cardinality: {op: "<=", value: 1}
+    hardness: SOFT_PREFERENCE
+    relaxable: true
+    translation: "Σ_v x[o_opt, v] <= 1"
+    domain_provenance: ["On-demand Logistics Flexible Capacity Policy"]
+    solver_bindings: {MIP: "准入不等式", CP_SAT: "AddAtMostOne"}
+
+# ═══════════════════════════════════════════════════════════════
+# 动态生成期检查规则（Dynamic Type Check Rules DD-TC-001..004）
+# ═══════════════════════════════════════════════════════════════
+type_check_rules:
+  - id: DD-TC-001
+    name: HardLockNeverRelaxed
+    rule: "DC04 (TimeWindowLock) 的 hardness 恒为 HARD，relaxable 恒为 false；任何重排优化企图移动锁定承诺立即报 TYPE_ERROR"
+  - id: DD-TC-002
+    name: ColdChainVehMatch
+    rule: "DC03 要求冷链订单必须绑定具备 is_cold_chain==true 的车辆，普货车辆绑定冷链订单直接阻断"
+  - id: DD-TC-003
+    name: PastEventVariableExclusion
+    rule: "DC06 确保状态为 AT_STOP / DELIVERED 的订单不得作为布尔决策变量重复创建，必须作为确定性时空前缀常数输入"
+  - id: DD-TC-004
+    name: ShiftHoursCeilingCheck
+    rule: "DC05 司机驾驶工时上限 600min 为刚性硬约束，严禁作为软目标惩罚项编译"

@@ -1,0 +1,88 @@
+{
+  "scenario": "S-E",
+  "phase": "B3",
+  "replan_diff": {
+    "moved": [
+      {
+        "visit": "T000",
+        "from": "2026-09-16",
+        "to": "2026-09-17",
+        "reason": "ABSENCE"
+      }
+    ],
+    "kept": [
+      {
+        "visit": "T001",
+        "reason": "COMMITMENT_DAY_LOCKED"
+      },
+      {
+        "visit": "T002",
+        "reason": "STABLE"
+      },
+      {
+        "visit": "T003",
+        "reason": "STABLE"
+      },
+      {
+        "visit": "T004",
+        "reason": "STABLE"
+      },
+      {
+        "visit": "T005",
+        "reason": "STABLE"
+      },
+      {
+        "visit": "T006",
+        "reason": "STABLE"
+      },
+      {
+        "visit": "T007",
+        "reason": "STABLE"
+      }
+    ],
+    "injected": [
+      {
+        "demand": "Z-缺货",
+        "class": "OPTIONAL"
+      }
+    ],
+    "regen": [
+      {
+        "target": "T005",
+        "trigger": "MISSED",
+        "action": "eligible 前移+COMMITTED"
+      }
+    ],
+    "shortfall": [],
+    "ratio_used": 1,
+    "ratio_budget": 2
+  },
+  "classification_log": [
+    {
+      "point": "freeze 窗口语义",
+      "predicted": "B(Compiler)",
+      "actual": "B",
+      "evidence": "PlanningPolicy 字段已有，解释规则随 Phase3 Compiler 规范"
+    },
+    {
+      "point": "重排差异审计",
+      "predicted": "B",
+      "actual": "B",
+      "evidence": "moved/kept/regen 为 trace 维度输出，未新增 Domain 对象"
+    },
+    {
+      "point": "运行期新增 commitment",
+      "predicted": "无风险",
+      "actual": "无风险",
+      "evidence": "ExistingCommitment list 追加即表达"
+    },
+    {
+      "point": "DM-010 独立性",
+      "predicted": "待判",
+      "actual": "H2(合并)",
+      "evidence": "全部重排语义由冻结对象承载"
+    }
+  ],
+  "dm010_verdict": "H2-merge-recommended",
+  "exception_chain_regression": "R3→DP-STD→defer≤7d→absence"
+}

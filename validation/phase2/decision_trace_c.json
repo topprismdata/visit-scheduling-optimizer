@@ -1,0 +1,54 @@
+{
+  "scenario": "S-C-BASE",
+  "phase": "2-domain-validation",
+  "eligible_occurrences": [
+    {
+      "target": "T000",
+      "last_visit": "2026-09-04",
+      "eligible": "DateRange(start_date=datetime.date(2026, 9, 11), end_date=datetime.date(2026, 10, 2))"
+    },
+    {
+      "target": "T001",
+      "last_visit": "2026-08-26",
+      "eligible": "DateRange(start_date=datetime.date(2026, 9, 7), end_date=datetime.date(2026, 9, 25))"
+    },
+    {
+      "target": "T002",
+      "last_visit": "2026-08-18",
+      "eligible": "DateRange(start_date=datetime.date(2026, 9, 7), end_date=datetime.date(2026, 9, 17))"
+    },
+    {
+      "target": "T003",
+      "last_visit": "2026-08-10",
+      "eligible": "DateRange(start_date=datetime.date(2026, 9, 7), end_date=datetime.date(2026, 9, 9))"
+    },
+    {
+      "target": "T004",
+      "last_visit": "2026-08-03",
+      "eligible": "None"
+    },
+    {
+      "target": "T005",
+      "last_visit": "2026-08-29",
+      "eligible": "DateRange(start_date=datetime.date(2026, 9, 7), end_date=datetime.date(2026, 9, 28))"
+    },
+    {
+      "target": "T006",
+      "last_visit": "2026-07-29",
+      "eligible": "None"
+    },
+    {
+      "target": "T007",
+      "last_visit": "2026-08-22",
+      "eligible": "DateRange(start_date=datetime.date(2026, 9, 7), end_date=datetime.date(2026, 9, 21))"
+    }
+  ],
+  "exception_audit_trace": [
+    {
+      "unfulfilled_requirement": "REQ-C-003",
+      "applied_policy": "DP-FLEX",
+      "action": "defer<=10d",
+      "reason": "resource capacity shortage"
+    }
+  ]
+}

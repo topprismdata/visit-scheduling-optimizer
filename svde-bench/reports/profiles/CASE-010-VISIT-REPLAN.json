@@ -1,0 +1,32 @@
+{
+  "case_id": "CASE-010-VISIT-REPLAN",
+  "domain": "Visit Scheduling",
+  "difficulty": "unknown",
+  "agents": {
+    "PureSolverMockAgent": {
+      "error": "'NoneType' object has no attribute 'get'"
+    },
+    "SemanticAwareAgent": {
+      "semantic_pass": true,
+      "semantic_violations": [],
+      "feasibility_status": "INFEASIBLE",
+      "commitment_survival_rate": 1.0,
+      "memory_promotion": "PROMOTED",
+      "objective_gap": null
+    },
+    "FullDecisionAgent": {
+      "semantic_pass": true,
+      "semantic_violations": [],
+      "feasibility_status": "FEASIBLE",
+      "commitment_survival_rate": 1.0,
+      "memory_promotion": "PROMOTED",
+      "objective_gap": null
+    }
+  },
+  "oracle": {
+    "status": "OPTIMAL",
+    "feasibility": "FEASIBLE",
+    "objective_value": 19980.0,
+    "wall_time": 0.004
+  }
+}

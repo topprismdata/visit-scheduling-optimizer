@@ -1,0 +1,7 @@
+objective: maximize_vip_then_standard_payload
+candidate_solutions_count: 3
+parallel_options:
+- id: opt_vip_only
+  description: Serve VIP + Clinic A (550kg), defer Clinic B
+- id: opt_violate_cap
+  description: Attempt all 3 orders (750kg), violating vehicle capacity

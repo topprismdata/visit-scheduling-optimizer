@@ -1,0 +1,22 @@
+name: ontology-ci
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: |
+          pip install -e "./svde/ontology[dev]"
+      - name: Run Phase 0 unit & anti-collapse tests
+        run: |
+          PYTHONPATH=./svde/ontology/src pytest ./svde/ontology/tests/ -v
+      - name: Run CLI check
+        run: |
+          PYTHONPATH=./svde/ontology/src python -m prism_ontology.cli init --out ./tmp_bundle
+          PYTHONPATH=./svde/ontology/src python -m prism_ontology.cli validate --bundle ./tmp_bundle
+          PYTHONPATH=./svde/ontology/src python -m prism_ontology.cli gate --strict

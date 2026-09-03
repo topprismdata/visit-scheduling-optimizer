@@ -30,9 +30,9 @@ class GreedyCrossDay(Algorithm):
     name = "greedy_crossday"
     def solve(self, data, D, time_budget=180):
         days = {dd: _nn2opt_open(seq, D) for dd, seq in data.days_orig.items()}
-        dates = data.dates; moves = 0; start = time.time(); tl = time_budget
-        for _ in range(50):
-            improved = False
+        dates = data.dates; moves = 0; start = time.time(); warm = time_budget * 0.25
+        while time.time() - start < warm:
+            improved = False; pass_start = time.time()
             for dd1 in dates:
                 for dd2 in dates:
                     if dd1 == dd2: continue
@@ -45,10 +45,12 @@ class GreedyCrossDay(Algorithm):
                         old = day_km(_nn2opt_open(s1, D), D) + day_km(_nn2opt_open(s2, D), D)
                         new = day_km(_nn2opt_open(ns1, D), D) + day_km(_nn2opt_open(ns2, D), D)
                         if new < old - 0.05:
-                            days[dd1] = ns1; days[dd2] = ns2; moves += 1; improved = True
-                    if time.time() - start > tl: break
-                if time.time() - start > tl: break
-            if not improved or time.time() - start > tl: break
+                            days[dd1] = ns1; days[dd2] = ns2; moves += 1; improved = True; break
+                    if time.time() - start > warm: break
+                if time.time() - start > warm: break
+            if not improved: break
+        start = pass_start if False else time.time()  # 主循环计时重置
+        tl = time_budget; warm2 = time_budget
         final = {dd: _nn2opt_open(seq, D) for dd, seq in days.items()}
         return AlgoResult(name=self.name, days=final, km=total_km(final, D), moves=moves)
 

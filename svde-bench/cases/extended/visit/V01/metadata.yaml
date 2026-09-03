@@ -1,0 +1,15 @@
+case_id: CASE-V01
+domain: delivery
+version: '1.0'
+created_at: '2026-08-24'
+tags:
+- extended
+- v0.2
+- pattern-v1-visit-cadence-sla
+- variant:bi-weekly_cadence_vs_route_compression
+difficulty: L2
+pattern:
+  id: PATTERN-V1-VISIT-CADENCE-SLA
+  variant_name: Bi-Weekly Cadence vs Route Compression
+  dilemma: Temptation to compress bi-weekly visits into a single day to minimize travel
+    miles, violating account regular cadence SLA.

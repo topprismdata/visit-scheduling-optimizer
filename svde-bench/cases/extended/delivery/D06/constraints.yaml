@@ -1,0 +1,25 @@
+hard:
+- id: C1
+  name: VehicleCapacity
+  type: VEHICLE_CAPACITY
+  hardness: HARD
+  relaxable: false
+- id: C2
+  name: Tier1Lock
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_T1
+  locked_window:
+  - 0
+  - 120
+  relaxable: false
+soft:
+- id: C3
+  name: DelayPenaltyTier2
+  weight: 2.0
+- id: C4
+  name: DelayPenaltyTier3
+  weight: 0.5
+preference:
+- description: If congestion threatens Tier 2, defer Tier 3 rather than risking Tier
+    2 delay

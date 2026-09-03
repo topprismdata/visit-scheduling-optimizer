@@ -1,0 +1,36 @@
+# Golden Case 010 — Dynamic Visit Replanning with Emergency Insert v0.1
+metadata:
+  id: "CASE-010-VISIT-REPLAN"
+  domain: "Visit Scheduling"
+  name: "Dynamic Visit Replanning v0.1"
+  tags: ["dynamic_replanning", "visit", "runtime"]
+
+intent:
+  objective: "Stably replan visit route with mid-day emergency insert"
+
+world_state:
+  depot: [0, 0]
+  fleet:
+    - {id: "VEH_V01", type: "VAN", capacity_kg: 1500, status: "EN_ROUTE"}
+  orders:
+    - {id: "CUST_A", weight_kg: 100, is_locked: true, tw_early: 0, tw_late: 600}
+    - {id: "CUST_B", weight_kg: 100, is_locked: false, tw_early: 0, tw_late: 600}
+
+semantic_contract:
+  constraints:
+    - id: "C1"
+      name: "Capacity"
+      type: "CAPACITY"
+      hardness: "HARD"
+      relaxable: false
+
+runtime_context:
+  timestamp_min: 0
+  past_delivered_orders: []
+
+events:
+  - event_id: "EVT_EMERG_INSERT"
+    event_type: "EMERGENCY_ORDER_INSERT"
+    timestamp_min: 120
+    affected_order: "CUST_B"
+    variation_classification: "SEMANTIC_VARIATION"

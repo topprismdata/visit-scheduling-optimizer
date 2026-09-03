@@ -1,0 +1,64 @@
+# Dynamic Delivery Semantic Contract v1.0 — Phase 4.3 Artifact 1（Immutable）
+## 动态车队配送调度决策语义契约 · 增量编译与动态运行时自适应
+
+contract_id: DYNAMIC-DELIVERY-CONTRACT-V1.0
+generated_at: "2026-08-22"
+domain_name: "Dynamic Fleet Route Logistics Decision (动态车队配送调度决策)"
+decision_input_model:
+  mandate: "Decision = f(Intent, Contract, Runtime State(t), Event Stream) —— 动态决策三要素输入模型"
+negative_knowledge:
+  statement: "Dynamic Delivery ≠ 全套 TMS 运费结算；Dynamic Delivery ≠ 导航级底图渲染与 GPS 硬件驱动；Dynamic Delivery ≠ 盲目全局重新优化（必须保持既有承诺与历史不可逆性）"
+
+# ═══════════════════════════════════════════════════════════════
+# §1 领域实体与初始车队状态（Entities & Initial Fleet State at t0）
+# ═══════════════════════════════════════════════════════════════
+entities:
+  fleet_vehicles:  # 3 辆配送车（Depot 位于 [0,0]，配送周期 08:00–18:00 = 600min）
+    - {id: VEH_01, cap_weight_kg: 1000, speed_km_h: 30, is_cold_chain: true,  shift_start: 0, shift_end: 600}
+    - {id: VEH_02, cap_weight_kg: 1000, speed_km_h: 30, is_cold_chain: false, shift_start: 0, shift_end: 600}
+    - {id: VEH_03, cap_weight_kg: 800,  speed_km_h: 30, is_cold_chain: false, shift_start: 0, shift_end: 600}
+
+  orders:  # 10 笔订单（包含普货、生鲜冷链、硬时窗、加急件、锁定件）
+    - {id: ORD_01, weight_kg: 200, req_cold: true,  tw_early: 60,  tw_late: 180, svc_min: 15, x: 5,  y: 5,  is_locked: false}
+    - {id: ORD_02, weight_kg: 300, req_cold: false, tw_early: 60,  tw_late: 240, svc_min: 20, x: 8,  y: 2,  is_locked: false}
+    - {id: ORD_03, weight_kg: 250, req_cold: false, tw_early: 120, tw_late: 300, svc_min: 15, x: 10, y: 8,  is_locked: true,  locked_tw: [120, 200]}  # 客户锁定承诺
+    - {id: ORD_04, weight_kg: 150, req_cold: true,  tw_early: 180, tw_late: 360, svc_min: 15, x: 3,  y: 12, is_locked: false}
+    - {id: ORD_05, weight_kg: 400, req_cold: false, tw_early: 120, tw_late: 400, svc_min: 25, x: 12, y: 15, is_locked: false}
+    - {id: ORD_06, weight_kg: 200, req_cold: false, tw_early: 240, tw_late: 480, svc_min: 15, x: 15, y: 6,  is_locked: false}
+    - {id: ORD_07, weight_kg: 350, req_cold: false, tw_early: 300, tw_late: 540, svc_min: 20, x: 7,  y: 18, is_locked: false}
+    - {id: ORD_08, weight_kg: 100, req_cold: true,  tw_early: 360, tw_late: 540, svc_min: 15, x: 2,  y: 16, is_locked: false}
+    - {id: ORD_09, weight_kg: 200, req_cold: false, tw_early: 400, tw_late: 580, svc_min: 15, x: 18, y: 12, is_locked: false}
+    - {id: ORD_10, weight_kg: 150, req_cold: false, tw_early: 60,  tw_late: 540, svc_min: 15, x: 6,  y: 9,  is_locked: false, is_optional: true}
+
+# ═══════════════════════════════════════════════════════════════
+# §2 业务约束清单（Semantic Constraints C1–C8）
+# ═══════════════════════════════════════════════════════════════
+constraints:
+  - {id: C1, name: VehicleCapacityLimit,   type: VEHICLE_CAPACITY,   hardness: HARD, relaxable: false, text: "单车分配的所有运单总重量 ≤ 该车 cap_weight_kg"}
+  - {id: C2, name: HardTimeWindow,         type: TIME_WINDOW_HARD,   hardness: HARD, relaxable: false, text: "到达时间必须在 [tw_early, tw_late] 内（早到需等待，迟到即违约）"}
+  - {id: C3, name: ColdChainRequirement,   type: COLD_CHAIN_MATCH,   hardness: HARD, relaxable: false, text: "冷链订单（req_cold==true）必须由冷藏车（VEH_01）配送"}
+  - {id: C4, name: TimeWindowLock,         type: TIME_WINDOW_LOCKED, hardness: HARD, relaxable: false, text: "已承诺锁定运单（ORD_03）必须在其锁定窗口内送达，动态重排不得移动"}
+  - {id: C5, name: DriverMaxHoursLimit,    type: DRIVER_MAX_HOURS,   hardness: HARD, relaxable: false, text: "单车单日连续总工时（行驶+服务+等待）≤ 600 分钟（防疲劳驾驶）"}
+  - {id: C6, name: PastHistoryImmutability,type: PAST_IMMUTABILITY,  hardness: HARD, relaxable: false, text: "已完成（DELIVERED）与正在服务（AT_STOP）的运单属于不可变历史，重排只读"}
+  - {id: C7, name: MinimalRerouteDisruption,type: MINIMAL_DISRUPTION,hardness: SOFT_PREFERENCE, relaxable: true, text: "未执行订单的改派重排比例 ≤ max_reroute_ratio (40%)，超出产生惩罚"}
+  - {id: C8, name: OptionalOrderInsertion, type: OPTIONAL_INSERTION, hardness: SOFT_PREFERENCE, relaxable: true, text: "非紧迫订单（ORD_10）在车队运力充裕时插入，运力紧缺时允许延期"}
+
+# ═══════════════════════════════════════════════════════════════
+# §3 动态不变量（Dynamic Decision Invariants I1–I4）
+# ═══════════════════════════════════════════════════════════════
+invariants:
+  - {id: I1, name: ExecutedFactImmutabilityInvariant, statement: "历史事实不可逆：已送达运单绝对只读，禁止重新排入未来决策变量"}
+  - {id: I2, name: CommitmentPreservationInvariant,   statement: "客户承诺时窗绝对保持：在线重规划绝不以牺牲已锁定客户（ORD_03）为代价换取全局路径缩短"}
+  - {id: I3, name: DriverSafetyHardCeilingInvariant,  statement: "驾驶员安全上限绝对刚性：任何动态增量指派不得突破单日 600min 工时红线"}
+  - {id: I4, name: ColdChainIntegrityInvariant,       statement: "生鲜冷链温控要求绝对刚性：普货车辆在任何重排中严禁接单冷链运单"}
+
+# ═══════════════════════════════════════════════════════════════
+# §4 规范目标函数（Canonical Objective: Lexicographic 4-Tier）
+# ═══════════════════════════════════════════════════════════════
+objective_canonical:
+  L1: "∀ HARD 约束满足（C1–C6 零违反）"
+  L2: "max Σ 必送运单履约数 + 可选运单履约数（满分 = 9 + 1 = 10）"
+  L3: "min 动态扰动惩罚 = Σ 改派订单数 (Minimal Disruption)"
+  L4: "min 车队总行驶行驶距离与时间消耗 = Σ (travel_time + wait_time)"
+  comparison: lexicographic
+  output: "(L1_status, L2_fulfilled_count, L3_disruption_penalty, L4_total_time_min)"

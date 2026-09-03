@@ -1,0 +1,31 @@
+hard:
+- id: C1
+  name: VehicleCapacity
+  type: VEHICLE_CAPACITY
+  hardness: HARD
+  relaxable: false
+- id: C2
+  name: CommittedOrderLock
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_COMMITTED
+  locked_window:
+  - 60
+  - 180
+  relaxable: false
+- id: C3
+  name: EmergencyOrderLock
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_EMERGENCY
+  locked_window:
+  - 120
+  - 240
+  relaxable: false
+soft:
+- id: C4
+  name: InsertionDelayPenalty
+  weight: 1.5
+preference:
+- description: Insert emergency order onto separate vehicle or end of schedule to
+    avoid perturbing committed client

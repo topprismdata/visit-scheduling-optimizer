@@ -1,0 +1,386 @@
+{
+  "case_id": "CASE-001-DELIVERY-RECOVERY",
+  "agent_name": "SemanticAwareAgent",
+  "decision_artifact": {
+    "case_id": "CASE-001-DELIVERY-RECOVERY",
+    "status": "FEASIBLE",
+    "decision": {
+      "reassigned_routes": {
+        "VEH_01": [
+          "ORD_04"
+        ],
+        "VEH_03": [
+          "ORD_03",
+          "ORD_06"
+        ]
+      },
+      "total_additional_cost": 480.0
+    },
+    "trace": {
+      "trace_id": "TR-SEMANTIC-CASE-001-DELIVERY-RECOVERY",
+      "decision_chain": [
+        {
+          "stage": "Contract_Ingestion",
+          "status": "HARD_COMMITMENT_C4_DETECTED"
+        },
+        {
+          "stage": "Constraint_Type_Check",
+          "type": "TIME_WINDOW_LOCKED",
+          "status": "PRESERVED"
+        },
+        {
+          "stage": "DSVL_Precheck",
+          "decision_feasibility": "PASS"
+        },
+        {
+          "stage": "Solver",
+          "objective_value": 480.0,
+          "status": "FEASIBLE_COMMITTED"
+        }
+      ],
+      "causal_rationale": [
+        {
+          "order": "ORD_03",
+          "action": "REASSIGNED_TO_VEH_03",
+          "reason": "VIP_TIME_WINDOW_LOCKED_PRESERVED"
+        },
+        {
+          "order": "ORD_04",
+          "action": "KEPT_ON_VEH_01",
+          "reason": "COLD_CHAIN_MATCH_PRESERVED"
+        }
+      ],
+      "constraint_provenance": {
+        "C1": "Fleet Payload Limit",
+        "C3": "Cold Chain Food Safety",
+        "C4": "Customer SLA Locked Commitment"
+      }
+    },
+    "explanation": {
+      "summary": "ORD_03 locked commitment 100% preserved by transferring to VEH_03 despite minor cost increase (+60.0)."
+    },
+    "validation_result": {
+      "dsvl_precheck": "PASS",
+      "hard_commitment_honored": true,
+      "cold_chain_preserved": true,
+      "decision_feasibility": "PASS"
+    },
+    "memory_patch": {
+      "memory_id": "DMEM-EPISODE-RECOVERY-001",
+      "memory_class": "EPISODE",
+      "decision_domain": "Dynamic Fleet Route Logistics",
+      "context": {
+        "applicable_scope": [
+          "Dynamic Fleet Rerouting",
+          "Vehicle Breakdown"
+        ],
+        "preconditions": {
+          "has_locked_commitments": true,
+          "fleet_size": ">= 2"
+        },
+        "invalidation_conditions": "single_fleet_all_breakdown"
+      },
+      "trigger": {
+        "event_type": "VEHICLE_MECHANICAL_BREAKDOWN",
+        "variation_classification": "SEMANTIC_VARIATION"
+      },
+      "semantic_recommendation": {
+        "guideline": "During vehicle breakdown, prioritize reassigning time-window locked orders to active vehicles over route efficiency.",
+        "suggested_constraint_patch": {
+          "type": "TimeWindowLock",
+          "hardness": "HARD"
+        }
+      },
+      "outcome_evaluation": {
+        "predicted_outcome": "0 commitment violations",
+        "realized_outcome": "ORD_03 delivered on time within [120, 200]",
+        "variance": null,
+        "confidence_score": 0.99
+      },
+      "lifecycle": "CANDIDATE",
+      "source_evidence": {
+        "trace_id": "TR-SEMANTIC-CASE-001-DELIVERY-RECOVERY",
+        "case_id": "CASE-001-DELIVERY-RECOVERY",
+        "evidence_reference": "SVDE-Bench Sprint 2 Execution"
+      },
+      "expiration_date": null,
+      "superseded_by": null
+    }
+  },
+  "decision": {
+    "reassigned_routes": {
+      "VEH_01": [
+        "ORD_04"
+      ],
+      "VEH_03": [
+        "ORD_03",
+        "ORD_06"
+      ]
+    },
+    "total_additional_cost": 480.0
+  },
+  "validation": {
+    "lock_commitment_honored": true,
+    "decision_feasible": true,
+    "trace_present": true,
+    "explanation_present": true,
+    "memory_patch_valid": true,
+    "verdict": "PASS"
+  },
+  "trace": {
+    "trace_id": "TR-SEMANTIC-CASE-001-DELIVERY-RECOVERY",
+    "decision_chain": [
+      {
+        "stage": "Contract_Ingestion",
+        "status": "HARD_COMMITMENT_C4_DETECTED"
+      },
+      {
+        "stage": "Constraint_Type_Check",
+        "type": "TIME_WINDOW_LOCKED",
+        "status": "PRESERVED"
+      },
+      {
+        "stage": "DSVL_Precheck",
+        "decision_feasibility": "PASS"
+      },
+      {
+        "stage": "Solver",
+        "objective_value": 480.0,
+        "status": "FEASIBLE_COMMITTED"
+      }
+    ],
+    "causal_rationale": [
+      {
+        "order": "ORD_03",
+        "action": "REASSIGNED_TO_VEH_03",
+        "reason": "VIP_TIME_WINDOW_LOCKED_PRESERVED"
+      },
+      {
+        "order": "ORD_04",
+        "action": "KEPT_ON_VEH_01",
+        "reason": "COLD_CHAIN_MATCH_PRESERVED"
+      }
+    ],
+    "constraint_provenance": {
+      "C1": "Fleet Payload Limit",
+      "C3": "Cold Chain Food Safety",
+      "C4": "Customer SLA Locked Commitment"
+    }
+  },
+  "memory": {
+    "memory_id": "DMEM-EPISODE-RECOVERY-001",
+    "memory_class": "EPISODE",
+    "decision_domain": "Dynamic Fleet Route Logistics",
+    "context": {
+      "applicable_scope": [
+        "Dynamic Fleet Rerouting",
+        "Vehicle Breakdown"
+      ],
+      "preconditions": {
+        "has_locked_commitments": true,
+        "fleet_size": ">= 2"
+      },
+      "invalidation_conditions": "single_fleet_all_breakdown"
+    },
+    "trigger": {
+      "event_type": "VEHICLE_MECHANICAL_BREAKDOWN",
+      "variation_classification": "SEMANTIC_VARIATION"
+    },
+    "semantic_recommendation": {
+      "guideline": "During vehicle breakdown, prioritize reassigning time-window locked orders to active vehicles over route efficiency.",
+      "suggested_constraint_patch": {
+        "type": "TimeWindowLock",
+        "hardness": "HARD"
+      }
+    },
+    "outcome_evaluation": {
+      "predicted_outcome": "0 commitment violations",
+      "realized_outcome": "ORD_03 delivered on time within [120, 200]",
+      "variance": null,
+      "confidence_score": 0.99
+    },
+    "lifecycle": "CANDIDATE",
+    "source_evidence": {
+      "trace_id": "TR-SEMANTIC-CASE-001-DELIVERY-RECOVERY",
+      "case_id": "CASE-001-DELIVERY-RECOVERY",
+      "evidence_reference": "SVDE-Bench Sprint 2 Execution"
+    },
+    "expiration_date": null,
+    "superseded_by": null
+  },
+  "evaluation_profile": {
+    "semantic": {
+      "evaluator_name": "SemanticEvaluator",
+      "overall_pass": true,
+      "score": 1.0,
+      "findings": [],
+      "evidence": {
+        "decision_routes": {
+          "VEH_01": [
+            "ORD_04"
+          ],
+          "VEH_03": [
+            "ORD_03",
+            "ORD_06"
+          ]
+        },
+        "violations": []
+      },
+      "constraint_accuracy": 1.0,
+      "constraint_results": [
+        {
+          "constraint_id": "C1-VehicleCapacity",
+          "type": "HARD",
+          "expected": "Hard constraint must be satisfied",
+          "actual": "Satisfied in decision allocations",
+          "status": "SATISFIED",
+          "evidence": "No capacity or physical overload detected"
+        },
+        {
+          "constraint_id": "C3-ColdChainMatch",
+          "type": "HARD",
+          "expected": "Cold chain orders must be assigned to refrigerated vehicles",
+          "actual": "All assigned cold orders routed to refrigerated vehicle",
+          "status": "SATISFIED",
+          "evidence": "Zero cold chain crossover detected"
+        },
+        {
+          "constraint_id": "C4-TimeWindowLock_ORD03",
+          "type": "HARD_COMMITMENT",
+          "expected": "ORD_03 must be served within locked time window",
+          "actual": "ORD_03 is assigned and served in active routes",
+          "status": "SATISFIED",
+          "evidence": "Order ORD_03 found in final assigned routes: {'VEH_01': ['ORD_04'], 'VEH_03': ['ORD_03', 'ORD_06']}"
+        },
+        {
+          "constraint_id": "C7-MinimalRerouteDisruption",
+          "type": "SOFT_PREFERENCE",
+          "expected": "Minimize additional distance or operational disruption",
+          "actual": "Trade-off accepted to preserve hard commitments",
+          "status": "SATISFIED",
+          "evidence": "Soft preference balanced against higher-order commitments"
+        },
+        {
+          "constraint_id": "INV-I1_ExecutedFactImmutability",
+          "type": "INVARIANT",
+          "expected": "Business invariant I1_ExecutedFactImmutability strictly held",
+          "actual": "Invariant maintained across decision lifecycle",
+          "status": "SATISFIED",
+          "evidence": "Zero invariant breach"
+        },
+        {
+          "constraint_id": "INV-I2_CommitmentPreservation",
+          "type": "INVARIANT",
+          "expected": "Business invariant I2_CommitmentPreservation strictly held",
+          "actual": "Invariant maintained across decision lifecycle",
+          "status": "SATISFIED",
+          "evidence": "Zero invariant breach"
+        }
+      ],
+      "violations": [],
+      "explanations": {
+        "summary": "Decision fully complies with semantic contracts",
+        "violation_count": "0",
+        "hard_accuracy": "100.0%"
+      }
+    },
+    "feasibility": {
+      "evaluator_name": "FeasibilityEvaluator",
+      "overall_pass": true,
+      "score": 1.0,
+      "findings": [],
+      "evidence": {
+        "decision_routes": {
+          "VEH_01": [
+            "ORD_04"
+          ],
+          "VEH_03": [
+            "ORD_03",
+            "ORD_06"
+          ]
+        },
+        "violations_count": 0,
+        "oracle_comparison": null
+      },
+      "feasibility_status": "FEASIBLE",
+      "constraint_results": [
+        {
+          "type": "VEHICLE_CAPACITY",
+          "entity": "VEH_01",
+          "actual_load_kg": 150,
+          "capacity_limit_kg": 1000,
+          "status": "SATISFIED"
+        },
+        {
+          "type": "VEHICLE_CAPACITY",
+          "entity": "VEH_03",
+          "actual_load_kg": 450,
+          "capacity_limit_kg": 800,
+          "status": "SATISFIED"
+        }
+      ],
+      "objective_gap": null,
+      "oracle_comparison": null,
+      "violations": []
+    },
+    "runtime": {
+      "evaluator_name": "RuntimeEvaluator",
+      "overall_pass": true,
+      "score": 1.0,
+      "findings": [],
+      "evidence": {
+        "events_replayed": 1,
+        "total_commitments": 1,
+        "preserved_commitments": 1,
+        "disruption_ratio": 0.6,
+        "event_results": [
+          {
+            "event_id": "EVT_001",
+            "event_type": "VEHICLE_MECHANICAL_BREAKDOWN",
+            "status": "VALID",
+            "detail": "Vehicle VEH_02 transition -> MECHANICAL_BREAKDOWN"
+          }
+        ]
+      },
+      "event_results": [
+        {
+          "event_id": "EVT_001",
+          "event_type": "VEHICLE_MECHANICAL_BREAKDOWN",
+          "status": "VALID",
+          "detail": "Vehicle VEH_02 transition -> MECHANICAL_BREAKDOWN"
+        }
+      ],
+      "commitment_survival_rate": 1.0,
+      "disruption_ratio": 0.6,
+      "state_transition_validity": true,
+      "violations": []
+    },
+    "memory": {
+      "evaluator_name": "MemoryEvaluator",
+      "overall_pass": true,
+      "score": 0.99,
+      "findings": [],
+      "evidence": {
+        "memory_id": "DMEM-EPISODE-RECOVERY-001",
+        "memory_class": "EPISODE",
+        "declared_lifecycle": "CANDIDATE",
+        "evaluated_promotion_status": "PROMOTED",
+        "false_memory_probability": 0.0
+      },
+      "promotion_status": "PROMOTED",
+      "lifecycle_validation": true,
+      "evidence_sufficiency": true,
+      "context_boundary_check": true,
+      "contradiction_check": true,
+      "false_memory_probability": 0.0,
+      "violations": []
+    },
+    "profile_summary": {
+      "semantic_pass": true,
+      "feasibility_status": "FEASIBLE",
+      "commitment_survival_rate": 1.0,
+      "memory_promotion_status": "PROMOTED",
+      "all_mandatory_passed": true
+    }
+  }
+}

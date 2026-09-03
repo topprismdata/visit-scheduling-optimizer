@@ -1,0 +1,817 @@
+# SVDE Knowledge Base v0.1 — Governance Layer
+## Phase A2 Governance Migration — DCR / DOV / RMAP / CRR 治理范例知识
+## source_of_truth: DOV/DVR/RMAP/CRR + LOG (docs/sales_visit_domain_research/)
+
+version: SVDE-KB-Governance-v0.1
+generated_at: "2026-08-22"
+
+governance_cases:
+
+  - id: KB-GOV-001
+    name: DCR-SA-001-R (Requirement-Level Exception Policy Binding)
+    type: domain_change_request
+    status: Approved-And-Landed
+    statement: "BusinessRequirement 增加可选 exception_handling_policy_ref 字段"
+    trigger:
+      scenario_failure: "Scenario aggregate 无法唯一确定 P3→DP-STD、P4→DP-SLA 对应（PROOF-E2 四通道穷举全失败）"
+      insufficient_proof: "DOV_deferral_policy_ownership_validation_v1_0.md MRE-1 证伪候选 a(scope 碰撞)与 b(一对多)"
+    decision_path: "DCR-SA-001 提出 → 评审 INVESTIGATION → DOV MRE-1 反例 → 方案 c(Requirement级)裁定 → sign-off → A03 v1.0.1 patch"
+    key_principle_established: "Exception Handling 归属 Requirement Fulfillment 层而非 Policy 层；Visit 是满足 Requirement 的执行载体"
+    naming_ruling: "exception_handling（非 deferral 专属——defer/escalate/substitute/manual-review/drop/transfer 全谱承载）"
+    conflict_resolution_ruling: "不写死全局排序；Scenario 级 ConflictResolutionStrategy 配置声明"
+    audit_requirement: "Exception Audit Trace 四段链（Unfulfilled Req → Applied Policy → Action → Reason）必须入 DecisionTrace"
+    superseded: [DCR-SA-001]
+    affected_kb_concepts: [KB-ONT-052, KB-ONT-053]
+    provenance:
+      origin_asset: DOV_deferral_policy_ownership_validation_v1_0.md
+      source_version: DOV-V1.0
+      migration_method: verbatim
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-002
+    name: Freeze Governance Discipline
+    type: governance_rule_set
+    status: Active
+    rules:
+      - "新增 Domain Concept 必须由可复现 Scenario Failure 驱动（DCR + Failure Evidence + Review）"
+      - "'未来可能需要' / '实现方便' / 'Solver 需要' 均不是 DCR 理由"
+      - "OBS 观察不构成 DCR——契约可表达而解释规则缺失时，进 CRR（Compiler Rule Registry）"
+      - "Scenario 失败先分类：A. Domain 无法表达（可触发 DCR） vs B. Compiler/Formulation/Backend 问题（不得触发 DCR）"
+    precedent_cases:
+      - "OBS-C-1 (Stale Anchor): 契约可表达 → CRR CR-COMPILER-C-001，Domain impact=None"
+      - "Scenario A/C/D 首跑共 8 FAIL：全部归因测试套件缺陷，契约零改动"
+    provenance:
+      origin_asset: RMAP_postfreeze_execution_roadmap_v1_0.md
+      source_version: RMAP-V1.0
+      migration_method: verbatim
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-003
+    name: Post-Freeze Phase Gate Model
+    type: governance_rule_set
+    status: Active
+    phases:
+      P0: {name: Architecture Design, status: COMPLETED, artifact: A01-A06}
+      P1: {name: Domain Validation, status: COMPLETED, gate: DG1-DG5, artifact: DVR}
+      P2: {name: Scenario Spec Validation, status: IN_PROGRESS, order: A→C→D→E→B, progress: "A✅ C✅ D✅ / E,B pending"}
+      P3: {name: Semantic Compilation, status: LOCKED, note: 首次入数学；证明三路编译同一语义而非比速度}
+      P4: {name: Backend Benchmark, status: LOCKED, note: 此时才回答哪个 solver}
+      P5: {name: Architecture Evolution, status: LOCKED, note: 最后才允许加 Compiler/Adapter}
+      P6: {name: Production Engineering, status: LOCKED, unlock_condition: "Domain FROZEN + Scenario Passed + Semantic Compilation Validated + Backend Selected + Trace Verified"}
+    iron_rules:
+      - "阶段不得跳跃"
+      - "Phase 2 内不写 Solver、不比较算法、不优化性能"
+      - "Solver/算法词汇禁止出现在业务层工作产物"
+    provenance:
+      origin_asset: RMAP_postfreeze_execution_roadmap_v1_0.md
+      source_version: RMAP-V1.0
+      migration_method: verbatim
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-004
+    name: Compiler Rule Registry Discipline
+    type: governance_rule_set
+    status: Active
+    purpose: "OBS 观察（不构成 DCR 的解释规则缺口）不得直接写入代码、不得升级为 Domain 字段；先入 CRR，Phase 3 逐条吸收"
+    registered_rules:
+      - id: CR-COMPILER-C-001
+        name: Stale Anchor Rebase Rule
+        input: ExecutionHistory.last_visit
+        condition: "eligible_window 终点 < horizon_start（如 L+max_gap 已过）"
+        interpretation: "参考锚点重置为 horizon_start（逾期客户立即具备资格）"
+        layer: Compiler / OccurrenceGenerator
+        domain_impact: None
+        source: OBS-C-1
+    provenance:
+      origin_asset: CRR_compiler_rule_registry_v1_0.md
+      source_version: CRR-V1.0
+      migration_method: verbatim
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-005
+    name: Scenario Validation Result Records
+    type: validation_records
+    status: Active
+    records:
+      S-A: {result: 18/18 PASS, dcr: 0, first_run_failures: 3, attribution: "全部套件缺陷（P4 COMMITTED 设置/容量口径/TA-INF cadence）", report: S-A_domain_validation_report_v1_0.md}
+      S-C: {result: 20/20 PASS, dcr: 0, obs: OBS-C-1, first_run_failures: 2, attribution: "stale 语义未定义+容量算术", report: S-C_domain_validation_report_v1_0.md}
+      S-D: {result: 20/20 PASS, dcr: 0, note: "评审预判 DCR 场景未触发——四概念关系式由冻结对象完整承载", report: S-D_domain_validation_report_v1_0.md}
+      S-E: {result: 17/17 PASS, dcr: 0, first_run_failures: 0, adjudication: "DM-010=H2 merge-candidate", report: S-E_domain_validation_report_v1_0.md}
+      S-B: {result: 13/13 PASS, dcr: 0, first_run_failures: 3, attribution: "全部套件缺陷（枚举覆盖/布尔逻辑/记忆常数 31→32）", adjudication: "Check-1/2/3 全落地 · DM-008 独立 · DM-009 并入 004", report: S-B_domain_validation_report_v1_0.md}
+    cumulative: "五场景 88 测试全过 · 0 DCR 违规 · 1 合规 DCR(SA-001-R) · 1 编译规则(C-001) · 首跑失败 11 起全 Class-C"
+    provenance:
+      origin_asset: S-A/S-C/S-D/E/B_domain_validation_report_v1_0.md
+      source_version: V1.0 ×5
+      migration_method: verbatim
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-011
+    name: Knowledge Architecture Gate (Signed)
+    type: gate_record
+    status: Active
+    verdict: "PASS（2026-08-22 评审签署）——知识体系组合后形成不会自我污染的决策知识系统；进入 Phase 3.1"
+    architecture_conclusions:   # 六结论固化为未来 Agent 演进护栏
+      - "单向语义链成立：Evidence→Concept→Decision→Pattern→Backend + Scenario↑Decision——图上零反向边（Backend→Pattern/Decision=0, Evidence→Pattern 未中介=0）"
+      - "Evidence 不是知识终点：51/52 有去向；Evidence ≠ Design 经图谱验证"
+      - "Decision 层是核心稳定层：Decision 21 : Pattern 9 比例健康——Decision ≠ Optimization（BDC-03/08 不入优化链）"
+      - "Negative Knowledge 为正式资产：28 条 NOT 边（含 Territory NOT VRP/Clustering）——降低 Agent 错误联想"
+      - "NDC 三条 validation_pending 诚实标注——Candidate 不伪装 Validated"
+      - "EV-PLACEHOLDER 登记 Temporary Placeholder：cannot_support=[Concept Promotion, Decision Validation, Pattern Selection]"
+    provenance:
+      origin_asset: knowledge_graph_integrity_review_v0_1.md
+      source_version: KG-REVIEW-V1.0
+      migration_method: gate-record
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-012
+    name: Phase 3.2 Closure Record & Claim Scope Discipline
+    type: phase_record
+    status: Active
+    verdict: "Phase 3.2 GT-Micro 关闭（2026-08-22）——四方语义等价在**定义范围内**成立"
+    claim_scope:                 # 对外表述纪律（评审指令原文固化）
+      proven: "命题 A：有限规模、明确语义约束下，不同数学表达保持一致——已证（GT-Micro 4/4 Case）"
+      not_proven: ["命题 B：真实复杂规模下 Agent 稳定生成正确模型", "命题 C：真实企业复杂约束组合"]
+      canonical_statement: "Phase 3.2 验证了 SVDE Decision Compiler 在微型 Ground Truth 场景下，能够保持业务语义到数学模型映射的一致性——不外推"
+    seven_class_C_lessons:       # 7 起套件失败的架构启示（评审裁定）
+      - {fail: 空间爆炸, fix: k 层字典序分解, lesson: "Solver Engineering——非语义问题"}
+      - {fail: keys 错位, fix: 调用方显式传序, lesson: "Decision IR→Solver Input 接口需 Schema Validation Layer（防 solver 阶段才发现）"}
+      - {fail: AddExactlyOne 用于 k=2, fix: Add(sum==k), lesson: "需 Constraint Type System——Compiler 生成 Typed Constraint 而非约束字符串（cardinality 检查前置）"}
+      - {fail: soft 下 min_gap 误软化, fix: evaluate_soft 改回 HARD, lesson: "需 Constraint Ontology——HARD/Soft-Preference/Objective-Penalty 三级由业务声明，不由实现判断（relaxable:false）"}
+      - {fail: DFS 叶检缺失, fix: 叶处全量结构检查, lesson: "Solver implementation"}
+      - {fail: 锁日回溯卡死, fix: 锁日列优先重排, lesson: "Search strategy（完备性不变）"}
+      - {fail: L5 漂移, fix: 共享 refine 收口, lesson: "Evaluation Layer 须统一收口"}
+    three_future_modules:        # 评审裁定：3.2 最大技术收获
+      constraint_type_system: "Business Intent→Decision IR→Constraint Type System→Math Model——Typed Constraint(YAML: type/cardinality/entity)+Compiler 类型检查"
+      semantic_validation_layer: "decision checking（类比编译器 type checking）——验证数学模型仍代表原业务语义"
+      ground_truth_benchmark_ladder: "GT-Micro ✅→GT-Small(3.3)→Standard/Stress——逐级扩大不跳档"
+    provenance:
+      origin_asset: phase3_2_semantic_equivalence_report_v1_0.md
+      source_version: P32-V1.0
+      migration_method: phase-record
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-013
+    name: Decision Constraint Type System & DSVL (Formal Components)
+    type: architecture_component_registry
+    status: Active
+    ruling: "评审裁定（2026-08-22）：两模块非测试辅助——SVDE Compiler Pipeline 正式组件；架构升级为 编译器架构而非 Agent Workflow"
+    pipeline: "Business Intent → Decision IR → Constraint Type System → Semantic Validation(前置) → Math Model Generation → Solver → Semantic Validation(后置) → Runtime Trace"
+    component_1_decision_constraint_type_system:
+      mandate: "数学约束非文本——Typed Constraint（type/cardinality/level/relaxable/provenance）；Compiler 期类型检查（AddExactlyOne+k=2 → Type Error）"
+      naming: "正式名: Decision Constraint Type System（SVDE 核心组件）"
+    component_2_dsvl:
+      naming: "正式名: Decision Semantic Validation Layer (DSVL)——替代 Validation Layer（避免与普通数据校验混淆）"
+      three_duties: [Invariant Checking, Constraint Semantic Checking, Trace Consistency Checking(Decision→Model→Solution→Outcome)]
+      position: "前置+后置（类比编译器 parse-time check × runtime check）——非仅末尾"
+      distinction: "Solver 验证 solution feasibility('解满足数学约束吗')；DSVL 验证 decision feasibility('模型仍代表原业务决策吗')"
+    gt_ladder: "GT-Micro ✅ → GT-Small(3.3) → GT-Medium → GT-Real——不跳档；规模增长必伴语义稳定验证（最大风险=semantic drift 非求解性能）"
+    oracle_evolution: "Enumeration Oracle(Micro) → Exact Solver Oracle(Small·3.3) → Independent Solver Oracle → Production Reality Oracle"
+    provenance:
+      origin_asset: P3_3_scale_validation_spec_v1_0.md + Phase 3.3 评审
+      source_version: P33-REVIEW
+      migration_method: architecture-record
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-014
+    name: Frozen Assumption Registry (Benchmark Phase)
+    type: assumption_registry
+    status: Active
+    rule: "Benchmark 阶段假设冻结——失败时先判 Assumption Fail 还是 Implementation Fail，防 DCR 混乱"
+    schema: [assumption_id, description, scope, evidence, invalidation_condition, status]
+    status_machine:            # r2 评审新增——Assumption 生命周期（SVDE Research Memory）
+      ACTIVE: "冻结生效中"
+      VALIDATED: "经 Phase 验证通过（如 A001 若 3.3 KBC-05 仲裁成功→VALIDATED）"
+      INVALIDATED: "发现失效（记录失效证据与替代假设）"
+      SUPERSEDED: "被更强假设替代（保留链）"
+    failure_triage: "Failure → Assumption Fail?(修订假设+重申范围) → Implementation Fail?(Class C/B) → 仅穷举失败才 Domain 层"
+    assumptions:
+      - {id: A001, description: "Travel 表达可由 KBC-05（VRPSolverEasy exact BPC）仲裁", scope: Phase 3.3, evidence: KBC-005 能力卡(Rich VRP exact), invalidation: "KBC-05 在 GT-Small 尺寸无法求解或接口不可用"}
+      - {id: A002, description: "Constraint Type System 十类约束枚举覆盖当前全部业务约束", scope: Phase 3.3, evidence: "S-A/C/D/E/B 五场景+GT 实例约束清单归纳", invalidation: "出现第 11 类约束（先判 Domain 新语义 or 枚举缺口）"}
+      - {id: A003, description: "字典序分层求解（F2 MathOpt）在 GT-Small 规模可到各层最优", scope: Phase 3.3, evidence: "10 客户×20d 紧凑式规模（S-A §2.1 档位）", invalidation: "分层求解超时或层间最优割失效"}
+      - {id: A004, description: "合成曼哈顿 travel 与路网 travel 在语义层等价（结构满足三角不等式）", scope: Phase 3.3, evidence: "对称+三角不等式成立", invalidation: "Phase 4 路网接入后 L5 语义漂移超 ε_couple"}
+      - {id: A005, description: "代表解策略+共享 refine 收口的 L4/L5 容差带在 GT-Small 仍成立", scope: Phase 3.3, evidence: "GT-Micro 实测差 ≤40min", invalidation: "GT-Small 四方 L5 差 >120min（需收紧 refine 或缩带）"}
+    provenance:
+      origin_asset: Phase 3.3 评审指令
+      source_version: P33-REVIEW
+      migration_method: registry
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-015
+    name: Decision Artifact Freeze (Execution Discipline)
+    type: execution_discipline
+    status: Active
+    rule: "Phase 3.3 每步产出不可变 Artifact——未来 Benchmark 与论文的 Evidence Chain；版本号入文件名，不覆盖"
+    artifacts_per_step:
+      step_1_gt_small: [instance.yaml, semantic_contract.yaml, oracle_definition.md]
+      step_2_type_system: [constraint_types.yaml, type_check_rules.md]
+      step_3_dsvl: [validation_rules.yaml, validation_report.json]
+      step_4_mathopt: [model.lp, solver_config, oracle_result]
+      step_5_kbc05: [travel_arbitration_report]
+      step_6_four_ac: [phase3_3_report]
+    execution_order: "严格 ①→⑥ 串行；② 不得先于 ① 的 semantic contract 冻结"
+    hard_prohibitions: [No_Agent_integration, No_domain_expansion, No_UI, No_optimization_tuning_before_semantic_validation]
+    provenance:
+      origin_asset: Phase 3.3 执行批准（评审 r2）
+      source_version: P33-EXEC-APPROVAL
+      migration_method: discipline-record
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-016
+    name: SVDE Canonical Definitions (Whitepaper Core)
+    type: definition_registry
+    status: Active
+    definitions:
+      solution_vs_decision_feasibility:
+        canonical: "Solver 验证 Solution Feasibility（'解满足数学约束吗'）；DSVL 验证 Decision Feasibility（'数学模型仍代表原业务决策吗'）"
+        example: "排班满足时间+容量约束但违反业务锁定日 → Solver Feasible + Decision Infeasible"
+      svde_identity: "SVDE = Decision Compiler + Type System + Semantic Validation + Decision Engine + Runtime + Memory——Agent 只是 Interface 不是核心（Protocol not Runtime）"
+      constraint_chain: "Business Constraint → Typed Constraint → Validated Constraint → Mathematical Constraint → Solver Constraint（约束首先是 Business Meaning，然后才是 Mathematical Form）"
+      future_chapter: "'From Agent Workflow to Decision Compiler'——以 Phase 3.3 工程证据为支撑（书稿暂缓至 3.3 完成）"
+    provenance:
+      origin_asset: Phase 3.3 评审 r2
+      source_version: P33-REVIEW-R2
+      migration_method: definition-record
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-017
+    name: Phase 3.3 Closure & Assumption Registry Validation
+    type: phase_closure_record
+    status: Active
+    verdict: "Phase 3.3 Scale Semantic Compilation Validation CLOSED (2026-08-22)——四 AC 全 PASS，五大假设 A001-A005 全部 VALIDATED"
+    evidence_chain_closed: "Business Intent → Semantic Contract → Typed Constraint → DSVL → MathOpt → Solver → External Reality"
+    assumption_status_updates:
+      A001: VALIDATED (KBC-05 成功仲裁 Data vs Semantic 变异)
+      A002: VALIDATED (C01-C10 十类 100% 覆盖 GT-Small 约束)
+      A003: VALIDATED (MathOpt+HiGHS 分层求解达到最优且 bound 一致)
+      A004: VALIDATED (路网绕行证实属于 Data Variation，语义层等价)
+      A005: VALIDATED (GT-Small 四方代价偏差 <1.5%，容差带成立)
+    provenance:
+      origin_asset: Phase3_3_final_evaluation_report_v1_0.md
+      source_version: P33-FINAL-V1.0
+      migration_method: phase-closure
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-018
+    name: SVDE Architecture v1.0 & Research Memory Freeze
+    type: architecture_upgrade_record
+    status: Active
+    verdict: "SVDE 正式从 v0.1 概念设计升级为 SVDE Architecture v1.0（决策编译器基础设施）"
+    seven_layer_topology: "Interface → Experience → Compiler(Contract/Type/DSVL) → Engine(Opt/Sim/Pred/Rules) → Runtime → Memory"
+    major_milestone: "从'Agent 调 Solver 工作流'定型为'具备类型检查与语义验证能力的 Decision Compiler 基础设施'"
+    phase_4_direction: "从单一拜访排班升级为 Decision Compiler Generalization（仓储/渠道/配送通用化探索）"
+    provenance:
+      origin_asset: SVDE_Architecture_Specification_v1_0.md
+      source_version: ARCH-V1.0
+      migration_method: architecture-freeze
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-019
+    name: SVDE Domain Onboarding Protocol & Generalization Interface
+    type: onboarding_protocol
+    status: Active
+    ruling: "任何新领域接入 SVDE 决策编译器必须且仅需提供 5 大标准工件（Contract → Type → DSVL → Oracle → Trace）"
+    the_5_artifacts:
+      artifact_1: "<domain>_semantic_contract_v1_0.yaml (实体、C1..Cn 语义约束、I1..Im 业务不变量、Canonical 目标)"
+      artifact_2: "<domain>_constraint_type_registry_v1_0.yaml (强类型定义、生成期静态检查规则、Solver Bindings)"
+      artifact_3: "<domain>_dsvl_rules_v1_0.yaml (Invariant/Semantic/Trace 三族规则，前置+后置双检)"
+      artifact_4: "<domain>_oracle_definition_v1_0.md (Ladder 定位、独立隔离、Data vs Semantic 变异分类)"
+      artifact_5: "<domain>_trace_schema_v1_0.json (四段因果链与业务解释字段)"
+    eight_onboarding_gates: [Gate_O1_Contract_Freeze, Gate_O2_Type_Safety, Gate_O3_DSVL_Coverage, Gate_O4_Oracle_Isolation, Gate_O5_Trace_Integrity, Gate_O6_Negative_Knowledge, Gate_O7_Variation_Boundary, Gate_O8_Assumption_Registry]
+    four_domain_ladder:
+      domain_1: "Sales Visit Scheduling (拜访排班 —— 已闭环 ✅)"
+      domain_2: "Warehouse Slotting Engine (仓储库位优化 —— Phase 4.1 ◀ 下一步)"
+      domain_3: "Channel Layout Decision (渠道布局决策 —— Phase 4.2)"
+      domain_4: "Fleet Route Logistics (动态配送优化 —— Phase 4.3)"
+    provenance:
+      origin_asset: SVDE_Domain_Onboarding_Specification_v1_0.md
+      source_version: ONBOARDING-V1.0
+      migration_method: protocol-freeze
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-020
+    name: Phase 4.1 Warehouse Slotting Generalization Benchmark Closure
+    type: domain_generalization_record
+    status: Active
+    verdict: "Phase 4.1 Warehouse Slotting Decision Compiler CLOSED (2026-08-22)——跨领域通用化首战告捷，MathOpt == Oracle 100% 等价"
+    kernel_reuse_proven: "五大接入工件契约（Contract → Type → DSVL → Oracle → Trace）跨领域 100% 成功复用，SVDE Kernel 未改动任何底层代码"
+    gates_cleared: "Onboarding Gates O1–O8 全部 PASS"
+    provenance:
+      origin_asset: Phase4_1_warehouse_generalization_report_v1_0.md
+      source_version: P41-FINAL-V1.0
+      migration_method: domain-closure
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-021
+    name: Phase 4.2 Retail Channel Layout Generalization Benchmark Closure
+    type: domain_generalization_record
+    status: Active
+    verdict: "Phase 4.2 Retail Channel Layout Decision Compiler CLOSED (2026-08-22)——战略资源分配决策通用化实证全过，MathOpt == Oracle 100% 等价"
+    three_paradigms_proven: "已成功跨越三大决策范式：微观时间调度(拜访) + 物理空间存取(仓储) + 宏观商业资本布局(渠道) 全部由同一 SVDE Kernel 稳定编译"
+    gates_cleared: "Onboarding Gates O1–O8 全部 PASS"
+    provenance:
+      origin_asset: Phase4_2_channel_generalization_report_v1_0.md
+      source_version: P42-FINAL-V1.0
+      migration_method: domain-closure
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-022
+    name: SVDE Generalization Milestone Review & Decision Space Taxonomy
+    type: generalization_milestone_record
+    status: Active
+    verdict: "Step 1.5 Generalization Review v1.0 冻结（2026-08-22）——三大决策范式三角正式确立"
+    decision_space_taxonomy:
+      temporal_operational: "拜访调度 (Phase 3.3 ✅) —— 时间周期/日序/时窗调度"
+      spatial_physical: "仓储库位 (Phase 4.1 ✅) —— 物理空间/温区/动线存取"
+      strategic_allocation: "渠道布局 (Phase 4.2 ✅) —— 战略资本/商圈攻防/品牌配额"
+    svde_refined_identity: "Constraint-Driven Decision Compiler（约束驱动型决策编译器）——已验证三大优化型决策范式，非无边界 AGI"
+    phase_4_3_extension: "从静态计划编译跃迁至动态运行时自适应（Dynamic Runtime Adaptation）——追踪状态机/事件驱动重排/承诺保持/后置 DSVL"
+    provenance:
+      origin_asset: SVDE_Decision_Compiler_Generalization_Review_v1_0.md
+      source_version: GEN-REVIEW-V1.0
+      migration_method: review-freeze
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-023
+    name: Phase 4.3-0 Dynamic Decision Boundary Freeze & 6-Artifact Suite
+    type: dynamic_boundary_record
+    status: Active
+    verdict: "Phase 4.3-0 动态决策边界冻结完成（2026-08-22）——确立 State(t) + Event Stream → Decision Update(t+1) 架构跃迁"
+    dynamic_kernel_extensions:
+      state_model: "运行期物理状态机（PENDING → EN_ROUTE → AT_STOP → DELIVERED），已执行历史事实绝对不可逆"
+      event_triage: "Data Variation (轻微拥堵微调 ETA) vs Semantic Variation (车辆故障/急件插入触发增量重编)"
+      commitment_survival: "TIME_WINDOW_LOCKED 零移动，变动受最小破坏预算 max_reroute_ratio 约束"
+      post_event_dsvl: "指令下发前秒级验证疲劳驾驶与冷链温控底线"
+    the_6_artifacts:
+      artifact_1_to_5: "标准 5 大工件（Contract, Type Registry, DSVL Rules, Oracle Def, Trace Schema）"
+      artifact_6: "dynamic_delivery_runtime_state_schema_v1_0.json (动态状态切片与事件流专用工件)"
+    provenance:
+      origin_asset: P4_3_0_dynamic_boundary_freeze_v1_0.md
+      source_version: P43-0-V1.0
+      migration_method: boundary-freeze
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-024
+    name: Phase 4.3 Dynamic Fleet Route Logistics Benchmark Closure
+    type: domain_generalization_record
+    status: Active
+    verdict: "Phase 4.3 Dynamic Delivery Decision Compiler CLOSED (2026-08-22)——动态在线自适应编译实证全过，Sequence Oracle 三节点全时序一致"
+    runtime_adaptation_proven: "成功实现从静态决策编译器向动态决策运行时（Decision Runtime System）的跃迁；确立 State(t) + Event Stream → Decision Update(t+1) 增量重编译机制"
+    gates_cleared: "Gate R1 状态机合法性 + Onboarding Gates O1–O8 全部 PASS"
+    provenance:
+      origin_asset: Phase4_3_dynamic_delivery_generalization_report_v1_0.md
+      source_version: P43-FINAL-V1.0
+      migration_method: domain-closure
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-025
+    name: SVDE Architecture v1.5 Freeze & Decision Runtime Layer Formalization
+    type: architecture_upgrade_record
+    status: Active
+    verdict: "SVDE Architecture v1.5 冻结（2026-08-22）——正式确立五层决策运行时编译器拓扑"
+    five_layer_topology: "Interface → Semantic(Contract/Type/DSVL) → Compiler(Math/Adapters/Oracle) → Runtime(State/Triage/Recompile/PostDSVL) → Memory(Episodes/Evolution/Assumptions)"
+    dynamic_input_model: "Decision(t+1) = f(Intent, Contract, State(t), Event Stream)"
+    four_domain_closure: "跨四大决策范式通用化全线闭环：Temporal(拜访) + Spatial(仓储) + Strategic(渠道) + Dynamic(配送) 全部 100% 语义等价"
+    trace_to_memory_evolution: "区分单次决策执行凭证(Decision Trace)与长期企业级决策资产(Decision Memory)；确立 Static Episode 与 Evolution Episode 规范"
+    provenance:
+      origin_asset: SVDE_Architecture_Specification_v1_5.md
+      source_version: ARCH-V1.5
+      migration_method: architecture-freeze
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-026
+    name: Phase 5.1-0 Decision Memory Ontology & Governance Design
+    type: memory_governance_record
+    status: Active
+    verdict: "Phase 5.1-0 决策记忆本体与治理规范冻结（2026-08-22）——确立 Trace → Episode → Memory 三级阶梯与四类记忆资产"
+    memory_hierarchy:
+      level_1_trace: "Decision Trace (单次计算事实硬证据)"
+      level_2_episode: "Decision Episode (单次完整决策+扰动+Outcome反馈因果闭环)"
+      level_3_memory: "Decision Memory (跨周期可复用企业级带上下文知识资产)"
+    four_memory_assets: [Decision_Episode_Memory, Constraint_Evolution_Memory, Decision_Outcome_Memory, Assumption_Memory]
+    promotion_pipeline: "Trace → Outcome Evaluation → Episode Construction → MDVL Validation (MP-G1..G4) → Memory Promotion → Reusable Knowledge"
+    four_anti_degradation_disciplines: [No_Context_No_Memory, Reuse_Meaning_Not_Exact_Plan, Falsification_Memory_Tracked, Memory_Aging_and_Pruning]
+    provenance:
+      origin_asset: P5_1_0_memory_governance_spec_v1_0.md
+      source_version: P51-0-V1.0
+      migration_method: governance-freeze
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-027
+    name: Phase 5.1-0.5 Decision Memory Schema & Promotion Protocol Freeze
+    type: memory_protocol_record
+    status: Active
+    verdict: "Phase 5.1-0.5 决策记忆模式与晋升协议冻结（2026-08-22）——确立 Memory Schema, 七态状态机, MDVL 五大门限与语义层消费协议"
+    memory_schema_frozen: "包含 context(边界前提), trigger(动因), semantic_recommendation(指导约束), outcome_evaluation(成效置信度), source_evidence(追溯)"
+    seven_state_lifecycle: [Candidate, Evaluating, Validated, Promoted, Deprecated, Superseded, Rejected]
+    five_mdvl_gates: [MP_G1_Outcome_Threshold, MP_G2_Invariant_Compliance, MP_G3_Contextual_Boundary, MP_G4_Non_Repetition, MP_G5_Cross_Domain_Transfer]
+    consumption_law: "Memory 影响 Semantic Layer（Contract/Type/DSVL），严禁直接影响 Solver Layer（变量赋值）"
+    provenance:
+      origin_asset: P5_1_05_memory_schema_protocol_v1_0.md
+      source_version: P51-05-V1.0
+      migration_method: protocol-freeze
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-028
+    name: Phase 5.1 Decision Memory Assetization & A/B Closed-Loop Verification
+    type: memory_assetization_record
+    status: Active
+    verdict: "Phase 5.1 决策记忆资产化与闭环验证通过（2026-08-22）——四大记忆种子集入库，A/B 对照测试证明记忆反哺切实改善决策可行性"
+    four_seeds_instantiated: [DMEM-EPISODE-001(动态故障承诺保护), DMEM-CONST-001(min_gap 刚性升级), DMEM-OUTCOME-001(渠道潜能偏差校准), DMEM-ASSUME-001(路网等价假设)]
+    mdvl_gates_cleared: "MP-G1..G5 全量通过，DMEM-OUTCOME-001 精准被 MP-G5 限制在本领域（VALIDATED）防止错误泛化"
+    closed_loop_proof: "A/B 测试证实 Memory 注入语义层（零污染求解器变量）将决策可行性从 FAIL 逆转为 100% PASS，闭环成立"
+    provenance:
+      origin_asset: Phase5_1_memory_assetization_report_v1_0.md
+      source_version: P51-FINAL-V1.0
+      migration_method: memory-assetization
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-029
+    name: Phase 5.2 Decision Memory Reliability & Evolution Stress Test Closure
+    type: memory_stress_record
+    status: Active
+    verdict: "Phase 5.2 决策记忆可靠性压力测试通过（2026-08-22）——五大压力测试全 PASS，证明决策记忆具备自我纠错与防过约束能力"
+    stress_test_achievements:
+      test_1_bad_injection: "劣质/违规记忆 100% 被 MP-G1/G2 拦截 (REJECTED)"
+      test_2_negative_harm_drift: "环境漂移下自动触发 invalidation，状态流转 DEPRECATED，消除过约束 Opportunity Loss"
+      test_3_conflict_resolution: "上下文特异性 (Specificity) 优先确定性裁决，零冲突崩溃"
+      test_4_cross_domain_transfer: "MP-G5 100% 拦截非法跨领域注入"
+      test_5_accumulation: "50+ 记忆注入下编译器合并同类项稳定收敛，无约束爆炸"
+    provenance:
+      origin_asset: Phase5_2_memory_stress_report_v1_0.md
+      source_version: P52-FINAL-V1.0
+      migration_method: memory-stress-closure
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-030
+    name: Phase 5.3 Long-Term Decision Intelligence Validation Closure
+    type: long_term_intelligence_record
+    status: Active
+    verdict: "Phase 5.3 长期决策智能演进与多主体治理验证通过（2026-08-22）——五大长周期演化测试全 PASS"
+    long_term_achievements:
+      test_1_scale_compression: "1000+ Episodes 成功压缩为 24 策略模板 (压缩率 97.6%)，抗约束爆炸成立"
+      test_2_revalidation: "VALIDATED → DEPRECATED → VALIDATED 双向可逆生命周期 100% 成立"
+      test_3_human_override: "人类专家应急干预 100% 自动转化为 Causal Dependency Memory 沉淀"
+      test_4_multi_agent_governance: "四维加权仲裁矩阵杜绝多 Agent 死锁，法定安全红线 100% 压制销售偏好"
+      test_5_historical_replay: "100 组历史工单回放实证履约率由 88% 提升至 99%"
+    provenance:
+      origin_asset: Phase5_3_long_term_intelligence_report_v1_0.md
+      source_version: P53-FINAL-V1.0
+      migration_method: long-term-closure
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-031
+    name: SVDE Reference Architecture v2.0 & Decision Intelligence OS Freeze
+    type: reference_architecture_record
+    status: Active
+    verdict: "SVDE Reference Architecture v2.0 正式冻结（2026-08-22）——正式确立六层受治理决策智能操作系统 (Decision OS)"
+    core_paradigm_shift: "从 Agent Workflow 彻底演进为 Protocol not Runtime 的决策编译器与记忆演化基础设施"
+    authority_hierarchy: "Level 0 法律安全红线 >> Level 1 战略红线 >> Level 2 客户承诺 >> Level 3 经营目标 >> Level 4 局部优化"
+    book_outline_frozen: "《Beyond Agents》7 章理论命题与 Phase 0–5 工程证据全景映射表正式冻结"
+    provenance:
+      origin_asset: SVDE_Reference_Architecture_v2_0.md
+      source_version: ARCH-V2.0
+      migration_method: architecture-freeze
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-032
+    name: SVDE-Bench Research Framework & Evaluation Governance
+    type: benchmark_governance_record
+    status: Active
+    verdict: "SVDE-Bench v0.1 研究规范入册完成（2026-08-22）——确立面向 Decision Artifact 的三层 Gold Truth 评测体系"
+    benchmark_core_paradigm: "评价对象升级为 Decision Artifact 全生命周期产物；确立 H1–H5 五大核心科学假设"
+    evaluation_dimensions: [Semantic_Accuracy, Compilation_Preservation, Decision_Feasibility, Runtime_Robustness, Memory_Evolution]
+    dataset_scale_v0_1: "100 Decision Episodes (配送 40 / 仓储 20 / 渠道 20 / 拜访 20 —— 覆盖四大闭环决策范式)"
+    six_baselines: [Oracle, Pure_Solver, LLM_Agent, LLM_RAG, Contract_System, Full_SVDE]
+    five_ablations: [Remove_Contract, Remove_Type_System, Remove_DSVL, Remove_Runtime, Remove_Memory]
+    provenance:
+      origin_asset: SVDE_Bench_Intake_Adjudication_Report_v1_0.md
+      source_version: BENCH-INTAKE-V1.0
+      migration_method: benchmark-registration
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-033
+    name: SVDE-Bench v0.1 Implementation Charter & Sprint 1 Scope
+    type: implementation_charter_record
+    status: Active
+    verdict: "SVDE-Bench v0.1 实施任务书入册完成（2026-08-22）——冻结 Sprint 1 范围为 10 Golden Cases"
+    sprint_1_scope: "10 Golden Cases (Dynamic Delivery 4 / Warehouse 2 / Retail Channel 2 / Visit Scheduling 2)"
+    repository_topology: "svde-bench/ (core, evaluator, oracle, datasets, agents, runner, reports, tests)"
+    agent_isolation_law: "严禁 Agent 访问 Oracle、Gold Label 或 Evaluator，杜绝 Benchmark 泄露"
+    three_baselines: [Baseline_A_Pure_Solver, Baseline_B_LLM_Mock, Baseline_C_SVDE_Agent]
+    seven_acceptance_criteria: [Repository_created, Package_install_works, 10_Golden_Cases_loaded, Oracle_executes, Evaluator_executes, Report_generated, Pytest_passed]
+    provenance:
+      origin_asset: SVDE_Bench_Charter_Intake_Adjudication_Report_v1_0.md
+      source_version: CHARTER-INTAKE-V1.0
+      migration_method: charter-registration
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-034
+    name: SVDE-Bench v0.1 Execution Control & Sprint Roadmap
+    type: execution_control_record
+    status: Active
+    verdict: "SVDE-Bench v0.1 执行控制规范入册完成（2026-08-22）——确立 Sprint 0–5 精细化演进路径与 Agent 行为守则"
+    non_negotiable_principles: [Decision_Artifact_Over_Solution, Semantic_Layer_Over_Solver, Oracle_Independence, No_Benchmark_Leakage]
+    sprint_roadmap: "Sprint 0(Bootstrap) → 1(Core Schema) → 2(First Golden Case) → 3(Evaluator) → 4(Oracle) → 5(10 Golden Cases)"
+    three_round_self_check: [Round_1_Code_Correctness, Round_2_Architecture_Consistency, Round_3_Benchmark_Integrity]
+    agent_response_template: [Completed, Changes, Files, Tests, Architecture_Check, Questions, Next_Step]
+    provenance:
+      origin_asset: SVDE_Bench_Execution_Intake_Report_v1_0.md
+      source_version: EXEC-INTAKE-V1.0
+      migration_method: execution-registration
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-035
+    name: SVDE-Bench Sprint 0 Repository Bootstrap & Smoke Test Acceptance
+    type: sprint_acceptance_record
+    status: Active
+    verdict: "SVDE-Bench Sprint 0 验收通过（2026-08-22）——独立评测仓库 svde-bench 搭建完成，5/5 pytest 冒烟测试全过"
+    five_gate_disciplines_enforced:
+      gate_1_not_svde_product: "svde-bench 仅定义评测 Harness，零 svde_kernel/compiler/runtime 等产品级代码混入"
+      gate_2_oracle_isolation: "Oracle 与 Agent 分属独立子包 (svdebench.oracle vs svdebench.agents)，零同源代码共享"
+      gate_3_gold_data_isolation: "数据集目录严格划分 public/cases vs private/hidden 权限隔离"
+      gate_4_evaluator_no_internal_state: "BaseEvaluator 仅输入 Case + Artifact，禁止访问 Agent 内部状态"
+      gate_5_schema_placeholder_only: "Sprint 0 仅定义基础 Schema，未提前引入复杂 Memory 引擎"
+    smoke_test_result: "pytest 5 passed (test_import 2/2, test_schema 3/3)"
+    provenance:
+      origin_asset: SVDE-Bench_Sprint_0_Bootstrap_Task_v1_0.md
+      source_version: SPRINT-0-V1.0
+      migration_method: sprint-acceptance
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-036
+    name: SVDE-Bench Sprint 1A Core Schema Implementation Acceptance
+    type: sprint_acceptance_record
+    status: Active
+    verdict: "SVDE-Bench Sprint 1A 验收通过（2026-08-22）——Core Decision Schema 冻结，双向序列化与边界拦截 100% 测试通过"
+    core_models_frozen:
+      case_model: "DecisionCase (metadata, intent, world_state, semantic_contract, runtime_context, events)"
+      artifact_model: "DecisionArtifact (case_id, status[FEASIBLE/INFEASIBLE], decision, trace, explanation, validation_result, memory_patch)"
+      trace_model: "DecisionTrace (trace_id, decision_chain, causal_rationale, constraint_provenance)"
+    validation_guards_enforced:
+      dynamic_runtime_guard: "包含 events 时若缺少 runtime_context 自动抛出 ValidationError 拦截"
+      status_enum_guard: "status 严格限定为 FEASIBLE | INFEASIBLE"
+    test_result: "pytest 6 passed (test_import 2/2, test_schema 4/4)"
+    provenance:
+      origin_asset: SVDE_Bench_Sprint_1A_Task_v1_0.md
+      source_version: SPRINT-1A-V1.0
+      migration_method: sprint-acceptance
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-037
+    name: SVDE-Bench Sprint 1B Decision Memory Artifact Schema Acceptance
+    type: sprint_acceptance_record
+    status: Active
+    verdict: "SVDE-Bench Sprint 1B 验收通过（2026-08-22）——Decision Memory Artifact Schema 冻结，纯数据语言与语义影响铁律 100% 验证"
+    memory_schema_frozen: "MemoryObject (memory_id, memory_class[6类], context, trigger, semantic_recommendation, outcome_evaluation, lifecycle[7态], source_evidence)"
+    validation_rules_enforced:
+      rule_1_non_empty_id: "memory_id 严禁为空白"
+      rule_2_valid_class: "MemoryClass 6 类强类型枚举限定"
+      rule_3_promoted_threshold: "PROMOTED 状态强制校验 source_evidence 与 outcome_evaluation 完备性"
+      rule_4_semantic_impact_law: "严禁 semantic_recommendation 包含求解器底层变量字符串（x[], f2_x, set_solver_var 等），违者立即抛出 ValidationError"
+    pure_data_boundary_maintained: "零 Vector DB, 零 Embedding, 零 Retrieval 算法代码混入"
+    test_result: "pytest 11 passed (test_import 2/2, test_schema 4/4, test_memory_schema 5/5)"
+    provenance:
+      origin_asset: SVDE_Bench_Sprint_1B_Task_Intake_Report_v1_0.md
+      source_version: SPRINT-1B-V1.0
+      migration_method: sprint-acceptance
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-038
+    name: SVDE-Bench Sprint 2 First Golden Case End-to-End Pipeline Acceptance
+    type: sprint_acceptance_record
+    status: Active
+    verdict: "SVDE-Bench Sprint 2 验收通过（2026-08-22）——首个 Golden Case 001 端到端流水线打通，双 Baseline A/B 差异化实证闭环"
+    golden_case_instantiated: "CASE-001-DELIVERY-RECOVERY (动态车队故障重排，承诺保护优先于局部运输成本)"
+    two_baselines_verified:
+      baseline_a_pure_solver: "PureSolverMockAgent 追求距离最短导致违背 VIP 锁定承诺，判定 Decision Feasibility = FAIL"
+      baseline_b_semantic_aware: "SemanticAwareAgent 遵循语义契约保障锁定订单转派，判定 Decision Feasibility = PASS，生成因果 Trace 与 Memory 补丁"
+    four_gates_enforced: [Gate_1_Artifact_Over_Solution, Gate_2_Memory_No_Solver_Pollution, Gate_3_Oracle_Isolation, Gate_4_Evaluation_Blackbox]
+    report_generated: "reports/golden_case_001_report.json"
+    test_result: "pytest 16 passed (import 2, schema 4, memory 5, golden_case 5)"
+    provenance:
+      origin_asset: SVDE_Bench_Sprint_2_Task_Intake_Report_v1_0.md
+      source_version: SPRINT-2-V1.0
+      migration_method: sprint-acceptance
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-039
+    name: SVDE-Bench Sprint 3A Semantic Evaluator Acceptance
+    type: sprint_acceptance_record
+    status: Active
+    verdict: "SVDE-Bench Sprint 3A 验收通过（2026-08-22）——Semantic Evaluator 确定性语义评价器就绪，首个 A/B 语义判定通过"
+    evaluator_features:
+      deterministic_rules: "Rule 1 HARD_COMMITMENT 违约必败 + Rule 2 类型检查 + Rule 3 意图对齐（零 LLM Judge 随机性）"
+      blackbox_boundary: "输入严格为 Case + Artifact，零 Agent 内部状态或 Solver 变量访问"
+      structured_evidence: "每条约束输出 ConstraintResult (id, type, expected, actual, status, evidence)"
+    baseline_comparison_result: "Baseline A (Pure Solver) -> overall_pass: False vs Baseline B (Semantic Aware) -> overall_pass: True"
+    four_gates_enforced: [Gate_1_Evaluation_Only, Gate_2_No_Solver_Access, Gate_3_Blackbox_Evaluation, Gate_4_Auditable_Evidence]
+    test_result: "pytest 21 passed (import 2, schema 4, memory 5, golden_case 5, semantic_eval 5)"
+    provenance:
+      origin_asset: SVDE_Bench_Sprint_3A_Task_Intake_Report_v1_0.md
+      source_version: SPRINT-3A-V1.0
+      migration_method: sprint-acceptance
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-040
+    name: SVDE-Bench Sprint 3B Feasibility Evaluator & BaseEvaluationResult Acceptance
+    type: sprint_acceptance_record
+    status: Active
+    verdict: "SVDE-Bench Sprint 3B 验收通过（2026-08-22）——BaseEvaluationResult 基类冻结，Feasibility Evaluator 与 Oracle 对比接口就绪"
+    evaluator_features:
+      base_model_frozen: "BaseEvaluationResult (evaluator_name, overall_pass, score, findings, evidence)"
+      feasibility_checks: "单车/货架物理容量上限校验 + 硬时间窗违规判定 + Oracle Objective Gap 相对差距量化"
+      core_thesis_proven: "实证 Solution Feasibility != Decision Feasibility（Baseline A: Feasibility PASS 但 Semantic FAIL）"
+    four_gates_enforced: [Gate_1_Evaluation_Only, Gate_2_No_Solver_Call, Gate_3_Decoupled_From_Semantic, Gate_4_Oracle_Independent]
+    test_result: "pytest 26 passed (import 2, schema 4, memory 5, golden_case 5, semantic_eval 5, feasibility_eval 5)"
+    provenance:
+      origin_asset: SVDE_Bench_Sprint_3B_Task_Intake_Report_v1_0.md
+      source_version: SPRINT-3B-V1.0
+      migration_method: sprint-acceptance
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-041
+    name: SVDE-Bench Sprint 3C Runtime Evaluator Acceptance
+    type: sprint_acceptance_record
+    status: Active
+    verdict: "SVDE-Bench Sprint 3C 验收通过（2026-08-22）——Runtime Evaluator 运行时自适应评价器就绪，三大评估器解耦并行架构成立"
+    evaluator_features:
+      runtime_result_model: "RuntimeEvaluationResult (继承 BaseEvaluationResult，扩展时序事件结果与动态指标)"
+      dynamic_metrics: "Commitment Survival Rate (承诺保持率) + Disruption Ratio (重排扰动率)"
+      state_transition_safety: "状态机单向单调合法性检查，已交付事实绝对只读不可逆"
+    tri_evaluator_topology: "Semantic (语义正确) × Feasibility (物理可行) × Runtime (动态自适应) 三维独立评价体系闭环"
+    four_gates_enforced: [Gate_1_Evaluation_Only, Gate_2_Replay_No_Case_Mutation, Gate_3_No_Solver_Dependency, Gate_4_Blackbox_Evaluation]
+    test_result: "pytest 31 passed (import 2, schema 4, memory 5, golden_case 5, semantic_eval 5, feasibility_eval 5, runtime_eval 5)"
+    provenance:
+      origin_asset: SVDE_Bench_Sprint_3C_Task_Intake_Report_v1_0.md
+      source_version: SPRINT-3C-V1.0
+      migration_method: sprint-acceptance
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-042
+    name: SVDE-Bench Sprint 3D Memory Evaluator & Four-Dimensional Evaluation Suite Acceptance
+    type: sprint_acceptance_record
+    status: Active
+    verdict: "SVDE-Bench Sprint 3D 验收通过（2026-08-22）——Memory Evaluator 记忆治理评价器就绪，四维评价体系正式闭环"
+    four_dimensional_evaluator_suite:
+      1_semantic_evaluator: "Semantic Correctness (意图/契约/强类型约束满足率)"
+      2_feasibility_evaluator: "Execution Feasibility (物理容量/时窗/Oracle Gap)"
+      3_runtime_evaluator: "Dynamic Adaptability (状态机合法性/承诺保持率/重排扰动率)"
+      4_memory_evaluator: "Decision Knowledge Governance (证据充分性/边界防泛化/冲突检测/虚假记忆阻断)"
+    mdvl_gates_automated: [MP_G1_Evidence_Gate, MP_G2_Context_Gate, MP_G3_Outcome_Gate, MP_G4_Contradiction_Gate, MP_G5_Promotion_Gate]
+    four_gates_enforced: [Gate_1_Evaluation_Only_No_Generation, Gate_2_No_Retrieval_Access, Gate_3_No_Lifecycle_Mutation, Gate_4_Promotion_As_Verdict]
+    test_result: "pytest 36 passed (import 2, schema 4, memory_schema 5, golden_case 5, semantic_eval 5, feasibility_eval 5, runtime_eval 5, memory_eval 5)"
+    provenance:
+      origin_asset: SVDE_Bench_Sprint_3D_Task_Intake_Report_v1_0.md
+      source_version: SPRINT-3D-V1.0
+      migration_method: sprint-acceptance
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-043
+    name: SVDE-Bench Sprint 3.5 Evaluation Framework & Profile Schema Freeze Acceptance
+    type: sprint_acceptance_record
+    status: Active
+    verdict: "SVDE-Bench Sprint 3.5 验收通过（2026-08-22）——四维决策智能画像与标准报告模式冻结，评分策略禁单一总分纪律固化"
+    evaluation_profile_model: "DecisionIntelligenceProfile (semantic, feasibility, runtime, memory 四维正交聚合)"
+    score_policy_discipline: "严禁单一标量总分，以 Profile 形式保留不同 Agent 在语义、数学、动态、治理层面的真实特质差异"
+    report_schema_frozen: "reports/ 标准输出模式 (case_id + agent_name + decision_artifact + evaluation_profile)"
+    integrity_rules_frozen: [Rule_1_Evaluation_Only, Rule_2_No_Solver_Call, Rule_3_No_Internal_State_Access, Rule_4_Oracle_Reference_Only, Rule_5_Promotion_As_Verdict]
+    test_result: "pytest 41 passed (import 2, schema 4, memory_schema 5, golden_case 5, semantic_eval 5, feasibility_eval 5, runtime_eval 5, memory_eval 5, profile_eval 5)"
+    provenance:
+      origin_asset: SVDE_Bench_Sprint_3_5_Task_Intake_Report_v1_0.md
+      source_version: SPRINT-3.5-V1.0
+      migration_method: sprint-acceptance
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-044
+    name: SVDE-Bench Sprint 4 Independent Oracle Implementation Acceptance
+    type: sprint_acceptance_record
+    status: Active
+    verdict: "SVDE-Bench Sprint 4 验收通过（2026-08-22）——独立 Exact CP-SAT Oracle 引擎就绪，基准可信根与 AST 隔离验证成立"
+    oracle_engine_features:
+      independent_cpsat_model: "CPSATModelBuilder (原生二元变量、物理载重上限、单运单分配、冷链硬匹配、数学硬承诺约束)"
+      oracle_reference_model: "OracleReference (严禁包含决策动作建议，仅输出客观数值、可行性与元数据)"
+      ast_isolation_verified: "AST 静态分析 100% 证实 svdebench/oracle/ 目录对 svdebench/agents/ 零导入依赖"
+    four_gates_enforced: [Gate_1_Oracle_Independence, Gate_2_No_Leakage, Gate_3_Evaluator_Separation, Gate_4_Semantic_Isolation]
+    test_result: "pytest 46 passed (import 2, schema 4, memory_schema 5, golden_case 5, semantic_eval 5, feasibility_eval 5, runtime_eval 5, memory_eval 5, profile_eval 5, oracle_integrity 5)"
+    provenance:
+      origin_asset: SVDE_Bench_Sprint_4_Task_Intake_Report_v1_0.md
+      source_version: SPRINT-4-V1.0
+      migration_method: sprint-acceptance
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-045
+    name: SVDE-Bench Sprint 4.5 Benchmark Calibration & Integrity Audit Acceptance
+    type: sprint_acceptance_record
+    status: Active
+    verdict: "SVDE-Bench Sprint 4.5 验收通过（2026-08-22）——基准校准层建立，Oracle 稳定性、AST 零泄露与 Golden Case 强区分度验证全过"
+    calibration_layer_modules:
+      1_oracle_audit: "验证无解识别 (INFEASIBLE)、多重对称最优目标一致与 5 次重复求解 100% 幂等"
+      2_evaluator_audit: "证明 Evaluator 与 Oracle 求解器解耦，不退化为 Oracle 结果比对器"
+      3_leakage_scan: "AST 静态分析 100% 证实 Agent !=> Oracle, Evaluator !=> Agent, Oracle !=> Evaluator 零非法引用"
+      4_case_quality: "三维质检确立 Golden Case 001 具备强区分度 (STRONG_SEPARATION) 与 100% 约束/事件覆盖率"
+    calibration_report_generated: "reports/calibration/CASE-001-calibration-report.json"
+    four_gates_enforced: [Gate_1_Benchmark_Self_Consistency, Gate_2_No_Leakage_Source, Gate_3_Evaluator_Independence, Gate_4_Strong_Case_Separation]
+    test_result: "pytest 54 passed (import 2, schema 4, memory_schema 5, golden_case 5, semantic_eval 5, feasibility_eval 5, runtime_eval 5, memory_eval 5, profile_eval 5, oracle_integrity 5, oracle_calib 5, leakage_audit 3)"
+    provenance:
+      origin_asset: SVDE_Bench_Sprint_4_5_Task_Intake_Report_v1_0.md
+      source_version: SPRINT-4.5-V1.0
+      migration_method: sprint-acceptance
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-046
+    name: SVDE-Bench Sprint 5 Multi-Domain Benchmark Suite Construction Phase 1 Acceptance
+    type: sprint_acceptance_record
+    status: Active
+    verdict: "SVDE-Bench Sprint 5 Phase 1 验收通过（2026-08-22）——Golden Case Ontology 设计、FullDecisionAgent 接入与领域覆盖矩阵骨架完成"
+    implementation_modules:
+      1_full_decision_agent: "Baseline C: 综合 Semantic + Feasibility + Runtime + Memory 四维能力的完整决策代理"
+      2_coverage_matrix: "reports/benchmark/coverage_matrix.json (配送 1 + 仓储 1 + 渠道 1 + 拜访 1 已落地，余下 5 Cases 在 Sprint 5B 实施)"
+      3_three_baseline_matrix: "PureSolver / SemanticAware / FullDecision 三类对照实验矩阵就绪"
+    four_gates_enforced: [Gate_A_Decision_Separation, Gate_B_Constraint_Coverage, Gate_C_Failure_Interpretability, Gate_D_Oracle_Available]
+    test_result: "pytest 54 passed (含 Oracle 校准与完整性审计)"
+    provenance:
+      origin_asset: SVDE_Bench_Sprint_5_Task_Intake_Report_v1_0.md
+      source_version: SPRINT-5-V1.0
+      migration_method: sprint-acceptance
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-047
+    name: SVDE-Bench Sprint 5B Golden Case Expansion & Suite Assembly Acceptance
+    type: sprint_acceptance_record
+    status: Active
+    verdict: "SVDE-Bench Sprint 5B 验收通过（2026-08-22）——10 Golden Cases 四领域全量覆盖，SVDE-Bench v0.1 Benchmark Suite 正式闭环"
+    full_suite_features:
+      10_cases_completed: "Delivery(4) + Warehouse(2) + Channel(2) + Visit(2) 全量覆盖矩阵就绪"
+      case_registry: "registry.yaml 统一登记 difficulty/ capability_tags/ oracle_available/ expected_failure_modes"
+      failure_taxonomy: "5 类标准化失败模式 (FT-01 SemViol / FT-02 PhysInf / FT-03 RuntimeInst / FT-04 MemoryOver / FT-05 ConstraintConflict)"
+      capability_matrix: "Semantic 100% / Feasibility 60% / Runtime 50% / Memory 20% 覆盖度审计"
+      master_report: "reports/svde_bench_v0_1_report.json 含 Case Registry + 4 类 Domain + Difficulty + Agent Comparison + Failure Distribution"
+    four_gates_enforced: [Gate_1_Uniform_Case_Format, Gate_2_Oracle_Available, Gate_3_Four_Dimensional_Evaluation, Gate_4_Failure_Mapping]
+    test_result: "pytest 59 passed (新增 5 组 Benchmark Suite 测试)"
+    provenance:
+      origin_asset: SVDE_Bench_Sprint_5B_Task_Intake_Report_v1_0.md
+      source_version: SPRINT-5B-V1.0
+      migration_method: sprint-acceptance
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-008
+    name: External Intake Adjudication Pattern
+    type: governance_rule_set
+    status: Active
+    rule: "外部资料一律走 资料→Evidence→Concept Candidate→Decision Mapping→Scenario Validation→Approved 六段流水；Evidence 不直接成为业务概念；每条候选必须三问（既有 Domain 可表达？真需新 Decision？有 Scenario 验证？）"
+    precedent_case:
+      what: "SVDE Methodology v1.0 FINAL（外部总结文档）入册"
+      adjudication: "文档全部'概念'均为既有 KB 资产的方法论重述（Visit Lifecycle=冻结五态·Ownership≠Assignment=MRE-D-1·八段链路=RMAP Phase 门）——裁定 100% 复用；唯二新增落治理层：本条(008)与复用边界(009)；零 Ontology/零 DM/零 Scenario 变更"
+      lesson: "外部文档即使用词不同（如 Execution Reality），概念归位以冻结术语为准（ExecutionVisit）——与 KB-GOV-006 历史概念拒绝对称：不接受旧词，也不接受外来同义词"
+    provenance:
+      origin_asset: SVDE_Methodology_Intake_Adjudication_Report_v1_0.md
+      source_version: INTAKE-V1.0
+      migration_method: adjudication-record
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-009
+    name: Framework Platformization Boundary
+    type: governance_rule
+    status: Active
+    rule: "可平台化=决策工程方法（Knowledge Governance/Domain Contract Framework/Scenario Validation Framework/Semantic Compilation Framework）；不可强行平台化=Domain Ontology/Decision Model/行业知识——平台化的是决策工程方法，而不是业务世界"
+    validation_against_kb:
+      - "Backend 全层 Reference + solver 更替不触发知识库变更 → 方法与业务分离已实证"
+      - "DM 层作为 Business Semantics↔Mathematical Expression 稳定接口（8 Validated Candidate）→ 接口可迁移、语义不迁移"
+      - "A03 v1.0.1 五场景零 DCR → 业务世界由本域验证而非框架生成"
+    provenance:
+      origin_asset: EV-INTAKE-001 可直引第 5 条
+      source_version: INTAKE-V1.0
+      migration_method: quotable-claim-adoption
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-007
+    name: Phase 2 Closure Freeze Snapshot
+    type: closure_snapshot
+    status: Active
+    rule: "Phase 2 关闭即冻结快照——Domain 终态/DM 终态/场景覆盖矩阵三点锁定，作为 Phase 3 Semantic Compilation 的唯一合法输入"
+    snapshot:
+      domain_final: "A03 v1.0.1 · 47 对象 · 五场景零 DCR 违规（唯一变更 SA-001-R 经合规变更控制）"
+      dm_final: "10→8：DM-001..008 全部 Validated Candidate（不 Approved——Phase 3 可能因数学表达调整 Decision 边界）；DM-009 并入 DM-004；DM-010 并入 DM-006+007"
+      scenario_matrix: "A/C/D/E/B 五场景覆盖矩阵见 SVDE_Phase2_Closure_Report_v1_0.md §2"
+      phase3_discipline: "首要验证 Semantic Equivalence（Feasibility/Objective Tuple/Requirement Fulfillment/Trace 四指标），不以 Solver Benchmark 驱动架构变化"
+    provenance:
+      origin_asset: SVDE_Phase2_Closure_Report_v1_0.md
+      source_version: PHASE2-CLOSURE-V1.0
+      migration_method: verbatim
+      approved_date: "2026-08-22"
+
+  - id: KB-GOV-006
+    name: Historical Concept Rejection Pattern
+    type: governance_rule_set
+    status: Active
+    rule: "'历史存在' ≠ '当前 Domain'——迁移/学习时若遇到 A03 v1.0.1 中零出现的旧词汇，一律拒绝并记录，不得以'以前有'为由恢复"
+    precedent_case:
+      what: "Phase A1 首版 Ontology 误含 VisitOverheadCost（v6.1 前旧名，已被 v6.1.1 拆分为 RouteMetrics+ObservedStopTime 取代）"
+      detection: "A03 v1.0.1 全文 grep 零出现"
+      action: "当场移除；净结果恢复 47↔47 严格相等；审计记录于 Phase A Report §4.1"
+      lesson: "Agent 学习历史文档时，历史概念必须以当前冻结契约为准绳过滤"
+    provenance:
+      origin_asset: SVDE_Knowledge_Base_Assembly_PhaseA_Report_v1_0.md §4.1
+      source_version: PHASEA-V1.0
+      migration_method: verbatim
+      approved_date: "2026-08-22"

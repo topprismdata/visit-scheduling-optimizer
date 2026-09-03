@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RetailChannelDecisionRuntimeTraceSchema",
+  "type": "object",
+  "required": [
+    "trace_id",
+    "domain",
+    "business_intent",
+    "semantic_contract_ref",
+    "typed_constraints",
+    "dsvl_precheck",
+    "mathopt_model_meta",
+    "solver_solution",
+    "external_reality_check",
+    "strategic_explainability",
+    "research_memory_update"
+  ],
+  "properties": {
+    "trace_id": {"type": "string"},
+    "domain": {"type": "string", "enum": ["Retail Channel Layout Decision"]},
+    "business_intent": {"type": "string"},
+    "semantic_contract_ref": {"type": "string"},
+    "typed_constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["cid", "name", "semantic_class", "hardness", "provenance"],
+        "properties": {
+          "cid": {"type": "string"},
+          "name": {"type": "string"},
+          "semantic_class": {"type": "string"},
+          "hardness": {"type": "string"},
+          "provenance": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "dsvl_precheck": {
+      "type": "object",
+      "required": ["decision_feasible", "gates", "rules"],
+      "properties": {
+        "decision_feasible": {"type": "boolean"},
+        "gates": {"type": "object"},
+        "rules": {"type": "array"}
+      }
+    },
+    "mathopt_model_meta": {
+      "type": "object",
+      "required": ["solver_type", "variables_count", "constraints_count", "m1_preservation_status"],
+      "properties": {
+        "solver_type": {"type": "string"},
+        "variables_count": {"type": "integer"},
+        "constraints_count": {"type": "integer"},
+        "m1_preservation_status": {"type": "string"}
+      }
+    },
+    "solver_solution": {
+      "type": "object",
+      "required": ["status", "objective_tuple", "channel_portfolio_selected"],
+      "properties": {
+        "status": {"type": "string"},
+        "objective_tuple": {
+          "type": "array",
+          "items": {"type": ["string", "number"]}
+        },
+        "channel_portfolio_selected": {"type": "object"}
+      }
+    },
+    "external_reality_check": {
+      "type": "object",
+      "required": ["variation_classification", "dsvl_postcheck_feasible", "invariants_preserved"],
+      "properties": {
+        "variation_classification": {"type": "string", "enum": ["DATA_VARIATION", "SEMANTIC_VARIATION"]},
+        "dsvl_postcheck_feasible": {"type": "boolean"},
+        "invariants_preserved": {"type": "boolean"}
+      }
+    },
+    "strategic_explainability": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["zone", "selected_format", "strategic_rationale"],
+        "properties": {
+          "zone": {"type": "string"},
+          "selected_format": {"type": "string"},
+          "strategic_rationale": {"type": "string"}
+        }
+      }
+    },
+    "research_memory_update": {
+      "type": "object",
+      "required": ["kernel_reuse_verified", "failure_triage"],
+      "properties": {
+        "kernel_reuse_verified": {"type": "boolean"},
+        "failure_triage": {"type": "string"}
+      }
+    }
+  }
+}

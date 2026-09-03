@@ -1,0 +1,26 @@
+hard:
+- id: C_CAP_GLOBAL
+  name: GlobalFleetCapacityLimit
+  type: VEHICLE_CAPACITY
+  hardness: HARD
+  relaxable: false
+- id: C_COLD_GLOBAL
+  name: GlobalColdChainCompartmentMatch
+  type: COLD_CHAIN_MATCH
+  hardness: HARD
+  relaxable: false
+- id: C_LOCK_ORD_009
+  name: VIPTimeLock_009
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_009
+  locked_window:
+  - 135
+  - 255
+  relaxable: false
+soft:
+- id: C_DISTANCE_OPT
+  name: MinimizeFleetDistance
+  weight: 1.0
+preference:
+- description: Prioritize on-time VIP fulfillment over dense route consolidation

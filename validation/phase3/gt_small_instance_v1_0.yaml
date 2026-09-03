@@ -1,0 +1,62 @@
+# GT-Small Instance v1.0 — Phase 3.3-① 装配件（Immutable Artifact）
+## 10 客户 × 1 业务员 × 4 周(20 工作日) · S-A §2.1 GT-Small 档位 · Phase 3.3 Q1 规模验证
+
+instance_id: GT-SMALL-V1.0
+generated_at: "2026-08-22"
+ladder_position: "GT-Micro ✅ → **GT-Small ◀** → GT-Medium → GT-Real（KB-GOV-013 不跳档）"
+oracle_level: "Exact Solver Oracle（独立 CP-SAT exact，OPTIMAL+bound——非全枚举；Enumeration Oracle 止于 GT-Micro）"
+artifacts_companion: [semantic_contract.yaml(随本步冻结), oracle_definition.md]
+
+base_calendar: {start: "2026-09-07(Mon)", weeks: 4, working_days: 20}   # D1..D20
+
+resource:
+  - {id: R001, base_territory: NT-01, cap_min_per_day: 480}
+
+targets:   # 10 客户: KA×2 / A×4 / B×4（GT-Micro 结构保持 + cadence 收紧一档）
+  - {id: T01, segment: KA, service_min: 60, freq: {semantics: EXACT, k: 4}, cadence: {min_gap: 3, max_gap: 6}, value: 0, avail: ALL}
+  - {id: T02, segment: KA, service_min: 60, freq: {semantics: EXACT, k: 4}, cadence: {min_gap: 3, max_gap: 6}, value: 0, avail: ALL}
+  - {id: T03, segment: A,  service_min: 45, freq: {semantics: EXACT, k: 3}, cadence: {min_gap: 4, max_gap: 8}, value: 0, avail: ALL}
+  - {id: T04, segment: A,  service_min: 45, freq: {semantics: EXACT, k: 3}, cadence: {min_gap: 4, max_gap: 8}, value: 0, avail: ALL}
+  - {id: T05, segment: A,  service_min: 45, freq: {semantics: EXACT, k: 3}, cadence: {min_gap: 4, max_gap: 8}, value: 0, avail: ALL}
+  - {id: T06, segment: A,  service_min: 45, freq: {semantics: EXACT, k: 3}, cadence: {min_gap: 4, max_gap: 8}, value: 0, avail: ALL}
+  - {id: T07, segment: B,  service_min: 40, freq: {semantics: RANGE, lo: 2, hi: 4}, cadence: {min_gap: 4, max_gap: 9}, value: 1.0, avail: ALL}
+  - {id: T08, segment: B,  service_min: 40, freq: {semantics: RANGE, lo: 2, hi: 4}, cadence: {min_gap: 4, max_gap: 9}, value: 1.0, avail: ALL}
+  - {id: T09, segment: B,  service_min: 40, freq: {semantics: RANGE, lo: 2, hi: 4}, cadence: {min_gap: 4, max_gap: 9}, value: 1.0, avail: ALL}
+  - {id: T10, segment: B,  service_min: 40, freq: {semantics: RANGE, lo: 2, hi: 4}, cadence: {min_gap: 4, max_gap: 9}, value: 1.0, avail: ALL}
+
+requirements:
+  - {id: REQ-GS-001, strength: HARD, text: "EXACT 频次足额（KA×4 + A×3）", binds: [T01..T06]}
+  - {id: REQ-GS-002, strength: HARD, text: "B 类底线 2 次（RANGE lo）", binds: [T07..T10]}
+  - {id: REQ-GS-003, strength: HARD, text: "日容量 480min", binds: []}
+  - {id: REQ-GS-004, strength: SOFT, text: "B stretch(第 3/4 次)按 value 最大化", binds: [T07..T10]}
+
+cases:   # 与 3.2 四 Case 同构——规模扩展下的语义稳定性（Q1 核心问题）
+  case_1_basic_feasible: {overrides: {}}
+  case_2_capacity_short:
+    overrides: {resource_day_capacity: {R001: {D8: 120, D9: 120, D10: 120}}}
+    softening: "REQ-GS-001/002 频次软化（DP-STD shortfall 显式）；min_gap 保持 HARD（3.2 教训固化——KB-GOV-012 lesson#4）"
+  case_3_commitment_locks:
+    overrides:
+      commitments:
+        - {id: GS-CMT-1, target: T01, day: 3,  lock: DAY_LOCKED}
+        - {id: GS-CMT-2, target: T03, day: 9,  lock: SEQUENCE_LOCKED, sequence: [T03, T04]}
+        - {id: GS-CMT-3, target: T04, day: 10, lock: SEQUENCE_LOCKED, sequence: [T03, T04]}
+        - {id: GS-CMT-4, target: T07, day: 14, lock: COMPLETELY_LOCKED}
+  case_4_cadence_stress:
+    overrides:
+      target_overrides:
+        T01: {cadence: {min_gap: 4, max_gap: 5}}
+        T02: {cadence: {min_gap: 4, max_gap: 5}}
+        T03: {avail: [1, 8, 15]}   # 三日可用窗口——EXACT(3) 恰可满足且间隔=7≥min_gap(4)
+
+travel_model: {type: synthetic_manhattan, speed_min_per_unit: 10, assumption: A004}
+coords: {T01: [1,1], T02: [3,1], T03: [5,1], T04: [7,1], T05: [2,3], T06: [4,3], T07: [6,3], T08: [8,3], T09: [3,5], T10: [5,5], R001_home: [0,0]}
+
+objective_canonical:   # S-A §2.5 逐字——L2 满分 = 4+4+3×4 + 2×4 = 28
+  L1: "∀ HARD 可行（REQ-GS-001/002/003）"
+  L2: "max Σ REQUIRED fulfillment（KA 8 + A 12 + B 底线 8 = 28 满分）"
+  L3: "max Σ v·z（B stretch ≤2×4×1.0 = 8.0 满分）"
+  L4: "min cadence 软罚(0.1/次 max_gap 超期) + stability(无 prior=0)"
+  L5: "min Σ travel(HK 精确) + Σ service"
+  comparison: lexicographic
+  output: 五层元组 (L1_status, L2, L3, L4, L5)

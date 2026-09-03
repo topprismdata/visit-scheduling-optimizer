@@ -1,0 +1,227 @@
+# SVDE Knowledge Base v0.1 — Decision Mapping Candidate Layer
+## Knowledge Expansion Phase · Step 1.5 · Business Concept → Decision Model Mapping Review
+## 纪律：不新增 Frozen Domain · 不新增 Approved Decision Model · 所有映射保持 Candidate
+## 角色：Knowledge Builder（承接 Step 1 的 17 条 Business Evidence，先搭"业务→决策"桥，再进数学）
+
+version: SVDE-KB-DecisionMapping-v0.1
+generated_at: "2026-08-22"
+input: business_knowledge_library_v0_1.yaml（BE-001..BE-017 + CC-01..03 + G-1..G-5）
+
+mapping_convention:
+  purpose: "数学之前先确认：每条业务知识到底支持什么决策——防止 Step 2 退化为'论文→算法模式'老路"
+  chain: "Business Concept → Decision Candidate → Mathematical Pattern（Step 2 从本表反推，不从论文正推）"
+  status_rule: "本层所有映射一律 Candidate（评审指令）；已有场景背书的映射加注 mapping_validated 证据，但状态不升格——升格通道仅 Gate 复审"
+  dm_ref_rule: "映射目标仅限 DM-001..008；DM-009/DM-010 仅作为合并裁定先例被引用（历史引用合法，非映射目标）"
+  fields: [concept, source_evidence, candidate_decision, existing_DM_mapping, gap, required_validation, status, validation_note]
+
+# ═══════════════════════════════════════════════════════════════
+# Part 1 — 逐条映射（BE → Decision；只指向既有 DM-001..008 或登记边界外）
+# ═══════════════════════════════════════════════════════════════
+decision_mappings:
+
+  # ── 节奏/频次主题 ──
+  - concept: 拜访节奏控制（Cadence 优于单一频次）
+    source_evidence: [BE-001]
+    candidate_decision: Coverage Decision——客户覆盖节奏是否被满足？
+    existing_DM_mapping: DM-001 Coverage（CadenceSpec min/max_gap 输入）
+    gap: null
+    required_validation: null
+    status: Candidate
+    validation_note: "mapping_validated——S-C 20/20（cadence 双边界 Gate C1）；S-A EXACT/RANGE 频次"
+
+  - concept: 多周周期拜访模式（离散周次模式）
+    source_evidence: [BE-002]
+    candidate_decision: Coverage Decision——周期以周次模式而非孤立频次管理
+    existing_DM_mapping: DM-001 Coverage（CadenceSpec+WorkingCalendar 组合承载）
+    gap: "math-note-M1（数学层注记，不占 gap_registry 编号）：周次模式 y_ip 形态属 Phase 3 F1 Pattern 判定，不改变决策语义"
+    required_validation: "Phase 3 F1/F2/F3 等价验证时一并判定"
+    status: Candidate
+    validation_note: "决策语义已验（S-A/S-C）；仅数学表达形态待 Phase 3"
+
+  - concept: 固定主干路线与周期轮转（Master Route 稳定性）
+    source_evidence: [BE-003]
+    candidate_decision: VisitPlanning Decision——主干稳定 vs 动态增量的平衡
+    existing_DM_mapping: DM-006 VisitPlanning（PlanningPolicy.freeze_days + ExistingCommitment 承载）
+    gap: G-1 Master Route 全量化表达未验证
+    required_validation: "Phase 3 F1 判定主干形态（长期承诺极端化 vs 新模式）；若需新语义→Failure Evidence+DCR"
+    status: Candidate
+    validation_note: "S-E 已验冻结窗口/承诺存活（部分背书）；全量主干未验"
+
+  # ── 价值/优先级主题 ──
+  - concept: 逾期价值累积 + 双分配目标（Highest Impact / Maximum Visits）
+    source_evidence: [BE-004]
+    candidate_decision: Prioritization Decision——有限资源投向边际回报最高客户
+    existing_DM_mapping: DM-002 Prioritization + ObjectivePolicy(VALUE_IMPACT_FIRST/MAX_THROUGHPUT)
+    gap: G-2 逾期累积函数形式（官方未声明）
+    required_validation: "Phase 3 目标函数形态裁定（线性/凸/分段——数学层选择，非 Domain 缺口）"
+    status: Candidate
+    validation_note: "mapping_validated——S-A TA-CAP 分层准入；目标二分已由 ObjectiveProfile 四态承载"
+
+  - concept: 未安排活动的显式经济惩罚（non_assignment_cost）
+    source_evidence: [BE-005]
+    candidate_decision: ExceptionHandling Decision——工时不足时延期成为合法经济学决策
+    existing_DM_mapping: DM-007 ExceptionHandling（DeferralPolicy 链）
+    gap: "惩罚数值化（cost 标定）属参数层——ParameterRegistry 通道，非决策缺口"
+    required_validation: "Phase 3 目标项权重标定"
+    status: Candidate
+    validation_note: "mapping_validated——S-A 四段异常链 + S-B 挤占链（88 测试内）"
+
+  - concept: Size-of-Prize 门店投资回报观
+    source_evidence: [BE-007]
+    candidate_decision: Investment Prioritization——销售代表时间作为昂贵资本投向何店？
+    existing_DM_mapping: DM-002 Prioritization（priority_score 的经济学解释）；概念挂接 KB-CAND-001 Outcome（Candidate 三无→BE-007 为首个语义供体）
+    gap: "Outcome 概念未成熟（三无：无验证场景/无 Failure Evidence/无 Gate）"
+    required_validation: "Outcome 需场景证明其不可被 priority_score+reason 表达（Failure Evidence）；否则永不入 Frozen"
+    status: Candidate
+    validation_note: "confidence D（厂商白皮书）；只喂 Candidate 不建对象"
+
+  - concept: 优先级多因子（订单新鲜度/回款/未结账款/销售贡献）
+    source_evidence: [BE-008]
+    candidate_decision: Prioritization Decision——含财务风险维度的加权排序
+    existing_DM_mapping: DM-002（因子清单=策略配置，S-B 已证 priority_score 是派生字段非 Ontology）
+    gap: "财务因子未实测——策略层扩展，无 Domain 缺口"
+    required_validation: "策略配置回归（未来场景可选）；非阻塞"
+    status: Candidate
+    validation_note: "mapping_validated——S-B TB-PRIORITY（class×reason×urgency 派生）"
+
+  # ── 分层/运营主题 ──
+  - concept: 战术级/运营级决策分层
+    source_evidence: [BE-009]
+    candidate_decision: （元决策）决策边界本身——哪些决策同层、哪些分层？
+    existing_DM_mapping: 架构证据：佐证 DM-009→DM-004 合并裁定（五场景全战术级/运营级）+ RMAP Phase Gate 分层
+    gap: null（分层依据，非待验决策）
+    required_validation: null
+    status: Candidate
+    validation_note: "mapping_validated——S-B TB-DM009 裁定与 ORTEC 实践一致"
+
+  - concept: 异常导向运营（90% 自动 / 10% 人工）
+    source_evidence: [BE-010]
+    candidate_decision: ExceptionHandling + ExecutionMonitor——偏离检测作为人工介入触发器
+    existing_DM_mapping: DM-007（异常链）+ DM-008（偏离 diff）
+    gap: "自动化边界比例=运营参数（PlanningPolicy 配置），非决策缺口"
+    required_validation: null
+    status: Candidate
+    validation_note: "mapping_validated——S-B TB-MONITOR-DEV 偏离 diff 产出介入输入"
+
+  # ── 滚动/稳定主题 ──
+  - concept: 滚动时域规划（Rolling Horizon）
+    source_evidence: [BE-011]
+    candidate_decision: （执行模式）重排=Planning+Exception 的动态执行模式（H2 裁定）
+    existing_DM_mapping: DM-006 + DM-007（DM-010 已并入——不新建 Replanning DM）
+    gap: null
+    required_validation: null
+    status: Candidate
+    validation_note: "mapping_validated——S-E 17/17 + S-B 日内复证（双场景背书）"
+
+  # ── 辖区/公平主题（两个真缺口）──
+  - concept: 客户熟悉度偏好（谁来）
+    source_evidence: [BE-006, CC-01]
+    candidate_decision: Assignment Decision 的一致性扩展——客户指定代表是否成为指派输入？
+    existing_DM_mapping: DM-005 Assignment（当前输入：归属三轴+资质+可用性——无客户偏好通道）
+    gap: G-3 CC-01 FamiliarityPreference 无冻结对象承载（Ownership=组织事实≠客户偏好）
+    required_validation: "未来场景'多资源×客户指定代表'：若无法表达且造成业务失败→Failure Evidence→DCR；否则以策略近似（复用 EligibilityPolicy 收窄）"
+    status: Candidate
+    validation_note: "未验证——三问第一问答案为否，正当 Candidate"
+
+  - concept: 辖区设计（战略级 Territory Design）
+    source_evidence: [BE-012, CC-02]
+    candidate_decision: 战略层决策——区域结构/团队-客户群匹配（季度-年度周期）
+    existing_DM_mapping: 边界外——当前 8 DM 全部战术/运营级；不建 DM（与 DM-009 合并同构：无场景证据不立 DM）
+    gap: G-4 战略层场景整体未开（Phase Gate P6 前锁定）
+    required_validation: "战略层解锁（P6）后：新场景+DCR 双通道；可能改变 Ownership/Resource Boundary/Coverage Logic——评审警示已登记"
+    status: Candidate
+    validation_note: "边界外登记——价值最高但风险最高，只登记不推进"
+
+  - concept: 多周期工作量均衡（Equity）
+    source_evidence: [BE-013, CC-03]
+    candidate_decision: ResourceAlloc 的均衡目标扩展——忙闲不均是否需治理？
+    existing_DM_mapping: DM-004 ResourceAlloc + ObjectiveProfile 候选第五态（BALANCED_EQUITY——枚举扩展=DCR）
+    gap: G-5 公平定义（min-max？加权？组织文化口径）未定 + 多周×多资源场景未验
+    required_validation: "未来场景'多周×多资源×公平约束'；公平口径由业务方裁定（评审警示：涉组织文化非纯 Objective）"
+    status: Candidate
+    validation_note: "未验证——ObjectiveProfile 四态不含 equity 属实"
+
+  # ── 实证/闭环主题 ──
+  - concept: 门店停留耗时实证（32.0min 中位数）
+    source_evidence: [BE-014]
+    candidate_decision: null（证据型知识——不驱动决策，仅校准参数）
+    existing_DM_mapping: ParameterRegistry(param.stop_time_evidence, CALIBRATED)；AC-8 防双计守卫
+    gap: null
+    required_validation: null
+    status: Candidate
+    validation_note: "mapping_validated——S-A REQ-A-004 ADVISORY；证据专用通道"
+
+  - concept: 城市巡泊时间（行程末端成本）
+    source_evidence: [BE-015]
+    candidate_decision: VisitPlanning 时间预算口径——行程估计须含末端巡泊
+    existing_DM_mapping: DM-006（travel model 校准输入，非 Domain 对象）
+    gap: null（Phase 3 校准素材）
+    required_validation: "Phase 3 GT-Micro 时间口径校准"
+    status: Candidate
+    validation_note: "数学层素材预登记"
+
+  - concept: 执行状态回写再生（State-Driven Regeneration）
+    source_evidence: [BE-016]
+    candidate_decision: ReqGeneration + ExecutionMonitor——历史作为规划输入
+    existing_DM_mapping: DM-003（missed→regen）+ DM-008（状态真值）
+    gap: null
+    required_validation: null
+    status: Candidate
+    validation_note: "mapping_validated——S-E TE-HIST-MISSED 滚动补访 + S-B 偏离 diff（双场景背书）"
+
+  - concept: 内部已验证不变式（承诺零移动/审计 trace/机会=reason/优先级=派生）
+    source_evidence: [BE-017]
+    candidate_decision: 多决策联合不变式
+    existing_DM_mapping: DM-006/007/008 + 冻结对象组
+    gap: null
+    required_validation: null
+    status: Candidate
+    validation_note: "mapping_validated——本条即 88 测试产物登记"
+
+# ═══════════════════════════════════════════════════════════════
+# Part 2 — 反向视图：8 个既有 DM 的业务支持面（Step 2 的反推种子）
+# ═══════════════════════════════════════════════════════════════
+dm_support_matrix:
+  DM-001 Coverage:           {supported_by: [BE-001, BE-002], scenario: "S-A/S-C 已验"}
+  DM-002 Prioritization:     {supported_by: [BE-004, BE-007, BE-008], scenario: "S-A/S-B 已验；Size-of-Prize 喂 Outcome"}
+  DM-003 ReqGeneration:      {supported_by: [BE-016], scenario: "S-A/S-C/S-E 已验"}
+  DM-004 ResourceAlloc:      {supported_by: [BE-009, CC-03(候选扩展)], scenario: "S-A/S-D/S-B 已验；equity 待 G-5"}
+  DM-005 Assignment:         {supported_by: [CC-01(候选扩展)], scenario: "S-D 已验；familiarity 待 G-3"}
+  DM-006 VisitPlanning:      {supported_by: [BE-003, BE-011, BE-015], scenario: "四场景已验；master-route 待 G-1"}
+  DM-007 ExceptionHandling:  {supported_by: [BE-005, BE-010, BE-011], scenario: "五场景已验"}
+  DM-008 ExecutionMonitor:   {supported_by: [BE-010, BE-016, BE-017], scenario: "S-E/S-B 已验（独立成立）"}
+  边界外:                    {TerritoryDesign: "不建 DM（G-4/P6 锁定；无场景证据不立 DM——KB-GOV 惯例）"}
+
+# ═══════════════════════════════════════════════════════════════
+# Part 3 — Step 2 数学模式库的入口约束（从 Decision 反推，不从论文正推）
+# ═══════════════════════════════════════════════════════════════
+step2_entry_contract:
+  direction: "Decision Candidate → 所需 Mathematical Pattern（反推）；论文仅作 Pattern 的 Evidence（Evidence ≠ Design）"
+  seed_table:                # 评审给定种子 + 本层补充
+    - {decision: "Assignment(DM-005)", pattern: Assignment Problem}
+    - {decision: "Coverage(DM-001)", pattern: "Set Covering / Set Partitioning"}
+    - {decision: "Scheduling(DM-006)", pattern: "Scheduling Theory / CP"}
+    - {decision: "Routing(DM-006 日序)", pattern: "VRP / Routing"}
+    - {decision: "Resource Balance(DM-004+CC-03)", pattern: Multi-objective Optimization}
+    - {decision: "Dynamic Adjustment(DM-006/007 滚动)", pattern: Rolling Horizon Optimization}
+    - {decision: "Priority/未安排成本(DM-002/007)", pattern: "Prize-Collecting / Knapsack 结构（BE-004/005 语义）"}   # 本层新增
+    - {decision: "周期节奏(DM-001)", pattern: "Pattern-based(周次模式) / Temporal Dependency"}                       # 本层新增（BE-002 + van Montfort 2026）
+  forbidden: "不得因论文出现新 Pattern 而反向创建 Decision——新 Pattern 仅当某 Candidate Decision 需要时才登记"
+
+# ═══════════════════════════════════════════════════════════════
+# Part 4 — 汇总
+# ═══════════════════════════════════════════════════════════════
+summary:
+  mapping_entries: 17           # 覆盖 BE-001..017 全量（含 1 条纯证据型显式标 null decision）
+  mapping_validated: 10         # BE-001/004/005/008/009/010/011/014/016/017——有场景背书（状态仍 Candidate，仅加注）
+  mapping_unvalidated: 5        # BE-002(仅数学形态待定)/003(G-1)/007(Outcome)/013(G-5)/015(Phase3 素材)
+  boundary_registered: 2        # BE-009 元决策(分层依据·已注) + BE-012 战略层(边界外·未验)
+  new_frozen_concept: 0
+  new_decision_model: 0         # 不新建、不升格——8 DM 终态不变
+  new_scenario: 0
+  frozen_kb_touched: false
+  batch_plan:
+    step_1_business_knowledge: "✅ business_knowledge_library_v0_1.yaml"
+    step_1_5_decision_mapping: "✅ 本文件"
+    step_2_math_pattern_library: "⏳ 就绪——按 step2_entry_contract 反推（8 个 Pattern 种子已列）"
+    step_3_backend_reference: "⏳ 排队"

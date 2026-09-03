@@ -1,0 +1,117 @@
+# Warehouse Constraint Type Registry v1.0 — Phase 4.1 Artifact 2（Immutable）
+## 仓储领域约束类型系统 · 强类型定义与生成期检查规则（Shift Left 验证）
+
+registry_id: WH-CTR-V1.0
+generated_at: "2026-08-22"
+input: warehouse_slotting_semantic_contract_v1_0.yaml
+direction_rule: "Contract → Type——禁止从数学模型反推；类型是仓储契约语义的类型化投影"
+
+semantic_class_enum: [Assignment, Capacity, Occupancy, Compatibility, SafetyIsolation, PhysicalRule, Objective]
+hardness_enum: [HARD, SOFT_PREFERENCE, OBJECTIVE_PENALTY]
+
+types:
+
+  WC01:
+    name: SKUAssignmentExact
+    contract_ref: C1（SKU 必存分配）
+    semantic_class: Assignment
+    cardinality: {op: "==", value: 1}
+    hardness: HARD
+    relaxable: false
+    translation: "Σ_l x[s, l] == 1 (∀s ∉ optional)"
+    domain_provenance: ["Warehouse Operations Standard", "Inventory Mandatory Policy"]
+    solver_bindings: {MIP: "AddLinearConstraint sum==1", CP_SAT: "Add(sum==1)"}
+
+  WC02:
+    name: LocationCapacity
+    contract_ref: C2（库位容积/承重）
+    semantic_class: Capacity
+    cardinality: {op: "<=", vol_limit: "cap_vol", wt_limit: "cap_wt"}
+    hardness: HARD
+    relaxable: false
+    translation: "Σ_s vol[s]·x[s,l] <= cap_vol[l] ∧ Σ_s wt[s]·x[s,l] <= cap_wt[l]"
+    domain_provenance: ["Physical Rack Limits", "Storage Safety Standards"]
+    solver_bindings: {MIP: "双线性不等式", CP_SAT: "整数不等式"}
+
+  WC03:
+    name: LocationOccupancy
+    contract_ref: C3（库位独占）
+    semantic_class: Occupancy
+    cardinality: {op: "<=", value: 1}
+    hardness: HARD
+    relaxable: false
+    translation: "Σ_s x[s, l] <= 1 (∀l)"
+    domain_provenance: ["Single-SKU Pallet Strategy", "WMS Slotting Rule"]
+    solver_bindings: {MIP: "sum<=1", CP_SAT: "AddAtMostOne"}
+
+  WC04:
+    name: TempCompatibility
+    contract_ref: C4（温区兼容性）
+    semantic_class: Compatibility
+    cardinality: {op: "mask", match: "temp_req == loc_temp"}
+    hardness: HARD
+    relaxable: false
+    translation: "x[s, l] == 0 (∀s, l s.t. temp_req[s] != temp[l])"
+    domain_provenance: ["Cold Chain Standard", "Food Quality Assurance"]
+    solver_bindings: {MIP: "变量禁用/上界置0", CP_SAT: "变量不创建/固定0"}
+
+  WC05:
+    name: HazmatIsolation
+    contract_ref: C5（危化品与食品隔离）
+    semantic_class: SafetyIsolation
+    cardinality: {op: "pairwise_exclusion", min_dist: 15}
+    hardness: HARD
+    relaxable: false
+    translation: "x[s1, l1] + x[s2, l2] <= 1 (∀s1∈Hazmat, s2∈Food s.t. dist(l1,l2) < 15)"
+    domain_provenance: ["OSHA Hazardous Material Segregation", "Food Safety Modernization Act"]
+    solver_bindings: {MIP: "互斥对不等式", CP_SAT: "AddAtMostOne"}
+
+  WC06:
+    name: HeavyFloorRule
+    contract_ref: C6（重型货架承重）
+    semantic_class: PhysicalRule
+    cardinality: {op: "mask", min_cap_wt: 700}
+    hardness: HARD
+    relaxable: false
+    translation: "x[s, l] == 0 (∀s∈Heavy, l s.t. cap_wt[l] < 700)"
+    domain_provenance: ["Structural Engineering Load Ratings"]
+    solver_bindings: {MIP: "变量裁剪", CP_SAT: "变量禁用"}
+
+  WC07:
+    name: VelocityAffinity
+    contract_ref: C7（高周转就近）
+    semantic_class: Objective
+    cardinality: null
+    hardness: SOFT_PREFERENCE
+    relaxable: true
+    translation: "min Σ (pick_freq[s] · dist_to_io[l] · x[s, l])"
+    domain_provenance: ["Activity-Based Slotting (ABC Analysis)"]
+    solver_bindings: {MIP: "目标项系数", CP_SAT: "目标项加权"}
+
+  WC08:
+    name: OptionalSlotting
+    contract_ref: C8（促销 SKU 弹性准入）
+    semantic_class: Assignment
+    cardinality: {op: "<=", value: 1}
+    hardness: SOFT_PREFERENCE
+    relaxable: true
+    translation: "Σ_l x[s_opt, l] <= 1"
+    domain_provenance: ["Promotional Space Optimization Policy"]
+    solver_bindings: {MIP: "不等式准入", CP_SAT: "AddAtMostOne"}
+
+# ═══════════════════════════════════════════════════════════════
+# 生成期检查规则（Type Check Rules WH-TC-001..004）
+# ═══════════════════════════════════════════════════════════════
+type_check_rules:
+  - id: WH-TC-001
+    name: HardSafetyNeverSoft
+    rule: "WC04 (Temp) / WC05 (Hazmat) / WC06 (Heavy) 的 hardness 恒为 HARD，relaxable 恒为 false；任何软化企图立即报 TYPE_ERROR"
+  - id: WH-TC-002
+    name: SingleSKUOccupancy
+    rule: "WC03 的 cardinality.op 必须为 '<=' 且 value 必须为 1（独占货位策略）"
+  - id: WH-TC-003
+    name: ObjectiveIsolation
+    rule: "WC07 (Pick Cost) 必须且仅能居于 OBJECTIVE 空间，禁止作为 HARD 约束编译"
+  - id: WH-TC-004
+    name: HazmatExclusionValidation
+    rule: "危化品排他点对集非空验证：检查是否存在物理距离不足 15 的危险货位配对并显式生成排他对"

@@ -1,0 +1,26 @@
+hard:
+- id: C1
+  name: WorkloadCap
+  type: VEHICLE_CAPACITY
+  hardness: HARD
+  relaxable: false
+- id: C2
+  name: ICUSkillMatch
+  type: COLD_CHAIN_MATCH
+  hardness: HARD
+  relaxable: false
+- id: C3
+  name: ICUTimeLock
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: VISIT_ICU
+  locked_window:
+  - 0
+  - 240
+  relaxable: false
+soft:
+- id: C4
+  name: ShiftBalancePenalty
+  weight: 1.0
+preference:
+- description: Route routine dispensary to Junior rep to relieve Specialist workload

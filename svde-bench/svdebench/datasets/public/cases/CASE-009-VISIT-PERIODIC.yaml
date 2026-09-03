@@ -1,0 +1,31 @@
+# Golden Case 009 — Periodic Visit Scheduling Optimization v0.1
+metadata:
+  id: "CASE-009-VISIT-PERIODIC"
+  domain: "Visit Scheduling"
+  name: "Multi-Cycle Periodic Visit Planning v0.1"
+  tags: ["planning", "visit", "periodic"]
+
+intent:
+  objective: "Maximize visit coverage under route budget constraint"
+
+world_state:
+  depot: [0, 0]
+  fleet:
+    - {id: "VEH_VISIT", type: "VAN", capacity_kg: 1500, status: "AVAILABLE"}
+  orders:
+    - {id: "CUST_A", weight_kg: 100, req_cold: false, tw_early: 0, tw_late: 600, is_locked: false}
+    - {id: "CUST_B", weight_kg: 100, req_cold: false, tw_early: 0, tw_late: 600, is_locked: false}
+
+semantic_contract:
+  constraints:
+    - id: "C1"
+      name: "VehicleCapacity"
+      type: "VEHICLE_CAPACITY"
+      hardness: "HARD"
+      relaxable: false
+
+runtime_context:
+  timestamp_min: 0
+  past_delivered_orders: []
+
+events: []

@@ -1,0 +1,7 @@
+objective: lexicographic_competency_first_then_workload
+candidate_solutions_count: 2
+parallel_options:
+- id: opt_balanced_skill
+  description: Specialist visits ICU, Junior visits Dispensary
+- id: opt_improper_delegation
+  description: Junior visits ICU to save transit (Medical Competency Breach)

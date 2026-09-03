@@ -1,0 +1,60 @@
+# SVDE-Bench v0.3 — Visit Scheduling Domain Entity Model
+# Defines entity archetypes, properties, and skill hierarchies for Sales Visit Scheduling
+
+domain: "visit"
+version: "1.0"
+
+entity_types:
+  sales_resource:
+    description: "Field representative / account executive"
+    archetypes:
+      SPECIALIST_REP:
+        skill_tier: "SPECIALIST"
+        max_daily_minutes: 480
+        allowed_customer_tiers: ["STRATEGIC", "CORE", "DEVELOPMENT"]
+        default_status: "AVAILABLE"
+      SENIOR_REP:
+        skill_tier: "SENIOR"
+        max_daily_minutes: 480
+        allowed_customer_tiers: ["CORE", "DEVELOPMENT"]
+        default_status: "AVAILABLE"
+      JUNIOR_REP:
+        skill_tier: "JUNIOR"
+        max_daily_minutes: 420
+        allowed_customer_tiers: ["DEVELOPMENT"]
+        default_status: "AVAILABLE"
+    lifecycle_states: ["AVAILABLE", "ON_VISIT", "TRAVELING", "ON_LEAVE", "SICK_LEAVE"]
+
+  customer_account:
+    description: "Client retail store, pharmacy, or enterprise hospital account"
+    account_tiers:
+      STRATEGIC:
+        service_commitment: "MUST_MATCH_SPECIALIST_TIER"
+        min_visit_duration_mins: 60
+        cadence_spec: "EXACT_WEEKLY"
+        penalty_weight: 10.0
+      CORE:
+        service_commitment: "SENIOR_OR_SPECIALIST_TIER"
+        min_visit_duration_mins: 45
+        cadence_spec: "BI_WEEKLY"
+        penalty_weight: 5.0
+      DEVELOPMENT:
+        service_commitment: "ANY_AVAILABLE_REP"
+        min_visit_duration_mins: 30
+        cadence_spec: "MONTHLY_TARGET"
+        penalty_weight: 1.0
+
+  visit_demand:
+    description: "Scheduled business interaction instance"
+    cadence_types: ["EXACT_WEEKLY", "BI_WEEKLY", "MONTHLY_TARGET"]
+    attributes:
+      duration_mins: {type: "int", min: 15, max: 180}
+      tw_early: {type: "int", min: 0, description: "Minutes from daily shift start"}
+      tw_late: {type: "int", min: 0, description: "Minutes from daily shift start"}
+      is_locked: {type: "bool", default: false}
+      is_vip: {type: "bool", default: false}
+      required_skill: {type: "string", enum: ["SPECIALIST", "SENIOR", "JUNIOR"]}
+
+  territory_depot:
+    description: "Regional office or base hub coordinates"
+    coordinates: [0, 0]

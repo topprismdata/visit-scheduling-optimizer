@@ -1,0 +1,7 @@
+primary_objective: insert_emergency_order_preserve_existing_locks
+secondary_objectives:
+- minimize_schedule_ripple
+priority_rules:
+  vip_customer: high
+  cost: medium
+  service_level: high

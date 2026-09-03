@@ -1,0 +1,342 @@
+{
+  "generated_at": "2026-08-23T16:02:42.937850",
+  "task": "SVDE-Bench v0.1 E2E Pipeline + Profile Generation",
+  "total_cases": 10,
+  "agents_evaluated": [
+    "PureSolverMockAgent",
+    "SemanticAwareAgent",
+    "FullDecisionAgent"
+  ],
+  "profile_directory": "svde-bench/reports/profiles/",
+  "case_results": [
+    {
+      "case_id": "CASE-001-DELIVERY-RECOVERY",
+      "domain": "Dynamic Fleet Route Logistics",
+      "difficulty": "unknown",
+      "agents": {
+        "PureSolverMockAgent": {
+          "error": "'NoneType' object has no attribute 'get'"
+        },
+        "SemanticAwareAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "FEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        },
+        "FullDecisionAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "FEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        }
+      },
+      "oracle": {
+        "status": "OPTIMAL",
+        "feasibility": "FEASIBLE",
+        "objective_value": 49950.0,
+        "wall_time": 0.043
+      }
+    },
+    {
+      "case_id": "CASE-002-MULTI-DC",
+      "domain": "Dynamic Fleet Route Logistics",
+      "difficulty": "unknown",
+      "agents": {
+        "PureSolverMockAgent": {
+          "error": "'NoneType' object has no attribute 'get'"
+        },
+        "SemanticAwareAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "INFEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        },
+        "FullDecisionAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "FEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        }
+      },
+      "oracle": {
+        "status": "OPTIMAL",
+        "feasibility": "FEASIBLE",
+        "objective_value": 29970.0,
+        "wall_time": 0.005
+      }
+    },
+    {
+      "case_id": "CASE-003-COLDCHAIN-RECOVERY",
+      "domain": "Dynamic Fleet Route Logistics",
+      "difficulty": "unknown",
+      "agents": {
+        "PureSolverMockAgent": {
+          "error": "'NoneType' object has no attribute 'get'"
+        },
+        "SemanticAwareAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "INFEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        },
+        "FullDecisionAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "FEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        }
+      },
+      "oracle": {
+        "status": "OPTIMAL",
+        "feasibility": "FEASIBLE",
+        "objective_value": 29970.0,
+        "wall_time": 0.004
+      }
+    },
+    {
+      "case_id": "CASE-004-PRIORITY-CONFLICT",
+      "domain": "Dynamic Fleet Route Logistics",
+      "difficulty": "unknown",
+      "agents": {
+        "PureSolverMockAgent": {
+          "error": "'NoneType' object has no attribute 'get'"
+        },
+        "SemanticAwareAgent": {
+          "semantic_pass": false,
+          "semantic_violations": [
+            "C_COMMIT: Hard commitment for ORD_VIP violated"
+          ],
+          "feasibility_status": "INFEASIBLE",
+          "commitment_survival_rate": 0.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        },
+        "FullDecisionAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "FEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        }
+      },
+      "oracle": {
+        "status": "OPTIMAL",
+        "feasibility": "FEASIBLE",
+        "objective_value": 19980.0,
+        "wall_time": 0.001
+      }
+    },
+    {
+      "case_id": "CASE-005-WAREHOUSE-DYN",
+      "domain": "Warehouse Slotting",
+      "difficulty": "unknown",
+      "agents": {
+        "PureSolverMockAgent": {
+          "error": "'NoneType' object has no attribute 'get'"
+        },
+        "SemanticAwareAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "INFEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        },
+        "FullDecisionAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "FEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        }
+      },
+      "oracle": {
+        "status": "OPTIMAL",
+        "feasibility": "FEASIBLE",
+        "objective_value": 19980.0,
+        "wall_time": 0.003
+      }
+    },
+    {
+      "case_id": "CASE-006-WAREHOUSE-CONGESTION",
+      "domain": "Warehouse Slotting",
+      "difficulty": "unknown",
+      "agents": {
+        "PureSolverMockAgent": {
+          "error": "'NoneType' object has no attribute 'get'"
+        },
+        "SemanticAwareAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "INFEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        },
+        "FullDecisionAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "FEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        }
+      },
+      "oracle": {
+        "status": "OPTIMAL",
+        "feasibility": "FEASIBLE",
+        "objective_value": 39960.0,
+        "wall_time": 0.003
+      }
+    },
+    {
+      "case_id": "CASE-007-CHANNEL-DIST",
+      "domain": "Retail Channel Layout",
+      "difficulty": "unknown",
+      "agents": {
+        "PureSolverMockAgent": {
+          "error": "'NoneType' object has no attribute 'get'"
+        },
+        "SemanticAwareAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "INFEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        },
+        "FullDecisionAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "FEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        }
+      },
+      "oracle": {
+        "status": "OPTIMAL",
+        "feasibility": "FEASIBLE",
+        "objective_value": 19980.0,
+        "wall_time": 0.003
+      }
+    },
+    {
+      "case_id": "CASE-008-OPPORTUNITY-ALLOC",
+      "domain": "Retail Channel Layout",
+      "difficulty": "unknown",
+      "agents": {
+        "PureSolverMockAgent": {
+          "error": "'NoneType' object has no attribute 'get'"
+        },
+        "SemanticAwareAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "INFEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        },
+        "FullDecisionAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "FEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        }
+      },
+      "oracle": {
+        "status": "OPTIMAL",
+        "feasibility": "FEASIBLE",
+        "objective_value": 19980.0,
+        "wall_time": 0.003
+      }
+    },
+    {
+      "case_id": "CASE-009-VISIT-PERIODIC",
+      "domain": "Visit Scheduling",
+      "difficulty": "unknown",
+      "agents": {
+        "PureSolverMockAgent": {
+          "error": "'NoneType' object has no attribute 'get'"
+        },
+        "SemanticAwareAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "INFEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        },
+        "FullDecisionAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "FEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        }
+      },
+      "oracle": {
+        "status": "OPTIMAL",
+        "feasibility": "FEASIBLE",
+        "objective_value": 19980.0,
+        "wall_time": 0.001
+      }
+    },
+    {
+      "case_id": "CASE-010-VISIT-REPLAN",
+      "domain": "Visit Scheduling",
+      "difficulty": "unknown",
+      "agents": {
+        "PureSolverMockAgent": {
+          "error": "'NoneType' object has no attribute 'get'"
+        },
+        "SemanticAwareAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "INFEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        },
+        "FullDecisionAgent": {
+          "semantic_pass": true,
+          "semantic_violations": [],
+          "feasibility_status": "FEASIBLE",
+          "commitment_survival_rate": 1.0,
+          "memory_promotion": "PROMOTED",
+          "objective_gap": null
+        }
+      },
+      "oracle": {
+        "status": "OPTIMAL",
+        "feasibility": "FEASIBLE",
+        "objective_value": 19980.0,
+        "wall_time": 0.004
+      }
+    }
+  ],
+  "summary_metrics": {
+    "oracle_optimal_count": 10,
+    "oracle_feasible_count": 10,
+    "semantic_aware_pass_rate": 0.9,
+    "pure_solver_semantic_pass_rate": 0.0,
+    "full_decision_semantic_pass_rate": 1.0
+  }
+}

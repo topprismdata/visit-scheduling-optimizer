@@ -1,0 +1,43 @@
+entities:
+  vehicles:
+  - id: VEH_01
+    type: STANDARD_VAN
+    capacity_kg: 600
+    status: AVAILABLE
+  customers:
+  - id: CUST_VIP
+    name: Central Dialysis Center
+    priority: vip
+  - id: CUST_STD_A
+    name: General Clinic A
+    priority: standard
+  - id: CUST_STD_B
+    name: General Clinic B
+    priority: standard
+  orders:
+  - id: ORD_VIP
+    weight_kg: 350
+    is_locked: true
+    is_vip: true
+    tw_early: 0
+    tw_late: 180
+  - id: ORD_STD_A
+    weight_kg: 200
+    is_locked: false
+    is_vip: false
+    tw_early: 0
+    tw_late: 360
+  - id: ORD_STD_B
+    weight_kg: 200
+    is_locked: false
+    is_vip: false
+    tw_early: 0
+    tw_late: 360
+relationships:
+  vehicle_route:
+  - vehicle: VEH_01
+    planned_orders:
+    - ORD_VIP
+  customer_priority:
+  - customer: CUST_VIP
+    commitment: sla_commitment

@@ -1,0 +1,31 @@
+# Golden Case 007 — Channel Resource Allocation Trade-off v0.1
+metadata:
+  id: "CASE-007-CHANNEL-DIST"
+  domain: "Retail Channel Layout"
+  name: "Channel Resource Allocation Trade-off v0.1"
+  tags: ["trade_off", "channel", "business"]
+
+intent:
+  objective: "Maximize market coverage under budget constraint"
+
+world_state:
+  depot: [0, 0]
+  fleet:
+    - {id: "ZONE_T1", type: "ZONE", capacity_kg: 1500, status: "AVAILABLE"}
+  orders:
+    - {id: "FORMAT_A", weight_kg: 500, req_cold: false, is_locked: false}
+    - {id: "FORMAT_B", weight_kg: 200, req_cold: false, is_locked: false}
+
+semantic_contract:
+  constraints:
+    - id: "C1"
+      name: "Budget"
+      type: "BUDGET"
+      hardness: "HARD"
+      relaxable: false
+
+runtime_context:
+  timestamp_min: 0
+  past_delivered_orders: []
+
+events: []

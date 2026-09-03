@@ -1,0 +1,823 @@
+{
+  "MVP demo run": {
+    "execution_mode": "INTERNAL_VERTICAL_SLICE_MVP",
+    "canonical_api_status": "NOT_IMPLEMENTED",
+    "external_dispatch": false,
+    "baseline_writeback": false,
+    "runtime_scope": "LEGACY_SVDE_PIPELINE",
+    "run_timestamp": "2026-06-01T09:00:00+00:00",
+    "fixture": "/Users/ghb/Documents/Codex/2026-08-04/wo-xi/visit-scheduling-optimizer/svde/ontology/tests/data/fmcg_visit_history_with_geo.xlsx",
+    "cases": [
+      {
+        "scenario_id": "MVP_DEMO_FEASIBLE",
+        "result": {
+          "execution_mode": "INTERNAL_VERTICAL_SLICE_MVP",
+          "canonical_api_status": "NOT_IMPLEMENTED",
+          "external_dispatch": false,
+          "baseline_writeback": false,
+          "runtime_scope": "LEGACY_SVDE_PIPELINE",
+          "scenario_id": "MVP_DEMO_FEASIBLE",
+          "scenario_description": "仁军 可行基线重排",
+          "scenario_unavailable_rep_ids": [],
+          "scenario_effect_applied": false,
+          "run_timestamp": "2026-06-01T09:00:00+00:00",
+          "source_world_state_snapshot_id": "SNAP_DYNAMIC_UNIVERSE",
+          "source_world_state_path": "/Users/ghb/Documents/Codex/2026-08-04/wo-xi/visit-scheduling-optimizer/svde/ontology/tests/data/fmcg_visit_history_with_geo.xlsx",
+          "target_rep_id": "仁军",
+          "period_label": "2026-06",
+          "candidate_plan_summary": {
+            "plan_id": "PLAN_DYN_仁军_MVP_INTENT_MVP_DEMO_FEASIBLE_仁军",
+            "rep_id": "仁军",
+            "period_label": "2026-06",
+            "solver_name": "UniversalPeriodicPVRPSolver (Dynamic Two-Stage)",
+            "solver_status": "OPTIMAL",
+            "total_scheduled_visits": 83,
+            "total_monthly_transit_min": 4365.4,
+            "total_monthly_distance_km": 2263.6,
+            "daily_routes_count": 14,
+            "daily_routes_summary": [
+              {
+                "date_str": "2026-06-01",
+                "weekday_name": "周一",
+                "stops_count": 6,
+                "total_daily_workload_min": 577.6,
+                "total_daily_distance_km": 141.52,
+                "stops_codes": [
+                  "10030146",
+                  "00061439",
+                  "00006798",
+                  "00068068",
+                  "10079720",
+                  "10018311"
+                ]
+              },
+              {
+                "date_str": "2026-06-02",
+                "weekday_name": "周二",
+                "stops_count": 5,
+                "total_daily_workload_min": 529.2,
+                "total_daily_distance_km": 145.35,
+                "stops_codes": [
+                  "10065065",
+                  "10078785",
+                  "00063603",
+                  "00075260",
+                  "00063997"
+                ]
+              },
+              {
+                "date_str": "2026-06-03",
+                "weekday_name": "周三",
+                "stops_count": 6,
+                "total_daily_workload_min": 680.5,
+                "total_daily_distance_km": 201.54,
+                "stops_codes": [
+                  "00062130",
+                  "10082763",
+                  "00069975",
+                  "00011514",
+                  "10080651",
+                  "10081526"
+                ]
+              },
+              {
+                "date_str": "2026-06-04",
+                "weekday_name": "周四",
+                "stops_count": 6,
+                "total_daily_workload_min": 582.1,
+                "total_daily_distance_km": 144.15,
+                "stops_codes": [
+                  "00073172",
+                  "80011452",
+                  "80013135",
+                  "10044077",
+                  "10030147",
+                  "00078799"
+                ]
+              },
+              {
+                "date_str": "2026-06-06",
+                "weekday_name": "周末",
+                "stops_count": 6,
+                "total_daily_workload_min": 662.0,
+                "total_daily_distance_km": 190.77,
+                "stops_codes": [
+                  "10079720",
+                  "00068068",
+                  "00006798",
+                  "00061439",
+                  "10030146",
+                  "00007822"
+                ]
+              },
+              {
+                "date_str": "2026-06-07",
+                "weekday_name": "周末",
+                "stops_count": 6,
+                "total_daily_workload_min": 525.0,
+                "total_daily_distance_km": 110.85,
+                "stops_codes": [
+                  "80032358",
+                  "10064067",
+                  "10024584",
+                  "10037261",
+                  "10076704",
+                  "00018192"
+                ]
+              },
+              {
+                "date_str": "2026-06-08",
+                "weekday_name": "周一",
+                "stops_count": 6,
+                "total_daily_workload_min": 701.7,
+                "total_daily_distance_km": 213.9,
+                "stops_codes": [
+                  "00068524",
+                  "00009892",
+                  "00069559",
+                  "00074327",
+                  "00071440",
+                  "80040403"
+                ]
+              },
+              {
+                "date_str": "2026-06-11",
+                "weekday_name": "周四",
+                "stops_count": 6,
+                "total_daily_workload_min": 662.0,
+                "total_daily_distance_km": 190.77,
+                "stops_codes": [
+                  "10079720",
+                  "00068068",
+                  "00006798",
+                  "00061439",
+                  "10030146",
+                  "00007822"
+                ]
+              },
+              {
+                "date_str": "2026-06-12",
+                "weekday_name": "周五",
+                "stops_count": 6,
+                "total_daily_workload_min": 525.0,
+                "total_daily_distance_km": 110.85,
+                "stops_codes": [
+                  "80032358",
+                  "10064067",
+                  "10024584",
+                  "10037261",
+                  "10076704",
+                  "00018192"
+                ]
+              },
+              {
+                "date_str": "2026-06-13",
+                "weekday_name": "周末",
+                "stops_count": 6,
+                "total_daily_workload_min": 599.4,
+                "total_daily_distance_km": 154.22,
+                "stops_codes": [
+                  "10082763",
+                  "00069975",
+                  "00011514",
+                  "10080651",
+                  "10081526",
+                  "00068524"
+                ]
+              },
+              {
+                "date_str": "2026-06-14",
+                "weekday_name": "周末",
+                "stops_count": 6,
+                "total_daily_workload_min": 582.1,
+                "total_daily_distance_km": 144.15,
+                "stops_codes": [
+                  "00073172",
+                  "80011452",
+                  "80013135",
+                  "10044077",
+                  "10030147",
+                  "00078799"
+                ]
+              },
+              {
+                "date_str": "2026-06-16",
+                "weekday_name": "周二",
+                "stops_count": 6,
+                "total_daily_workload_min": 662.0,
+                "total_daily_distance_km": 190.77,
+                "stops_codes": [
+                  "10079720",
+                  "00068068",
+                  "00006798",
+                  "00061439",
+                  "10030146",
+                  "00007822"
+                ]
+              },
+              {
+                "date_str": "2026-06-17",
+                "weekday_name": "周三",
+                "stops_count": 6,
+                "total_daily_workload_min": 525.0,
+                "total_daily_distance_km": 110.85,
+                "stops_codes": [
+                  "80032358",
+                  "10064067",
+                  "10024584",
+                  "10037261",
+                  "10076704",
+                  "00018192"
+                ]
+              },
+              {
+                "date_str": "2026-06-18",
+                "weekday_name": "周四",
+                "stops_count": 6,
+                "total_daily_workload_min": 701.7,
+                "total_daily_distance_km": 213.9,
+                "stops_codes": [
+                  "00068524",
+                  "00009892",
+                  "00069559",
+                  "00074327",
+                  "00071440",
+                  "80040403"
+                ]
+              }
+            ]
+          },
+          "audit_report_summary": {
+            "plan_id": "PLAN_DYN_仁军_MVP_INTENT_MVP_DEMO_FEASIBLE_仁军",
+            "is_fully_compliant": false,
+            "cadence_compliance_rate": 100.0,
+            "physical_feasibility_passed": null,
+            "business_compliance_passed": null,
+            "semantic_purity_passed": null,
+            "violations_count": 0,
+            "summary_message": "Audit FAILED: Phys=False, Biz=False, Sem=True."
+          },
+          "constraint_violations": [],
+          "feasibility_judgment": "PARTIALLY_FEASIBLE",
+          "error_kind": "FEASIBLE",
+          "legacy_pipeline_steps": [
+            "PlanningIntent construction (legacy: uses PlanningCapabilityType)",
+            "SVDEOntologyAdapter.dispatch_planning_intent (legacy adapter)",
+            "PeriodicPVRPSolver.solve (legacy solver)",
+            "ThreeDimensionalPlanAuditor.audit_candidate_plan (legacy auditor)",
+            "DecisionArtifact inline construction (NOT via DecisionPipelineRunner — avoids datetime.now() violation)"
+          ],
+          "decision_artifact_preview": {
+            "artifact_id": "DECISION_ART_PREVIEW_仁军_2026-06_20260601T090000",
+            "candidate_plan_ref": "PLAN_DYN_仁军_MVP_INTENT_MVP_DEMO_FEASIBLE_仁军",
+            "audit_report_ref": "PLAN_DYN_仁军_MVP_INTENT_MVP_DEMO_FEASIBLE_仁军",
+            "approved_by": "MVP_INTERNAL_APPROVER_MVP_DEMO_FEASIBLE",
+            "approved_at": "2026-06-01T09:00:00+00:00",
+            "published_schedule": {
+              "2026-06-01": [
+                "10030146",
+                "00061439",
+                "00006798",
+                "00068068",
+                "10079720",
+                "10018311"
+              ],
+              "2026-06-02": [
+                "10065065",
+                "10078785",
+                "00063603",
+                "00075260",
+                "00063997"
+              ],
+              "2026-06-03": [
+                "00062130",
+                "10082763",
+                "00069975",
+                "00011514",
+                "10080651",
+                "10081526"
+              ],
+              "2026-06-04": [
+                "00073172",
+                "80011452",
+                "80013135",
+                "10044077",
+                "10030147",
+                "00078799"
+              ],
+              "2026-06-06": [
+                "10079720",
+                "00068068",
+                "00006798",
+                "00061439",
+                "10030146",
+                "00007822"
+              ],
+              "2026-06-07": [
+                "80032358",
+                "10064067",
+                "10024584",
+                "10037261",
+                "10076704",
+                "00018192"
+              ],
+              "2026-06-08": [
+                "00068524",
+                "00009892",
+                "00069559",
+                "00074327",
+                "00071440",
+                "80040403"
+              ],
+              "2026-06-11": [
+                "10079720",
+                "00068068",
+                "00006798",
+                "00061439",
+                "10030146",
+                "00007822"
+              ],
+              "2026-06-12": [
+                "80032358",
+                "10064067",
+                "10024584",
+                "10037261",
+                "10076704",
+                "00018192"
+              ],
+              "2026-06-13": [
+                "10082763",
+                "00069975",
+                "00011514",
+                "10080651",
+                "10081526",
+                "00068524"
+              ],
+              "2026-06-14": [
+                "00073172",
+                "80011452",
+                "80013135",
+                "10044077",
+                "10030147",
+                "00078799"
+              ],
+              "2026-06-16": [
+                "10079720",
+                "00068068",
+                "00006798",
+                "00061439",
+                "10030146",
+                "00007822"
+              ],
+              "2026-06-17": [
+                "80032358",
+                "10064067",
+                "10024584",
+                "10037261",
+                "10076704",
+                "00018192"
+              ],
+              "2026-06-18": [
+                "00068524",
+                "00009892",
+                "00069559",
+                "00074327",
+                "00071440",
+                "80040403"
+              ]
+            },
+            "status": "MVP_PREVIEW",
+            "approval_simulated": true,
+            "external_dispatch": false,
+            "baseline_writeback": false,
+            "_preview_warning": "INTERNAL MVP preview — NOT a real approval. NOT dispatched. baseline_writeback=false. canonical_api_status=NOT_IMPLEMENTED. Resource availability NOT actually applied."
+          },
+          "notes": []
+        }
+      },
+      {
+        "scenario_id": "MVP_DEMO_INFEASIBLE",
+        "result": {
+          "execution_mode": "INTERNAL_VERTICAL_SLICE_MVP",
+          "canonical_api_status": "NOT_IMPLEMENTED",
+          "external_dispatch": false,
+          "baseline_writeback": false,
+          "runtime_scope": "LEGACY_SVDE_PIPELINE",
+          "scenario_id": "MVP_DEMO_INFEASIBLE",
+          "scenario_description": "不存在的 rep_id (业务无解 + 系统执行失败 PIPELINE_ERROR)",
+          "scenario_unavailable_rep_ids": [],
+          "scenario_effect_applied": false,
+          "run_timestamp": "2026-06-01T09:00:00+00:00",
+          "source_world_state_snapshot_id": "SNAP_DYNAMIC_UNIVERSE",
+          "source_world_state_path": "/Users/ghb/Documents/Codex/2026-08-04/wo-xi/visit-scheduling-optimizer/svde/ontology/tests/data/fmcg_visit_history_with_geo.xlsx",
+          "target_rep_id": "NONEXISTENT_REP_999",
+          "period_label": "2026-06",
+          "candidate_plan_summary": {},
+          "audit_report_summary": {},
+          "constraint_violations": [],
+          "feasibility_judgment": "INFEASIBLE",
+          "error_kind": "PIPELINE_ERROR",
+          "legacy_pipeline_steps": [
+            "PlanningIntent construction (legacy: uses PlanningCapabilityType)",
+            "SVDEOntologyAdapter.dispatch_planning_intent (legacy adapter)"
+          ],
+          "decision_artifact_preview": null,
+          "notes": [
+            "BRIDGE_DISPATCH_FAILED: ValueError('No assigned Customer Universe found in WorldState for rep: NONEXISTENT_REP_999')"
+          ]
+        }
+      },
+      {
+        "scenario_id": "MVP_DEMO_RESOURCE_UNAVAIL",
+        "result": {
+          "execution_mode": "INTERNAL_VERTICAL_SLICE_MVP",
+          "canonical_api_status": "NOT_IMPLEMENTED",
+          "external_dispatch": false,
+          "baseline_writeback": false,
+          "runtime_scope": "LEGACY_SVDE_PIPELINE",
+          "scenario_id": "MVP_DEMO_RESOURCE_UNAVAIL",
+          "scenario_description": "仁军 资源不可用情景注入 (no-writeback control case)",
+          "scenario_unavailable_rep_ids": [
+            "仁军"
+          ],
+          "scenario_effect_applied": false,
+          "run_timestamp": "2026-06-01T09:00:00+00:00",
+          "source_world_state_snapshot_id": "SNAP_DYNAMIC_UNIVERSE",
+          "source_world_state_path": "/Users/ghb/Documents/Codex/2026-08-04/wo-xi/visit-scheduling-optimizer/svde/ontology/tests/data/fmcg_visit_history_with_geo.xlsx",
+          "target_rep_id": "仁军",
+          "period_label": "2026-06",
+          "candidate_plan_summary": {
+            "plan_id": "PLAN_DYN_仁军_MVP_INTENT_MVP_DEMO_RESOURCE_UNAVAIL_仁军",
+            "rep_id": "仁军",
+            "period_label": "2026-06",
+            "solver_name": "UniversalPeriodicPVRPSolver (Dynamic Two-Stage)",
+            "solver_status": "OPTIMAL",
+            "total_scheduled_visits": 83,
+            "total_monthly_transit_min": 4365.4,
+            "total_monthly_distance_km": 2263.6,
+            "daily_routes_count": 14,
+            "daily_routes_summary": [
+              {
+                "date_str": "2026-06-01",
+                "weekday_name": "周一",
+                "stops_count": 6,
+                "total_daily_workload_min": 577.6,
+                "total_daily_distance_km": 141.52,
+                "stops_codes": [
+                  "10030146",
+                  "00061439",
+                  "00006798",
+                  "00068068",
+                  "10079720",
+                  "10018311"
+                ]
+              },
+              {
+                "date_str": "2026-06-02",
+                "weekday_name": "周二",
+                "stops_count": 5,
+                "total_daily_workload_min": 529.2,
+                "total_daily_distance_km": 145.35,
+                "stops_codes": [
+                  "10065065",
+                  "10078785",
+                  "00063603",
+                  "00075260",
+                  "00063997"
+                ]
+              },
+              {
+                "date_str": "2026-06-03",
+                "weekday_name": "周三",
+                "stops_count": 6,
+                "total_daily_workload_min": 680.5,
+                "total_daily_distance_km": 201.54,
+                "stops_codes": [
+                  "00062130",
+                  "10082763",
+                  "00069975",
+                  "00011514",
+                  "10080651",
+                  "10081526"
+                ]
+              },
+              {
+                "date_str": "2026-06-04",
+                "weekday_name": "周四",
+                "stops_count": 6,
+                "total_daily_workload_min": 582.1,
+                "total_daily_distance_km": 144.15,
+                "stops_codes": [
+                  "00073172",
+                  "80011452",
+                  "80013135",
+                  "10044077",
+                  "10030147",
+                  "00078799"
+                ]
+              },
+              {
+                "date_str": "2026-06-06",
+                "weekday_name": "周末",
+                "stops_count": 6,
+                "total_daily_workload_min": 662.0,
+                "total_daily_distance_km": 190.77,
+                "stops_codes": [
+                  "10079720",
+                  "00068068",
+                  "00006798",
+                  "00061439",
+                  "10030146",
+                  "00007822"
+                ]
+              },
+              {
+                "date_str": "2026-06-07",
+                "weekday_name": "周末",
+                "stops_count": 6,
+                "total_daily_workload_min": 525.0,
+                "total_daily_distance_km": 110.85,
+                "stops_codes": [
+                  "80032358",
+                  "10064067",
+                  "10024584",
+                  "10037261",
+                  "10076704",
+                  "00018192"
+                ]
+              },
+              {
+                "date_str": "2026-06-08",
+                "weekday_name": "周一",
+                "stops_count": 6,
+                "total_daily_workload_min": 701.7,
+                "total_daily_distance_km": 213.9,
+                "stops_codes": [
+                  "00068524",
+                  "00009892",
+                  "00069559",
+                  "00074327",
+                  "00071440",
+                  "80040403"
+                ]
+              },
+              {
+                "date_str": "2026-06-11",
+                "weekday_name": "周四",
+                "stops_count": 6,
+                "total_daily_workload_min": 662.0,
+                "total_daily_distance_km": 190.77,
+                "stops_codes": [
+                  "10079720",
+                  "00068068",
+                  "00006798",
+                  "00061439",
+                  "10030146",
+                  "00007822"
+                ]
+              },
+              {
+                "date_str": "2026-06-12",
+                "weekday_name": "周五",
+                "stops_count": 6,
+                "total_daily_workload_min": 525.0,
+                "total_daily_distance_km": 110.85,
+                "stops_codes": [
+                  "80032358",
+                  "10064067",
+                  "10024584",
+                  "10037261",
+                  "10076704",
+                  "00018192"
+                ]
+              },
+              {
+                "date_str": "2026-06-13",
+                "weekday_name": "周末",
+                "stops_count": 6,
+                "total_daily_workload_min": 599.4,
+                "total_daily_distance_km": 154.22,
+                "stops_codes": [
+                  "10082763",
+                  "00069975",
+                  "00011514",
+                  "10080651",
+                  "10081526",
+                  "00068524"
+                ]
+              },
+              {
+                "date_str": "2026-06-14",
+                "weekday_name": "周末",
+                "stops_count": 6,
+                "total_daily_workload_min": 582.1,
+                "total_daily_distance_km": 144.15,
+                "stops_codes": [
+                  "00073172",
+                  "80011452",
+                  "80013135",
+                  "10044077",
+                  "10030147",
+                  "00078799"
+                ]
+              },
+              {
+                "date_str": "2026-06-16",
+                "weekday_name": "周二",
+                "stops_count": 6,
+                "total_daily_workload_min": 662.0,
+                "total_daily_distance_km": 190.77,
+                "stops_codes": [
+                  "10079720",
+                  "00068068",
+                  "00006798",
+                  "00061439",
+                  "10030146",
+                  "00007822"
+                ]
+              },
+              {
+                "date_str": "2026-06-17",
+                "weekday_name": "周三",
+                "stops_count": 6,
+                "total_daily_workload_min": 525.0,
+                "total_daily_distance_km": 110.85,
+                "stops_codes": [
+                  "80032358",
+                  "10064067",
+                  "10024584",
+                  "10037261",
+                  "10076704",
+                  "00018192"
+                ]
+              },
+              {
+                "date_str": "2026-06-18",
+                "weekday_name": "周四",
+                "stops_count": 6,
+                "total_daily_workload_min": 701.7,
+                "total_daily_distance_km": 213.9,
+                "stops_codes": [
+                  "00068524",
+                  "00009892",
+                  "00069559",
+                  "00074327",
+                  "00071440",
+                  "80040403"
+                ]
+              }
+            ]
+          },
+          "audit_report_summary": {
+            "plan_id": "PLAN_DYN_仁军_MVP_INTENT_MVP_DEMO_RESOURCE_UNAVAIL_仁军",
+            "is_fully_compliant": false,
+            "cadence_compliance_rate": 100.0,
+            "physical_feasibility_passed": null,
+            "business_compliance_passed": null,
+            "semantic_purity_passed": null,
+            "violations_count": 0,
+            "summary_message": "Audit FAILED: Phys=False, Biz=False, Sem=True."
+          },
+          "constraint_violations": [],
+          "feasibility_judgment": "PARTIALLY_FEASIBLE",
+          "error_kind": "FEASIBLE",
+          "legacy_pipeline_steps": [
+            "PlanningIntent construction (legacy: uses PlanningCapabilityType)",
+            "SVDEOntologyAdapter.dispatch_planning_intent (legacy adapter)",
+            "PeriodicPVRPSolver.solve (legacy solver)",
+            "ThreeDimensionalPlanAuditor.audit_candidate_plan (legacy auditor)",
+            "DecisionArtifact inline construction (NOT via DecisionPipelineRunner — avoids datetime.now() violation)"
+          ],
+          "decision_artifact_preview": {
+            "artifact_id": "DECISION_ART_PREVIEW_仁军_2026-06_20260601T090000",
+            "candidate_plan_ref": "PLAN_DYN_仁军_MVP_INTENT_MVP_DEMO_RESOURCE_UNAVAIL_仁军",
+            "audit_report_ref": "PLAN_DYN_仁军_MVP_INTENT_MVP_DEMO_RESOURCE_UNAVAIL_仁军",
+            "approved_by": "MVP_INTERNAL_APPROVER_MVP_DEMO_RESOURCE_UNAVAIL",
+            "approved_at": "2026-06-01T09:00:00+00:00",
+            "published_schedule": {
+              "2026-06-01": [
+                "10030146",
+                "00061439",
+                "00006798",
+                "00068068",
+                "10079720",
+                "10018311"
+              ],
+              "2026-06-02": [
+                "10065065",
+                "10078785",
+                "00063603",
+                "00075260",
+                "00063997"
+              ],
+              "2026-06-03": [
+                "00062130",
+                "10082763",
+                "00069975",
+                "00011514",
+                "10080651",
+                "10081526"
+              ],
+              "2026-06-04": [
+                "00073172",
+                "80011452",
+                "80013135",
+                "10044077",
+                "10030147",
+                "00078799"
+              ],
+              "2026-06-06": [
+                "10079720",
+                "00068068",
+                "00006798",
+                "00061439",
+                "10030146",
+                "00007822"
+              ],
+              "2026-06-07": [
+                "80032358",
+                "10064067",
+                "10024584",
+                "10037261",
+                "10076704",
+                "00018192"
+              ],
+              "2026-06-08": [
+                "00068524",
+                "00009892",
+                "00069559",
+                "00074327",
+                "00071440",
+                "80040403"
+              ],
+              "2026-06-11": [
+                "10079720",
+                "00068068",
+                "00006798",
+                "00061439",
+                "10030146",
+                "00007822"
+              ],
+              "2026-06-12": [
+                "80032358",
+                "10064067",
+                "10024584",
+                "10037261",
+                "10076704",
+                "00018192"
+              ],
+              "2026-06-13": [
+                "10082763",
+                "00069975",
+                "00011514",
+                "10080651",
+                "10081526",
+                "00068524"
+              ],
+              "2026-06-14": [
+                "00073172",
+                "80011452",
+                "80013135",
+                "10044077",
+                "10030147",
+                "00078799"
+              ],
+              "2026-06-16": [
+                "10079720",
+                "00068068",
+                "00006798",
+                "00061439",
+                "10030146",
+                "00007822"
+              ],
+              "2026-06-17": [
+                "80032358",
+                "10064067",
+                "10024584",
+                "10037261",
+                "10076704",
+                "00018192"
+              ],
+              "2026-06-18": [
+                "00068524",
+                "00009892",
+                "00069559",
+                "00074327",
+                "00071440",
+                "80040403"
+              ]
+            },
+            "status": "MVP_PREVIEW",
+            "approval_simulated": true,
+            "external_dispatch": false,
+            "baseline_writeback": false,
+            "_preview_warning": "INTERNAL MVP preview — NOT a real approval. NOT dispatched. baseline_writeback=false. canonical_api_status=NOT_IMPLEMENTED. Resource availability NOT actually applied."
+          },
+          "notes": [
+            "Scenario explicitly marks rep '仁军' as unavailable. scenario_effect_applied=false — MVP does NOT modify WorldState and does NOT perform real reassignment/deferral. This is a no-writeback control case for input-validation testing only. Caller is responsible for downstream handling."
+          ]
+        }
+      }
+    ]
+  }
+}

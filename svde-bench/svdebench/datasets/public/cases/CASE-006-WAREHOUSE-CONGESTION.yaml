@@ -1,0 +1,38 @@
+# Golden Case 006 — Warehouse Peak Congestion Recovery v0.1
+metadata:
+  id: "CASE-006-WAREHOUSE-CONGESTION"
+  domain: "Warehouse Slotting"
+  name: "Warehouse Peak Congestion Recovery v0.1"
+  tags: ["runtime_adaptation", "warehouse", "congestion"]
+
+intent:
+  objective: "Mitigate pick-path conflicts under peak demand surge"
+
+world_state:
+  depot: [0, 0]
+  fleet:
+    - {id: "LANE_A", type: "ZONE", capacity_kg: 500, status: "CONGESTED"}
+    - {id: "LANE_B", type: "ZONE", capacity_kg: 500, status: "AVAILABLE"}
+  orders:
+    - {id: "ORD_HOT_1", weight_kg: 100, is_locked: false}
+    - {id: "ORD_HOT_2", weight_kg: 100, is_locked: false}
+    - {id: "ORD_HOT_3", weight_kg: 100, is_locked: false}
+    - {id: "ORD_HOT_4", weight_kg: 100, is_locked: false}
+
+semantic_contract:
+  constraints:
+    - id: "C_LANE"
+      name: "LaneCapacity"
+      type: "CAPACITY"
+      hardness: "HARD"
+      relaxable: false
+
+runtime_context:
+  timestamp_min: 0
+  past_delivered_orders: []
+
+events:
+  - event_id: "EVT_HOT_SURGE"
+    event_type: "DEMAND_SURGE"
+    timestamp_min: 30
+    variation_classification: "SEMANTIC_VARIATION"

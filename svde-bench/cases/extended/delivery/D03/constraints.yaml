@@ -1,0 +1,26 @@
+hard:
+- id: C1
+  name: VehicleCapacity
+  type: VEHICLE_CAPACITY
+  hardness: HARD
+  relaxable: false
+- id: C3
+  name: ColdChainMatch
+  type: COLD_CHAIN_MATCH
+  hardness: HARD
+  relaxable: false
+- id: C4
+  name: TimeWindowLock_ORD03
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_03
+  locked_window:
+  - 120
+  - 200
+  relaxable: false
+soft:
+- id: C5
+  name: MinimizeRerouteCost
+  weight: 1.0
+preference:
+- description: Preserve locked order ORD_03 on remaining active fleet

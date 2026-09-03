@@ -1,0 +1,15 @@
+case_id: CASE-V03
+domain: delivery
+version: '1.0'
+created_at: '2026-08-24'
+tags:
+- extended
+- v0.2
+- pattern-v2-skill-tier-matching
+- variant:strategic_account_specialist_certification_requirement
+difficulty: L2
+pattern:
+  id: PATTERN-V2-SKILL-TIER-MATCHING
+  variant_name: Strategic Account Specialist Certification Requirement
+  dilemma: Strategic oncology department requires Certified Specialist rep. Proximity
+    tempting junior assignment.

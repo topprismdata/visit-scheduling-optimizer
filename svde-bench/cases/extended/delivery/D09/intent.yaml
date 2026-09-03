@@ -1,0 +1,7 @@
+primary_objective: exploit_past_operational_memory_for_robust_routing
+secondary_objectives:
+- avoid_known_recurring_bottlenecks
+priority_rules:
+  vip_customer: high
+  cost: medium
+  service_level: high

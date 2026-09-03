@@ -1,0 +1,7 @@
+primary_objective: strictly_isolate_incompatible_cargo_types
+secondary_objectives:
+- minimize_fleet_count
+priority_rules:
+  vip_customer: high
+  cost: low
+  service_level: high

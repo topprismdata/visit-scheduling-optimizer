@@ -1,0 +1,7 @@
+primary_objective: expand_coverage_preserve_legacy_continuity
+secondary_objectives:
+- minimize_boundary_friction
+priority_rules:
+  vip_customer: high
+  cost: medium
+  service_level: high

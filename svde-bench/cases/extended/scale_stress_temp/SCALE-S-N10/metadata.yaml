@@ -1,0 +1,14 @@
+case_id: SCALE-S-N10
+domain: delivery
+version: '1.0'
+created_at: '2026-08-24'
+tags:
+- stress_benchmark
+- scale_N10
+- fleet_R3
+difficulty: L2
+scale_profile:
+  task_count: 10
+  resource_count: 3
+  vip_ratio: 0.2
+  cold_ratio: 0.25

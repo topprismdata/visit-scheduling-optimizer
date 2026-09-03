@@ -1,0 +1,61 @@
+# SVDE-Bench v0.2 — Delivery Domain Decision Patterns
+# Standardized Decision Patterns modeling real enterprise delivery dilemmas
+
+domain: "delivery"
+version: "1.0"
+
+patterns:
+  - id: "PATTERN-D1-VIP-SLA-PROTECTION"
+    name: "VIP SLA Commitment Protection Under Resource Strain"
+    decision_dilemma: "Capacity or temporal constraint makes serving all orders impossible. Must prioritize locked VIP commitments over local cost efficiency."
+    primary_objective: "maximize_vip_commitment_fulfillment"
+    tradeoff_axis: "cost_increase_vs_sla_penalty"
+    target_failure_mode: "SEMANTIC_FAILURE_COMMITMENT_DROPPED"
+    default_priority_rule:
+      vip_customer: "high"
+      cost: "low"
+      service_level: "high"
+
+  - id: "PATTERN-D2-DYNAMIC-REPLANNING"
+    name: "Intraday Vehicle Breakdown & Dynamic Rerouting"
+    decision_dilemma: "Active vehicle experiences mechanical breakdown mid-shift. Must reassign in-flight locked orders to active vehicles while respecting capacity."
+    primary_objective: "minimize_disruption_and_protect_locked_orders"
+    tradeoff_axis: "schedule_stability_vs_cost_efficiency"
+    target_failure_mode: "RUNTIME_FAILURE_UNSTABLE_DISRUPTION"
+    default_priority_rule:
+      vip_customer: "high"
+      cost: "medium"
+      service_level: "high"
+
+  - id: "PATTERN-D3-COST-SERVICE-TRADEOFF"
+    name: "Multi-Tier Service Level vs Additional Fleet Cost Tradeoff"
+    decision_dilemma: "Tight time-windows require deploying an extra overtime vehicle vs delaying non-critical standard orders to next shift."
+    primary_objective: "balance_overtime_cost_and_ontime_rate"
+    tradeoff_axis: "fleet_expenditure_vs_standard_sla_loss"
+    target_failure_mode: "TRADEOFF_FAILURE_SUBOPTIMAL_BALANCE"
+    default_priority_rule:
+      vip_customer: "high"
+      cost: "high"
+      service_level: "medium"
+
+  - id: "PATTERN-D4-CAPACITY-COLDCHAIN-ALLOCATION"
+    name: "Multi-Compartment Heterogeneous Fleet Allocation"
+    decision_dilemma: "Refrigerated cargo requires strict cold-chain vehicles, while standard cargo can mix if capacity allows. Space contention between ambient and cold SKU."
+    primary_objective: "maximize_cold_chain_compliance_and_payload_rate"
+    tradeoff_axis: "compartment_utilization_vs_cross_contamination_risk"
+    target_failure_mode: "CONSTRAINT_FAILURE_COLD_CHAIN_BREACH"
+    default_priority_rule:
+      vip_customer: "medium"
+      cost: "medium"
+      service_level: "high"
+
+  - id: "PATTERN-D5-MEMORY-GUIDED-ADAPTATION"
+    name: "Historical Disruption Memory-Guided Rerouting"
+    decision_dilemma: "Recurring congestion or known loading bay delays require applying past episodic memory policies over naive shortest-path heuristics."
+    primary_objective: "exploit_past_operational_memory_for_robust_routing"
+    tradeoff_axis: "heuristic_travel_time_vs_memory_robustness"
+    target_failure_mode: "MEMORY_FAILURE_IGNORED_OR_HALLUCINATED"
+    default_priority_rule:
+      vip_customer: "high"
+      cost: "medium"
+      service_level: "high"

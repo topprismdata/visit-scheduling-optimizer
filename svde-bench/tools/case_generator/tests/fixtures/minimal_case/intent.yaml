@@ -1,0 +1,6 @@
+primary_objective: "minimize_total_cost"
+secondary_objectives:
+  - "honor_vip_window"
+priority_rules:
+  vip_customer: "high"
+  cost: "medium"

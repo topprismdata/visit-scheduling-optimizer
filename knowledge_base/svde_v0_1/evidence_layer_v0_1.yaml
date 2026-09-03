@@ -1,0 +1,560 @@
+# SVDE Knowledge Base v0.1 — Evidence Layer
+## Phase A4 Evidence Link Migration — A01 Registry 扩展为包 schema (含 claim/supports/confidence)
+## source_of_truth: 01_A01_..._v6_1_1.md Primary Source Registry (25 条) + A02 三表映射
+## schema: SVDE_Evidence_Knowledge_Package evidence_registry_schema
+
+version: SVDE-KB-Evidence-v0.1
+generated_at: "2026-08-22"
+
+evidence_convention:
+  claim_types: [product_fact, domain_practice, mathematical_theory, empirical_evidence, design_inference]
+  fact_vs_inference_rule: "严格区分 [PRODUCT FACT]（厂商官方）与 [TOPPRISM MODELING HYPOTHESIS]（建模假设）——禁止把推断当作事实（A02 基线规则）"
+  review_status_default: unverified  # claim/supports/confidence 为本次回填——仅填可从原文直接引述者，其余标 unverified
+
+evidence_strength_convention:      # Phase A Review 条件4
+  Level-A: {desc: "Frozen Domain / Peer-reviewed / 厂商官方一手文档", weight: 高}
+  Level-B: {desc: "Vendor Documentation（产品手册级）", weight: 中高}
+  Level-C: {desc: "Industry Practice（白皮书/行业实践）", weight: 中}
+  Level-D: {desc: "Hypothesis（建模假设/推断）", weight: 低}
+  promotion_rule: "Decision Model 晋升 Approved 时按支撑证据的最低 strength 定级；Level-D 不可单独支撑晋升"
+
+evidence:
+
+  # ===== 厂商一手源（A01 Registry 25 条 → 含 claim 回填） =====
+  - id: EV-SF-ROUTABLE
+    title: "Salesforce Maps Advanced Concepts and Key Terms"
+    source: {vendor: Salesforce, type: official_product_doc, url: "help.salesforce.com/s/articleView?id=sf.salesforce_maps_advanced_concepts_terms.htm", year: 2026}
+    claim: "Routable Object 是拥有坐标且可被拜访的目标实体（Account/Lead/RetailStore）——支持 VisitTarget 概念"
+    supports: {concepts: [KB-ONT-010 VisitTarget], decision_models: []}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-SF-VISITPLAN
+    title: "Salesforce Visit Plan (Data Sets) 模板机制"
+    source: {vendor: Salesforce, type: official_product_doc, url: "SRC-SF-MAPS-01/02", year: 2026}
+    claim: "Visit Plan 是路线生成政策主模板（生效期+批次周期）；Dataset 为适用相同规则的客户分群容器"
+    supports: {concepts: [KB-ONT-033 VisitPolicy, KB-ONT-030 PolicyScope], decision_models: [Requirement Generation*candidate*]}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-SF-MINMAXGAP
+    title: "Minimum/Maximum Days Between Visits 字段"
+    source: {vendor: Salesforce, type: official_product_doc, url: "SRC-SF-MAPS-02", year: 2026}
+    claim: "节奏控制优于单一频次：通过最小/最大天数间隔防止拜访扎堆——CadenceSpec 直接对应"
+    supports: {concepts: [KB-ONT-032 CadenceSpec], decision_models: []}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-SF-MISSEDREGEN
+    title: "State-Driven Regeneration 机制"
+    source: {vendor: Salesforce, type: official_product_doc, url: "SRC-SF-MAPS-01", year: 2026}
+    claim: "优化批次自动读取实际完成的 Visit，漏访动态转化为下一轮补救需求"
+    supports: {concepts: [KB-ONT-078 ExecutionHistory], decision_models: [Replanning*candidate*]}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-SAP-DUALTRACK
+    title: "SAP Visit Plan vs Visit Recommendation 双轨"
+    source: {vendor: SAP, type: official_product_doc, url: "SRC-SAP-DVP-01/02", year: 2026}
+    claim: "常规覆盖政策与动态机会推荐分属两套机制；Account Score 随逾期持续增加（官方未声明函数形式）"
+    supports: {concepts: [KB-ONT-040 DemandReason], decision_models: [Requirement Generation*candidate*, Customer Prioritization*candidate*]}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-SAP-HIGHESTIMPACT
+    title: "SAP Allocation Objective 双模式"
+    source: {vendor: SAP, type: official_product_doc, url: "SRC-SAP-DVP-02", year: 2026}
+    claim: "显式支持 Highest Impact（价值优先）与 Maximum Visits（吞吐优先）两种优化目标"
+    supports: {concepts: [KB-ONT-081 ObjectivePolicy, KB-ONT-091 ObjectiveProfile], decision_models: [Visit Planning*candidate*]}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-ORA-NONASSIGN
+    title: "Oracle non_assignment_cost 机制"
+    source: {vendor: Oracle, type: official_product_doc, url: "SRC-ORA-FS-01", year: 2026}
+    claim: "未安排活动产生显式业务惩罚——资源不足时延期成为合法经济学决策而非报错"
+    supports: {concepts: [KB-ONT-053 DeferralPolicy, KB-ONT-041 FulfillmentClass], decision_models: [Exception Handling*candidate*]}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-ORA-CONTINUOUS
+    title: "Oracle Continuous Improvement 增量平滑修补"
+    source: {vendor: Oracle, type: official_product_doc, url: "SRC-ORA-FS-01", year: 2026}
+    claim: "突发取消/新增活动时执行局部微调，保持路线稳定性"
+    supports: {concepts: [KB-ONT-072 ExistingCommitment, KB-ONT-080 PlanningPolicy], decision_models: [Replanning*candidate*]}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-PTV-MULTIWEEK
+    title: "PTV planMultiWeeks 周期拜访规划"
+    source: {vendor: PTV, type: official_api_spec, url: "SRC-PTV-XCLUSTER-01", year: 2026}
+    claim: "专用多周拜访接口（Week Rhythm + Weekday Patterns，最长 52 周）——VisitOrder 为不运输货物的访问订单"
+    supports: {concepts: [KB-ONT-033 VisitPolicy, KB-ONT-031 FrequencySpec, KB-ONT-032 CadenceSpec], decision_models: [Visit Planning*candidate*]}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-PTV-ORDERPRIORITY
+    title: "PTV Order Priorities 资源不足权衡"
+    source: {vendor: PTV, type: official_product_doc, url: "SRC-PTV-XTOUR-01", year: 2026}
+    claim: "车队无法覆盖全部订单时，priority 指导优化器取舍（挂 order 级而非 plan 级）"
+    supports: {concepts: [KB-ONT-053 DeferralPolicy], decision_models: [Exception Handling*candidate*]}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-PTV-TOURPOINTFIXATION
+    title: "PTV TourPointFixation 原厂枚举"
+    source: {vendor: PTV, type: official_api_spec, url: "SRC-PTV-XTOUR-01", year: 2026}
+    claim: "原厂枚举为 NONE/NO_TOUR_POINT_OUT/NO_TOUR_POINT_IN_AND_OUT/COMPLETELY_FIXED——TopPrism CommitmentLock 五级为归一化概念非原厂枚举"
+    supports: {concepts: [KB-ONT-071 CommitmentLock], decision_models: [Replanning*candidate*]}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-PTV-HOME-LOCATION
+    title: "PTV Field Force Home Location"
+    source: {vendor: PTV, type: official_product_doc, url: "SRC-PTV-XTOUR-01", year: 2026}
+    claim: "外勤场景允许 depot 配置为员工 home location"
+    supports: {concepts: [KB-ONT-020 StartEndPolicy], decision_models: []}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-MSFT-BOOKINGSTATUS
+    title: "Microsoft Booking Status 状态机"
+    source: {vendor: Microsoft, type: official_product_doc, url: "SRC-MSFT-URS-01", year: 2026}
+    claim: "Proposed/Committed/InProgress/Completed 显式状态流转；Requirement 与 Booking 一对多解耦"
+    supports: {concepts: [KB-ONT-070 LifecycleState], decision_models: [Execution Monitoring*candidate*]}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-MSFT-BOOKINGLOCK
+    title: "Microsoft Booking Lock Options"
+    source: {vendor: Microsoft, type: official_product_doc, url: "SRC-MSFT-URS-02", year: 2026}
+    claim: "支持 Time Range / Resource / Time / Resource-and-Time 多级锁定——人工承诺不可被优化器推翻"
+    supports: {concepts: [KB-ONT-071 CommitmentLock, KB-ONT-072 ExistingCommitment, KB-ONT-061 SubstitutionPolicy], decision_models: [Replanning*candidate*]}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-MSFT-CALENDAR
+    title: "Microsoft 资源日历与工作时段"
+    source: {vendor: Microsoft, type: official_product_doc, url: "SRC-MSFT-URS-01", year: 2026}
+    claim: "Bookable Resource 携带 working hours 与 start/end location——按日画像的厂商对应"
+    supports: {concepts: [KB-ONT-021 ResourceDayProfile, KB-ONT-022 ResourceAvailability], decision_models: []}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-MSFT-STARTEND
+    title: "Microsoft Start/End Location 策略"
+    source: {vendor: Microsoft, type: official_product_doc, url: "SRC-MSFT-URS-01", year: 2026}
+    claim: "Resource Address / Org Unit 可作为起终点"
+    supports: {concepts: [KB-ONT-020 StartEndPolicy], decision_models: []}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  # ===== 学术文献（A01 Group D → claim 映射） =====
+  - id: EV-ROTHENBACHER2019
+    title: "Rothenbächer (2019) PVRP Flexible Schedule Structures, Trans.Sci. 53(3)"
+    source: {type: peer_reviewed, doi: "10.1287/trsc.2018.0855", year: 2019}
+    claim: "周期拜访需求应表达为有限 visiting patterns 集合（柔性日程结构）——Pattern formulation 的理论基础"
+    supports: {concepts: [KB-ONT-031 FrequencySpec], decision_models: [Visit Planning*candidate*], math_patterns: [pattern_formulation]}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-DALLACHIARA2020
+    title: "Dalla Chiara & Goodchild (2020) Commercial Cruising for Parking, Transport Policy 97"
+    source: {type: peer_reviewed, doi: "10.1016/j.tranpol.2020.06.013", year: 2020}
+    claim: "西雅图商用车平均每趟约 2.3 分钟巡航寻位（约 28% trip time）——证明停车/进出开销值得建模；不能证明销售拜访具体数值"
+    supports: {concepts: [KB-ONT-077 ObservedStopTime], decision_models: []}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-INTERNAL-319
+    title: "内部实证: 319 条打卡流水门店停留中位数"
+    source: {type: internal_calibration, year: 2026}
+    claim: "门店停留总耗时中位数 32.0 min；分项 breakdown=UNKNOWN_NOT_DISAGGREGATED（不可拆停车/步行）"
+    supports: {concepts: [KB-ONT-077 ObservedStopTime], decision_models: []}
+    confidence: B
+    evidence_strength: Level-B
+    review_status: verified
+
+  # ===== 验证结论证据（场景执行产物） =====
+  - id: EV-PROOF-E1
+    title: "PROOF-E1: RANGE fulfillment 分层表达证明"
+    source: {type: scenario_proof, asset: S-A_spec_v1_1_1 §3.1, year: 2026}
+    claim: "RANGE(min,max) 可无 DCR 表达为 baseline(REQUIRED)+stretch(OPTIONAL) 双 demand 拆分——语义不依赖 metadata"
+    supports: {concepts: [KB-ONT-094 FrequencySemantics, KB-ONT-079 MergePolicy], decision_models: [Requirement Generation*candidate*]}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-DOV-MRE1
+    title: "DOV MRE-1: DeferralPolicy 归属层级证伪反例"
+    source: {type: scenario_proof, asset: DOV_v1_0 §3.1, year: 2026}
+    claim: "同 PolicyScope 下双 Requirement 需不同异常处理——证伪 scope 挂靠(a)与 VisitPolicy 挂靠(b)，确立 Requirement 级(c)"
+    supports: {concepts: [KB-ONT-052 BusinessRequirement, KB-ONT-053 DeferralPolicy], decision_models: [Exception Handling*candidate*]}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-D-FOURCONCEPT
+    title: "Scenario D 四概念分离实证"
+    source: {type: scenario_validation, asset: S-D_report_v1_0 (20/20), year: 2026}
+    claim: "Ownership/Eligibility/Availability/Assignment 四者独立表达成立——MRE-D-1/2/3 三反例全证，Owner≠Executor 审计五要素齐全"
+    supports: {concepts: [KB-ONT-060/061/062 三轴, KB-ONT-022 ResourceAvailability], decision_models: [Assignment*candidate*]}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-C-TIMEWINDOW-SOURCE
+    title: "Scenario C 时窗三源分离实证"
+    source: {type: scenario_validation, asset: S-C_report_v1_0 (20/20), year: 2026}
+    claim: "门店营业/客户指定/资源工作三源各自对象承载，交集判定无吞并——严禁塞入 VisitPolicy"
+    supports: {concepts: [KB-ONT-012 WeeklyAvailabilityRule, KB-ONT-013 TargetAvailability, KB-ONT-021 ResourceDayProfile], decision_models: []}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+
+  - id: EV-A03-GENERIC
+    title: "A03 Domain Contract v1.0.1 冻结本体"
+    source: {type: frozen_contract, asset: 03_A03_domain_ontology_v1_0_1.md, year: 2026}
+    claim: "47 对象封闭领域本体——Domain Validation (DG1-DG5) 全 PASS + 三场景 58 测试验证"
+    supports: {concepts: [全部 47 Frozen], decision_models: []}
+    confidence: A
+    evidence_strength: Level-A
+    review_status: verified
+    note: "通用证据句柄——无具体厂商来源的概念（如 DateRange 等值对象）以此标记 provenance 指向 A03"
+
+  # ===== 白名单占位（A01 Registry 其余源待 claim 回填，R6 规则） =====
+  - id: EV-PLACEHOLDER-REMAINDER
+    title: "A01 Registry 其余一手源（NOMADIA/BEATROUTE/STAYINFRONT/REPSLY/ORTEC/DESCARTES/APTEAN/TIMEFOLD/GOOGLE-MATHOPT 及培训/视频源）"
+    source: {type: registry_remainder, count: 12}
+    status: Temporary Placeholder          # KG Integrity Review 裁定（2026-08-22）
+    cannot_support: [Concept Promotion, Decision Validation, Pattern Selection]   # 防未来误引用——claim 回填前禁止支撑任何晋升/验证/选型
+    claim: null
+    supports: {}
+    confidence: null
+    evidence_strength: Level-D    # 未回填 claim 前按 Hypothesis 处理——不可支撑 DM 晋升
+    review_status: unverified
+    note: "按 R6 缓解规则：仅填可从原文直接引述的 claim；其余保持 unverified 待后续回填"
+
+  # ── 外部资料入册（SVDE Knowledge Engineer Task · 2026-08-22）──
+  - id: EV-INTAKE-001
+    title: "SVDE AI Native Decision Engine Methodology v1.0（外部方法论总结文档）"
+    source: {type: internal_methodology_summary, path: "~/Downloads/SVDE_AI_Native_Decision_Engine_Methodology_v1_0_FINAL.md", intake_date: "2026-08-22"}
+    claim: |
+      可直引五条：(1)"企业决策系统首先需要理解'为什么做这个决策'，然后才能回答'如何计算这个决策'。"
+      (2)"长期演进的 AI Decision Engine，不应该首先拥有更多概念，而应该拥有更稳定、可验证的业务语义。"
+      (3)"Scenario 不是传统测试，而是：Business Reality → Decision Validation 的执行机制。"
+      (4)"Solver 永远不是架构中心：Backend 是能力层，不是业务知识层。"
+      (5)"平台化的是决策工程方法，而不是业务世界。"
+    supports:
+      concepts: [KB-GOV-008(入册裁定先例), KB-GOV-009(复用边界规则), 治理层方法论框架]
+      decision_models: []   # 零 DM 支持——该文档不产生任何业务决策
+    confidence: B
+    evidence_strength: Level-B    # 内部方法论总结=一手可直引，但属方法层非冻结域
+    review_status: verified       # 五条 claim 逐字核对原文
+    intake_adjudication: "详见 SVDE_Methodology_Intake_Adjudication_Report_v1_0.md——全部'概念'经裁定为既有 KB 资产复用，零新增 Ontology/DM/Scenario"
+
+  # ── 外部资料入册（SVDE-Bench v0.1 Complete Research Specification · 2026-08-22）──
+  - id: EV-INTAKE-002
+    title: "SVDE-Bench v0.1 Complete Research Specification (Phase 7.4.0–7.4.14)"
+    source: {type: research_benchmark_spec, path: "~/Downloads/SVDE-Bench_v0.1_Complete_Research_Specification.md", intake_date: "2026-08-22"}
+    claim: |
+      可直引五条：(1)"SVDE-Bench 不定义为传统优化 Benchmark，核心评价对象是 Decision Artifact（决策产物）而非单一 Solver Solution。"
+      (2)"五大核心科学假设：H1 语义保持 / H2 约束类型安全 / H3 决策可行性 / H4 运行时鲁棒 / H5 记忆演化。"
+      (3)"Decision Episode 定义为包含 Intent → World → Contract → Model → Event → Outcome → Memory 的完整决策生命周期。"
+      (4)"三层 Gold Truth 体系：Level 1 数学真实 / Level 2 语义真实 / Level 3 业务决策真实。"
+      (5)"消融实验设计：逐层移除 Contract / Type System / DSVL / Runtime / Memory 证明各层不可替代性。"
+    supports:
+      concepts: [KB-GOV-032(SVDE-Bench 评测框架), 治理层方法论框架, 评测基准体系]
+      decision_models: []
+    confidence: A
+    evidence_strength: Level-A    # 权威研究规范与评测框架基准
+    review_status: verified       # 五条 claim 逐字核对原文
+    intake_adjudication: "详见 SVDE_Bench_Intake_Adjudication_Report_v1_0.md——全部 12 项主张 100% 对齐既有资产，零新增 Domain"
+
+  # ── 外部资料入册（SVDE-Bench v0.1 Implementation Charter · 2026-08-22）──
+  - id: EV-INTAKE-003
+    title: "SVDE-Bench v0.1 Implementation Charter (Phase 7.4.15 Implementation)"
+    source: {type: implementation_charter, path: "~/Downloads/SVDE-Bench_v0.1_Implementation_Charter.md", intake_date: "2026-08-22"}
+    claim: |
+      可直引五条：(1)"Sprint 1 范围冻结：完成 10 个 Golden Cases（配送 4 / 仓储 2 / 渠道 2 / 拜访 2）。"
+      (2)"独立仓库架构 svde-bench/，包含 core, evaluator, oracle, datasets, agents, runner, reports, tests。"
+      (3)"核心数据模型：DecisionCase 输入 → BaseDecisionAgent.solve(case) → DecisionArtifact 输出。"
+      (4)"禁止 Agent 访问 Oracle、Gold Label 或 Evaluation 结果，避免 Benchmark 泄露。"
+      (5)"三基线对比（Pure Solver / LLM Mock / SVDE Agent）与四项开发禁令（禁改指标/禁降标准/禁简化 Memory）。"
+    supports:
+      concepts: [KB-GOV-033(Sprint 1 实施规范), svde-bench 仓库拓扑, Agent 隔离基准]
+      decision_models: []
+    confidence: A
+    evidence_strength: Level-A    # 官方工程实施指南与任务书
+    review_status: verified       # 五条 claim 逐字核对原文
+    intake_adjudication: "详见 SVDE_Bench_Charter_Intake_Adjudication_Report_v1_0.md——10 项要素 100% 对应既有架构，零新增 Domain"
+
+  # ── 外部资料入册（SVDE-Bench v0.1 Agent Execution Prompt & Sprint Plan · 2026-08-22）──
+  - id: EV-INTAKE-004
+    title: "SVDE-Bench v0.1 Agent Execution Prompt & Sprint Plan"
+    source: {type: execution_prompt_spec, path: "~/Downloads/SVDE-Bench_v0.1_Agent_Execution_Prompt_and_Sprint_Plan.md", intake_date: "2026-08-22"}
+    claim: |
+      可直引五条：(1)"Agent 身份为 SVDE-Bench Core Engineer Agent，负责工程实现、架构一致性与测试验证，非 Benchmark 重新定义者。"
+      (2)"规范层级：Research Spec > Implementation Charter > Sprint Task > Code，冲突禁止自行修改。"
+      (3)"四大不可妥协原则：Decision Artifact > Solver Solution / 语义层 > 求解器层 / Oracle 独立 / 零数据泄露。"
+      (4)"开发策略：TDD + Milestone Delivery + Human Review Gate，禁止一次性大规模实现。"
+      (5)"Sprint 0-5 路线：Sprint 0 (Bootstrap) → 1 (Core Schema) → 2 (First Golden Case) → 3 (Evaluator) → 4 (Oracle) → 5 (10 Golden Cases)。"
+    supports:
+      concepts: [KB-GOV-034(执行控制与 Sprint 路线), Agent 三轮自检, 四大不可妥协原则]
+      decision_models: []
+    confidence: A
+    evidence_strength: Level-A    # 官方执行控制与阶段验收规范
+    review_status: verified       # 五条 claim 逐字核对原文
+    intake_adjudication: "详见 SVDE_Bench_Execution_Intake_Report_v1_0.md——7 项要素 100% 对齐，零新增 Domain"
+
+  # ── 外部资料入册（SVDE-Bench Sprint 0 Bootstrap Task v1.0 · 2026-08-22）──
+  - id: EV-INTAKE-005
+    title: "SVDE-Bench Sprint 0 Bootstrap Task v1.0"
+    source: {type: bootstrap_task_spec, path: "~/Downloads/SVDE-Bench_Sprint_0_Bootstrap_Task_v1_0.md", intake_date: "2026-08-22"}
+    claim: |
+      可直引五条：(1)"Sprint 0 目标：完成 Repository Bootstrap + Python Package + Testing Framework + Basic Schema Placeholder。"
+      (2)"明确禁止：禁止实现 Solver/Oracle/Evaluator 业务逻辑，禁止架构发散创建产品级实现目录。"
+      (3)"Core Data Model：DecisionCase (id, domain, intent, world, contract, runtime, events) 与 DecisionArtifact (decision, trace, explanation, memory_update)。"
+      (4)"接口占位：BaseDecisionAgent 与 BaseOracle 抽象接口定义。"
+      (5)"Sprint 0.5 架构冒烟测试：验证 Import → Case → Artifact → Empty Report 链路畅通并通过 pytest。"
+    supports:
+      concepts: [KB-GOV-035(Sprint 0 验收记录), svde-bench 独立仓库, Sprint 0.5 架构冒烟]
+      decision_models: []
+    confidence: A
+    evidence_strength: Level-A    # 官方 Sprint 0 执行任务书
+    review_status: verified       # 五条 claim 逐字核对原文
+    intake_adjudication: "Sprint 0 已成功完成独立仓库搭建、package 安装与 5/5 pytest 冒烟测试"
+
+  # ── 外部资料入册（SVDE-Bench Sprint 1A Core Schema Implementation Task · 2026-08-22）──
+  - id: EV-INTAKE-006
+    title: "SVDE-Bench Sprint 1A Core Schema Implementation Task v1.0"
+    source: {type: sprint_task_spec, path: "docs/sales_visit_domain_research/SVDE_Bench_Sprint_1A_Task_v1_0.md", intake_date: "2026-08-22"}
+    claim: |
+      可直引五条：(1)"Sprint 0.6 修订：contract 升级为 semantic_contract，DecisionArtifact 增加 validation_result。"
+      (2)"Sprint 拆分：Sprint 1 拆分为 1A (Core Decision Schema) 与 1B (Memory Schema)，保持边界。"
+      (3)"DecisionCase Pydantic v2 实现：metadata, intent, world_state, semantic_contract, runtime_context, events。"
+      (4)"DecisionArtifact 实现：case_id, status(FEASIBLE/INFEASIBLE), decision, trace, explanation, validation_result, memory_patch。"
+      (5)"DecisionTrace 实现：trace_id, decision_chain, causal_rationale, constraint_provenance。"
+    supports:
+      concepts: [KB-GOV-036(Sprint 1A 验收记录), svdebench.core 强类型模式, 双向序列化]
+      decision_models: []
+    confidence: A
+    evidence_strength: Level-A    # 官方 Sprint 1A 任务规范与验收
+    review_status: verified       # 五条 claim 逐字核对原文
+    intake_adjudication: "Sprint 1A 核心决策数据模型已完成 Pydantic 实现、双向无损 YAML/JSON 序列化与 6/6 pytest 测试"
+
+  # ── 外部资料入册（SVDE-Bench Sprint 1B Decision Memory Schema Task · 2026-08-22）──
+  - id: EV-INTAKE-007
+    title: "SVDE-Bench Sprint 1B Decision Memory Artifact Schema Task v1.0"
+    source: {type: sprint_task_spec, path: "docs/sales_visit_domain_research/SVDE_Bench_Sprint_1B_Task_Intake_Report_v1_0.md", intake_date: "2026-08-22"}
+    claim: |
+      可直引五条：(1)"Sprint 1B 目标：完成 Decision Memory Artifact Schema 定义，确立纯数据对象语言。"
+      (2)"明确禁止：严禁实现 Memory Retrieval, Vector DB, Embedding, Search, Promotion Algorithm。"
+      (3)"MemoryObject 包含 memory_id, memory_class(6类), context(No Context No Memory), trigger, semantic_recommendation, outcome_evaluation, lifecycle, source_evidence。"
+      (4)"MemoryLifecycleState 7 态：CANDIDATE, EVALUATING, VALIDATED, PROMOTED, DEPRECATED, SUPERSEDED, REJECTED。"
+      (5)"四项校验规则：非空ID、合法类、PROMOTED门限校验与严禁注入求解器变量字符串(The Semantic Impact Law)。"
+    supports:
+      concepts: [KB-GOV-037(Sprint 1B 验收记录), svdebench.core.memory 强类型模式, 纯数据语言]
+      decision_models: []
+    confidence: A
+    evidence_strength: Level-A    # 官方 Sprint 1B 规范任务书与验收
+    review_status: verified       # 五条 claim 逐字核对原文
+    intake_adjudication: "Sprint 1B 决策记忆数据模型已完成 Pydantic 实现、双向无损 YAML/JSON 序列化与 11/11 pytest 测试"
+
+  # ── 外部资料入册（SVDE-Bench Sprint 2 First Golden Case Task · 2026-08-22）──
+  - id: EV-INTAKE-008
+    title: "SVDE-Bench Sprint 2 First Golden Case End-to-End Pipeline Task v1.0"
+    source: {type: sprint_task_spec, path: "docs/sales_visit_domain_research/SVDE_Bench_Sprint_2_Task_Intake_Report_v1_0.md", intake_date: "2026-08-22"}
+    claim: |
+      可直引五条：(1)"Sprint 2 目标：实现首个完整可审计 Golden Case 001 (Dynamic Delivery Failure Recovery v0.1)。"
+      (2)"双 Baseline 架构：PureSolverMockAgent (选 Candidate A，破坏承诺) vs SemanticAwareAgent (选 Candidate B，保持承诺)。"
+      (3)"DecisionArtifact 完备闭环：decision + trace + explanation + validation_result + memory_patch。"
+      (4)"产出 Golden Case 001 Report (golden_case_001_report.json)。"
+      (5)"四大架构门限：Artifact 优先 / Memory 不改 Solver / Oracle 独立 / 评测不读内部状态 100% 遵守。"
+    supports:
+      concepts: [KB-GOV-038(Sprint 2 验收记录), 首个 Golden Case 闭环, 双 Baseline 对比]
+      decision_models: []
+    confidence: A
+    evidence_strength: Level-A    # 官方 Sprint 2 规范任务书与验收
+    review_status: verified       # 五条 claim 逐字核对原文
+    intake_adjudication: "Sprint 2 首个黄金用例已完成端到端流水线打通、双 Baseline 评测对比与 16/16 pytest 全量通过"
+
+  # ── 外部资料入册（SVDE-Bench Sprint 3A Semantic Evaluator Task · 2026-08-22）──
+  - id: EV-INTAKE-009
+    title: "SVDE-Bench Sprint 3A Semantic Evaluator Implementation Task v1.0"
+    source: {type: sprint_task_spec, path: "docs/sales_visit_domain_research/SVDE_Bench_Sprint_3A_Task_Intake_Report_v1_0.md", intake_date: "2026-08-22"}
+    claim: |
+      可直引五条：(1)"Sprint 3A 目标：实现第一类核心评价器 SemanticEvaluator（语义契约评估器）。"
+      (2)"评价黑盒输入边界：严格限定为 DecisionCase + DecisionArtifact，严禁读取 Agent 内部状态、Prompt、CoT 或求解器中间变量。"
+      (3)"SemanticEvaluationResult 模式：overall_pass, constraint_accuracy, constraint_results, violations, explanations。"
+      (4)"三大语义规则：Rule 1 HARD_COMMITMENT 必须满足 / Rule 2 类型正确性 / Rule 3 意图对齐（非 LLM Judge，确定性规则）。"
+      (5)"Golden Case 001 判定：Baseline A (Pure Solver) overall_pass=False vs Baseline B (Semantic Aware) overall_pass=True。"
+    supports:
+      concepts: [KB-GOV-039(Sprint 3A 验收记录), svdebench.evaluator.semantic 评价器, A/B 语义判决]
+      decision_models: []
+    confidence: A
+    evidence_strength: Level-A    # 官方 Sprint 3A 规范任务书与验收
+    review_status: verified       # 五条 claim 逐字核对原文
+    intake_adjudication: "Sprint 3A 语义评估器已完成确定性规则实现、结构化证据输出与 21/21 pytest 全量测试通过"
+
+  # ── 外部资料入册（SVDE-Bench Sprint 3B Feasibility Evaluator Task · 2026-08-22）──
+  - id: EV-INTAKE-010
+    title: "SVDE-Bench Sprint 3B Feasibility Evaluator Implementation Task v1.0"
+    source: {type: sprint_task_spec, path: "docs/sales_visit_domain_research/SVDE_Bench_Sprint_3B_Task_Intake_Report_v1_0.md", intake_date: "2026-08-22"}
+    claim: |
+      可直引五条：(1)"Sprint 3B 目标：实现第二类核心评价器 FeasibilityEvaluator（物理与数学可行性评估器）。"
+      (2)"冻结统一评估结果基类 BaseEvaluationResult (evaluator_name, overall_pass, score, findings, evidence)。"
+      (3)"三大可行性规则：容量限制校验 / 时窗越界校验 / Oracle Comparison Interface (objective_gap 计算)。"
+      (4)"双 Evaluator 解耦：SemanticEvaluator (语义正确) 与 FeasibilityEvaluator (数学/物理可行) 独立并行，零相互依赖。"
+      (5)"Golden Case 001 核心对账：Baseline A (Pure Solver) Semantic FAIL + Feasibility PASS 实证'数学可行不等于业务正确'。"
+    supports:
+      concepts: [KB-GOV-040(Sprint 3B 验收记录), svdebench.evaluator.feasibility 评价器, 统一结果基类模型]
+      decision_models: []
+    confidence: A
+    evidence_strength: Level-A    # 官方 Sprint 3B 规范任务书与验收
+    review_status: verified       # 五条 claim 逐字核对原文
+    intake_adjudication: "Sprint 3B 可行性评估器已完成物理约束检查、Oracle 对比接口与 26/26 pytest 全量测试通过"
+
+  # ── 外部资料入册（SVDE-Bench Sprint 3C Runtime Evaluator Task · 2026-08-22）──
+  - id: EV-INTAKE-011
+    title: "SVDE-Bench Sprint 3C Runtime Evaluator Implementation Task v1.0"
+    source: {type: sprint_task_spec, path: "docs/sales_visit_domain_research/SVDE_Bench_Sprint_3C_Task_Intake_Report_v1_0.md", intake_date: "2026-08-22"}
+    claim: |
+      可直引五条：(1)"Sprint 3C 目标：实现第三类核心评价器 RuntimeEvaluator（运行时动态适应评估器）。"
+      (2)"定义 RuntimeEvaluationResult (event_results, commitment_survival_rate, disruption_ratio, state_transition_validity)。"
+      (3)"四大运行时评估规则：状态转移合法性 (Rule 1) / 承诺保持率 (Rule 2) / 重排扰动率 (Rule 3) / 确定性回放 (Rule 4)。"
+      (4)"三 Evaluator 并行独立架构：Semantic (语义正确) × Feasibility (物理可行) × Runtime (动态自适应) 零相互调用。"
+      (5)"Golden Case 001 动态对账：Baseline A (Commitment Survival Rate=0.0 -> FAIL) vs Baseline B (Commitment Survival Rate=1.0 -> PASS)。"
+    supports:
+      concepts: [KB-GOV-041(Sprint 3C 验收记录), svdebench.evaluator.runtime 评价器, 动态事件回放框架]
+      decision_models: []
+    confidence: A
+    evidence_strength: Level-A    # 官方 Sprint 3C 规范任务书与验收
+    review_status: verified       # 五条 claim 逐字核对原文
+    intake_adjudication: "Sprint 3C 运行时评估器已完成事件回放、承诺保持率与扰动率计算与 31/31 pytest 全量测试通过"
+
+  # ── 外部资料入册（SVDE-Bench Sprint 3D Memory Evaluator Task · 2026-08-22）──
+  - id: EV-INTAKE-012
+    title: "SVDE-Bench Sprint 3D Memory Evaluator Implementation Task v1.0"
+    source: {type: sprint_task_spec, path: "docs/sales_visit_domain_research/SVDE_Bench_Sprint_3D_Task_Intake_Report_v1_0.md", intake_date: "2026-08-22"}
+    claim: |
+      可直引五条：(1)"Sprint 3D 目标：实现第四类核心评价器 MemoryEvaluator（记忆治理评估器），完成四维评价体系闭环。"
+      (2)"定义 MemoryEvaluationResult (promotion_status, lifecycle_validation, evidence_sufficiency, context_boundary_check, contradiction_check, false_memory_probability)。"
+      (3)"五大评估规则：证据充分性 (Rule 1) / 上下文边界 (Rule 2) / 生命周期合法性 (Rule 3) / 冲突检测 (Rule 4) / 虚假记忆识别 (Rule 5)。"
+      (4)"MDVL MP-G1..G5 自动化门限落地：Evidence Gate, Context Gate, Outcome Gate, Contradiction Gate, Promotion Gate。"
+      (5)"四评价器完整架构：Semantic (语义正确) × Feasibility (物理可行) × Runtime (动态适应) × Memory (经验治理)。"
+    supports:
+      concepts: [KB-GOV-042(Sprint 3D 验收记录), svdebench.evaluator.memory 评价器, MDVL 自动化门限]
+      decision_models: []
+    confidence: A
+    evidence_strength: Level-A    # 官方 Sprint 3D 规范任务书与验收
+    review_status: verified       # 五条 claim 逐字核对原文
+    intake_adjudication: "Sprint 3D 记忆评估器已完成五大规则、MDVL 自动化门限与 36/36 pytest 全量测试通过"
+
+  # ── 外部资料入册（SVDE-Bench Sprint 3.5 Evaluation Framework Freeze · 2026-08-22）──
+  - id: EV-INTAKE-013
+    title: "SVDE-Bench Sprint 3.5 Evaluation Framework Freeze Task v1.0"
+    source: {type: sprint_task_spec, path: "docs/sales_visit_domain_research/SVDE_Bench_Sprint_3_5_Task_Intake_Report_v1_0.md", intake_date: "2026-08-22"}
+    claim: |
+      可直引五条：(1)"Sprint 3.5 目标：冻结四维决策智能画像模型 (DecisionIntelligenceProfile)，统一 Benchmark 输出模式。"
+      (2)"四维正交维度：Semantic Correctness × Execution Feasibility × Runtime Adaptability × Decision Memory Governance。"
+      (3)"评分策略铁律：严禁生成单一标量总分 (如 Score=92.5) 压缩评价，必须以 Profile 形式并列呈现各维度的独立表现。"
+      (4)"标准报告模式：包含 case_id, agent_name, decision_artifact, evaluation_profile (四维画像及概要)。"
+      (5)"五大基准完整性铁律：仅评价不生成 / 零 Solver 调用 / 零内部状态读取 / Oracle 仅参考 / Promotion 仅为评价结论。"
+    supports:
+      concepts: [KB-GOV-043(Sprint 3.5 验收记录), svdebench.evaluator.profile 画像契约, 标准报告模式]
+      decision_models: []
+    confidence: A
+    evidence_strength: Level-A    # 官方 Sprint 3.5 规范任务书与验收
+    review_status: verified       # 五条 claim 逐字核对原文
+    intake_adjudication: "Sprint 3.5 评测框架已完成四维画像聚合器、标准报告 Schema 冻结与 41/41 pytest 全量测试通过"
+
+  # ── 外部资料入册（SVDE-Bench Sprint 4 Independent Oracle Task · 2026-08-22）──
+  - id: EV-INTAKE-014
+    title: "SVDE-Bench Sprint 4 Independent Oracle Implementation Task v1.0"
+    source: {type: sprint_task_spec, path: "docs/sales_visit_domain_research/SVDE_Bench_Sprint_4_Task_Intake_Report_v1_0.md", intake_date: "2026-08-22"}
+    claim: |
+      可直引五条：(1)"Sprint 4 目标：实现独立 Gold Reference Oracle (CPSATExactOracle)，确立评价可信根。"
+      (2)"三方边界隔离：DecisionCase 独立输入 Agent (生成解) 与 Oracle (生成参考)，Evaluator 只比对不决策。"
+      (3)"OracleReference 模式：case_id, feasibility_status, objective_value, constraint_summary, solution_metadata, solver_status。"
+      (4)"四大架构门限：Oracle 独立性(禁导入agents)、零答案泄露、评估器解耦、语义隔离(只解数学约束，不含VIP Prompt)。"
+      (5)"基准完整性测试：AST 静态扫描证明零 Agent 依赖，相同 Case 重复求解 100% 确定性幂等。"
+    supports:
+      concepts: [KB-GOV-044(Sprint 4 验收记录), svdebench.oracle.cpsat 独立求解器, AST 依赖隔离扫描]
+      decision_models: []
+    confidence: A
+    evidence_strength: Level-A    # 官方 Sprint 4 规范任务书与验收
+    review_status: verified       # 五条 claim 逐字核对原文
+    intake_adjudication: "Sprint 4 独立 Oracle 求解器已完成原生 CP-SAT 建模、OracleReference 冻结与 46/46 pytest 全量测试通过"
+
+  # ── 外部资料入册（SVDE-Bench Sprint 4.5 Benchmark Calibration Task · 2026-08-22）──
+  - id: EV-INTAKE-015
+    title: "SVDE-Bench Sprint 4.5 Benchmark Calibration & Integrity Audit Task v1.0"
+    source: {type: sprint_task_spec, path: "docs/sales_visit_domain_research/SVDE_Bench_Sprint_4_5_Task_Intake_Report_v1_0.md", intake_date: "2026-08-22"}
+    claim: |
+      可直引五条：(1)"Sprint 4.5 目标：建立 Benchmark Calibration Layer，验证 Oracle 可信、Evaluator 独立公平、零代码泄露与 Case 强区分度。"
+      (2)"三大 Oracle 健全性用例：CALIB-CASE-A (无解识别) / CALIB-CASE-B (多重对称最优) / CALIB-CASE-C (目标权衡)。"
+      (3)"Evaluator 独立性：Evaluator 不等价于 Oracle Checker，允许业务鲁棒性溢价，不强迫 Agent 盲目复制 Oracle 路径。"
+      (4)"静态 AST 防泄露扫描：Agent !=> Oracle, Evaluator !=> Agent, Oracle !=> Evaluator, 私有数据集隔离。"
+      (5)"用例三维质检标准：Decision Separation (区分度) × Constraint Coverage (覆盖度) × Failure Interpretability (失败可解释度)。"
+    supports:
+      concepts: [KB-GOV-045(Sprint 4.5 验收记录), svdebench.calibration 审计层, AST 防作弊扫描器]
+      decision_models: []
+    confidence: A
+    evidence_strength: Level-A    # 官方 Sprint 4.5 规范任务书与验收
+    review_status: verified       # 五条 claim 逐字核对原文
+    intake_adjudication: "Sprint 4.5 基准校准层已完成三大健全性用例、AST 泄露扫描、用例质检与 54/54 pytest 全量测试通过"
+
+  # ── 外部资料入册（SVDE-Bench Sprint 5 Multi-Domain Benchmark Suite Task · 2026-08-22）──
+  - id: EV-INTAKE-016
+    title: "SVDE-Bench Sprint 5 Multi-Domain Golden Benchmark Suite Construction Task v1.0"
+    source: {type: sprint_task_spec, path: "docs/sales_visit_domain_research/SVDE_Bench_Sprint_5_Task_Intake_Report_v1_0.md", intake_date: "2026-08-22"}
+    claim: |
+      可直引五条：(1)"Sprint 5 目标：构建 10 Golden Cases (配送 4 / 仓储 2 / 渠道 2 / 拜访 2) 完整 Benchmark Suite。"
+      (2)"Sprint 5A 阶段产出：冻结 Golden Case Ontology 与 Dataset Schema Design，扩展 FullDecisionAgent (Baseline C)。"
+      (3)"三类 Baseline Agent 矩阵：PureSolverMockAgent (下限) + SemanticAwareAgent (核心验证) + FullDecisionAgent (完整能力)。"
+      (4)"三道用例质量门限：Decision Separation (区分度) × Constraint Coverage (覆盖度) × Failure Interpretability (可解释度)。"
+      (5)"领域覆盖矩阵已生成 (Delivery/Warehouse/Channel/Visit 四领域)，基准主报告结构骨架已建立。"
+    supports:
+      concepts: [KB-GOV-046(Sprint 5 验收记录), svdebench.agents.baseline.full_decision_agent, 领域覆盖矩阵]
+      decision_models: []
+    confidence: A
+    evidence_strength: Level-A    # 官方 Sprint 5 规范任务书与验收
+    review_status: verified       # 五条 claim 逐字核对原文
+    intake_adjudication: "Sprint 5A 已完成 Golden Case Ontology 设计、FullDecisionAgent 接入与覆盖矩阵骨架生成；下一步 Sprint 5B 继续 CASE-002 ~ CASE-010 全量生产"
+
+  # ── 外部资料入册（SVDE-Bench Sprint 5B Golden Case Expansion Task · 2026-08-22）──
+  - id: EV-INTAKE-017
+    title: "SVDE-Bench Sprint 5B Golden Case Expansion & Benchmark Suite Assembly Task v1.0"
+    source: {type: sprint_task_spec, path: "docs/sales_visit_domain_research/SVDE_Bench_Sprint_5B_Task_Intake_Report_v1_0.md", intake_date: "2026-08-22"}
+    claim: |
+      可直引五条：(1)"Sprint 5B 目标：补齐 10 Golden Cases 四领域覆盖矩阵 (配送 4/仓储 2/渠道 2/拜访 2)。"
+      (2)"冻结 Case Registry (registry.yaml) 标准化登记所有 Case 的难度、能力标签与失败模式。"
+      (3)"冻结 Failure Taxonomy (FT-01 到 FT-05) 与 Capability Matrix JSON 产物。"
+      (4)"三大 Baseline Agent 在所有 Case 上完成四维 Evaluation Profile 矩阵建立。"
+      (5)"生成 SVDE-Bench v0.1 Master Report (svde_bench_v0_1_report.json) 含域分布、Agent 对比与失败分布。"
+    supports:
+      concepts: [KB-GOV-047(Sprint 5B 验收记录), 10 Golden Cases 全量覆盖, Failure Taxonomy, Capability Matrix]
+      decision_models: []
+    confidence: A
+    evidence_strength: Level-A    # 官方 Sprint 5B 规范任务书与验收
+    review_status: verified       # 五条 claim 逐字核对原文
+    intake_adjudication: "Sprint 5B 已完成 10 Cases 全量覆盖、Registry/Capability/Master Report 三层产物与 59/59 pytest 全量测试通过"

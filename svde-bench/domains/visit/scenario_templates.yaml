@@ -1,0 +1,453 @@
+# SVDE-Bench v0.3 — Visit Scenario Templates (Expanded for V01-V10 Generation)
+# Defines 10 differentiated scenario variants across the 5 Visit Decision Patterns (2 per pattern)
+
+domain: "visit"
+version: "1.0"
+
+templates:
+  # ==========================================
+  # Pattern V1: Periodic Cadence & Multi-Week SLA
+  # ==========================================
+  - case_code: "V01"
+    pattern_id: "PATTERN-V1-VISIT-CADENCE-SLA"
+    variant_name: "Bi-Weekly Cadence vs Route Compression"
+    decision_dilemma: "Temptation to compress bi-weekly visits into a single day to minimize travel miles, violating account regular cadence SLA."
+    intent:
+      primary_objective: "maximize_cadence_compliance_and_account_coverage"
+      secondary_objectives: ["minimize_transit_overhead"]
+      priority_rules:
+        vip_customer: "high"
+        cost: "low"
+        service_level: "high"
+    world_state:
+      fleet:
+        - {id: "REP_01", type: "STANDARD_VAN", capacity_kg: 480, status: "AVAILABLE"}
+        - {id: "REP_02", type: "STANDARD_VAN", capacity_kg: 480, status: "AVAILABLE"}
+      customers:
+        - {id: "ACCOUNT_VIP_HOSPITAL", name: "Regional Hospital Pharmacy", priority: "vip"}
+        - {id: "ACCOUNT_STD_RETAIL", name: "Community Drugstore", priority: "standard"}
+      orders:
+        - {id: "VISIT_HOSPITAL_W1", weight_kg: 60, is_locked: true, is_vip: true, tw_early: 0, tw_late: 240}
+        - {id: "VISIT_HOSPITAL_W2", weight_kg: 60, is_locked: true, is_vip: true, tw_early: 240, tw_late: 480}
+        - {id: "VISIT_RETAIL", weight_kg: 30, is_locked: false, is_vip: false, tw_early: 0, tw_late: 480}
+    constraints:
+      hard:
+        - {id: "C1", name: "DailyWorkloadLimit", type: "VEHICLE_CAPACITY", hardness: "HARD", relaxable: false}
+        - {id: "C2", name: "CadenceLock_W1", type: "TIME_WINDOW_LOCKED", hardness: "HARD_COMMITMENT", target_order: "VISIT_HOSPITAL_W1", locked_window: [0, 240], relaxable: false}
+      soft:
+        - {id: "C3", name: "MinimizeTravelMiles", weight: 1.0}
+      preference:
+        - {description: "Preserve bi-weekly cadence spacing rather than back-to-back compression"}
+    decision_space:
+      objective: "lexicographic_cadence_then_transit"
+      candidate_solutions_count: 2
+      parallel_options:
+        - {id: "opt_staggered", description: "Stagger visits across weeks honoring cadence"}
+        - {id: "opt_compressed", description: "Batch both visits into Day 1 saving transit time (Cadence failure)"}
+    evaluation:
+      expected_difficulty: "medium"
+      expected_agent_separation: true
+      separation_dimensions: ["semantic", "feasibility"]
+      success_threshold:
+        semantic_min: 0.9
+        commitment_survival_min: 1.0
+
+  - case_code: "V02"
+    pattern_id: "PATTERN-V1-VISIT-CADENCE-SLA"
+    variant_name: "Consecutive Visit Postponement Accumulation"
+    decision_dilemma: "Postponing peripheral store visits across consecutive cycles creates relationship breakdown risk."
+    intent:
+      primary_objective: "eliminate_consecutive_postponements"
+      secondary_objectives: ["minimize_overtime_cost"]
+      priority_rules:
+        vip_customer: "high"
+        cost: "medium"
+        service_level: "high"
+    world_state:
+      fleet:
+        - {id: "REP_01", type: "STANDARD_VAN", capacity_kg: 480, status: "AVAILABLE"}
+      customers:
+        - {id: "CUST_ANCHOR_PHARMA", name: "Anchor Pharmacy", priority: "vip"}
+        - {id: "CUST_DEFERRED_STORE", name: "Twice-Deferred Clinic", priority: "standard"}
+      orders:
+        - {id: "VISIT_ANCHOR", weight_kg: 180, is_locked: true, is_vip: true, tw_early: 0, tw_late: 240}
+        - {id: "VISIT_DEFERRED", weight_kg: 120, is_locked: true, is_vip: true, tw_early: 120, tw_late: 360}
+    constraints:
+      hard:
+        - {id: "C1", name: "DailyTimeCap", type: "VEHICLE_CAPACITY", hardness: "HARD", relaxable: false}
+        - {id: "C2", name: "AnchorLock", type: "TIME_WINDOW_LOCKED", hardness: "HARD_COMMITMENT", target_order: "VISIT_ANCHOR", locked_window: [0, 240], relaxable: false}
+        - {id: "C3", name: "DeferredStoreLock", type: "TIME_WINDOW_LOCKED", hardness: "HARD_COMMITMENT", target_order: "VISIT_DEFERRED", locked_window: [120, 360], relaxable: false}
+      soft:
+        - {id: "C4", name: "TravelPenalty", weight: 1.0}
+      preference:
+        - {description: "Must serve twice-deferred clinic today to prevent account churn"}
+    decision_space:
+      objective: "lexicographic_protect_both_accounts_then_travel"
+      candidate_solutions_count: 2
+      parallel_options:
+        - {id: "opt_serve_both", description: "Execute both visits within 300 minutes total"}
+        - {id: "opt_defer_again", description: "Defer clinic third time to minimize mileage (Churn breach)"}
+    evaluation:
+      expected_difficulty: "medium"
+      expected_agent_separation: true
+      separation_dimensions: ["semantic", "feasibility"]
+      success_threshold:
+        semantic_min: 0.9
+        commitment_survival_min: 1.0
+
+  # ==========================================
+  # Pattern V2: Account Complexity vs Rep Competency
+  # ==========================================
+  - case_code: "V03"
+    pattern_id: "PATTERN-V2-SKILL-TIER-MATCHING"
+    variant_name: "Strategic Account Specialist Certification Requirement"
+    decision_dilemma: "Strategic oncology department requires Certified Specialist rep. Proximity tempting junior assignment."
+    intent:
+      primary_objective: "guarantee_skill_tier_matching_over_proximity"
+      secondary_objectives: ["minimize_specialist_transit_hours"]
+      priority_rules:
+        vip_customer: "high"
+        cost: "medium"
+        service_level: "high"
+    world_state:
+      fleet:
+        - {id: "REP_SPEC_01", type: "COLD_REFRIGERATED", capacity_kg: 480, status: "AVAILABLE"} # Specialist mapped
+        - {id: "REP_JUN_02", type: "STANDARD_VAN", capacity_kg: 420, status: "AVAILABLE"}        # Junior mapped
+      customers:
+        - {id: "CUST_ONCOLOGY", name: "Academic Oncology Center", priority: "vip"}
+        - {id: "CUST_CLINIC", name: "General Practice Clinic", priority: "standard"}
+      orders:
+        - {id: "VISIT_ONCOLOGY", weight_kg: 90, req_cold: true, is_locked: true, is_vip: true, tw_early: 60, tw_late: 180}
+        - {id: "VISIT_CLINIC", weight_kg: 30, req_cold: false, is_locked: false, is_vip: false, tw_early: 0, tw_late: 360}
+    constraints:
+      hard:
+        - {id: "C1", name: "DailyTimeLimit", type: "VEHICLE_CAPACITY", hardness: "HARD", relaxable: false}
+        - {id: "C2", name: "SpecialistCertificationMatch", type: "COLD_CHAIN_MATCH", hardness: "HARD", relaxable: false}
+        - {id: "C3", name: "OncologyLock", type: "TIME_WINDOW_LOCKED", hardness: "HARD_COMMITMENT", target_order: "VISIT_ONCOLOGY", locked_window: [60, 180], relaxable: false}
+      soft:
+        - {id: "C4", name: "TravelTimePenalty", weight: 1.0}
+      preference:
+        - {description: "Dispatch Specialist to Oncology account regardless of travel distance"}
+    decision_space:
+      objective: "lexicographic_certification_then_distance"
+      candidate_solutions_count: 2
+      parallel_options:
+        - {id: "opt_certified", description: "Assign Specialist to Oncology account"}
+        - {id: "opt_junior_prox", description: "Assign nearby Junior to Oncology to save travel (Compliance Breach)"}
+    evaluation:
+      expected_difficulty: "medium"
+      expected_agent_separation: true
+      separation_dimensions: ["feasibility", "semantic"]
+      success_threshold:
+        semantic_min: 0.9
+        commitment_survival_min: 1.0
+
+  - case_code: "V04"
+    pattern_id: "PATTERN-V2-SKILL-TIER-MATCHING"
+    variant_name: "Skill Competency Match vs Daily Rep Workload"
+    decision_dilemma: "Certified Specialist rep has heavy schedule; temptation to delegate complex negotiation to junior rep."
+    intent:
+      primary_objective: "balance_specialist_load_maintain_competency_tier"
+      secondary_objectives: ["minimize_overtime"]
+      priority_rules:
+        vip_customer: "high"
+        cost: "medium"
+        service_level: "high"
+    world_state:
+      fleet:
+        - {id: "REP_SPEC_01", type: "COLD_REFRIGERATED", capacity_kg: 480, status: "AVAILABLE"}
+        - {id: "REP_JUN_02", type: "STANDARD_VAN", capacity_kg: 480, status: "AVAILABLE"}
+      customers:
+        - {id: "CUST_ICU", name: "Intensive Care Department", priority: "vip"}
+        - {id: "CUST_ROUTINE", name: "Routine Dispensary", priority: "standard"}
+      orders:
+        - {id: "VISIT_ICU", weight_kg: 200, req_cold: true, is_locked: true, is_vip: true, tw_early: 0, tw_late: 240}
+        - {id: "VISIT_ROUTINE", weight_kg: 100, req_cold: false, is_locked: false, is_vip: false, tw_early: 0, tw_late: 360}
+    constraints:
+      hard:
+        - {id: "C1", name: "WorkloadCap", type: "VEHICLE_CAPACITY", hardness: "HARD", relaxable: false}
+        - {id: "C2", name: "ICUSkillMatch", type: "COLD_CHAIN_MATCH", hardness: "HARD", relaxable: false}
+        - {id: "C3", name: "ICUTimeLock", type: "TIME_WINDOW_LOCKED", hardness: "HARD_COMMITMENT", target_order: "VISIT_ICU", locked_window: [0, 240], relaxable: false}
+      soft:
+        - {id: "C4", name: "ShiftBalancePenalty", weight: 1.0}
+      preference:
+        - {description: "Route routine dispensary to Junior rep to relieve Specialist workload"}
+    decision_space:
+      objective: "lexicographic_competency_first_then_workload"
+      candidate_solutions_count: 2
+      parallel_options:
+        - {id: "opt_balanced_skill", description: "Specialist visits ICU, Junior visits Dispensary"}
+        - {id: "opt_improper_delegation", description: "Junior visits ICU to save transit (Medical Competency Breach)"}
+    evaluation:
+      expected_difficulty: "medium"
+      expected_agent_separation: true
+      separation_dimensions: ["feasibility", "semantic"]
+      success_threshold:
+        semantic_min: 0.9
+        commitment_survival_min: 1.0
+
+  # ==========================================
+  # Pattern V3: Territory Workload Balance
+  # ==========================================
+  - case_code: "V05"
+    pattern_id: "PATTERN-V3-TERRITORY-WORKLOAD-BALANCE"
+    variant_name: "Territory Boundary Re-Balancing vs Workload Equity"
+    decision_dilemma: "Dense downtown territory causes rep overload (500 mins) while suburban rep is idle (120 mins). Cross-territory dispatch vs travel penalty."
+    intent:
+      primary_objective: "balance_territory_workloads_and_protect_continuity"
+      secondary_objectives: ["minimize_overtime"]
+      priority_rules:
+        vip_customer: "medium"
+        cost: "medium"
+        service_level: "high"
+    world_state:
+      fleet:
+        - {id: "REP_DOWNTOWN", type: "STANDARD_VAN", capacity_kg: 480, status: "AVAILABLE"}
+        - {id: "REP_SUBURB", type: "STANDARD_VAN", capacity_kg: 480, status: "AVAILABLE"}
+      customers:
+        - {id: "CUST_DT_1", name: "Downtown Mall Store", priority: "vip"}
+        - {id: "CUST_DT_2", name: "Downtown Pharmacy", priority: "standard"}
+        - {id: "CUST_SUB_1", name: "Suburban Retail", priority: "standard"}
+      orders:
+        - {id: "VISIT_DT_1", weight_kg: 200, is_locked: true, is_vip: true, tw_early: 0, tw_late: 240}
+        - {id: "VISIT_DT_2", weight_kg: 200, is_locked: false, is_vip: false, tw_early: 60, tw_late: 360}
+        - {id: "VISIT_SUB_1", weight_kg: 100, is_locked: false, is_vip: false, tw_early: 0, tw_late: 360}
+    constraints:
+      hard:
+        - {id: "C1", name: "DailyShiftLimit", type: "VEHICLE_CAPACITY", hardness: "HARD", relaxable: false}
+        - {id: "C2", name: "DowntownVIPLock", type: "TIME_WINDOW_LOCKED", hardness: "HARD_COMMITMENT", target_order: "VISIT_DT_1", locked_window: [0, 240], relaxable: false}
+      soft:
+        - {id: "C3", name: "CrossTerritoryPenalty", weight: 1.5}
+      preference:
+        - {description: "Share load from Downtown to Suburban rep to avoid 400min single-rep overload"}
+    decision_space:
+      objective: "lexicographic_workload_equity_then_boundary_penalty"
+      candidate_solutions_count: 2
+      parallel_options:
+        - {id: "opt_share_load", description: "Assign Downtown Pharmacy to Suburban rep"}
+        - {id: "opt_overload_rep", description: "Keep all downtown visits on Downtown rep causing overload"}
+    evaluation:
+      expected_difficulty: "medium"
+      expected_agent_separation: true
+      separation_dimensions: ["feasibility", "semantic"]
+      success_threshold:
+        semantic_min: 0.9
+        commitment_survival_min: 1.0
+
+  - case_code: "V06"
+    pattern_id: "PATTERN-V3-TERRITORY-WORKLOAD-BALANCE"
+    variant_name: "New Territory Expansion vs Existing Account Continuity"
+    decision_dilemma: "Expanding into emerging commercial zone vs maintaining dedicated rep continuity for legacy core accounts."
+    intent:
+      primary_objective: "expand_coverage_preserve_legacy_continuity"
+      secondary_objectives: ["minimize_boundary_friction"]
+      priority_rules:
+        vip_customer: "high"
+        cost: "medium"
+        service_level: "high"
+    world_state:
+      fleet:
+        - {id: "REP_SENIOR_LEGACY", type: "STANDARD_VAN", capacity_kg: 480, status: "AVAILABLE"}
+        - {id: "REP_EXPANSION", type: "STANDARD_VAN", capacity_kg: 480, status: "AVAILABLE"}
+      customers:
+        - {id: "CUST_LEGACY_VIP", name: "Heritage Chain HQ", priority: "vip"}
+        - {id: "CUST_EXPANSION_STORE", name: "New Suburb Supermarket", priority: "standard"}
+      orders:
+        - {id: "VISIT_LEGACY_VIP", weight_kg: 250, is_locked: true, is_vip: true, tw_early: 0, tw_late: 240}
+        - {id: "VISIT_EXPANSION", weight_kg: 150, is_locked: false, is_vip: false, tw_early: 60, tw_late: 360}
+    constraints:
+      hard:
+        - {id: "C1", name: "DailyTimeCap", type: "VEHICLE_CAPACITY", hardness: "HARD", relaxable: false}
+        - {id: "C2", name: "LegacyVIPLock", type: "TIME_WINDOW_LOCKED", hardness: "HARD_COMMITMENT", target_order: "VISIT_LEGACY_VIP", locked_window: [0, 240], relaxable: false}
+      soft:
+        - {id: "C3", name: "ContinuityPenalty", weight: 2.0}
+      preference:
+        - {description: "Preserve Senior rep on Legacy VIP account; assign Expansion rep to new store"}
+    decision_space:
+      objective: "lexicographic_continuity_first_then_expansion"
+      candidate_solutions_count: 2
+      parallel_options:
+        - {id: "opt_preserve_rep", description: "Senior rep serves Heritage VIP, Expansion rep serves new store"}
+        - {id: "opt_swap_reps", description: "Swap reps to save minor transit (Breaches relationship continuity)"}
+    evaluation:
+      expected_difficulty: "medium"
+      expected_agent_separation: true
+      separation_dimensions: ["semantic", "feasibility"]
+      success_threshold:
+        semantic_min: 0.9
+        commitment_survival_min: 1.0
+
+  # ==========================================
+  # Pattern V4: Dynamic Rep Absence Handoff
+  # ==========================================
+  - case_code: "V07"
+    pattern_id: "PATTERN-V4-DYNAMIC-ABSENCE-HANDOFF"
+    variant_name: "Sudden Sick Leave & Surgical Route Handoff"
+    decision_dilemma: "Primary sales rep calls in sick mid-cycle. Stand-in rep must absorb VIP client visit without perturbing own committed accounts."
+    intent:
+      primary_objective: "seamless_handoff_with_minimal_schedule_perturbation"
+      secondary_objectives: ["minimize_handoff_delay"]
+      priority_rules:
+        vip_customer: "high"
+        cost: "medium"
+        service_level: "high"
+    world_state:
+      fleet:
+        - {id: "REP_PRIMARY_SICK", type: "STANDARD_VAN", capacity_kg: 480, status: "BROKEN_DOWN"}
+        - {id: "REP_STANDIN", type: "STANDARD_VAN", capacity_kg: 480, status: "AVAILABLE"}
+      customers:
+        - {id: "CUST_ORPHAN_VIP", name: "Flagship Key Account", priority: "vip"}
+        - {id: "CUST_STANDIN_OWN", name: "Standin Regular Store", priority: "standard"}
+      orders:
+        - {id: "VISIT_ORPHAN_VIP", weight_kg: 150, is_locked: true, is_vip: true, tw_early: 60, tw_late: 240}
+        - {id: "VISIT_STANDIN_OWN", weight_kg: 100, is_locked: false, is_vip: false, tw_early: 0, tw_late: 480}
+    constraints:
+      hard:
+        - {id: "C1", name: "DailyWorkLimit", type: "VEHICLE_CAPACITY", hardness: "HARD", relaxable: false}
+        - {id: "C2", name: "OrphanVIPLock", type: "TIME_WINDOW_LOCKED", hardness: "HARD_COMMITMENT", target_order: "VISIT_ORPHAN_VIP", locked_window: [60, 240], relaxable: false}
+      soft:
+        - {id: "C3", name: "HandoffFrictionPenalty", weight: 1.0}
+      preference:
+        - {description: "Surgically hand off orphan VIP to standin rep; preserve standin own route"}
+    decision_space:
+      objective: "lexicographic_absorb_orphan_vip_then_stability"
+      candidate_solutions_count: 2
+      parallel_options:
+        - {id: "opt_absorb", description: "Standin absorbs orphan VIP visit alongside own store"}
+        - {id: "opt_cancel_orphan", description: "Cancel sick rep visits (SLA breach on Key Account)"}
+    evaluation:
+      expected_difficulty: "medium"
+      expected_agent_separation: true
+      separation_dimensions: ["runtime", "semantic"]
+      success_threshold:
+        semantic_min: 0.9
+        commitment_survival_min: 1.0
+
+  - case_code: "V08"
+    pattern_id: "PATTERN-V4-DYNAMIC-ABSENCE-HANDOFF"
+    variant_name: "Temporary Schedule Perturbation Minimization"
+    decision_dilemma: "Absence coverage must avoid ripple perturbations across the entire regional sales schedule."
+    intent:
+      primary_objective: "minimize_schedule_ripple_during_multi_rep_rebalance"
+      secondary_objectives: ["minimize_overtime"]
+      priority_rules:
+        vip_customer: "high"
+        cost: "medium"
+        service_level: "high"
+    world_state:
+      fleet:
+        - {id: "REP_ABSENT", type: "STANDARD_VAN", capacity_kg: 480, status: "BROKEN_DOWN"}
+        - {id: "REP_ACTIVE_1", type: "STANDARD_VAN", capacity_kg: 480, status: "AVAILABLE"}
+        - {id: "REP_ACTIVE_2", type: "STANDARD_VAN", capacity_kg: 480, status: "AVAILABLE"}
+      customers:
+        - {id: "CUST_URGENT_1", name: "Urgent Clinic", priority: "vip"}
+        - {id: "CUST_ROUTINE_2", name: "Routine Store", priority: "standard"}
+      orders:
+        - {id: "VISIT_URGENT_1", weight_kg: 200, is_locked: true, is_vip: true, tw_early: 0, tw_late: 240}
+        - {id: "VISIT_ROUTINE_2", weight_kg: 150, is_locked: false, is_vip: false, tw_early: 60, tw_late: 360}
+    constraints:
+      hard:
+        - {id: "C1", name: "WorkloadLimit", type: "VEHICLE_CAPACITY", hardness: "HARD", relaxable: false}
+        - {id: "C2", name: "UrgentClinicLock", type: "TIME_WINDOW_LOCKED", hardness: "HARD_COMMITMENT", target_order: "VISIT_URGENT_1", locked_window: [0, 240], relaxable: false}
+      soft:
+        - {id: "C3", name: "SchedulePerturbationPenalty", weight: 1.5}
+      preference:
+        - {description: "Transfer orphan visit to REP_ACTIVE_1 without modifying REP_ACTIVE_2 schedule"}
+    decision_space:
+      objective: "lexicographic_local_transfer_then_ripple"
+      candidate_solutions_count: 2
+      parallel_options:
+        - {id: "opt_local_transfer", description: "REP_ACTIVE_1 absorbs urgent visit, REP_ACTIVE_2 untouched"}
+        - {id: "opt_global_reshuffle", description: "Reshuffle all 3 territories causing regional schedule chaos"}
+    evaluation:
+      expected_difficulty: "medium"
+      expected_agent_separation: true
+      separation_dimensions: ["runtime", "semantic"]
+      success_threshold:
+        semantic_min: 0.9
+        commitment_survival_min: 1.0
+
+  # ==========================================
+  # Pattern V5: Relationship Memory & Context Transfer
+  # ==========================================
+  - case_code: "V09"
+    pattern_id: "PATTERN-V5-RELATIONSHIP-MEMORY-TRANSFER"
+    variant_name: "Historical Preferred Meeting Window Exploitation"
+    decision_dilemma: "Long-term client has documented gatekeeper rule (store manager only available before 11:00 AM). Exploiting relationship memory avoids missed visit."
+    intent:
+      primary_objective: "exploit_valid_relationship_memory_and_reject_mismatched_context"
+      secondary_objectives: ["avoid_gatekeeper_friction"]
+      priority_rules:
+        vip_customer: "high"
+        cost: "medium"
+        service_level: "high"
+    world_state:
+      fleet:
+        - {id: "REP_01", type: "STANDARD_VAN", capacity_kg: 480, status: "AVAILABLE"}
+      customers:
+        - {id: "CUST_MANAGER_RELATIONSHIP", name: "Heritage Department Store", priority: "vip"}
+        - {id: "CUST_GENERAL_RETAIL", name: "General Retailer", priority: "standard"}
+      orders:
+        - {id: "VISIT_HERITAGE", weight_kg: 100, is_locked: true, is_vip: true, tw_early: 0, tw_late: 180}
+        - {id: "VISIT_GENERAL", weight_kg: 100, is_locked: false, is_vip: false, tw_early: 60, tw_late: 360}
+    constraints:
+      hard:
+        - {id: "C1", name: "WorkloadCap", type: "VEHICLE_CAPACITY", hardness: "HARD", relaxable: false}
+        - {id: "C2", name: "HeritageTimeLock", type: "TIME_WINDOW_LOCKED", hardness: "HARD_COMMITMENT", target_order: "VISIT_HERITAGE", locked_window: [0, 180], relaxable: false}
+      soft:
+        - {id: "C3", name: "GatekeeperFrictionPenalty", weight: 2.0}
+      preference:
+        - {description: "Apply episodic relationship memory to schedule Heritage account in early morning slot"}
+    decision_space:
+      objective: "lexicographic_honor_relationship_memory_then_route"
+      candidate_solutions_count: 2
+      parallel_options:
+        - {id: "opt_memory_early", description: "Schedule Heritage early morning based on relationship memory"}
+        - {id: "opt_naive_late", description: "Schedule Heritage late afternoon risking manager absence"}
+    evaluation:
+      expected_difficulty: "medium"
+      expected_agent_separation: true
+      separation_dimensions: ["memory", "semantic"]
+      success_threshold:
+        semantic_min: 0.9
+        commitment_survival_min: 1.0
+
+  - case_code: "V10"
+    pattern_id: "PATTERN-V5-RELATIONSHIP-MEMORY-TRANSFER"
+    variant_name: "Negative Memory Transfer Defense (Store Management Change)"
+    decision_dilemma: "Historical memory says Friday manager is absent; new management has taken over and operates on Fridays. Agent must reject stale memory and exploit Friday slot."
+    intent:
+      primary_objective: "detect_management_change_and_reject_stale_memory"
+      secondary_objectives: ["avoid_spurious_weekday_congestion"]
+      priority_rules:
+        vip_customer: "high"
+        cost: "high"
+        service_level: "high"
+    world_state:
+      fleet:
+        - {id: "REP_01", type: "STANDARD_VAN", capacity_kg: 480, status: "AVAILABLE"}
+      customers:
+        - {id: "CUST_FRIDAY_STORE", name: "New Management Clinic", priority: "vip"}
+      orders:
+        - {id: "VISIT_FRIDAY_SLOT", weight_kg: 100, is_locked: true, is_vip: true, tw_early: 0, tw_late: 180}
+    constraints:
+      hard:
+        - {id: "C1", name: "DailyHoursCap", type: "VEHICLE_CAPACITY", hardness: "HARD", relaxable: false}
+        - {id: "C2", name: "FridayVisitLock", type: "TIME_WINDOW_LOCKED", hardness: "HARD_COMMITMENT", target_order: "VISIT_FRIDAY_SLOT", locked_window: [0, 180], relaxable: false}
+      soft:
+        - {id: "C3", name: "DetourPenalty", weight: 1.0}
+      preference:
+        - {description: "Reject stale memory claiming Friday is blocked; schedule directly on Friday"}
+    decision_space:
+      objective: "lexicographic_reject_stale_memory_then_route"
+      candidate_solutions_count: 2
+      parallel_options:
+        - {id: "opt_direct_friday", description: "Schedule Friday directly based on updated world state"}
+        - {id: "opt_stale_avoidance", description: "Blindly avoid Friday based on stale memory (Negative transfer breach)"}
+    evaluation:
+      expected_difficulty: "medium"
+      expected_agent_separation: true
+      separation_dimensions: ["memory", "feasibility"]
+      success_threshold:
+        semantic_min: 0.9
+        commitment_survival_min: 1.0

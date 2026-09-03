@@ -1,0 +1,40 @@
+entities:
+  vehicles:
+  - id: REP_SPEC_01
+    type: COLD_REFRIGERATED
+    capacity_kg: 480
+    status: AVAILABLE
+  - id: REP_JUN_02
+    type: STANDARD_VAN
+    capacity_kg: 480
+    status: AVAILABLE
+  customers:
+  - id: CUST_ICU
+    name: Intensive Care Department
+    priority: vip
+  - id: CUST_ROUTINE
+    name: Routine Dispensary
+    priority: standard
+  orders:
+  - id: VISIT_ICU
+    weight_kg: 200
+    req_cold: true
+    is_locked: true
+    is_vip: true
+    tw_early: 0
+    tw_late: 240
+  - id: VISIT_ROUTINE
+    weight_kg: 100
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 0
+    tw_late: 360
+relationships:
+  vehicle_route:
+  - vehicle: REP_SPEC_01
+    planned_orders:
+    - VISIT_ICU
+  customer_priority:
+  - customer: CUST_ICU
+    commitment: sla_commitment

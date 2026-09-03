@@ -1,0 +1,41 @@
+# GT-Small Semantic Contract v1.0 — Phase 3.3-① 伴随工件（Immutable Artifact）
+## 装配件的语义冻结声明——② Type System 的合法输入（KB-GOV-015：contract 冻结先于实现）
+
+contract_id: GTS-SEMANTIC-CONTRACT-V1.0
+generated_at: "2026-08-22"
+binds: gt_small_instance_v1_0.yaml
+
+## §1 业务语义 → 约束语义（十类映射预登记——A002 假设的覆盖面声明）
+
+| # | 业务语义（装配件字段） | 约束类型（Type System 候选） | level | relaxable | 溯源 Domain 对象 |
+|---|---|---|---|---|---|
+| C1 | EXACT 频次足额 | FREQUENCY_EXACT (cardinality "==k") | HARD | false | FrequencySpec(EXACT,k) × REQ-GS-001 |
+| C2 | RANGE 底线/上限 | FREQUENCY_RANGE (lo≤Σ≤hi) | HARD(lo)/上限 SOFT | lo:false | FrequencySpec(RANGE) × REQ-GS-002 |
+| C3 | B stretch 价值 | VALUE_MAXIMIZE | OBJECTIVE_PENALTY(L3) | n/a | FulfillmentClass(OPTIONAL) × REQ-GS-004 |
+| C4 | 最小间隔 | MIN_GAP (互斥对) | HARD | **false**（3.2 教训#4 固化——soft 模式亦不软化） | CadenceSpec.min_gap |
+| C5 | 最大间隔 | MAX_GAP (滑窗) | SOFT_PREFERENCE（超期罚 L4） | true | CadenceSpec.max_gap |
+| C6 | 日容量 | DAY_CAPACITY (Σs·x≤cap) | HARD | false | ResourceAvailability × REQ-GS-003 |
+| C7 | DAY_LOCKED | LOCK_DAY (x[t,d]==1) | HARD | false | ExistingCommitment(DAY_LOCKED) |
+| C8 | SEQUENCE_LOCKED | LOCK_SEQUENCE (先导<后随) | HARD | false | CommitmentLock.SEQUENCE_LOCKED |
+| C9 | COMPLETELY_LOCKED | LOCK_COMPLETE (日+资源双固定) | HARD | false | CommitmentLock.COMPLETELY_LOCKED |
+| C10 | 可用日窗口 | AVAILABILITY_WINDOW (掩码) | HARD | false | TargetAvailability/WeeklyAvailabilityRule |
+
+**十类覆盖声明（A002）**：本装配件全部业务语义落入 C1-C10——无第 11 类。若 ③ DSVL 或 ④ 编译中发现缺口 → 先判 A002 Assumption Fail（枚举缺口）而非 Domain 缺失。
+
+## §2 Decision Feasibility 判据（DSVL 前置检查的规范——KB-GOV-016）
+
+模型编译后必须满足的**决策级不变式**（区别于 solver 可行性）：
+1. **I1 锁不变式**：GS-CMT-1..4 在模型中各有执法元素（变量固定/顺序约束），缺一即 Decision Infeasible
+2. **I2 频次不变式**：HARD 频次（C1/C2-lo）在非 soft Case 中为等式/下界约束——不得以罚项形式出现
+3. **I3 软化白名单**：仅 Case2 且仅频次维度可软化（C1→C2 形态）；C4/C6/C7/C8/C9/C10 任何 Case 下 relaxable=false
+4. **I4 口径唯一**：L5 的 service 仅含 expected_service_min；stop_time 证据不进入（AC-8）
+5. **I5 trace 双射**：每个 Typed Constraint ↔ 数学元素 ↔ Domain 对象三链闭合（KG 图谱数学投影）
+
+## §3 等价判据（承 3.2 两档制）
+- 语义层 L1/L2/L3：F1/F2(MathOpt)/F3/Oracle 四方严格相等（1e-9）
+- 代价层 L4/L5：容差带 0.5 / 120（A005——GT-Small 复验；失效则收紧 refine 并记录 Assumption 状态迁移）
+
+## §4 Oracle 定义（Exact Solver Oracle——本档位）
+独立 CP-SAT exact 实现（与 F3 不同代码路径：独立变量命名空间+独立求解参数+OPTIMAL bound 断言）；20 工作日档不做全枚举（Enumeration Oracle 止于 GT-Micro——KB-GOV-013 oracle 演化）。
+
+freeze: 本 contract 一经冻结，②③④ 不得回改语义；发现缺口走 Assumption/Implementation 分诊（KB-GOV-014 failure_triage），不得直接改本文件。

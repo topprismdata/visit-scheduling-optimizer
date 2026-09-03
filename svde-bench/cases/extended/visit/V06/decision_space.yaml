@@ -1,0 +1,7 @@
+objective: lexicographic_continuity_first_then_expansion
+candidate_solutions_count: 2
+parallel_options:
+- id: opt_preserve_rep
+  description: Senior rep serves Heritage VIP, Expansion rep serves new store
+- id: opt_swap_reps
+  description: Swap reps to save minor transit (Breaches relationship continuity)

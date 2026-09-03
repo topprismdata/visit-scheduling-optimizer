@@ -1,0 +1,7 @@
+objective: lexicographic_workload_equity_then_boundary_penalty
+candidate_solutions_count: 2
+parallel_options:
+- id: opt_share_load
+  description: Assign Downtown Pharmacy to Suburban rep
+- id: opt_overload_rep
+  description: Keep all downtown visits on Downtown rep causing overload

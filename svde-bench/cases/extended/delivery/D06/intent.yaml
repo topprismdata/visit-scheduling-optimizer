@@ -1,0 +1,7 @@
+primary_objective: minimize_sla_penalties_via_selective_deferral
+secondary_objectives:
+- minimize_dropped_order_count
+priority_rules:
+  vip_customer: high
+  cost: medium
+  service_level: high

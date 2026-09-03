@@ -1,0 +1,7 @@
+objective: lexicographic_protect_all_locks_then_distance
+candidate_solutions_count: 2
+parallel_options:
+- id: opt_split_insert
+  description: Route emergency order on VEH_02, maintain VEH_01 route intact
+- id: opt_force_insert
+  description: Force into VEH_01, risking committed delivery delay

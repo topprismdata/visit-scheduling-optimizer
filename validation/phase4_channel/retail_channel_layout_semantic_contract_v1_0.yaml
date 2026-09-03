@@ -1,0 +1,85 @@
+# Retail Channel Layout Semantic Contract v1.0 — Phase 4.2 Artifact 1（Immutable）
+## 零售渠道布局战略决策语义契约 · SVDE Kernel 战略级商业决策通用化验证
+
+contract_id: CHANNEL-LAYOUT-CONTRACT-V1.0
+generated_at: "2026-08-22"
+domain_name: "Retail Channel Layout Decision (零售渠道布局战略决策)"
+boundary_definition:
+  in_scope:
+    - "战略商圈与网格资源配置（Strategic Grid Allocation）"
+    - "门店/渠道分销等级与类型组合（Channel Tier & Mix Portfolio）"
+    - "自营 vs 经销商授权与产能预算（Franchise/Direct Budget & Capacity）"
+    - "同业自相蚕食约束（Cannibalization Prevention）"
+    - "多周期市场覆盖与渗透策略权衡（Coverage & Penetration Trade-off）"
+  out_of_scope:
+    - "BI 统计报表系统（BI Analytics & Dashboard）"
+    - "单一门店客流与销量预测黑盒模型（Black-box Sales Forecasting）"
+    - "CRM 潜客推荐系统（CRM Recommendation Engine）"
+    - "销售外勤日常执行与排班（Sales Rep Daily Visit Execution）"
+negative_knowledge:
+  statement: |
+    Channel Layout Decision ≠ 简单 POI 空间聚类（非纯几何划分）；
+    Channel Layout Decision ≠ BI 报表与销量预测推荐（非被动分析工具，而是主动资源分配决策）；
+    Channel Layout Decision ≠ 终端拜访调度（不涉及日序与秒级动线）。
+
+# ═══════════════════════════════════════════════════════════════
+# §1 领域实体与输入模式（Entities & Intent）
+# ═══════════════════════════════════════════════════════════════
+entities:
+  commercial_zones:  # 6 大战略商圈（覆盖核心商业区、成熟居住区、新兴发展区、工业边缘区）
+    - {id: Z01, name: "CBD核心商圈",     tier: T1, potential_index: 100, pop_density: 85, competitor_density: 40, x: 2, y: 2}
+    - {id: Z02, name: "高密成熟居住区", tier: T1, potential_index: 80,  pop_density: 90, competitor_density: 30, x: 3, y: 4}
+    - {id: Z03, name: "科技新城发展区", tier: T2, potential_index: 70,  pop_density: 60, competitor_density: 15, x: 6, y: 3}
+    - {id: Z04, name: "文教大学园区",   tier: T2, potential_index: 60,  pop_density: 70, competitor_density: 20, x: 2, y: 6}
+    - {id: Z05, name: "产业临港工业区", tier: T3, potential_index: 40,  pop_density: 30, competitor_density: 5,  x: 8, y: 7}
+    - {id: Z06, name: "远郊枢纽小城镇", tier: T3, potential_index: 30,  pop_density: 25, competitor_density: 5,  x: 1, y: 8}
+
+  channel_formats:  # 4 类渠道业态模式
+    - {id: FMT_FLAGSHIP, name: "自营旗舰体验店", model: DIRECT,    capex_k: 800, opex_k_yr: 300, min_pop_req: 80, max_stores_total: 2, base_revenue_k: 1200}
+    - {id: FMT_STANDARD, name: "标准品牌专卖店", model: DIRECT,    capex_k: 300, opex_k_yr: 120, min_pop_req: 50, max_stores_total: 4, base_revenue_k: 500}
+    - {id: FMT_FRANCHISE,name: "特许加盟合作店", model: FRANCHISE, capex_k: 50,  opex_k_yr: 20,  min_pop_req: 30, max_stores_total: 6, base_revenue_k: 250}
+    - {id: FMT_POPUP,    name: "快闪机会概念点", model: FLEXIBLE,  capex_k: 30,  opex_k_yr: 10,  min_pop_req: 20, max_stores_total: 3, base_revenue_k: 150, is_optional: true}
+
+  resource_budgets:  # 战略资源预算约束
+    total_capex_budget_k: 1800   # 总资本开支上限 180 万
+    total_opex_budget_k_yr: 700  # 年运营开支上限 70 万
+    max_direct_stores: 4         # 自营门店总数上限 4 家
+
+# ═══════════════════════════════════════════════════════════════
+# §2 业务约束清单（Semantic Constraints C1–C8）
+# ═══════════════════════════════════════════════════════════════
+constraints:
+  - {id: C1, name: TotalCapexBudget,        type: BUDGET_CAPEX,        hardness: HARD, relaxable: false, text: "所有选定业态的总开店投入 ≤ 1800k"}
+  - {id: C2, name: TotalOpexBudget,         type: BUDGET_OPEX,         hardness: HARD, relaxable: false, text: "所有选定业态的年运营成本 ≤ 700k"}
+  - {id: C3, name: DirectStoreQuota,        type: CAPACITY_QUOTA,      hardness: HARD, relaxable: false, text: "自营门店（FLAGSHIP + STANDARD）总开店数 ≤ 4 家"}
+  - {id: C4, name: FlagshipTierEligibility, type: TIER_ELIGIBILITY,    hardness: HARD, relaxable: false, text: "自营旗舰店（FMT_FLAGSHIP）只能布局在 T1 核心商圈（Z01, Z02）"}
+  - {id: C5, name: PopulationThreshold,     type: DEMOGRAPHIC_MIN,     hardness: HARD, relaxable: false, text: "商圈人口密度必须达到该业态最低门槛（min_pop_req）"}
+  - {id: C6, name: CannibalizationRadius,   type: CANNIBALIZATION_PREV,hardness: HARD, relaxable: false, text: "同类业态在曼哈顿距离 < 4 的两商圈不得重复开店（防止内部左右互搏）"}
+  - {id: C7, name: MinimumStrategicCoverage,type: STRATEGIC_COVERAGE,  hardness: HARD, relaxable: false, text: "战略商圈 T1（Z01, Z02）必须至少有 1 家品牌店进驻（底线战略覆盖）"}
+  - {id: C8, name: OptionalPopupPenetration,type: OPTIONAL_FORMAT,     hardness: SOFT_PREFERENCE, relaxable: true, text: "快闪机会点（FMT_POPUP）在预算有余量时择优开设以测试市场"}
+
+# ═══════════════════════════════════════════════════════════════
+# §3 战略级不变量（Strategic Invariants I1–I4 —— DSVL 核心守卫）
+# ═══════════════════════════════════════════════════════════════
+invariants:
+  - {id: I1, name: FiscalHardCeilingInvariant, statement: "资本开支（Capex）与运营预算（Opex）为刚性财政红线，任何战略意图不得突破"}
+  - {id: I2, name: BrandTierIntegrityInvariant, statement: "旗舰店严禁下沉至低线商圈，品牌等级定位绝对保持"}
+  - {id: I3, name: CoreMarketPresenceInvariant, statement: "T1 核心战略商圈绝不可失守（零覆盖阻断）"}
+  - {id: I4, name: AntiCannibalizationInvariant, statement: "同品牌同业态自相残杀保护距离绝对生效"}
+
+# ═══════════════════════════════════════════════════════════════
+# §4 规范目标函数（Canonical Objective: Lexicographic 3-Tier）
+# ═══════════════════════════════════════════════════════════════
+objective_canonical:
+  L1: "∀ HARD 战略约束满足（C1–C7 全部为 0 违反）"
+  L2: "max Σ 战略核心商圈覆盖分（T1/T2 商圈进驻权重分）"
+  L3: "max Σ 预期商业收益总和 = Σ (base_revenue × potential_index / 100)"
+  comparison: lexicographic
+  output: "(L1_status, L2_strategic_score, L3_expected_revenue_k)"
+
+# ═══════════════════════════════════════════════════════════════
+# §5 变异分类法（Data Variation vs. Semantic Variation）
+# ═══════════════════════════════════════════════════════════════
+variation_boundary:
+  data_variation: "商圈潜能指数在 $\pm 10\%$ 内微调、商圈距离微调、快闪店租金微调（仅影响 L3 收益数值，不改变战略布局结构）"
+  semantic_variation: "财政预算削减 $50\%$、T1 核心商圈协议解约、旗舰店下沉限制放开（迫使改变战略决策结构）"

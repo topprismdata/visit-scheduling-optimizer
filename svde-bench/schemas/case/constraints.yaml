@@ -1,0 +1,16 @@
+# SVDE-Bench v0.2 — Constraints Schema
+hard:  # MUST be satisfied — violations → Oracle INFEASIBLE or Agent FAIL
+  - id: "C_VIP_LOCK"
+    name: "VIPTimeWindowLock"
+    type: "TIME_WINDOW_HARD"
+    expression: "assigned(ORD_03, day=3)"
+  - id: "C_CAPACITY"
+    name: "VehicleCapacity"
+    type: "CAPACITY_HARD"
+    expression: "load(VEH_01) <= 1000"
+soft:  # SHOULD be satisfied — violations → penalties
+  - id: "C_COST"
+    name: "MinimizeTotalCost"
+    weight: 1.0
+preference:  # Business heuristics — advisory only
+  - description: "Prefer serving all VIP customers within their locked windows"

@@ -1,0 +1,7 @@
+objective: lexicographic_memory_robustness_then_distance
+candidate_solutions_count: 2
+parallel_options:
+- id: opt_memory_guided
+  description: Route early morning slot per historical episodic memory
+- id: opt_naive_shortest
+  description: Route purely on Euclidean distance, risking rush hour trap

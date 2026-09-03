@@ -1,0 +1,43 @@
+entities:
+  vehicles:
+  - id: VEH_01
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  customers:
+  - id: CUST_PRIO_1
+    name: Tier 1 Hospital
+    priority: vip
+  - id: CUST_PRIO_2
+    name: Tier 2 Pharmacy
+    priority: standard
+  - id: CUST_PRIO_3
+    name: Tier 3 Community Clinic
+    priority: flexible
+  orders:
+  - id: ORD_T1
+    weight_kg: 300
+    is_locked: true
+    is_vip: true
+    tw_early: 0
+    tw_late: 120
+  - id: ORD_T2
+    weight_kg: 300
+    is_locked: false
+    is_vip: false
+    tw_early: 60
+    tw_late: 240
+  - id: ORD_T3
+    weight_kg: 300
+    is_locked: false
+    is_vip: false
+    tw_early: 60
+    tw_late: 300
+relationships:
+  vehicle_route:
+  - vehicle: VEH_01
+    planned_orders:
+    - ORD_T1
+  customer_priority:
+  - customer: CUST_PRIO_1
+    commitment: sla_commitment

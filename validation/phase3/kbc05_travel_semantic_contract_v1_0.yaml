@@ -1,0 +1,71 @@
+# KBC-05 Travel Semantic Contract v1.0 — Phase 3.3-⑤ Artifact 1（Immutable）
+## 外部路网/行程语义接入契约——验证 World Model 接入不改变 Decision Meaning（非性能比拼）
+
+contract_id: KBC05-TRAVEL-CONTRACT-V1.0
+generated_at: "2026-08-22"
+upstream: [gt_small_instance_v1_0.yaml, gt_small_semantic_contract_v1_0.yaml, constraint_type_registry_v1_0.yaml]
+role_definition: "KBC-05（VRPSolverEasy exact BPC）= Travel Semantic Arbiter（行程语义仲裁者）；非生产、非性能基准（A04/KBC-005 已注记）"
+mandate: "验证外部 travel representation 接入 Decision Compiler 时，属于 Data Variation 还是 Semantic Variation——决策语义必须 PRESERVED"
+
+# ═══════════════════════════════════════════════════════════════
+# §1 Travel 语义元素定义（5 要素——评审指令要求）
+# ═══════════════════════════════════════════════════════════════
+travel_elements:
+
+  distance:
+    semantic: "两拜访点间空间位移量度（公里/米）"
+    representation_synthetic: "对称曼哈顿（|Δx|+|Δy|）——A004 假设基准"
+    representation_kbc05: "精确欧氏/网格距离矩阵（对齐 VRPSolverEasy 图模型输入）"
+    semantic_role: "行程代价度量基底；不直接构成约束（除非与时间窗口/容量耦合）"
+
+  duration:
+    semantic: "两点间通行耗时（分钟）"
+    representation_synthetic: "线性转换: duration = distance × speed_min_per_unit (speed=10min/单位)"
+    representation_kbc05: "路网时段通行耗时（KBC-05 经时间矩阵接入）"
+    semantic_role: "L5 目标项（Σ travel）+ C06 日容量消耗项（Σ service + Σ travel ≤ cap_d——若开启耦合）"
+
+  leg:
+    semantic: "点 i 到点 j 的单段移动（有序对 (i, j)）"
+    representation: "有向边 e=(u, v)，权重=duration"
+    semantic_role: "RoutingOracle 求解的基础单元；日路网回路由 legs 首尾相接构成"
+
+  route:
+    semantic: "单日内以 depot 起讫的闭合访问序列 [depot, t_1, t_2, ..., t_k, depot]"
+    representation: "排列 π = (t_1..t_k)；cost = travel(depot, t_1) + Σ travel(t_i, t_{i+1}) + travel(t_k, depot)"
+    semantic_role: "S-A §2.8 schedule-first 声明：日指派由 formulation 决定，route cost 由同一 RoutingOracle 精确求值回填"
+
+  unavailable_path:
+    semantic: "特定点对间不可通行（道路封闭/单行/物理不可达）"
+    representation: "leg cost = +∞ 或边剔除"
+    semantic_role: "可达性阻断——若阻断影响同日组合，由 RoutingOracle 报告不可达；决策层通过 C10/C06 做出反应"
+
+# ═══════════════════════════════════════════════════════════════
+# §2 仲裁核心问题：Data Variation vs Semantic Variation
+# ═══════════════════════════════════════════════════════════════
+variation_taxonomy:
+  data_variation:
+    definition: "travel 数值改变（例如曼哈顿 20min 变为真实路网 26min），导致 L5 成本数值变化，但决策语义（L1 可行性、L2 频次、L3 价值、锁定日、分配归属）保持不变"
+    expected_status: ACCEPTED_NORMAL
+    decision_impact: "L5 成本数值微调；(L1, L2, L3) 严格相等；决策解集合保持"
+
+  semantic_variation:
+    definition: "travel 变化导致约束违反（如 travel 增加导致 日容量 C06 超限）或锁定失效，迫使决策改变（如客户被 defer、锁定日被迫移动）"
+    expected_status: TRIPPED_REPLAN_TRIGGER
+    decision_impact: "触发决策层重新评估（走 BDC-07 异常链）；DSVL 必须拦截并报告"
+
+# ═══════════════════════════════════════════════════════════════
+# §3 仲裁判据（DSVL + M1 兼容）
+# ═══════════════════════════════════════════════════════════════
+arbitration_criteria:
+  - id: ARB-01
+    name: typed_constraint_preservation
+    check: "Travel 输入接入后，全部 C01-C10 Typed Constraint 的语义定义保持不变（零形变、零新增约束类型）"
+  - id: ARB-02
+    name: lock_preservation_under_travel
+    check: "无论 travel 如何变化，C07/C08/C09 锁定约束保持 100% 执法（锁日零移动——不得因'路程更近'移动锁定客户）"
+  - id: ARB-03
+    name: capacity_feasibility_boundary
+    check: "当 travel 增量在容量余量内时，属于 Data Variation；当 travel 导致日超容时，必须由 C06 正确报错（PROVEN_INFEASIBLE）或走软化白名单，禁止静默溢出"
+  - id: ARB-04
+    name: decision_feasibility_preservation
+    check: "在 KBC-05 travel 下重跑 DSVL 三族 12 规则，decision_feasible 必须为 True"

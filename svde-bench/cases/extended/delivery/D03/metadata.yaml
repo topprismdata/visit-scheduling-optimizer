@@ -1,0 +1,15 @@
+case_id: CASE-D03
+domain: delivery
+version: '1.0'
+created_at: '2026-08-24'
+tags:
+- extended
+- v0.2
+- pattern-d2-dynamic-replanning
+- variant:mid-shift_mechanical_vehicle_breakdown
+difficulty: L2
+pattern:
+  id: PATTERN-D2-DYNAMIC-REPLANNING
+  variant_name: Mid-Shift Mechanical Vehicle Breakdown
+  dilemma: Primary van carrying locked cold and ambient cargo breaks down. Must dynamically
+    reroute surviving fleet.

@@ -1,0 +1,28 @@
+# SVDE-Bench v0.2 — Decision Profile Schema (Final Artifact - Highest Priority)
+decision_profile:
+  case_id: STRING
+  domain: STRING
+  decision_intent: OBJECT
+  solution_summary: OBJECT
+evaluation:
+  semantic:
+    score: FLOAT
+    evidence: STRING  # REQUIRED — never omitted (interpretation core)
+  feasibility:
+    score: FLOAT
+    violations: LIST<STRING>
+  runtime:
+    score: FLOAT
+    adaptation: STRING
+  memory:
+    score: FLOAT
+    admitted_memory: OBJECT
+overall:
+  grade: ENUM [A, B, C, D, F]
+  score: FLOAT
+failure_analysis:
+  failure_modes: LIST<STRING>
+  root_causes: LIST<STRING>
+reproducibility:
+  run_count: INTEGER
+  deterministic: BOOLEAN

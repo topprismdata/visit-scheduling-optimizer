@@ -1,0 +1,8 @@
+primary_objective: maximize_vip_commitment_fulfillment_then_min_distance
+secondary_objectives:
+- minimize_fleet_count
+- balance_driver_shifts
+priority_rules:
+  vip_customer: high
+  cost: medium
+  service_level: high

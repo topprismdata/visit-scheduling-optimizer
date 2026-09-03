@@ -1,0 +1,35 @@
+hard:
+- id: C1
+  name: VehicleCapacity
+  type: VEHICLE_CAPACITY
+  hardness: HARD
+  relaxable: false
+- id: C2
+  name: FoodColdMatch
+  type: COLD_CHAIN_MATCH
+  hardness: HARD
+  relaxable: false
+- id: C3
+  name: FoodLock
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_FOOD
+  locked_window:
+  - 0
+  - 180
+  relaxable: false
+- id: C4
+  name: ChemicalLock
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_CHEMICAL
+  locked_window:
+  - 0
+  - 180
+  relaxable: false
+soft:
+- id: C5
+  name: DistanceCost
+  weight: 1.0
+preference:
+- description: Never co-locate chemical and fresh food on same vehicle route

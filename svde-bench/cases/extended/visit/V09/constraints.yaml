@@ -1,0 +1,22 @@
+hard:
+- id: C1
+  name: WorkloadCap
+  type: VEHICLE_CAPACITY
+  hardness: HARD
+  relaxable: false
+- id: C2
+  name: HeritageTimeLock
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: VISIT_HERITAGE
+  locked_window:
+  - 0
+  - 180
+  relaxable: false
+soft:
+- id: C3
+  name: GatekeeperFrictionPenalty
+  weight: 2.0
+preference:
+- description: Apply episodic relationship memory to schedule Heritage account in
+    early morning slot

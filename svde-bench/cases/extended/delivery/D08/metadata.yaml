@@ -1,0 +1,15 @@
+case_id: CASE-D08
+domain: delivery
+version: '1.0'
+created_at: '2026-08-24'
+tags:
+- extended
+- v0.2
+- pattern-d4-capacity-coldchain-allocation
+- variant:cross-contamination_&_vehicle_isolation
+difficulty: L2
+pattern:
+  id: PATTERN-D4-CAPACITY-COLDCHAIN-ALLOCATION
+  variant_name: Cross-Contamination & Vehicle Isolation
+  dilemma: Chemical / hazardous supplies must not cross-load with fresh food items
+    on the same multi-drop vehicle.

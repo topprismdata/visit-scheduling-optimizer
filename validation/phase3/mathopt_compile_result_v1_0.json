@@ -1,0 +1,2557 @@
+{
+  "case_1_basic_feasible": {
+    "case": "case_1_basic_feasible",
+    "status": "OPTIMAL",
+    "objective": 36006340.0,
+    "bound": 36006340.0,
+    "m1": [
+      {
+        "constraint_id": "C01@T01",
+        "typed_semantic": "HARD_EXACT",
+        "compiled_form": "sum==4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T01",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<3)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T01",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T01",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C01@T02",
+        "typed_semantic": "HARD_EXACT",
+        "compiled_form": "sum==4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T02",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<3)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T02",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T02",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C01@T03",
+        "typed_semantic": "HARD_EXACT",
+        "compiled_form": "sum==3",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T03",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T03",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T03",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C01@T04",
+        "typed_semantic": "HARD_EXACT",
+        "compiled_form": "sum==3",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T04",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T04",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T04",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C01@T05",
+        "typed_semantic": "HARD_EXACT",
+        "compiled_form": "sum==3",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T05",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T05",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T05",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C01@T06",
+        "typed_semantic": "HARD_EXACT",
+        "compiled_form": "sum==3",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T06",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T06",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T06",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T07",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "2<=sum<=4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C03@T07",
+        "typed_semantic": "OBJECTIVE_L3",
+        "compiled_form": "stretch in objective",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T07",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T07",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T07",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T08",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "2<=sum<=4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C03@T08",
+        "typed_semantic": "OBJECTIVE_L3",
+        "compiled_form": "stretch in objective",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T08",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T08",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T08",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T09",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "2<=sum<=4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C03@T09",
+        "typed_semantic": "OBJECTIVE_L3",
+        "compiled_form": "stretch in objective",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T09",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T09",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T09",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T10",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "2<=sum<=4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C03@T10",
+        "typed_semantic": "OBJECTIVE_L3",
+        "compiled_form": "stretch in objective",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T10",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T10",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T10",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C06@R001",
+        "typed_semantic": "HARD_CAPACITY",
+        "compiled_form": "Σs·x<=cap",
+        "status": "PRESERVED"
+      }
+    ],
+    "assign": {
+      "T01": [
+        7,
+        10,
+        13,
+        17
+      ],
+      "T02": [
+        4,
+        9,
+        12,
+        16
+      ],
+      "T03": [
+        6,
+        14,
+        20
+      ],
+      "T04": [
+        7,
+        11,
+        15
+      ],
+      "T05": [
+        5,
+        13,
+        20
+      ],
+      "T06": [
+        6,
+        12,
+        20
+      ],
+      "T07": [
+        5,
+        12,
+        16,
+        20
+      ],
+      "T08": [
+        5,
+        11,
+        16,
+        20
+      ],
+      "T09": [
+        6,
+        11,
+        15,
+        20
+      ],
+      "T10": [
+        1,
+        5,
+        12,
+        20
+      ]
+    },
+    "meta": {
+      "T": {
+        "T01": [
+          4,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T02": [
+          4,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T03": [
+          3,
+          3,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T04": [
+          3,
+          3,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T05": [
+          3,
+          3,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T06": [
+          3,
+          3,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T07": [
+          2,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T08": [
+          2,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T09": [
+          2,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T10": [
+          2,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ]
+      },
+      "SVC": {
+        "T01": 60,
+        "T02": 60,
+        "T03": 45,
+        "T04": 45,
+        "T05": 45,
+        "T06": 45,
+        "T07": 40,
+        "T08": 40,
+        "T09": 40,
+        "T10": 40
+      },
+      "GAP": {
+        "T01": 3,
+        "T02": 3,
+        "T03": 4,
+        "T04": 4,
+        "T05": 4,
+        "T06": 4,
+        "T07": 4,
+        "T08": 4,
+        "T09": 4,
+        "T10": 4
+      },
+      "VAL": {
+        "T01": 0.0,
+        "T02": 0.0,
+        "T03": 0.0,
+        "T04": 0.0,
+        "T05": 0.0,
+        "T06": 0.0,
+        "T07": 1.0,
+        "T08": 1.0,
+        "T09": 1.0,
+        "T10": 1.0
+      },
+      "soft": false
+    }
+  },
+  "case_2_capacity_short": {
+    "case": "case_2_capacity_short",
+    "status": "OPTIMAL",
+    "objective": 36006340.0,
+    "bound": 36006340.0,
+    "m1": [
+      {
+        "constraint_id": "C02@T01",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "0<=sum<=4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T01",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<3)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T01",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T01",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T02",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "0<=sum<=4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T02",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<3)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T02",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T02",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T03",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "0<=sum<=3",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T03",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T03",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T03",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T04",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "0<=sum<=3",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T04",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T04",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T04",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T05",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "0<=sum<=3",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T05",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T05",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T05",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T06",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "0<=sum<=3",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T06",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T06",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T06",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T07",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "0<=sum<=4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C03@T07",
+        "typed_semantic": "OBJECTIVE_L3",
+        "compiled_form": "stretch in objective",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T07",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T07",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T07",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T08",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "0<=sum<=4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C03@T08",
+        "typed_semantic": "OBJECTIVE_L3",
+        "compiled_form": "stretch in objective",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T08",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T08",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T08",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T09",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "0<=sum<=4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C03@T09",
+        "typed_semantic": "OBJECTIVE_L3",
+        "compiled_form": "stretch in objective",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T09",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T09",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T09",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T10",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "0<=sum<=4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C03@T10",
+        "typed_semantic": "OBJECTIVE_L3",
+        "compiled_form": "stretch in objective",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T10",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T10",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T10",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C06@R001",
+        "typed_semantic": "HARD_CAPACITY",
+        "compiled_form": "Σs·x<=cap",
+        "status": "PRESERVED"
+      }
+    ],
+    "assign": {
+      "T01": [
+        4,
+        8,
+        13,
+        16
+      ],
+      "T02": [
+        1,
+        7,
+        11,
+        20
+      ],
+      "T03": [
+        5,
+        11,
+        15
+      ],
+      "T04": [
+        5,
+        9,
+        16
+      ],
+      "T05": [
+        10,
+        16,
+        20
+      ],
+      "T06": [
+        5,
+        9,
+        16
+      ],
+      "T07": [
+        5,
+        10,
+        15,
+        20
+      ],
+      "T08": [
+        7,
+        12,
+        16,
+        20
+      ],
+      "T09": [
+        6,
+        11,
+        16,
+        20
+      ],
+      "T10": [
+        8,
+        12,
+        16,
+        20
+      ]
+    },
+    "meta": {
+      "T": {
+        "T01": [
+          4,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T02": [
+          4,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T03": [
+          3,
+          3,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T04": [
+          3,
+          3,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T05": [
+          3,
+          3,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T06": [
+          3,
+          3,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T07": [
+          2,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T08": [
+          2,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T09": [
+          2,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T10": [
+          2,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ]
+      },
+      "SVC": {
+        "T01": 60,
+        "T02": 60,
+        "T03": 45,
+        "T04": 45,
+        "T05": 45,
+        "T06": 45,
+        "T07": 40,
+        "T08": 40,
+        "T09": 40,
+        "T10": 40
+      },
+      "GAP": {
+        "T01": 3,
+        "T02": 3,
+        "T03": 4,
+        "T04": 4,
+        "T05": 4,
+        "T06": 4,
+        "T07": 4,
+        "T08": 4,
+        "T09": 4,
+        "T10": 4
+      },
+      "VAL": {
+        "T01": 0.0,
+        "T02": 0.0,
+        "T03": 0.0,
+        "T04": 0.0,
+        "T05": 0.0,
+        "T06": 0.0,
+        "T07": 1.0,
+        "T08": 1.0,
+        "T09": 1.0,
+        "T10": 1.0
+      },
+      "soft": true
+    }
+  },
+  "case_3_commitment_locks": {
+    "case": "case_3_commitment_locks",
+    "status": "OPTIMAL",
+    "objective": 36006340.0,
+    "bound": 36006340.0,
+    "m1": [
+      {
+        "constraint_id": "C01@T01",
+        "typed_semantic": "HARD_EXACT",
+        "compiled_form": "sum==4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T01",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<3)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T01",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T01",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C01@T02",
+        "typed_semantic": "HARD_EXACT",
+        "compiled_form": "sum==4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T02",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<3)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T02",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T02",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C01@T03",
+        "typed_semantic": "HARD_EXACT",
+        "compiled_form": "sum==3",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T03",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T03",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T03",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C01@T04",
+        "typed_semantic": "HARD_EXACT",
+        "compiled_form": "sum==3",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T04",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T04",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T04",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C01@T05",
+        "typed_semantic": "HARD_EXACT",
+        "compiled_form": "sum==3",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T05",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T05",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T05",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C01@T06",
+        "typed_semantic": "HARD_EXACT",
+        "compiled_form": "sum==3",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T06",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T06",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T06",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T07",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "2<=sum<=4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C03@T07",
+        "typed_semantic": "OBJECTIVE_L3",
+        "compiled_form": "stretch in objective",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T07",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T07",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T07",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T08",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "2<=sum<=4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C03@T08",
+        "typed_semantic": "OBJECTIVE_L3",
+        "compiled_form": "stretch in objective",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T08",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T08",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T08",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T09",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "2<=sum<=4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C03@T09",
+        "typed_semantic": "OBJECTIVE_L3",
+        "compiled_form": "stretch in objective",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T09",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T09",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T09",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T10",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "2<=sum<=4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C03@T10",
+        "typed_semantic": "OBJECTIVE_L3",
+        "compiled_form": "stretch in objective",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T10",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T10",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T10",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C06@R001",
+        "typed_semantic": "HARD_CAPACITY",
+        "compiled_form": "Σs·x<=cap",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C07@T01",
+        "typed_semantic": "HARD_LOCK",
+        "compiled_form": "day3==1",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C08@T03",
+        "typed_semantic": "HARD_PRECEDENCE",
+        "compiled_form": "day9==1 (seq)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C08@T04",
+        "typed_semantic": "HARD_PRECEDENCE",
+        "compiled_form": "day10==1 (seq)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C09@T07",
+        "typed_semantic": "HARD_LOCK",
+        "compiled_form": "day14==1",
+        "status": "PRESERVED"
+      }
+    ],
+    "assign": {
+      "T01": [
+        3,
+        10,
+        13,
+        16
+      ],
+      "T02": [
+        5,
+        9,
+        13,
+        16
+      ],
+      "T03": [
+        9,
+        13,
+        20
+      ],
+      "T04": [
+        10,
+        14,
+        20
+      ],
+      "T05": [
+        5,
+        12,
+        16
+      ],
+      "T06": [
+        8,
+        12,
+        16
+      ],
+      "T07": [
+        1,
+        10,
+        14,
+        20
+      ],
+      "T08": [
+        1,
+        6,
+        14,
+        20
+      ],
+      "T09": [
+        1,
+        10,
+        16,
+        20
+      ],
+      "T10": [
+        7,
+        11,
+        16,
+        20
+      ]
+    },
+    "meta": {
+      "T": {
+        "T01": [
+          4,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T02": [
+          4,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T03": [
+          3,
+          3,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T04": [
+          3,
+          3,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T05": [
+          3,
+          3,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T06": [
+          3,
+          3,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T07": [
+          2,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T08": [
+          2,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T09": [
+          2,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T10": [
+          2,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ]
+      },
+      "SVC": {
+        "T01": 60,
+        "T02": 60,
+        "T03": 45,
+        "T04": 45,
+        "T05": 45,
+        "T06": 45,
+        "T07": 40,
+        "T08": 40,
+        "T09": 40,
+        "T10": 40
+      },
+      "GAP": {
+        "T01": 3,
+        "T02": 3,
+        "T03": 4,
+        "T04": 4,
+        "T05": 4,
+        "T06": 4,
+        "T07": 4,
+        "T08": 4,
+        "T09": 4,
+        "T10": 4
+      },
+      "VAL": {
+        "T01": 0.0,
+        "T02": 0.0,
+        "T03": 0.0,
+        "T04": 0.0,
+        "T05": 0.0,
+        "T06": 0.0,
+        "T07": 1.0,
+        "T08": 1.0,
+        "T09": 1.0,
+        "T10": 1.0
+      },
+      "soft": false
+    }
+  },
+  "case_4_cadence_stress": {
+    "case": "case_4_cadence_stress",
+    "status": "OPTIMAL",
+    "objective": 36006340.0,
+    "bound": 36006340.0,
+    "m1": [
+      {
+        "constraint_id": "C01@T01",
+        "typed_semantic": "HARD_EXACT",
+        "compiled_form": "sum==4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T01",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T01",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T01",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C01@T02",
+        "typed_semantic": "HARD_EXACT",
+        "compiled_form": "sum==4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T02",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T02",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T02",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C01@T03",
+        "typed_semantic": "HARD_EXACT",
+        "compiled_form": "sum==3",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T03",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T03",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T03",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 3 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C01@T04",
+        "typed_semantic": "HARD_EXACT",
+        "compiled_form": "sum==3",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T04",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T04",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T04",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C01@T05",
+        "typed_semantic": "HARD_EXACT",
+        "compiled_form": "sum==3",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T05",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T05",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T05",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C01@T06",
+        "typed_semantic": "HARD_EXACT",
+        "compiled_form": "sum==3",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T06",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T06",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T06",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T07",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "2<=sum<=4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C03@T07",
+        "typed_semantic": "OBJECTIVE_L3",
+        "compiled_form": "stretch in objective",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T07",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T07",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T07",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T08",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "2<=sum<=4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C03@T08",
+        "typed_semantic": "OBJECTIVE_L3",
+        "compiled_form": "stretch in objective",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T08",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T08",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T08",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T09",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "2<=sum<=4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C03@T09",
+        "typed_semantic": "OBJECTIVE_L3",
+        "compiled_form": "stretch in objective",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T09",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T09",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T09",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C02@T10",
+        "typed_semantic": "HARD_lo/SOFT_hi",
+        "compiled_form": "2<=sum<=4",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C03@T10",
+        "typed_semantic": "OBJECTIVE_L3",
+        "compiled_form": "stretch in objective",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C04@T10",
+        "typed_semantic": "HARD_PAIRWISE_MUTEX",
+        "compiled_form": "pairs(|Δd|<4)",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C05@T10",
+        "typed_semantic": "SOFT_WINDOW(L4)",
+        "compiled_form": "oracle-side penalty",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C10@T10",
+        "typed_semantic": "HARD_WINDOW_MASK",
+        "compiled_form": "vars only on 20 days",
+        "status": "PRESERVED"
+      },
+      {
+        "constraint_id": "C06@R001",
+        "typed_semantic": "HARD_CAPACITY",
+        "compiled_form": "Σs·x<=cap",
+        "status": "PRESERVED"
+      }
+    ],
+    "assign": {
+      "T01": [
+        8,
+        12,
+        16,
+        20
+      ],
+      "T02": [
+        5,
+        10,
+        14,
+        20
+      ],
+      "T03": [
+        1,
+        8,
+        15
+      ],
+      "T04": [
+        6,
+        10,
+        14
+      ],
+      "T05": [
+        5,
+        10,
+        14
+      ],
+      "T06": [
+        8,
+        12,
+        16
+      ],
+      "T07": [
+        6,
+        10,
+        15,
+        20
+      ],
+      "T08": [
+        5,
+        10,
+        15,
+        20
+      ],
+      "T09": [
+        7,
+        12,
+        16,
+        20
+      ],
+      "T10": [
+        1,
+        6,
+        10,
+        20
+      ]
+    },
+    "meta": {
+      "T": {
+        "T01": [
+          4,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T02": [
+          4,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T03": [
+          3,
+          3,
+          [
+            1,
+            8,
+            15
+          ]
+        ],
+        "T04": [
+          3,
+          3,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T05": [
+          3,
+          3,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T06": [
+          3,
+          3,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T07": [
+          2,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T08": [
+          2,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T09": [
+          2,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ],
+        "T10": [
+          2,
+          4,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ]
+      },
+      "SVC": {
+        "T01": 60,
+        "T02": 60,
+        "T03": 45,
+        "T04": 45,
+        "T05": 45,
+        "T06": 45,
+        "T07": 40,
+        "T08": 40,
+        "T09": 40,
+        "T10": 40
+      },
+      "GAP": {
+        "T01": 4,
+        "T02": 4,
+        "T03": 4,
+        "T04": 4,
+        "T05": 4,
+        "T06": 4,
+        "T07": 4,
+        "T08": 4,
+        "T09": 4,
+        "T10": 4
+      },
+      "VAL": {
+        "T01": 0.0,
+        "T02": 0.0,
+        "T03": 0.0,
+        "T04": 0.0,
+        "T05": 0.0,
+        "T06": 0.0,
+        "T07": 1.0,
+        "T08": 1.0,
+        "T09": 1.0,
+        "T10": 1.0
+      },
+      "soft": false
+    }
+  }
+}

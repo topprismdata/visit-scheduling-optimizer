@@ -1,0 +1,33 @@
+# Golden Case 002 — Multi-DC Collaborative Delivery Optimization v0.1
+metadata:
+  id: "CASE-002-MULTI-DC"
+  domain: "Dynamic Fleet Route Logistics"
+  name: "Multi-Distribution-Center Collaborative Delivery v0.1"
+  tags: ["global_decision", "multi_dc", "delivery"]
+
+intent:
+  objective: "Minimize total delivery cost across multiple distribution centers"
+
+world_state:
+  depot: [0, 0]
+  fleet:
+    - {id: "VEH_DC1_01", type: "STANDARD_VAN", capacity_kg: 800, status: "AVAILABLE"}
+    - {id: "VEH_DC2_01", type: "STANDARD_VAN", capacity_kg: 800, status: "AVAILABLE"}
+  orders:
+    - {id: "ORD_A1", weight_kg: 200, req_cold: false, tw_early: 60, tw_late: 240, is_locked: false}
+    - {id: "ORD_A2", weight_kg: 300, req_cold: false, tw_early: 60, tw_late: 240, is_locked: false}
+    - {id: "ORD_B1", weight_kg: 250, req_cold: false, tw_early: 120, tw_late: 300, is_locked: false}
+
+semantic_contract:
+  constraints:
+    - id: "C1"
+      name: "VehicleCapacity"
+      type: "VEHICLE_CAPACITY"
+      hardness: "HARD"
+      relaxable: false
+
+runtime_context:
+  timestamp_min: 0
+  past_delivered_orders: []
+
+events: []

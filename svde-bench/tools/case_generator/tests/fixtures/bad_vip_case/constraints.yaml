@@ -1,0 +1,2 @@
+hard:
+  - {id: 'C1', name: 'VIPLock', type: 'TIME_WINDOW_HARD', expression: 'x'}

@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prism-ontology"
+version = "0.1.0"
+description = "Independent ontology engineering framework with evidence, CQ, SHACL, and 7-state governance lifecycle"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "SVDE Core Team"},
+]
+dependencies = [
+    "rdflib>=7.0.0",
+    "pyshacl>=0.25.0",
+    "owlrl>=6.0.2",
+    "jsonschema>=4.21.0",
+    "click>=8.1.7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-network-blocked>=0.4.0",
+]
+
+[project.scripts]
+prism-ontology = "prism_ontology.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["prism_ontology*"]

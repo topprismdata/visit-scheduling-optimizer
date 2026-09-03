@@ -1,0 +1,21 @@
+hard:
+- id: C1
+  name: VehicleCapacity
+  type: VEHICLE_CAPACITY
+  hardness: HARD
+  relaxable: false
+- id: C2
+  name: VIPLock
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_01
+  locked_window:
+  - 0
+  - 180
+  relaxable: false
+soft:
+- id: C3
+  name: OvertimePenalty
+  weight: 2.5
+preference:
+- description: Serve VIP on time; defer peripheral kiosk if overtime exceeds budget

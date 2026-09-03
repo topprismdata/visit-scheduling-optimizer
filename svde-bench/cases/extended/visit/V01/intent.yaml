@@ -1,0 +1,7 @@
+primary_objective: maximize_cadence_compliance_and_account_coverage
+secondary_objectives:
+- minimize_transit_overhead
+priority_rules:
+  vip_customer: high
+  cost: low
+  service_level: high

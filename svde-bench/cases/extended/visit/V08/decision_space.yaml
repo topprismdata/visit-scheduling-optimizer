@@ -1,0 +1,7 @@
+objective: lexicographic_local_transfer_then_ripple
+candidate_solutions_count: 2
+parallel_options:
+- id: opt_local_transfer
+  description: REP_ACTIVE_1 absorbs urgent visit, REP_ACTIVE_2 untouched
+- id: opt_global_reshuffle
+  description: Reshuffle all 3 territories causing regional schedule chaos

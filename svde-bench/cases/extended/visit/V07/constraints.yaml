@@ -1,0 +1,22 @@
+hard:
+- id: C1
+  name: DailyWorkLimit
+  type: VEHICLE_CAPACITY
+  hardness: HARD
+  relaxable: false
+- id: C2
+  name: OrphanVIPLock
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: VISIT_ORPHAN_VIP
+  locked_window:
+  - 60
+  - 240
+  relaxable: false
+soft:
+- id: C3
+  name: HandoffFrictionPenalty
+  weight: 1.0
+preference:
+- description: Surgically hand off orphan VIP to standin rep; preserve standin own
+    route

@@ -1,0 +1,148 @@
+{
+  "registry": "DSVL-REG-V1.0",
+  "engine": "dsvl_validation_engine.py",
+  "cases": {
+    "case_1_basic_feasible": {
+      "rules": [
+        {
+          "rule_id": "DSVL-I001",
+          "status": "PASS",
+          "evidence": "非锁 Case——锁不变式空真空成立（vacuous）"
+        },
+        {
+          "rule_id": "DSVL-I002",
+          "status": "PASS",
+          "evidence": "10 条 HARD 频次全为等式/下界形态，零罚项化"
+        },
+        {
+          "rule_id": "DSVL-I003",
+          "status": "PASS",
+          "evidence": "白名单外零软化（C04/06/07/08/09/10 全 HARD）"
+        },
+        {
+          "rule_id": "DSVL-I004",
+          "status": "PASS",
+          "evidence": "服务时长唯一来源 expected_service_min；stop_time 零出现"
+        },
+        {
+          "rule_id": "DSVL-S001",
+          "status": "PASS",
+          "evidence": "覆盖矩阵零空洞: 10 客户 × (频次+间隔+窗口) 全在场；C06 容量在场"
+        },
+        {
+          "rule_id": "DSVL-S002",
+          "status": "PASS",
+          "evidence": "49 实例 provenance 全可溯"
+        },
+        {
+          "rule_id": "DSVL-S003",
+          "status": "PASS",
+          "evidence": "实例 hardness 全部 ⊆ 类型声明"
+        },
+        {
+          "rule_id": "DSVL-S004",
+          "status": "PASS",
+          "evidence": "目标空间居民类型: ['C03']（仅 C03）；约束空间零 C03"
+        },
+        {
+          "rule_id": "DSVL-S005",
+          "status": "PASS",
+          "evidence": "零重复（C02 lo/hi 分部合法拆分）"
+        },
+        {
+          "rule_id": "DSVL-T001",
+          "status": "PASS",
+          "evidence": "Decision IR ↔ Typed Constraint 双射成立（左满射+右无孤儿）"
+        },
+        {
+          "rule_id": "DSVL-T002",
+          "status": "PASS",
+          "evidence": "三级链完整: domain→requirement→typed（49 实例）"
+        },
+        {
+          "rule_id": "DSVL-T003",
+          "status": "PASS",
+          "evidence": "registry solver_bindings ×10/10——④ 编译投影键齐备（WARNING 级：不阻断）"
+        }
+      ],
+      "gates": {
+        "V1": true,
+        "V2": true,
+        "V3": true
+      },
+      "decision_feasible": true
+    },
+    "case_3_commitment_locks": {
+      "rules": [
+        {
+          "rule_id": "DSVL-I001",
+          "status": "PASS",
+          "evidence": "四锁执法实例在场: [('T01', 'C07'), ('T03', 'C08'), ('T04', 'C08'), ('T07', 'C09')]"
+        },
+        {
+          "rule_id": "DSVL-I002",
+          "status": "PASS",
+          "evidence": "10 条 HARD 频次全为等式/下界形态，零罚项化"
+        },
+        {
+          "rule_id": "DSVL-I003",
+          "status": "PASS",
+          "evidence": "白名单外零软化（C04/06/07/08/09/10 全 HARD）"
+        },
+        {
+          "rule_id": "DSVL-I004",
+          "status": "PASS",
+          "evidence": "服务时长唯一来源 expected_service_min；stop_time 零出现"
+        },
+        {
+          "rule_id": "DSVL-S001",
+          "status": "PASS",
+          "evidence": "覆盖矩阵零空洞: 10 客户 × (频次+间隔+窗口) 全在场；C06 容量在场"
+        },
+        {
+          "rule_id": "DSVL-S002",
+          "status": "PASS",
+          "evidence": "53 实例 provenance 全可溯"
+        },
+        {
+          "rule_id": "DSVL-S003",
+          "status": "PASS",
+          "evidence": "实例 hardness 全部 ⊆ 类型声明"
+        },
+        {
+          "rule_id": "DSVL-S004",
+          "status": "PASS",
+          "evidence": "目标空间居民类型: ['C03']（仅 C03）；约束空间零 C03"
+        },
+        {
+          "rule_id": "DSVL-S005",
+          "status": "PASS",
+          "evidence": "零重复（C02 lo/hi 分部合法拆分）"
+        },
+        {
+          "rule_id": "DSVL-T001",
+          "status": "PASS",
+          "evidence": "Decision IR ↔ Typed Constraint 双射成立（左满射+右无孤儿）"
+        },
+        {
+          "rule_id": "DSVL-T002",
+          "status": "PASS",
+          "evidence": "三级链完整: domain→requirement→typed（53 实例）"
+        },
+        {
+          "rule_id": "DSVL-T003",
+          "status": "PASS",
+          "evidence": "registry solver_bindings ×10/10——④ 编译投影键齐备（WARNING 级：不阻断）"
+        }
+      ],
+      "gates": {
+        "V1": true,
+        "V2": true,
+        "V3": true
+      },
+      "decision_feasible": true
+    }
+  },
+  "overall": "PASS",
+  "mandate_note": "本报告验证 decision feasibility（约束组合=原业务决策）——solution feasibility 属求解期"
+}

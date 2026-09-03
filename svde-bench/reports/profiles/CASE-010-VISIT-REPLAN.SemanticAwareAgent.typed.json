@@ -1,0 +1,32 @@
+{
+  "case_id": "CASE-010-VISIT-REPLAN",
+  "domain": "Visit Scheduling",
+  "difficulty": "unknown",
+  "generated_at": "2026-08-23T16:06:50.786823",
+  "agent_name": "SemanticAwareAgent",
+  "oracle_status": "OPTIMAL",
+  "oracle_objective": 19980.0,
+  "semantic": {
+    "overall_pass": true,
+    "semantic_score": 1.0,
+    "constraint_accuracy": 1.0,
+    "violations": [],
+    "evidence": {}
+  },
+  "feasibility": {
+    "feasibility_status": "INFEASIBLE",
+    "overall_pass": false,
+    "constraint_violations": [],
+    "oracle_gap": null,
+    "evidence": {}
+  },
+  "runtime": {
+    "overall_pass": true,
+    "commitment_survival_rate": 1.0,
+    "disruption_ratio": 0.0,
+    "state_transition_validity": true,
+    "evidence": {}
+  },
+  "memory": null,
+  "decision_grade": "B"
+}

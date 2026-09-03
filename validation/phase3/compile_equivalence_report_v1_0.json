@@ -1,0 +1,214 @@
+{
+  "report_id": "CER-V1.0",
+  "generated_at": "2026-08-22",
+  "mandate": "验证 Typed Constraint → MathOpt 编译未发生语义漂移（Gate M1）且与独立 Oracle 目标/bound/可行性一致",
+  "gate_M1_compilation_semantic_preservation": "PASS",
+  "cases": {
+    "case_1_basic_feasible": {
+      "status": "PASS",
+      "M1_preserved_count": "45/45",
+      "F2": {
+        "status": "OPTIMAL",
+        "objective": 36006340.0,
+        "bound": 36006340.0
+      },
+      "ORACLE": {
+        "status": "OPTIMAL",
+        "objective": 36006340.0,
+        "bound": 36006340.0
+      },
+      "equivalence": {
+        "feasibility_equal": true,
+        "objective_equal": true,
+        "bound_equal": true
+      },
+      "semantic_decomposition": {
+        "L2_visits": 36,
+        "L3_stretch": 8.0,
+        "total_service_min": 1660
+      },
+      "sample_m1": [
+        {
+          "constraint_id": "C01@T01",
+          "typed_semantic": "HARD_EXACT",
+          "compiled_form": "sum==4",
+          "status": "PRESERVED"
+        },
+        {
+          "constraint_id": "C04@T01",
+          "typed_semantic": "HARD_PAIRWISE_MUTEX",
+          "compiled_form": "pairs(|Δd|<3)",
+          "status": "PRESERVED"
+        },
+        {
+          "constraint_id": "C05@T01",
+          "typed_semantic": "SOFT_WINDOW(L4)",
+          "compiled_form": "oracle-side penalty",
+          "status": "PRESERVED"
+        },
+        {
+          "constraint_id": "C10@T01",
+          "typed_semantic": "HARD_WINDOW_MASK",
+          "compiled_form": "vars only on 20 days",
+          "status": "PRESERVED"
+        }
+      ]
+    },
+    "case_2_capacity_short": {
+      "status": "PASS",
+      "M1_preserved_count": "45/45",
+      "F2": {
+        "status": "OPTIMAL",
+        "objective": 36006340.0,
+        "bound": 36006340.0
+      },
+      "ORACLE": {
+        "status": "OPTIMAL",
+        "objective": 36006340.0,
+        "bound": 36006340.0
+      },
+      "equivalence": {
+        "feasibility_equal": true,
+        "objective_equal": true,
+        "bound_equal": true
+      },
+      "semantic_decomposition": {
+        "L2_visits": 36,
+        "L3_stretch": 8.0,
+        "total_service_min": 1660
+      },
+      "sample_m1": [
+        {
+          "constraint_id": "C02@T01",
+          "typed_semantic": "HARD_lo/SOFT_hi",
+          "compiled_form": "0<=sum<=4",
+          "status": "PRESERVED"
+        },
+        {
+          "constraint_id": "C04@T01",
+          "typed_semantic": "HARD_PAIRWISE_MUTEX",
+          "compiled_form": "pairs(|Δd|<3)",
+          "status": "PRESERVED"
+        },
+        {
+          "constraint_id": "C05@T01",
+          "typed_semantic": "SOFT_WINDOW(L4)",
+          "compiled_form": "oracle-side penalty",
+          "status": "PRESERVED"
+        },
+        {
+          "constraint_id": "C10@T01",
+          "typed_semantic": "HARD_WINDOW_MASK",
+          "compiled_form": "vars only on 20 days",
+          "status": "PRESERVED"
+        }
+      ]
+    },
+    "case_3_commitment_locks": {
+      "status": "PASS",
+      "M1_preserved_count": "49/49",
+      "F2": {
+        "status": "OPTIMAL",
+        "objective": 36006340.0,
+        "bound": 36006340.0
+      },
+      "ORACLE": {
+        "status": "OPTIMAL",
+        "objective": 36006340.0,
+        "bound": 36006340.0
+      },
+      "equivalence": {
+        "feasibility_equal": true,
+        "objective_equal": true,
+        "bound_equal": true
+      },
+      "semantic_decomposition": {
+        "L2_visits": 36,
+        "L3_stretch": 8.0,
+        "total_service_min": 1660
+      },
+      "sample_m1": [
+        {
+          "constraint_id": "C01@T01",
+          "typed_semantic": "HARD_EXACT",
+          "compiled_form": "sum==4",
+          "status": "PRESERVED"
+        },
+        {
+          "constraint_id": "C04@T01",
+          "typed_semantic": "HARD_PAIRWISE_MUTEX",
+          "compiled_form": "pairs(|Δd|<3)",
+          "status": "PRESERVED"
+        },
+        {
+          "constraint_id": "C05@T01",
+          "typed_semantic": "SOFT_WINDOW(L4)",
+          "compiled_form": "oracle-side penalty",
+          "status": "PRESERVED"
+        },
+        {
+          "constraint_id": "C10@T01",
+          "typed_semantic": "HARD_WINDOW_MASK",
+          "compiled_form": "vars only on 20 days",
+          "status": "PRESERVED"
+        }
+      ]
+    },
+    "case_4_cadence_stress": {
+      "status": "PASS",
+      "M1_preserved_count": "45/45",
+      "F2": {
+        "status": "OPTIMAL",
+        "objective": 36006340.0,
+        "bound": 36006340.0
+      },
+      "ORACLE": {
+        "status": "OPTIMAL",
+        "objective": 36006340.0,
+        "bound": 36006340.0
+      },
+      "equivalence": {
+        "feasibility_equal": true,
+        "objective_equal": true,
+        "bound_equal": true
+      },
+      "semantic_decomposition": {
+        "L2_visits": 36,
+        "L3_stretch": 8.0,
+        "total_service_min": 1660
+      },
+      "sample_m1": [
+        {
+          "constraint_id": "C01@T01",
+          "typed_semantic": "HARD_EXACT",
+          "compiled_form": "sum==4",
+          "status": "PRESERVED"
+        },
+        {
+          "constraint_id": "C04@T01",
+          "typed_semantic": "HARD_PAIRWISE_MUTEX",
+          "compiled_form": "pairs(|Δd|<4)",
+          "status": "PRESERVED"
+        },
+        {
+          "constraint_id": "C05@T01",
+          "typed_semantic": "SOFT_WINDOW(L4)",
+          "compiled_form": "oracle-side penalty",
+          "status": "PRESERVED"
+        },
+        {
+          "constraint_id": "C10@T01",
+          "typed_semantic": "HARD_WINDOW_MASK",
+          "compiled_form": "vars only on 20 days",
+          "status": "PRESERVED"
+        }
+      ]
+    }
+  },
+  "oracle_isolation": {
+    "naming_namespace": "f2_x_* vs o_x_* 独立",
+    "solver_backend": "MathOpt+HiGHS (F2) vs CP-SAT (Oracle) 真异构",
+    "objective_code": "独立推导与独立构建代码"
+  },
+  "overall": "PASS"
+}

@@ -1,0 +1,15 @@
+case_id: CASE-D04
+domain: delivery
+version: '1.0'
+created_at: '2026-08-24'
+tags:
+- extended
+- v0.2
+- pattern-d2-dynamic-replanning
+- variant:urgent_intraday_injected_order
+difficulty: L2
+pattern:
+  id: PATTERN-D2-DYNAMIC-REPLANNING
+  variant_name: Urgent Intraday Injected Order
+  dilemma: High-priority emergency order appears mid-day. Must insert without invalidating
+    prior locked commitments.

@@ -1,0 +1,9 @@
+# SVDE-Bench v0.2 — Intent Schema (Business Objective)
+primary_objective: "maximize_total_fulfilled_then_min_disruption"
+secondary_objectives:
+  - "minimize_commitment_violations"
+  - "preserve_cold_chain_integrity"
+priority_rules:
+  vip_customer: "high"
+  cost: "medium"
+  service_level: "high"

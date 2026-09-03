@@ -1,0 +1,310 @@
+# SVDE Knowledge Base v0.1 — Business Knowledge Library (Candidate Layer)
+## Knowledge Expansion Phase · Task A（Step 1/3）· Knowledge Builder 角色
+## 来源纪律：Evidence ≠ Design —— 本文件全部为 Candidate Knowledge Package，零修改 Frozen KB
+
+version: SVDE-KB-BusinessKnowledge-v0.1
+generated_at: "2026-08-22"
+role_note: "Knowledge Auditor → Knowledge Builder 切换（评审指令 2026-08-22）；本库为业务知识资产层，与 Frozen 五层（ontology/governance/backend/evidence/DM/scenario）隔离"
+
+pipeline:            # 六段流水（每条 entry 均按此登记）
+  - Evidence Extraction      # 仅从一手核验源提取可直引 claim
+  - Semantic Classification  # A01 二维矩阵: source_authority × claim_type
+  - Concept Candidate        # 三问裁定: 既有可表达→复用 / 否则→candidate(等场景)
+  - Decision Mapping         # 指向既有 8 DM；新 Decision 仅登记候选映射，不建 DM
+  - Scenario Mapping         # 指向既有 5 场景或标注"缺口——待未来场景"；不新建场景
+
+discipline:
+  - "不因发现新概念立即进入 Frozen Ontology（本文件 concept_candidate 均为 Candidate 态）"
+  - "不复制厂商对象（提取的是业务实践/决策问题/业务约束，非 SF/SAP/PTV 数据模型）"
+  - "所有知识保留来源（source_id → A01 Registry 25 项 / 内部验证报告 / 同行评审 DOI）"
+  - "所有 Candidate 等待 Scenario 验证后才可迁移"
+
+# ═══════════════════════════════════════════════════════════════
+# Part 1 — Business Evidence Registry（业务证据登记）
+# ═══════════════════════════════════════════════════════════════
+business_evidence_registry:
+
+  # ── 主题 1：拜访节奏与频次（Cadence & Frequency）──
+  - id: BE-001
+    source: {source_id: SRC-SF-MAPS-02, registry: A01_v6_1_1}
+    author: Salesforce official documentation
+    year: 2026
+    type: {authority: OFFICIAL_PRODUCT_DOC, claim: DOMAIN_PRACTICE}
+    business_topic: 拜访节奏控制
+    claim: "节奏控制(Cadence)优于单一频次：通过最小/最大天数间隔防止拜访扎堆——行业将拜访间隔边界视为一等业务约束，而非仅规定次数"
+    supports:
+      concept_candidate: [复用→KB-ONT-032 CadenceSpec(min_gap/max_gap 已冻结)]
+      decision_candidate: [复用→DM-001 Coverage]
+    confidence: A
+    scenario_mapping: S-C（20/20 已验 cadence 双边界）；无缺口
+
+  - id: BE-002
+    source: {registry: A01_v6_1_1 §5, doi: "10.1287/trsc.2018.0855"}
+    author: Rothenbächer
+    year: 2019
+    type: {authority: PEER_REVIEWED_RESEARCH, claim: DOMAIN_PRACTICE}
+    business_topic: 多周周期拜访模式
+    claim: "周期性拜访在实践中表现为离散周次模式选择（如'每两周周二'），企业按周次模式而非孤立频次管理客户节奏"
+    supports:
+      concept_candidate: [复用→CadenceSpec+WorkingCalendar 组合表达]
+      decision_candidate: [复用→DM-001；Phase 3 F1 Pattern 候选（周次模式 y_ip 变量）]
+    confidence: A
+    scenario_mapping: S-A（EXACT/RANGE 频次）；周次模式细化留 Phase 3 判定
+
+  - id: BE-003
+    source: {source_id: SRC-APTEAN-01, registry: A01_v6_1_1}
+    author: Aptean Paragon documentation
+    year: 2026
+    type: {authority: OFFICIAL_PRODUCT_DOC, claim: DOMAIN_PRACTICE}
+    business_topic: 固定主干路线与周期轮转
+    claim: "存在'固定基准循环路线表'实践：多周多频次客户按周期性轮转维护，主干提供稳定性、动态部分处理增量——业务上路线稳定性本身是被管理对象"
+    supports:
+      concept_candidate: [复用→PlanningPolicy.freeze_days + ExistingCommitment（S-E 已验存活性）；主干路线=长期承诺的极端形态]
+      decision_candidate: [复用→DM-006]
+    confidence: B
+    scenario_mapping: S-E（冻结窗口/承诺存活）；Master Route 全量化表达未验证——登记缺口 G-1
+
+  # ── 主题 2：价值优先与未安排成本（Priority & Cost of Non-Visit）──
+  - id: BE-004
+    source: {source_id: SRC-SAP-DVP-02, registry: A01_v6_1_1}
+    author: SAP official documentation
+    year: 2026
+    type: {authority: OFFICIAL_PRODUCT_DOC, claim: DOMAIN_PRACTICE}
+    business_topic: 逾期价值累积与分配目标
+    claim: "未按时拜访的客户其价值评分随逾期天数持续增加直至完成拜访（行业认可'欠账'语义）；分配目标显式二分为 Highest Impact(价值优先) 与 Maximum Visits(吞吐优先)"
+    supports:
+      concept_candidate: [复用→ObjectivePolicy(ObjectiveProfile 四态已冻结，含 VALUE_IMPACT_FIRST/MAX_THROUGHPUT)]
+      decision_candidate: [复用→DM-002 Prioritization]
+    confidence: A
+    scenario_mapping: S-A TA-CAP（分层准入）；逾期累积函数形式未验证——登记缺口 G-2（等 Phase 3 目标函数形态裁定，非 Domain 缺口）
+
+  - id: BE-005
+    source: {source_id: SRC-ORA-FS-01, registry: A01_v6_1_1}
+    author: Oracle Field Service documentation
+    year: 2026
+    type: {authority: OFFICIAL_PRODUCT_DOC, claim: DOMAIN_PRACTICE}
+    business_topic: 未安排活动的显式经济惩罚
+    claim: "non_assignment_cost：不安排某活动产生显式业务惩罚，使工时不足时的延期成为合法经济学决策而非违约——行业把'不拜访'定价化"
+    supports:
+      concept_candidate: [复用→DeferralPolicy(cost/escalation 语义) + FulfillmentClass(OPTIONAL)]
+      decision_candidate: [复用→DM-007 ExceptionHandling]
+    confidence: A
+    scenario_mapping: S-A 四段异常链 + S-B 挤占链（88 测试覆盖 defer 显式化）；惩罚数值化留 Phase 3
+
+  - id: BE-006
+    source: {registry: A01_v6_1_1 §5, doi: "10.1287/msom.1080.0243"}
+    author: Groër, Golden & Wasil
+    year: 2009
+    type: {authority: PEER_REVIEWED_RESEARCH, claim: DOMAIN_PRACTICE}
+    business_topic: 客户熟悉度与一致性
+    claim: "Consistent VRP 文献：客户对固定销售代表/固定拜访日有偏好，一致性提升服务质量和关系产出——'谁来'与'何时来'的稳定性是业务价值"
+    supports:
+      concept_candidate: [**新候选 CC-01 FamiliarityPreference**（A03 v1.0.1 无对应对象——Ownership 是组织事实非客户偏好）]
+      decision_candidate: [候选映射→DM-005 Assignment 的一致性扩展（不建新 DM）]
+    confidence: B
+    scenario_mapping: 缺口 G-3——五场景均未验证客户侧偏好；需未来场景（多资源×客户指定代表）才可迁移
+
+  # ── 主题 3：资源时间投资回报（Resource as Capital）──
+  - id: BE-007
+    source: {source_id: SRC-STAYINFRONT-01, registry: A01_v6_1_1}
+    author: StayinFront Inc.
+    year: 2026
+    type: {authority: VENDOR_WHITEPAPER, claim: DOMAIN_PRACTICE}
+    business_topic: Size-of-Prize 投资观
+    claim: "Size-of-Prize：单个门店在特定 SKU 上的潜在商业收益预期；拜访决策实质是 ROI 权衡——销售代表时间是昂贵资本，必须投向边际回报最高门店"
+    supports:
+      concept_candidate: [候选关联→KB-CAND-001 Outcome（已冻结为 Candidate 三无）——SizeOfPrize 可作为 Outcome 的首个业务语义供体；不直接新增对象]
+      decision_candidate: [复用→DM-002（priority_score 的经济学解释）]
+    confidence: D    # 厂商白皮书 + 概念性主张
+    scenario_mapping: 支撑 Outcome 概念成熟化路径（需 Failure Evidence 才可转 Frozen）
+
+  - id: BE-008
+    source: {source_id: SRC-BEATROUTE-01, registry: A01_v6_1_1}
+    author: BeatRoute Innovation Inc.
+    year: 2026
+    type: {authority: VENDOR_WHITEPAPER, claim: DOMAIN_PRACTICE}
+    business_topic: 拜访优先级多因子
+    claim: "拜访优先级由订单新鲜度、历史回款、未结账款与销售额贡献联合决定——优先级是多因子加权，且因子含财务风险维度（未结账款）"
+    supports:
+      concept_candidate: [复用→VisitCandidate.priority_score（S-B 已证派生字段归 DM-002 策略）]
+      decision_candidate: [复用→DM-002；因子清单本身是策略配置非 Ontology]
+    confidence: D
+    scenario_mapping: S-B TB-PRIORITY（class×reason×urgency 派生已验）；财务因子未测——策略层扩展，无 Domain 缺口
+
+  # ── 主题 4：分层决策与运营模式（Decision Layering & Ops Model）──
+  - id: BE-009
+    source: {source_id: SRC-ORTEC-01, registry: A01_v6_1_1}
+    author: ORTEC official solutions
+    year: 2026
+    type: {authority: OFFICIAL_PRODUCT_DOC, claim: DOMAIN_PRACTICE}
+    business_topic: 战术级/运营级分层
+    claim: "行业实践将决策分层：Tactical（区域结构/团队-客户群匹配，季度-年度）与 Operational（单日组线/排程/应急重排，周-日）；优化引擎作为无状态层嵌入 CRM/SFA"
+    supports:
+      concept_candidate: [复用→Phase Gate 分层（RMAP）+ DM-004（战术容量，B5 裁定 009 并入的边界依据）]
+      decision_candidate: [复用→现有 8 DM 全部 Operational/Tactical 级]
+    confidence: A
+    scenario_mapping: S-B TB-DM009 裁定（五场景全战术级→合并）——与 ORTEC 分层实践一致：战略级辖区设计不在当前 DM 边界内
+
+  - id: BE-010
+    source: {source_id: SRC-DESCARTES-01, registry: A01_v6_1_1}
+    author: Descartes Systems Group
+    year: 2026
+    type: {authority: OFFICIAL_PRODUCT_DOC, claim: DOMAIN_PRACTICE}
+    business_topic: 异常导向规划
+    claim: "调度员聚焦异常：系统自动处理约 90% 规则性决策，人工仅介入冲突异常——'人机分工比例'是运营设计的一等变量"
+    supports:
+      concept_candidate: [复用→DM-007（异常链）+ PlanningPolicy（自动化边界）]
+      decision_candidate: [复用→DM-007/DM-008（偏离检测=人工介入触发器）]
+    confidence: B
+    scenario_mapping: S-B TB-MONITOR-DEV（偏离 diff 产出人工介入输入）；90/10 比例数值未验证——运营参数非 Domain
+
+  # ── 主题 5：滚动与稳定性（Rolling & Stability）──
+  - id: BE-011
+    source: {registry: A01_v6_1_1 §5, doi: "10.1007/BF02283611"}
+    author: Sethi & Sorger
+    year: 1991
+    type: {authority: PEER_REVIEWED_RESEARCH, claim: MATHEMATICAL_THEORY→DOMAIN_PRACTICE}
+    business_topic: 滚动时域规划
+    claim: "Rolling Horizon 理论基础：仅优化近端、远端保持柔性，随时间推进滚动重优化——为'冻结窗口+滚动重排'提供理论正当性"
+    supports:
+      concept_candidate: [复用→PlanningPolicy.mode=WEEKLY_ROLLING + freeze_days（S-E 已验非零生效）]
+      decision_candidate: [复用→DM-006（H2 裁定重排=动态执行模式）]
+    confidence: A
+    scenario_mapping: S-E 17/17（冻结/比例/承诺存活全覆盖）
+
+  # ── 主题 6：辖区与公平（Territory & Equity）──
+  - id: BE-012
+    source: {registry: A01_v6_1_1 §5, doi: "10.1016/j.omega.2012.08.002"}
+    author: Ríos-Mercado & López-Pérez
+    year: 2013
+    type: {authority: PEER_REVIEWED_RESEARCH, claim: DOMAIN_PRACTICE}
+    business_topic: 商业辖区设计
+    claim: "辖区设计（紧凑度+工作量平衡）是独立战略级决策问题，周期为季度/年度——与运营级拜访排程分属不同决策层"
+    supports:
+      concept_candidate: [复用→OwnershipPolicy 承载结果态；**新候选 CC-02 TerritoryDesign(决策过程)** 归战略层]
+      decision_candidate: [候选映射→战略层（当前 8 DM 边界外——与 BE-009/ORTEC 分层一致，不建 DM）]
+    confidence: A
+    scenario_mapping: 缺口 G-4——战略层场景整体未开（Phase Gate P6 前不启用）；仅登记不推进
+
+  - id: BE-013
+    source: {registry: A01_v6_1_1 §5, doi: "10.1111/itor.70012"}
+    author: Nekooghadirli et al.
+    year: 2026
+    type: {authority: PEER_REVIEWED_RESEARCH, claim: DOMAIN_PRACTICE}
+    business_topic: 多周期工作量平滑
+    claim: "多周期间工作量公平平滑是显式业务目标（min-max 负荷均衡）：先求全局最优工时再约束下均衡——'忙闲不均'被行业视为需治理的问题"
+    supports:
+      concept_candidate: [**新候选 CC-03 WorkloadEquity**（A03 无周期负荷均衡对象——ObjectiveProfile 四态均不含 equity）]
+      decision_candidate: [候选映射→DM-004（容量分配的均衡目标扩展）+ ObjectiveProfile 候选第五态]
+    confidence: B
+    scenario_mapping: 缺口 G-5——五场景均单业务员或异构容量，未验证多周期均衡；需未来场景（多周×多资源×公平约束）
+
+  # ── 主题 7：实证参数（Empirical Parameters）──
+  - id: BE-014
+    source: {source: internal_calibration, asset: "319 条城市打卡流水（TopPrism 实证）", registry: A01_v6_1_1 §5 ObservedStopTime 行}
+    author: TopPrism 内部校准
+    year: 2026
+    type: {authority: EMPIRICAL_EVIDENCE, claim: EMPIRICAL_EVIDENCE}
+    business_topic: 门店停留耗时实证
+    claim: "城市实证观察门店停留耗时中位数 32.0 min（分项构成 UNKNOWN_NOT_DISAGGREGATED）——校准证据专用，不得计入 service_duration（AC-8 防双计）"
+    supports:
+      concept_candidate: [复用→ParameterRegistry(param.stop_time_evidence, CALIBRATED)——已在契约冻结]
+      decision_candidate: [无（证据型知识，不驱动决策）]
+    confidence: A
+    scenario_mapping: S-A REQ-A-004（ADVISORY 仅证据）；纪律已由 AC-8 守卫
+
+  - id: BE-015
+    source: {registry: A01_v6_1_1 §5, doi: "10.1016/j.tranpol.2020.06.013"}
+    author: Dalla Chiara & Goodchild
+    year: 2020
+    type: {authority: PEER_REVIEWED_RESEARCH, claim: EMPIRICAL_EVIDENCE}
+    business_topic: 城市停车巡泊时间
+    claim: "城市巡泊时间与距离相关（两段式慢速模型）——行程时间估计须含末端巡泊，否则系统性低估拜访成本"
+    supports:
+      concept_candidate: [复用→Phase 3 travel model 校准输入（非 Domain 对象）]
+      decision_candidate: [复用→DM-006 的时间预算口径]
+    confidence: A
+    scenario_mapping: Phase 3 GT-Micro 时间口径校准素材
+
+  # ── 主题 8：状态驱动闭环（State-Driven Loop）──
+  - id: BE-016
+    source: {source_id: SRC-SF-TRAIL-01, registry: A01_v6_1_1}
+    author: Salesforce Trailhead official training
+    year: 2026
+    type: {authority: OFFICIAL_TRAINING, claim: DOMAIN_PRACTICE}
+    business_topic: 执行状态回写再生
+    claim: "State-Driven Regeneration：优化批次自动读取实际打卡完成的 Visit，将漏访/未履约动态转化为下一轮补救需求——行业把执行历史作为规划输入"
+    supports:
+      concept_candidate: [复用→ExecutionHistory.missed→regen（S-E TE-HIST-MISSED 已验滚动补访）]
+      decision_candidate: [复用→DM-003 ReqGeneration + DM-008 ExecutionMonitor]
+    confidence: A
+    scenario_mapping: S-E + S-B 双场景已验（多轮 carryover + 偏离 diff）；零缺口
+
+  # ── 主题 9：内部已验证业务语义（Internal Validated）──
+  - id: BE-017
+    source: {source: internal_validation, asset: "五场景验证 88 测试（S-A/C/D/E/B reports v1.0）"}
+    author: SVDE Phase 2
+    year: 2026
+    type: {authority: internal_scenario_proof, claim: EMPIRICAL_EVIDENCE}
+    business_topic: 内部验证的业务不变式
+    claim: "内部实证四条：(1)承诺在扰动下零移动是可执行的硬约束（E）；(2)重排差异审计(moved/kept/regen)可作 trace 维度无需求新对象（E）；(3)机会=VisitDemand.reason 来源而非新实体（B）；(4)优先级=派生策略非业务对象（B）"
+    supports:
+      concept_candidate: [复用→ExistingCommitment/CommitmentLock/DemandReason/VisitCandidate 全部冻结对象]
+      decision_candidate: [复用→DM-006/007/008]
+    confidence: A
+    scenario_mapping: 已验证（本条即验证产物登记）
+
+# ═══════════════════════════════════════════════════════════════
+# Part 2 — Concept Candidate Registry（新概念候选——全部 Candidate 态，零入 Frozen）
+# ═══════════════════════════════════════════════════════════════
+concept_candidates:
+  - id: CC-01
+    name: FamiliarityPreference（客户熟悉度偏好）
+    status: Candidate          # 三问裁定：既有 47 对象不可表达（Ownership=组织事实，非客户偏好）
+    evidence: [BE-006 (Groër 2009, Level-B)]
+    decision_mapping: DM-005 Assignment 一致性扩展（不新建 DM）
+    scenario_gap: G-3 "多资源×客户指定代表"场景未验证
+    migration_rule: "须 Failure Evidence（某场景中客户偏好无法表达且造成业务失败）+ DCR 流程才可入 Frozen"
+
+  - id: CC-02
+    name: TerritoryDesign（辖区设计决策过程）
+    status: Candidate          # 战略层——当前 Phase Gate 边界外（BE-009 ORTEC 分层佐证）
+    evidence: [BE-012 (Ríos-Mercado 2013, Level-A), BE-009]
+    decision_mapping: 战略层决策（8 DM 边界外，不建 DM——与 DM-009 合并裁定同构：无场景证据不立 DM）
+    scenario_gap: G-4 战略层场景整体未开（P6 前不启用）
+    migration_rule: "战略层解锁时按 DCR+新场景双通道评估"
+
+  - id: CC-03
+    name: WorkloadEquity（多周期工作量均衡）
+    status: Candidate          # ObjectiveProfile 四态不含 equity；多周期负荷无对象
+    evidence: [BE-013 (Nekooghadirli 2026, Level-B)]
+    decision_mapping: DM-004 均衡目标扩展 + ObjectiveProfile 候选第五态（BALANCED_EQUITY）
+    scenario_gap: G-5 多周×多资源×公平约束场景未验证
+    migration_rule: "场景验证均衡语义后经 Gate 复审；ObjectiveProfile 枚举扩展=DCR（触碰冻结）"
+
+# ═══════════════════════════════════════════════════════════════
+# Part 3 — 缺口登记（Gap Registry——Scenario Mapping 的输出面）
+# ═══════════════════════════════════════════════════════════════
+gap_registry:
+  - {id: G-1, topic: Master Route 全量化表达, blocked_by: "S-E 仅验冻结窗口/承诺存活", next: Phase 3 F1 Pattern 判定主干形态}
+  - {id: G-2, topic: 逾期价值累积函数形式, blocked_by: "官方未声明函数（BE-004）", next: Phase 3 目标函数形态裁定（非 Domain 缺口）}
+  - {id: G-3, topic: 客户指定代表偏好, blocked_by: 无场景, next: CC-01 待验证场景}
+  - {id: G-4, topic: 战略级辖区设计, blocked_by: Phase Gate P6 锁定, next: 解锁后评估}
+  - {id: G-5, topic: 多周期工作量均衡, blocked_by: 无场景, next: CC-03 待验证场景}
+
+# ═══════════════════════════════════════════════════════════════
+# Part 4 — 汇总与批次状态
+# ═══════════════════════════════════════════════════════════════
+summary:
+  evidence_entries: 17          # BE-001..BE-017
+  topic_coverage: [节奏频次, 价值优先, 资本投资观, 优先级因子, 决策分层, 异常运营, 滚动稳定, 辖区公平, 实证参数, 状态闭环, 内部验证]
+  reuse_vs_new:
+    supports_reuse_entries: 14  # 命中冻结对象/既有 DM
+    supports_outcome_maturation: 1   # BE-007 → KB-CAND-001 Outcome
+    supports_new_concept_candidate: 3  # BE-006/012/013 → CC-01/02/03
+  concept_candidates: 3         # 全部 Candidate 态，零入 Frozen
+  frozen_kb_touched: false      # 纪律：本任务未修改任何 Frozen 五层文件
+  batch_plan:
+    step_1_business_knowledge: "本文件（完成）"
+    step_2_math_pattern_library: "待启动——围绕 6 主题（SFE/Territory/FSM/VRP-S/Dynamic Opt/Rolling Horizon）提取论文 Evidence → Mathematical Pattern Library"
+    step_3_backend_library: "已有 backend_reference_v0_1（8 引擎 Reference）承接——扩充能力边界条目待 Step 3"

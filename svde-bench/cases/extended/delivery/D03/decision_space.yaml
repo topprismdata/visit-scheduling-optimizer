@@ -1,0 +1,7 @@
+objective: lexicographic_max_fulfilled_then_min_disruption
+candidate_solutions_count: 2
+parallel_options:
+- id: opt_transfer
+  description: Transfer ORD_03 to VEH_03 and keep cold chain on VEH_01
+- id: opt_cancel
+  description: Cancel broken vehicle orders and return to base

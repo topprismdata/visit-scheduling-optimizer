@@ -1,0 +1,124 @@
+entities:
+  vehicles:
+  - id: VEH_001
+    type: COLD_REFRIGERATED
+    capacity_kg: 1200
+    status: AVAILABLE
+  - id: VEH_002
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  - id: VEH_003
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  customers:
+  - id: CUST_001
+    name: Enterprise Client 1
+    priority: standard
+  - id: CUST_002
+    name: Enterprise Client 2
+    priority: standard
+  - id: CUST_003
+    name: Enterprise Client 3
+    priority: standard
+  - id: CUST_004
+    name: Enterprise Client 4
+    priority: standard
+  - id: CUST_005
+    name: Enterprise Client 5
+    priority: standard
+  - id: CUST_006
+    name: Enterprise Client 6
+    priority: standard
+  - id: CUST_007
+    name: Enterprise Client 7
+    priority: standard
+  - id: CUST_008
+    name: Enterprise Client 8
+    priority: standard
+  - id: CUST_009
+    name: Enterprise Client 9
+    priority: vip
+  - id: CUST_010
+    name: Enterprise Client 10
+    priority: standard
+  orders:
+  - id: ORD_001
+    weight_kg: 100
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 125
+    tw_late: 365
+  - id: ORD_002
+    weight_kg: 169
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 44
+    tw_late: 284
+  - id: ORD_003
+    weight_kg: 53
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 111
+    tw_late: 351
+  - id: ORD_004
+    weight_kg: 173
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 101
+    tw_late: 341
+  - id: ORD_005
+    weight_kg: 137
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 112
+    tw_late: 352
+  - id: ORD_006
+    weight_kg: 31
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 81
+    tw_late: 321
+  - id: ORD_007
+    weight_kg: 69
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 110
+    tw_late: 350
+  - id: ORD_008
+    weight_kg: 53
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 194
+    tw_late: 434
+  - id: ORD_009
+    weight_kg: 184
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 135
+    tw_late: 255
+  - id: ORD_010
+    weight_kg: 167
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 63
+    tw_late: 303
+relationships:
+  vehicle_route:
+  - vehicle: VEH_001
+    planned_orders:
+    - ORD_009
+  customer_priority:
+  - customer: CUST_009
+    commitment: sla_lock

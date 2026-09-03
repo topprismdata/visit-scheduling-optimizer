@@ -1,0 +1,16 @@
+{
+  "scenario": "S-D-BASE",
+  "phase": "2-domain-validation",
+  "mre_d1_audit": {
+    "owner": "R001",
+    "executor": "R002",
+    "via": "SUBSTITUTION",
+    "trigger": "PRIMARY_ABSENT",
+    "policy_ref": "SubstitutionPolicy(backup=(R002))"
+  },
+  "exclusion_samples": [
+    "AVAIL_FILTER_T027_R001_2026-09-16",
+    "ELIG_FILTER_T027_R002_REASON:missing:cold_chain"
+  ],
+  "four_concept_assertion": "owner≠executor proven; eligible = pool→elig→avail"
+}

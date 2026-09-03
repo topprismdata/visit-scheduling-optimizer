@@ -1,0 +1,7 @@
+primary_objective: detect_management_change_and_reject_stale_memory
+secondary_objectives:
+- avoid_spurious_weekday_congestion
+priority_rules:
+  vip_customer: high
+  cost: high
+  service_level: high

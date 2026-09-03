@@ -1,0 +1,15 @@
+case_id: CASE-D10
+domain: delivery
+version: '1.0'
+created_at: '2026-08-24'
+tags:
+- extended
+- v0.2
+- pattern-d5-memory-guided-adaptation
+- variant:stale_memory_invalidation_&_fallback
+difficulty: L2
+pattern:
+  id: PATTERN-D5-MEMORY-GUIDED-ADAPTATION
+  variant_name: Stale Memory Invalidation & Fallback
+  dilemma: Historical memory suggests avoiding a bridge that has just reopened. Must
+    detect memory context invalidation rather than hallucinating outdated avoidance.

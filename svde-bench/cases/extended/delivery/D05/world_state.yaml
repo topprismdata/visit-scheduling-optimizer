@@ -1,0 +1,34 @@
+entities:
+  vehicles:
+  - id: VEH_01
+    type: STANDARD_VAN
+    capacity_kg: 1200
+    status: AVAILABLE
+  customers:
+  - id: CUST_01
+    name: Anchor Store
+    priority: vip
+  - id: CUST_02
+    name: Peripheral Kiosk
+    priority: flexible
+  orders:
+  - id: ORD_01
+    weight_kg: 400
+    is_locked: true
+    is_vip: true
+    tw_early: 0
+    tw_late: 180
+  - id: ORD_02
+    weight_kg: 600
+    is_locked: false
+    is_vip: false
+    tw_early: 180
+    tw_late: 360
+relationships:
+  vehicle_route:
+  - vehicle: VEH_01
+    planned_orders:
+    - ORD_01
+  customer_priority:
+  - customer: CUST_01
+    commitment: sla_commitment

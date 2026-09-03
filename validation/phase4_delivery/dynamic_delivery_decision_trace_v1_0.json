@@ -1,0 +1,126 @@
+{
+  "trace_id": "DD-TRACE-SEQUENCE-001",
+  "domain": "Dynamic Fleet Route Logistics Decision",
+  "timestamp_min": 180,
+  "event_context": {
+    "event_id": "EVT_VEH02_BREAKDOWN",
+    "event_type": "VEHICLE_MECHANICAL_BREAKDOWN",
+    "variation_classification": "SEMANTIC_VARIATION",
+    "recompilation_triggered": true
+  },
+  "runtime_state_snapshot": {
+    "vehicles_state": {
+      "VEH_01": "EN_ROUTE",
+      "VEH_02": "MECHANICAL_BREAKDOWN",
+      "VEH_03": "EN_ROUTE"
+    },
+    "orders_lifecycle_state": {
+      "ORD_01": "DELIVERED",
+      "ORD_02": "DELIVERED",
+      "ORD_03": "ASSIGNED_REROUTED"
+    },
+    "past_executed_facts_immutable": true
+  },
+  "typed_constraints_incremental": [
+    {
+      "cid": "DC06",
+      "name": "PastHistoryImmutability",
+      "semantic_class": "HistoryImmutability",
+      "hardness": "HARD",
+      "provenance": [
+        "Delivered Facts"
+      ]
+    },
+    {
+      "cid": "DC04",
+      "name": "TimeWindowLock",
+      "semantic_class": "CommitmentLock",
+      "hardness": "HARD",
+      "provenance": [
+        "ORD_03 Locked Commitment"
+      ]
+    }
+  ],
+  "dsvl_precheck": {
+    "decision_feasible": true,
+    "gates": {
+      "V1": "PASS",
+      "V2": "PASS",
+      "V3": "PASS"
+    },
+    "rules": []
+  },
+  "mathopt_model_meta": {
+    "solver_type": "MathOpt+HiGHS",
+    "variables_count": 16,
+    "constraints_count": 10,
+    "m1_preservation_status": "100%_PRESERVED"
+  },
+  "solver_solution": {
+    "status": "OPTIMAL",
+    "objective_tuple": [
+      "FEASIBLE",
+      10,
+      3
+    ],
+    "reallocated_routes": {
+      "ORD_01": "VEH_01",
+      "ORD_02": "VEH_02",
+      "ORD_03": "VEH_03",
+      "ORD_04": "VEH_01",
+      "ORD_05": "VEH_01",
+      "ORD_06": "VEH_03",
+      "ORD_07": "VEH_01",
+      "ORD_08": "VEH_01",
+      "ORD_09": "VEH_03",
+      "ORD_10": "VEH_03"
+    }
+  },
+  "post_event_dsvl_check": {
+    "dsvl_postcheck_feasible": true,
+    "locked_commitments_preserved": true,
+    "invariants_preserved": true
+  },
+  "dynamic_explainability": [
+    {
+      "order_id": "ORD_01",
+      "previous_plan": "VEH_01",
+      "new_plan": "VEH_01",
+      "decision_rationale": "已送达历史事实（DELIVERED），绝对只读不可逆"
+    },
+    {
+      "order_id": "ORD_02",
+      "previous_plan": "VEH_02",
+      "new_plan": "VEH_02",
+      "decision_rationale": "已送达历史事实（DELIVERED），故障前已完成履约"
+    },
+    {
+      "order_id": "ORD_03",
+      "previous_plan": "VEH_02",
+      "new_plan": "VEH_03",
+      "decision_rationale": "VEH_02 突发故障；作为客户锁定件（TIME_WINDOW_LOCKED）被首要保障转派至可用车辆 VEH_03，承诺时窗严格保持"
+    },
+    {
+      "order_id": "ORD_04",
+      "previous_plan": "VEH_01",
+      "new_plan": "VEH_01",
+      "decision_rationale": "生鲜冷链订单，持续由冷藏车 VEH_01 承运，温控不变量 100% 保持"
+    },
+    {
+      "order_id": "ORD_06",
+      "previous_plan": "VEH_02",
+      "new_plan": "VEH_03",
+      "decision_rationale": "VEH_02 故障未派件，由备用普货运力 VEH_03 承接"
+    },
+    {
+      "order_id": "ORD_07",
+      "previous_plan": "VEH_02",
+      "new_plan": "VEH_03",
+      "decision_rationale": "VEH_02 故障未派件，由备用普货运力 VEH_03 承接"
+    }
+  ],
+  "research_memory_update": {
+    "kernel_reuse_verified": true,
+    "failure_triage": "Sequence Oracle Validated. State Transition Safe."
+  }
+}

@@ -1,0 +1,22 @@
+hard:
+- id: C1
+  name: DailyTimeCap
+  type: VEHICLE_CAPACITY
+  hardness: HARD
+  relaxable: false
+- id: C2
+  name: LegacyVIPLock
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: VISIT_LEGACY_VIP
+  locked_window:
+  - 0
+  - 240
+  relaxable: false
+soft:
+- id: C3
+  name: ContinuityPenalty
+  weight: 2.0
+preference:
+- description: Preserve Senior rep on Legacy VIP account; assign Expansion rep to
+    new store

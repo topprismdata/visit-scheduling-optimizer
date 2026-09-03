@@ -1,0 +1,21 @@
+hard:
+- id: C1
+  name: DailyWorkloadLimit
+  type: VEHICLE_CAPACITY
+  hardness: HARD
+  relaxable: false
+- id: C2
+  name: CadenceLock_W1
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: VISIT_HOSPITAL_W1
+  locked_window:
+  - 0
+  - 240
+  relaxable: false
+soft:
+- id: C3
+  name: MinimizeTravelMiles
+  weight: 1.0
+preference:
+- description: Preserve bi-weekly cadence spacing rather than back-to-back compression

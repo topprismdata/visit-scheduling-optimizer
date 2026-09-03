@@ -1,0 +1,7 @@
+primary_objective: seamless_handoff_with_minimal_schedule_perturbation
+secondary_objectives:
+- minimize_handoff_delay
+priority_rules:
+  vip_customer: high
+  cost: medium
+  service_level: high

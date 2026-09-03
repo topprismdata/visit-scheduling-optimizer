@@ -1,0 +1,7 @@
+primary_objective: minimize_schedule_ripple_during_multi_rep_rebalance
+secondary_objectives:
+- minimize_overtime
+priority_rules:
+  vip_customer: high
+  cost: medium
+  service_level: high

@@ -1,0 +1,31 @@
+# Calibration Case C — Objective Trade-off (Immutable)
+metadata:
+  id: "CALIB-CASE-C-TRADEOFF"
+  domain: "Dynamic Fleet Route Logistics"
+  name: "Multi-Tier Objective Trade-off Calibration Test"
+  tags: ["calibration", "tradeoff", "lexicographic"]
+
+intent:
+  objective: "Maximize total fulfilled orders while minimizing travel penalty"
+
+world_state:
+  depot: [0, 0]
+  fleet:
+    - {id: "VEH_01", type: "STANDARD_VAN", capacity_kg: 300, status: "AVAILABLE"}
+  orders:
+    - {id: "ORD_MANDATORY", weight_kg: 200, is_optional: false, x: 2, y: 2} # 必达单
+    - {id: "ORD_OPTIONAL_FAR", weight_kg: 80, is_optional: true,  x: 20, y: 20} # 偏远可选单 (高惩罚)
+
+semantic_contract:
+  constraints:
+    - id: "C1"
+      name: "VehicleCapacity"
+      type: "VEHICLE_CAPACITY"
+      hardness: "HARD"
+      relaxable: false
+
+runtime_context:
+  timestamp_min: 0
+  past_delivered_orders: []
+
+events: []

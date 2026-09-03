@@ -1,0 +1,10 @@
+"""Evidence level classification (v1.1 §5.1)."""
+from enum import Enum
+
+
+class EvidenceLevel(str, Enum):
+    PRODUCT_FACT = "PRODUCT_FACT"
+    DOMAIN_PRACTICE = "DOMAIN_PRACTICE"
+    MATHEMATICAL_THEORY = "MATHEMATICAL_THEORY"
+    EMPIRICAL_EVIDENCE = "EMPIRICAL_EVIDENCE"
+    DESIGN_INFERENCE = "DESIGN_INFERENCE"

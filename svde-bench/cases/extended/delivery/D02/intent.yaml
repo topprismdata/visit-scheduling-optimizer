@@ -1,0 +1,7 @@
+primary_objective: guarantee_vip_drop_noncritical_on_overflow
+secondary_objectives:
+- minimize_unfulfilled_standard_orders
+priority_rules:
+  vip_customer: high
+  cost: medium
+  service_level: high

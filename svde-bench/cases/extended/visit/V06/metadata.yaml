@@ -1,0 +1,15 @@
+case_id: CASE-V06
+domain: delivery
+version: '1.0'
+created_at: '2026-08-24'
+tags:
+- extended
+- v0.2
+- pattern-v3-territory-workload-balance
+- variant:new_territory_expansion_vs_existing_account_continuity
+difficulty: L2
+pattern:
+  id: PATTERN-V3-TERRITORY-WORKLOAD-BALANCE
+  variant_name: New Territory Expansion vs Existing Account Continuity
+  dilemma: Expanding into emerging commercial zone vs maintaining dedicated rep continuity
+    for legacy core accounts.

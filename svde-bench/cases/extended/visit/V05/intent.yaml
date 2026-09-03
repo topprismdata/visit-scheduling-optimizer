@@ -1,0 +1,7 @@
+primary_objective: balance_territory_workloads_and_protect_continuity
+secondary_objectives:
+- minimize_overtime
+priority_rules:
+  vip_customer: medium
+  cost: medium
+  service_level: high

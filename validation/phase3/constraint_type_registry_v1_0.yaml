@@ -1,0 +1,128 @@
+# Constraint Type Registry v1.0 — Phase 3.3-② Artifact 1（Immutable）
+## 冻结契约 C1-C10 → 类型定义。方向铁律：Contract → Type（不从代码反推）
+
+registry_id: CTR-V1.0
+generated_at: "2026-08-22"
+input: gt_small_semantic_contract_v1_0.yaml（唯一合法输入——KB-GOV-015 ②不得越界）
+direction_rule: "Contract → Type——禁止从实现反推；类型是契约语义的类型化投影"
+
+semantic_class_enum: [Equality, Cardinality, Temporal, Capacity, Lock, Window, Objective]
+hardness_enum: [HARD, SOFT_PREFERENCE, OBJECTIVE_PENALTY]
+
+types:
+
+  C01:
+    name: VisitFrequencyExact
+    contract_ref: C1（EXACT 频次足额）
+    semantic_class: Equality
+    cardinality: {op: "==", value_from: "freq.k"}
+    hardness: HARD
+    relaxable: false
+    translation: "Σ_d x[t,d] == k"
+    domain_provenance: [FrequencySpec(EXACT), REQ-GS-001]
+    solver_bindings: {F1: "模式列周计数", F2: "Add/linear equality", F3: "sum==k"}
+
+  C02:
+    name: VisitFrequencyRange
+    contract_ref: C2（RANGE 底线/上限）
+    semantic_class: Cardinality
+    cardinality: {op: "range", lo_from: "freq.lo", hi_from: "freq.hi"}
+    hardness: {lo: HARD, hi: SOFT_PREFERENCE}   # 底线 HARD / stretch 上限软——契约 §C2 分层
+    relaxable: {lo: "case2_only", hi: true}
+    translation: "lo ≤ Σ_d x[t,d] ≤ hi"
+    domain_provenance: [FrequencySpec(RANGE), REQ-GS-002/004]
+    solver_bindings: {F1: "baseline/stretch 双列族", F2: "双不等式", F3: "AddAtLeast/AtMost"}
+
+  C03:
+    name: ValueMaximize
+    contract_ref: C3（B stretch 价值）
+    semantic_class: Objective
+    cardinality: null
+    hardness: OBJECTIVE_PENALTY    # 仅 L3 项——永不执法为约束
+    relaxable: n/a
+    translation: "max Σ v_t·z_t（z=stretch 计数）"
+    domain_provenance: [FulfillmentClass.OPTIONAL, REQ-GS-004]
+    solver_bindings: {F1: "模式值累加", F2: "目标项", F3: "目标项"}
+
+  C04:
+    name: MinimumVisitGap
+    contract_ref: C4（最小间隔）
+    semantic_class: Temporal
+    cardinality: {op: "pairwise_mutex", gap_from: "cadence.min_gap"}
+    hardness: HARD
+    relaxable: false    # 3.2 教训#4 契约固化——soft Case 亦不软化（TC-003 执法点）
+    translation: "x[t,d1]+x[t,d2] ≤ 1, |d2-d1| < min_gap"
+    domain_provenance: [CadenceSpec.min_gap]
+    solver_bindings: {F1: "模式构造期剪枝", F2: "互斥对不等式", F3: "AddAtMostOne"}
+
+  C05:
+    name: MaximumVisitGap
+    contract_ref: C5（最大间隔）
+    semantic_class: Temporal
+    cardinality: {op: "window_cover", gap_from: "cadence.max_gap"}
+    hardness: SOFT_PREFERENCE    # 超期罚入 L4——可软（契约 C5 relaxable:true）
+    relaxable: true
+    translation: "滑窗 Σ_{d∈W} x[t,d] ≥ 1（软——违者 L4 罚 0.1/次）"
+    domain_provenance: [CadenceSpec.max_gap]
+    solver_bindings: {F1: "模式优选", F2: "滑窗不等式(软)", F3: "AddAtLeastOne(软)"}
+
+  C06:
+    name: DayCapacity
+    contract_ref: C6（日容量）
+    semantic_class: Capacity
+    cardinality: {op: "<=", value_from: "cap_min_per_day", unit: "service_min"}
+    hardness: HARD
+    relaxable: false
+    translation: "Σ_t s_t·x[t,d] ≤ cap_d"
+    domain_provenance: [ResourceAvailability, REQ-GS-003]
+    solver_bindings: {F1: "列容量系数", F2: "线性不等式", F3: "整数容量(×100 定点)"}
+
+  C07:
+    name: VisitDayLock
+    contract_ref: C7（DAY_LOCKED）
+    semantic_class: Lock
+    cardinality: {op: "==", value: 1, on: "x[t,d*]"}
+    hardness: HARD
+    relaxable: false
+    translation: "x[t,d*] == 1"
+    domain_provenance: [ExistingCommitment(DAY_LOCKED)]
+    solver_bindings: {F1: "模式锁定列", F2: "变量固定", F3: "literal==1"}
+
+  C08:
+    name: VisitSequenceLock
+    contract_ref: C8（SEQUENCE_LOCKED）
+    semantic_class: Lock
+    cardinality: {op: "precedence", lead: "seq[0]", follow: "seq[1]"}
+    hardness: HARD
+    relaxable: false
+    translation: "首访日(lead) < 末访日(follow)——顺序不可交换"
+    domain_provenance: [CommitmentLock.SEQUENCE_LOCKED]
+    solver_bindings: {F1: "模式序过滤", F2: "顺序布尔传递", F3: "AddCircuit/顺序链"}
+
+  C09:
+    name: VisitCompleteLock
+    contract_ref: C9（COMPLETELY_LOCKED）
+    semantic_class: Lock
+    cardinality: {op: "==", value: 1, on: "x[t,d*]", plus: "resource fixed"}
+    hardness: HARD
+    relaxable: false
+    translation: "x[t,d*]==1 ∧ resource==r*（日+资源双固定）"
+    domain_provenance: [CommitmentLock.COMPLETELY_LOCKED]
+    solver_bindings: {F1: "全锁列", F2: "双固定", F3: "双 literal"}
+
+  C10:
+    name: AvailabilityWindow
+    contract_ref: C10（可用日窗口）
+    semantic_class: Window
+    cardinality: {op: "mask", days_from: "avail"}
+    hardness: HARD
+    relaxable: false
+    translation: "x[t,d]==0 ∀d∉avail（变量禁用）"
+    domain_provenance: [TargetAvailability, WeeklyAvailabilityRule]
+    solver_bindings: {F1: "列仅含可用日", F2: "变量裁剪", F3: "变量不创建"}
+
+# ═══ 派生关系（非新类型——组合律）═══
+composition_rules:
+  - "C02 soft Case 降级 = C02.lo 由 HARD → 白名单软化（contract §I3）；C04/C06/C07/C08/C09/C10 不可参与任何降级组合"
+  - "C03 与任何 HARD 类型并列时永居目标侧（TC-003）"
+  - "锁组合律: 同目标多锁取最强（C09 ⊃ C07）——Type System 合并规则"

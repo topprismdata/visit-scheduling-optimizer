@@ -1,0 +1,185 @@
+# SVDE — Semantic Compilation Contract v0.1
+## Phase 3 入口契约 · Knowledge Architecture Final Review 三 Guard + 三字段增补 + 编译契约
+## 性质：连接 Registry 层与 Phase 3 的**契约文件**——非新知识层，不扩知识库
+
+version: SVDE-SEMANTIC-COMPILATION-CONTRACT-v0.2
+generated_at: "2026-08-22"
+supersedes: semantic_compilation_contract_v0_1.yaml（v0_1 保留为历史版；v0_2 增补评审 Gate 签署要求：每契约 Backend 绑定 / MP-08 编排模式注记 / Phase 3.0-3.4 序列）
+kg_gate: "Knowledge Architecture Gate PASS（2026-08-22 签署）——六架构结论入 KB-GOV-011"
+upstream:
+  - business_decision_candidate_v0_1.yaml   # BDC/NDC + decision_nature 增补
+  - mathematical_pattern_registry_v0_1.yaml # MP-01..09 + semantic_question 增补
+  - backend_capability_registry_v0_2.yaml   # KBC-01..08
+  - business_knowledge_library_v0_1.yaml    # CC Candidate + aging 规则落位
+final_review_verdict: "AI Native Decision Engine Knowledge Foundation v0.1——五层链路闭环成立，条件通过（3 Guard 冻结 + 3 字段增补 + 本契约）"
+
+# ═══════════════════════════════════════════════════════════════
+# Part 1 — 三 Guard 冻结（评审裁定原文固化，KB-GOV-010 登记）
+# ═══════════════════════════════════════════════════════════════
+guards:
+  guard_1_pattern_no_decision:
+    rule: "永久单向：Decision → Pattern → Backend。Backend 不能产生 Pattern，Pattern 不能产生 Decision"
+    forbidden_examples:
+      - "因 CP-SAT 有 interval 原语 → 创造 DynamicVisit 概念"
+      - "因 VRP 求解器强大 → 把 Territory Alignment 定义为路径问题"
+    enforcement: "任何新 Pattern/新 Decision 提案必须指认其上游（哪个 Decision 需要/哪条 Evidence 支持）——无上游者不入册"
+
+  guard_2_semantic_not_solver_equivalence:
+    rule: "Phase 3 验证 F1/F2/F3 是否表达**同一个 Decision**，不验证 CP-SAT 与 MIP 谁更好"
+    metrics_priority: [Feasibility 等价, Objective Tuple 等价, Requirement Fulfillment 等价, Trace 可解释]
+    runtime_position: "不先看 runtime——性能归 Phase 4 Benchmark（Backend=Reference）"
+
+  guard_3_compile_failure_math_first:
+    rule: "编译失败首先检查数学（Pattern 是否错误 / formulation 是否不足），禁止立即新增 Domain 概念"
+    forbidden_reactions: ["DynamicXXX", "ExceptionXXX", "OptimizationXXX"]
+    procedure: "失败 → Failure Classification（Class A Domain 缺失 / Class B Compiler / Class C 套件——沿用 S-E §6 框架）→ 仅 Class A 且穷举现有对象失败才 DCR"
+
+# ═══════════════════════════════════════════════════════════════
+# Part 2 — 字段增补一：decision_nature（Decision Registry 增量）
+# ═══════════════════════════════════════════════════════════════
+decision_nature_enum: [optimization, monitoring, generation, policy, evaluation]
+decision_nature_assignments:      # Agent 判断是否进入数学编译的依据
+  BDC-01 Coverage:           optimization
+  BDC-02 Prioritization:     optimization
+  BDC-03 ReqGeneration:      generation        # 不编译——规则/模型/业务逻辑层
+  BDC-04 ResourceAlloc:      optimization
+  BDC-05 Assignment:         optimization
+  BDC-06 VisitPlanning:      optimization
+  BDC-07 ExceptionHandling:  policy            # 策略处置链（defer/escalate/substitute）——其数学承载是字典序与惩罚项，非独立优化结构
+  BDC-08 ExecutionMonitor:   monitoring        # 不编译——状态检测/异常识别层
+  NDC-01 TerritoryAlignment: optimization      # 战略层（P6 锁定）
+  NDC-02 SalesCapacity:      evaluation        # 测算主体=活动法汇总（BE-019），优化仅离散结构决策面
+  NDC-03 WorkloadBalance:    optimization      # 口径未定（G-5）——编译前置条件不满足
+compile_gate_rule: "nature ∈ {optimization} 才进入 Phase 3 编译管线；generation/monitoring/policy/evaluation 不建数学模型（其 Pattern 映射保持空——与 BDC-03/08 空表一致）"
+
+# ═══════════════════════════════════════════════════════════════
+# Part 3 — 字段增补二：semantic_question（Pattern Registry 增量）
+# ═══════════════════════════════════════════════════════════════
+pattern_semantic_questions:      # 每个 Pattern 回答的业务问题（一句话——Agent 推理锚点）
+  MP-01 Assignment:           "谁应该承担哪个需求？"
+  MP-02 SetCovering:          "哪些服务组合被选中即可满足全部覆盖要求？"
+  MP-03 NetworkFlow:          "容量在网络中如何流动才能以最低成本满足供需？"
+  MP-04 SchedulingCP:         "这些活动在何时、以什么顺序安排才可行且不冲突？"
+  MP-05 VRP:                  "单日行程应按什么顺序走访才能兼顾时窗与行程成本？"
+  MP-06 IntegerProgramming:   "这组离散业务选择（做/不做/选谁）的最优组合是什么？"
+  MP-07 TemporalDependency:   "拜访之间应保持怎样的时间间隔节奏？"
+  MP-08 RollingHorizon:       "在承诺与扰动约束下，每期应只对近端做怎样的最小破坏调整？"
+  MP-09 MultiObjectiveEquity: "多个业务目标（价值/吞吐/公平/稳定）按什么优先序权衡？"
+
+# ═══════════════════════════════════════════════════════════════
+# Part 4 — 字段增补三：Evidence 支持面申报规则 + CC Aging（治理增补）
+# ═══════════════════════════════════════════════════════════════
+evidence_supports_declaration_rule:
+  required: "未来新增 Evidence 必须显式回答支持面：Business Concept / Decision / Pattern / Governance 之一（或组合）"
+  forbidden: "'有参考价值'类无支持面申报——不入册"
+
+candidate_aging_rule:            # Review 2 建议——防 Candidate 垃圾场
+  trigger: "Candidate 连续两个 Phase Gate（按 RMAP 周期）无以下任一活动：新 Failure Evidence / 新 Scenario Need / 新 Decision Dependency"
+  action: "归档至 archived_candidates（不删除——保留可追溯），状态 Candidate → Archived"
+  initial_review_at: "Phase 3 关闭时（首批检视：CC-01/02/03）"
+
+# ═══════════════════════════════════════════════════════════════
+# Part 5 — 编译契约：Decision → Allowed/Forbidden Pattern → Validation
+# Phase 3 的唯一入口规则（Phase 3.1 映射 / 3.2 GT-Micro / 3.3 等价 的前置门）
+# ═══════════════════════════════════════════════════════════════
+compilation_contracts:
+
+  - decision: BDC-01 Coverage
+    nature: optimization
+    allowed_patterns: [MP-02 SetCovering, MP-06 IP(频次计数), MP-07 TemporalDependency(节奏面)]
+    forbidden_patterns: [MP-05 VRP("覆盖无路径语义——引入行程耦合即污染")]
+    validation_requirement: "Requirement Fulfillment 等价（每 Requirement 的满足状态在 F1/F2/F3 一致）"
+    backend_binding: {F1_F2: [KBC-02 MathOpt-MIP(主力), KBC-08(可选增强)], F3: KBC-01 CP-SAT}
+
+  - decision: BDC-02 Prioritization
+    nature: optimization
+    allowed_patterns: [MP-06 IP(0-1 选择), MP-09 MultiObjective(目标形态), MP-02(奖赏收集结构)]
+    forbidden_patterns: [MP-04 CP("排序非排程——CP 无增益")]
+    validation_requirement: "Objective Tuple 等价（字典序五级——S-A §2.5 基准）"
+    backend_binding: {F1_F2: [KBC-02, KBC-08(字典序多解序列)], F3: KBC-01(多解序列)}
+
+  - decision: BDC-03 ReqGeneration
+    nature: generation
+    allowed_patterns: []          # 不编译
+    forbidden_patterns: ["*（全部——生成层非优化层）"]
+    validation_requirement: "语义回归（S-A §2.3 全表 + S-E regen）——不进 GT-Micro"
+    backend_binding: null    # 不编译
+
+  - decision: BDC-04 ResourceAlloc
+    nature: optimization
+    allowed_patterns: [MP-03 NetworkFlow(可行域), MP-06 IP(离散面)]
+    forbidden_patterns: [MP-05 VRP("容量判定无路径语义")]
+    validation_requirement: "Feasibility 等价（容量可行/短缺判定一致——S-B 240min 口径基准）"
+    backend_binding: {F1_F2: [KBC-02(LP 可行域+对偶边际), KBC-08], F3: KBC-01(传播式可行性)}
+
+  - decision: BDC-05 Assignment
+    nature: optimization
+    allowed_patterns: [MP-01 Assignment, MP-06 IP(广义指派扩展)]
+    forbidden_patterns: [MP-04 CP("指派无时序——勿混排程"), MP-05 VRP]
+    validation_requirement: "Requirement Fulfillment 等价（Ownership/Eligibility/Availability 三段派生保持——MRE-D-1..3 基准）"
+    backend_binding: {F1_F2: [KBC-02, KBC-08], F3: KBC-01(partial——大指派无运输加速)}
+
+  - decision: BDC-06 VisitPlanning
+    nature: optimization
+    allowed_patterns: [MP-04 SchedulingCP(时序), MP-05 VRP(行程面——单日内), MP-06 IP, MP-07(周期形态——F1 裁定), MP-08 RollingHorizon(重排面)]
+    forbidden_patterns: []
+    validation_requirement: "全四指标（时序+行程+频次+锁定的联合满足——S-A/C/E 联合基准）"
+    backend_binding: {F1_F2: [KBC-02 MathOpt→HiGHS/SCIP], F3: KBC-01 CP-SAT(interval 原语——#5144 注记), route_oracle: Held-Karp(三形态共用)}
+    note: "唯一多 Pattern 联合决策——F1/F2/F3 的主战场"
+
+  - decision: BDC-07 ExceptionHandling
+    nature: policy
+    allowed_patterns: []          # 不独立编译——其数学面挂 BDC-02/06（字典序/惩罚项已内嵌）
+    forbidden_patterns: ["独立优化结构（'Monitoring Optimization Model' 同族错误——策略链不是优化问题）"]
+    validation_requirement: "策略链回归（四段链 + shortfall 显式——S-A/S-E 基准）"
+    backend_binding: null    # policy——数学面托管于 BDC-02/06，无独立求解
+
+  - decision: BDC-08 ExecutionMonitor
+    nature: monitoring
+    allowed_patterns: []          # 不编译
+    forbidden_patterns: ["*（全部——监测层）"]
+    validation_requirement: "状态机回归（七态单调+终态吸收——S-B 基准）"
+    backend_binding: null    # monitoring——不编译
+
+  - decision: NDC-01 TerritoryAlignment
+    nature: optimization
+    phase_gate: "P6 锁定——本契约仅预登记不编译"
+    allowed_patterns: [MP-01(批量指派件), MP-06(紧凑+平衡 MIP), MP-03(网络流件)]
+    forbidden_patterns: [MP-05 VRP("Territory 是归属决策不是路径/聚类——Guard 反例原型")]
+    validation_requirement: "（战略层解锁后定义）"
+    backend_binding: {future: [KBC-02, KBC-08]}    # P6 解锁后生效
+
+  - decision: NDC-02 SalesCapacity
+    nature: evaluation
+    phase_gate: "P6 锁定——测算主体非优化"
+    allowed_patterns: [MP-03(工作量网络·辅助面)]
+    forbidden_patterns: ["为测算强加优化结构"]
+    validation_requirement: "（战略层解锁后定义）"
+    backend_binding: {future: [KBC-02]}    # 测算主体非优化
+
+  - decision: NDC-03 WorkloadBalance
+    nature: optimization
+    phase_gate: "G-5 未验——编译前置条件不满足（公平口径未定）"
+    allowed_patterns: [MP-09(四形态——口径定后择一)]
+    forbidden_patterns: [MP-05 VRP]
+    validation_requirement: "（公平口径业务裁定 + 场景验证后定义）"
+    backend_binding: {future: [KBC-02, KBC-08, KBC-01]}    # 口径定后生效
+
+# ═══════════════════════════════════════════════════════════════
+# Part 6 — Phase 3 执行序（评审裁定固化）
+# ═══════════════════════════════════════════════════════════════
+phase3_sequence:
+  phase_3_0: "Semantic Compilation Contract（本文件——KG Gate 后最后一张门票）"
+  step_4:   "本契约（入口门）"
+  phase_3_1: "Decision → Mathematical Formulation Mapping（按 Part 5 契约展开 F1/F2/F3 三形态）"
+  phase_3_2: "GT-Micro Oracle（穷举全解空间；KBC-05 作第四方仲裁）"
+  phase_3_3: "F1/F2/F3 Semantic Equivalence（Guard 2 指标序：Feasibility → Objective Tuple → Requirement Fulfillment → Trace）"
+  phase_3_4: "Performance Benchmark（=RMAP Phase 4——runtime 从此处才进入视野；此前零性能指标）"
+  mp08_note: "MP-08 RollingHorizon 是 orchestration pattern（决策执行机制），不是 solver pattern——其单期实例由 MP-04/06 承载，滚动编排在 DecisionModelCompiler 层实现（KBC 反查矩阵同裁定）"
+
+knowledge_freeze_note: |
+  知识库停止扩张（评审指令）——不再新增书/论文/Solver 资料。
+  自本契约起，唯一允许的变更通道：
+    (a) Phase 3 编译过程触发的 DCR/CRR（Guard 3 程序）
+    (b) Candidate Aging 归档（Part 4 规则）
+    (c) Gate 复审驱动的状态晋升（Validated → Approved）

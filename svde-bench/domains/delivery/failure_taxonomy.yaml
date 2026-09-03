@@ -1,0 +1,46 @@
+# SVDE-Bench v0.2 — Delivery Failure Taxonomy
+# Categorizes the 5 primary ways an AI or optimization agent can fail enterprise delivery decisions
+
+domain: "delivery"
+version: "1.0"
+
+failure_modes:
+  FT-01_SEMANTIC_FAILURE:
+    category: "Semantic Understanding"
+    code: "FT_SEM_01"
+    name: "Locked Commitment Dropped"
+    description: "Agent optimizes for global cost or vehicle load by quietly dropping or delaying a locked VIP customer window."
+    detection_rule: "is_locked=true AND arrival_time > tw_late OR unassigned"
+    penalty_severity: "CRITICAL_FAIL"
+
+  FT-02_CONSTRAINT_FAILURE:
+    category: "Physical Constraint Violation"
+    code: "FT_CON_01"
+    name: "Cold Chain or Overload Infeasibility"
+    description: "Agent assigns a refrigerated order to an ambient vehicle or violates physical payload capacity."
+    detection_rule: "load > capacity_kg OR (req_cold=true AND vehicle_type != 'COLD_REFRIGERATED')"
+    penalty_severity: "CRITICAL_FAIL"
+
+  FT-03_TRADEOFF_FAILURE:
+    category: "Multi-Objective Misalignment"
+    code: "FT_TRD_01"
+    name: "Cost-SLA Tradeoff Inversion"
+    description: "Agent incurs excessive overtime / extra vehicle costs to fulfill low-value flexible orders, violating declared intent."
+    detection_rule: "overtime_cost > total_order_value AND low_priority_served"
+    penalty_severity: "SUBOPTIMAL_GRADE"
+
+  FT-04_RUNTIME_FAILURE:
+    category: "Runtime Adaptation & Stability"
+    code: "FT_RUN_01"
+    name: "Excessive Plan Disruption"
+    description: "In response to a single vehicle delay, the agent completely reshuffles all unaffected vehicles, causing high ripple operational chaos."
+    detection_rule: "disruption_ratio > 0.8 AND single_vehicle_event"
+    penalty_severity: "SUBOPTIMAL_GRADE"
+
+  FT-05_MEMORY_FAILURE:
+    category: "Memory Evolution & Exploitation"
+    code: "FT_MEM_01"
+    name: "Known Historical Bottleneck Ignored"
+    description: "Agent repeats a previously diagnosed routing failure despite valid episodic memory artifact available in memory store."
+    detection_rule: "memory_applicable=true AND failed_recommendation_not_applied"
+    penalty_severity: "SUBOPTIMAL_GRADE"

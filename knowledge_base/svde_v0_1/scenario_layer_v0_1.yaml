@@ -1,0 +1,158 @@
+# SVDE Knowledge Base v0.1 — Scenario Knowledge Layer
+## Phase B1 — S-A / S-C / S-D 三场景迁移（已验证场景 → 受治理知识）
+## Phase B2 — Scenario ↔ Decision Model 反向闭环检查
+## source_of_truth: S-A_spec_v1_1_1 + S-A_report_v1_0 / S-C_spec_v1_0 + S-C_report_v1_0 / S-D_spec_v1_0 + S-D_report_v1_0
+
+version: SVDE-KB-Scenario-v0.1
+generated_at: "2026-08-22"
+
+layer_convention:
+  entry_schema: [scenario_id, business_context, business_question, ontology_dependencies, decision_models, evidence, validation_records, gate_status, failure_patterns]
+  scope_rule: "仅迁移已验证场景（A/C/D）；Scenario E/B 延后（Phase A Review 裁定）——本层不做新场景设计"
+  three_layer_loop: "Ontology → Decision Model → Scenario Validation 闭环验证（Phase B 目标）"
+
+scenarios:
+
+  # ═══════════ S-A ═══════════
+  - scenario_id: S-A
+    name: FMCG 4-Week Periodic Visit Planning
+    business_context: "快消销售组织（美素佳儿/太古式）单业务员 4 周 20 工作日常态覆盖；KA/A/B/C 分级政策；容量紧张但非结构性不足"
+    business_question: "如何在规划周期内生成满足全部业务要求的拜访计划？"
+    ontology_dependencies:
+      core: [VisitTarget, VisitPolicy, FrequencySpec(EXACT+RANGE), CadenceSpec, VisitDemand, DemandReason, FulfillmentClass, VisitOccurrence, VisitCandidate, MergePolicy, ExecutionHistory, BusinessRequirement, DeferralPolicy, OwnershipPolicy(单人退化), ExistingCommitment, CommitmentLock, PlannedVisit, ParameterRegistry]
+      passthrough: [SalesResource, ResourceAvailability, ResourceDayProfile(请假), PlanningHorizon, WorkingCalendar]
+      unused: [SubstitutionPolicy(allow_backup=False), EligibilityPolicy(无门槛)]
+    decision_models: [DM-001 Coverage, DM-002 Prioritization, DM-003 ReqGeneration, DM-004 ResourceAlloc, DM-006 VisitPlanning, DM-007 ExceptionHandling]
+    evidence: [EV-PROOF-E1, EV-DOV-MRE1, EV-A03-GENERIC]
+    validation_records:
+      executable_result: "18/18 PASS"
+      first_run: "3 FAIL 全归因测试套件缺陷（P4 COMMITTED 设置/容量口径/TA-INF cadence 用错）——契约零改动"
+      key_proofs:
+        occurrence_table: "40 REQUIRED + 16 OPTIONAL + 6 COMMITTED = 62 逐行命中"
+        dcr_regression: "REQ-A-008(COMPANY_POLICY)→DP-STD · REQ-A-009(CONTRACT)→DP-SLA 绑定可解析；不可解析引用显式 KeyError"
+        exception_chain: "R3→DP-STD→defer≤7d→capacity_shortage 四段落盘"
+        structural_infeasible: "KA Tue-only EXACT(4) min_gap10 → PROVEN_INFEASIBLE + 归因"
+    gate_status: {A1_Domain: PASS, A2_Trace: PASS, A3_Equivalence: "locked-Phase3", A4_Reuse: hold, A5_ScenarioPass: "domain-level ✅"}
+    failure_patterns:
+      - {pattern: RANGE fulfillment 未落到对象, resolution: "PROOF-E1 baseline+stretch 双 demand 拆分——无 DCR"}
+      - {pattern: DeferralPolicy 无法绑定, resolution: "DOV MRE-1 证伪 a/b → DCR-SA-001-R Requirement 级"}
+      - {pattern: 时间双计风险, resolution: "AC-8 口径守卫——service_duration 唯一计入，stop_time 仅证据"}
+      - {pattern: TA-INF 反例实际可行(两周二隔14d), resolution: "改为 KA EXACT(4)+Tue-only+gap10 真不可行构造"}
+
+  # ═══════════ S-C ═══════════
+  - scenario_id: S-C
+    name: Flexible Cadence + Time Window
+    business_context: "高价值母婴/保健连锁客户群——拜访节奏与到店时段均柔性非任意（距上次 7–30 天/仅 Tue-Thu 下午/客户指定例外日）"
+    business_question: "柔性约束（节奏边界×多源时窗）能否被 Domain 无歧义表达？"
+    ontology_dependencies:
+      core: [CadenceSpec(双边界+history 交互), WeeklyAvailabilityRule(周分化+date_exceptions), TargetAvailability, ResourceDayProfile(部分日), FrequencySpec(RANGE)]
+      passthrough: [VisitDemand/Occurrence 复用 A 语义]
+      unused: [Ownership 三轴(单人恒真), CommitmentLock(无)]
+    decision_models: [DM-001 Coverage, DM-003 ReqGeneration, DM-007 ExceptionHandling]
+    evidence: [EV-C-TIMEWINDOW-SOURCE, EV-PROOF-E1]
+    validation_records:
+      executable_result: "20/20 PASS"
+      first_run: "2 FAIL 归因套件（stale 语义未定义/容量算术）"
+      key_proofs:
+        two_axis_independence: "TC-CAD-3: Frequency RANGE→EXACT 后 CadenceSpec 逐字段不变"
+        three_source_separation: "门店营业/客户指定/资源工作三源独立——严禁塞入 VisitPolicy（Gate C2）"
+        stale_anchor: "OBS-C-1: last_visit 超期 → eligible=None 显式暴露（非隐藏）；裁定契约可表达→CRR CR-COMPILER-C-001"
+        structural_infeasible: "单开放日+EXACT(2)+gap≥25 → PROVEN_INFEASIBLE + REQ-C-002×REQ-C-004 联合归因"
+    gate_status: {C1_CadenceSemantics: PASS, C2_TimeWindowSeparation: PASS, C3_Independence: PASS, C4_Trace: PASS, C5_Pass: PASS}
+    failure_patterns:
+      - {pattern: stale anchor 无 eligible, resolution: "不升 DCR（契约可表达）→ CRR 编译规则 CR-COMPILER-C-001（Domain impact=None）"}
+      - {pattern: preferred weekday 字段不存在, resolution: "TA-DAY→TA-GAP 替换——不假装字段存在（沿用 v6.1 裁定）"}
+
+  # ═══════════ S-D ═══════════
+  - scenario_id: S-D
+    name: Multi-Resource Ownership / Eligibility / Substitution
+    business_context: "苏州/常州式 3 业务员辖区——固定归属+请假替补+区域共享池+冷链资质门槛"
+    business_question: "组织关系四概念（Ownership/Eligibility/Availability/Assignment）能否严格分离表达？"
+    ontology_dependencies:
+      core: [OwnershipPolicy(多/空 primary+pool), SubstitutionPolicy(conditions 触发), EligibilityPolicy(资质过滤), ResourceAvailability(多资源异构), ResourceDayProfile]
+      passthrough: [VisitPolicy/FrequencySpec 复用 A]
+      unused: [CommitmentLock(无), ExecutionHistory(无)]
+    decision_models: [DM-005 Assignment, DM-004 ResourceAlloc, DM-010 Replanning(backup 语义)]
+    evidence: [EV-D-FOURCONCEPT, EV-MSFT-BOOKINGLOCK]
+    validation_records:
+      executable_result: "20/20 PASS · 0 DCR（评审预判'最可能 DCR 场景'未触发）"
+      first_run: "3 FAIL 归因套件（fixture 误置/专属预期误扩/FC-D-2 用错 fixture）"
+      key_proofs:
+        MRE_D1_owner_ne_executor: "R001 缺勤日: owner=R001 不变 / executor=R002 / via=SUBSTITUTION / trigger / policy_ref 五要素审计链落盘；非触发日 backup 留池外"
+        MRE_D2_own_not_qualify: "R004 无冷链误设 primary → 显式排除+原因标签（非静默）"
+        MRE_D3_available_not_authorized: "R003 Tue 空闲但无授权路径 → 被正确忽略"
+        three_stage_derivation: "pool(Ownership∪pool∪backup) → filter(Eligibility) → filter(Availability) 每段排除显式标签"
+    gate_status: {D1_FourConceptSeparation: PASS, D2_DerivationIntegrity: PASS, D3_SubstitutionAudit: PASS, D4_Immutability: PASS, D5_Pass: PASS}
+    failure_patterns:
+      - {pattern: 专属客户 eligible 误预期为三员, resolution: "共享池语义不得隐式扩大——修正为 {primary} 仅（套件预期缺陷）"}
+
+# ═══════════ Phase B2: Scenario ↔ DM 反向闭环检查 ═══════════
+dm_closure_check:
+  method: "每个 DM 必须找到 ≥1 场景验证证据；每个场景核心 DM 必须在其 ontology_dependencies 中成立"
+  results:
+    DM-001 Coverage:          {validated_by: [S-A 18/18, S-C Gate-C1, S-D 复用], status: mapping-complete ✅}
+    DM-002 Prioritization:    {validated_by: [S-A TA-CAP REQUIRED/OPTIONAL 分层], status: mapping-complete ✅}
+    DM-003 ReqGeneration:     {validated_by: [S-A §2.3 全表+TA-HIST, S-C stale anchor OBS], status: mapping-complete ✅}
+    DM-004 ResourceAlloc:     {validated_by: [S-A TA-CAP, S-D 三资源异构], status: mapping-complete ✅}
+    DM-005 Assignment:        {validated_by: [S-D 20/20 全场景 MRE×3], status: mapping-complete ✅}
+    DM-006 VisitPlanning:     {validated_by: [三场景装配与解释层输出], status: "mapping-complete(Phase3 数学层待验) ✅"}
+    DM-007 ExceptionHandling: {validated_by: [S-A TA-CAP 四段链, S-C TC-CAP, S-D REQ-D-002], status: mapping-complete ✅}
+    DM-008 ExecutionMonitor:  {validated_by: [S-E 多轮历史 + S-B 状态机/偏离终验], status: "Validated Candidate · 独立成立(B5 裁定)" ✅}
+    DM-009 CapacityPlanning:  {validated_by: "五场景全战术级", status: "MERGED into DM-004(B5 裁定：无战略级决策证据)" 🔀}
+    DM-010 Replanning:        {validated_by: [S-E H2 判定 + S-B 日内复证], status: "MERGED into DM-006+007" 🔀}
+  closure_verdict: |
+    正向: 三场景 ontology_dependencies ↔ DM 声明 100% 互查一致（无孤儿 DM、无未声明使用）
+    反向: 7 mapping-complete DM 各有 ≥1 显式场景证据 + ≥1 evidence 条目 —— 三层闭环(Ontology→DM→Scenario)成立
+    终态(五场景后): DM 10→8（009→004，010→006+007）；8 个 Validated Candidate 待 Phase 2 Gate 复审转 Approved
+    Phase 2 全场景关闭: A/C/D/E/B = 88 测试 · 0 DCR 违规 · 核心闭环(Ontology→DM→Scenario→Evidence, 静态+动态+机会驱动)成立
+
+  # ═══════════ S-E (Phase B3) ═══════════
+  - scenario_id: S-E
+    name: Rolling Replanning + Commitment/Lock + Execution History
+    business_context: "4 周计划执行至第 2 周——请假扰动+承诺锁定+漏访累积+新需求注入下的周一重排；过去不可改、承诺不可破、锁定不可动、漏访要补"
+    business_question: "执行部分计划已成事实、承诺已锁定、新事件注入时，系统能否仅凭冻结 Domain 表达最小破坏重排的全部输入与约束？"
+    ontology_dependencies:
+      core: [PlanningPolicy(freeze=2/ratio=0.3 首次非零), CommitmentLock(SEQUENCE/COMPLETELY 首次), ExistingCommitment(运行期追加), ExecutionHistory(多轮滚动)]
+      passthrough: [VisitPolicy/FrequencySpec/CadenceSpec 复用 A, DeferralPolicy 复用]
+      unused: [Ownership 三轴(单人)]
+    decision_models: [DM-010(判定:H2 merge-candidate), DM-006, DM-007, DM-003, DM-008(证据已供,B 终验)]
+    evidence: [EV-A03-GENERIC]
+    validation_records:
+      executable_result: "17/17 PASS · 0 DCR · 0 Class-A"
+      first_run: "0 FAIL（首跑即全过）"
+      key_proofs:
+        commitment_survival: "DAY_LOCKED 存活于请假扰动；SEQUENCE 三连零移；COMPLETELY×absence→PROVEN_INFEASIBLE 归因"
+        immutability: "week-1 只读；重排输出零含已执行"
+        ratio_governance: "50%需求 vs 30%预算→moved=2/shortfall=6 显式（非静默）"
+        rolling_history: "多轮 carryover 单调；missed regen=max(horizon,missed+gap)"
+        dm010_adjudication: "H2: freeze/ratio→PlanningPolicy(080); regen→History(078); shortfall→DP(053); diff-audit→trace——006+007 足够，无 Failure Evidence"
+    gate_status: {E1_Immutability: PASS, E2_CommitmentSurvival: PASS, E3_RollingHistory: PASS, E4_Injection: PASS, E5_RatioFreeze: PASS, E6_DM010Adjudication: "H2-merge", E7_Pass: PASS}
+    failure_patterns:
+      - {pattern: "freeze 窗口语义不明(预判)", resolution: "Class-B: PlanningPolicy 字段已有，解释规则随 Phase3 Compiler 规范"}
+      - {pattern: "重排差异审计无对象(预判)", resolution: "Class-B: moved/kept/regen 为 trace 维度非 Domain 对象"}
+
+  # ═══════════ S-B (Phase 2 收官) ═══════════
+  - scenario_id: S-B
+    name: Dynamic Opportunity + Intraday Emergency
+    business_context: "业务员上午已出发执行 5 项计划；运行中涌入四类外部事件（新机会门店信号/紧急缺货来电/临时 CAMPAIGN/客户取消）——当日内决策接不接、插在哪、挤掉谁、记什么"
+    business_question: "外部事件产生的新需求能否仅凭冻结 Domain 完成 事件→需求→候选→当日插入→异常处理→执行记录 全链表达且零新增对象？"
+    ontology_dependencies:
+      core: [VisitDemand.reason(4 动态来源首证), VisitCandidate.priority_score(派生策略), LifecycleState.CANCELLED(首次运行期), DeferralPolicy, CommitmentLock.COMPLETELY_LOCKED, ResourceAvailability(日内容量口径), ExecutionHistory]
+      passthrough: [VisitPolicy/FrequencySpec 复用, PlanningPolicy 复用 E]
+      unused: [Ownership 三轴(单人)]
+    decision_models: [DM-002(score 派生终证), DM-004(日内容量+DM-009 并入), DM-007(挤占链), DM-008(独立成立终验), DM-003(偏离 regen)]
+    evidence: [EV-A03-GENERIC]
+    validation_records:
+      executable_result: "13/13 PASS · 0 DCR · 0 Class-A · 三禁令全守"
+      first_run: "3 FAIL 全 Class-C(枚举覆盖/布尔逻辑/记忆常数 31→32)"
+      key_proofs:
+        check1_opportunity: "H-A: DemandReason 四动态来源承载；新门店 demand 直入零新实体"
+        check2_priority: "H-策略: priority_score=class×reason×urgency 派生；COMMITTED 3.0>REQUIRED+urgent 2.958>OPTIONAL+signal 1.2；无实体"
+        check3_emergency: "H-复用: 注入+DM-004 容量+DP 四段链；不设 Emergency DM（E 的 H2 日内尺度复证）"
+        dm008_verdict: "INDEPENDENT: 问题/输入双独立+006-007 承载缺口 → Validated Candidate 独立保留"
+        dm009_verdict: "MERGE-INTO-DM004: 五场景全战术级无战略决策证据"
+        freeze_guard: "domain_contract 32 类原样(A/E 复跑佐证)；零 Opportunity/Priority/Emergency 实体"
+    gate_status: {B1_Opportunity: "requirement-source", B2_Priority: "decision-policy", B3_Emergency: reuse, B4_Lifecycle: PASS, B5_DMAdjudication: "008 independent / 009 merge / 010 merge", B6_Freeze: PASS, B7_Pass: PASS}
+    failure_patterns:
+      - {pattern: "新门店无 VisitPolicy 直入(待判)", resolution: "无风险；policy 解析归 CRR 候选(OccurrenceGenerator 层)"}
+      - {pattern: "取消恢复策略", resolution: "Class-B: CANCELLED→恢复无解释规则，契约可表达(重新生成 demand)"}

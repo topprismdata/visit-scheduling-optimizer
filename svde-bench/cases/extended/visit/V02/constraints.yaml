@@ -1,0 +1,30 @@
+hard:
+- id: C1
+  name: DailyTimeCap
+  type: VEHICLE_CAPACITY
+  hardness: HARD
+  relaxable: false
+- id: C2
+  name: AnchorLock
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: VISIT_ANCHOR
+  locked_window:
+  - 0
+  - 240
+  relaxable: false
+- id: C3
+  name: DeferredStoreLock
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: VISIT_DEFERRED
+  locked_window:
+  - 120
+  - 360
+  relaxable: false
+soft:
+- id: C4
+  name: TravelPenalty
+  weight: 1.0
+preference:
+- description: Must serve twice-deferred clinic today to prevent account churn

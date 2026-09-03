@@ -1,0 +1,41 @@
+entities:
+  vehicles:
+  - id: VEH_01
+    type: COLD_REFRIGERATED
+    capacity_kg: 1000
+    status: AVAILABLE
+  - id: VEH_02
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  customers:
+  - id: CUST_GROCERY
+    name: Organic Grocery
+    priority: vip
+  - id: CUST_IND
+    name: Industrial Lab
+    priority: vip
+  orders:
+  - id: ORD_FOOD
+    weight_kg: 300
+    req_cold: true
+    is_locked: true
+    tw_early: 0
+    tw_late: 180
+  - id: ORD_CHEMICAL
+    weight_kg: 300
+    req_cold: false
+    is_locked: true
+    tw_early: 0
+    tw_late: 180
+relationships:
+  vehicle_route:
+  - vehicle: VEH_01
+    planned_orders:
+    - ORD_FOOD
+    - ORD_CHEMICAL
+  customer_priority:
+  - customer: CUST_GROCERY
+    commitment: sla_commitment
+  - customer: CUST_IND
+    commitment: sla_commitment

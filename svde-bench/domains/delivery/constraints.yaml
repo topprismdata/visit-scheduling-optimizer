@@ -1,0 +1,53 @@
+# SVDE-Bench v0.2 — Delivery Domain Constraint Taxonomy
+# Classifies constraints into Hard Invariants, Soft Tradeoffs, and Business Preferences
+
+domain: "delivery"
+version: "1.0"
+
+taxonomy:
+  hard_constraints:
+    - type: "VEHICLE_CAPACITY"
+      scope: "vehicle"
+      description: "Sum of loaded order weights on any route segment must not exceed vehicle capacity."
+      hardness: "HARD"
+      relaxable: false
+
+    - type: "COLD_CHAIN_MATCH"
+      scope: "vehicle_order_pair"
+      description: "Orders requiring cold storage (req_cold=true) must be assigned only to COLD_REFRIGERATED vehicles."
+      hardness: "HARD"
+      relaxable: false
+
+    - type: "TIME_WINDOW_LOCKED"
+      scope: "order_commitment"
+      description: "Locked commitments (is_locked=true) must have arrival times within [tw_early, tw_late]."
+      hardness: "HARD_COMMITMENT"
+      relaxable: false
+
+    - type: "VEHICLE_BREAKDOWN_IMMOBILITY"
+      scope: "vehicle_runtime"
+      description: "Vehicles with status BROKEN_DOWN cannot execute forward legs after failure timestamp."
+      hardness: "HARD"
+      relaxable: false
+
+  soft_constraints:
+    - type: "STANDARD_TIME_WINDOW"
+      scope: "order"
+      description: "Soft penalty per minute of arrival outside [tw_early, tw_late] for non-locked orders."
+      default_penalty_per_min: 1.0
+
+    - type: "FLEET_TOTAL_DISTANCE"
+      scope: "fleet"
+      description: "Minimize total kilometers / fuel consumption across all active vehicle routes."
+      default_weight: 1.0
+
+    - type: "FLEET_OVERTIME_COST"
+      scope: "driver_shift"
+      description: "Minimize route execution time exceeding standard shift duration."
+      default_weight: 2.5
+
+  business_preferences:
+    - type: "SCHEDULE_STABILITY_PREFERENCE"
+      description: "Prefer preserving baseline route order sequence unless SLA failure is imminent."
+    - type: "SAME_ZONE_CONSOLIDATION_PREFERENCE"
+      description: "Prefer grouping geographically adjacent customer stops within the same run."

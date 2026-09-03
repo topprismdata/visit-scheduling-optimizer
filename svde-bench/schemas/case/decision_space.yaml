@@ -1,0 +1,8 @@
+# SVDE-Bench v0.2 — Decision Space Schema
+objective: "lexicographic_max_fulfilled_then_min_disruption"
+candidate_solutions_count: 4
+parallel_options:
+  - {id: "opt_a", description: "Honor all VIP windows, pay additional cost"}
+  - {id: "opt_b", description: "Minimize total distance, may break VIP"}
+  - {id: "opt_c", description: "Rebalance by shifting load to alternative vehicle"}
+  - {id: "opt_d", description: "Delay non-locked orders, keep VIP locked"}

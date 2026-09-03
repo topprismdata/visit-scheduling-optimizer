@@ -1,0 +1,15 @@
+case_id: CASE-V09
+domain: delivery
+version: '1.0'
+created_at: '2026-08-24'
+tags:
+- extended
+- v0.2
+- pattern-v5-relationship-memory-transfer
+- variant:historical_preferred_meeting_window_exploitation
+difficulty: L2
+pattern:
+  id: PATTERN-V5-RELATIONSHIP-MEMORY-TRANSFER
+  variant_name: Historical Preferred Meeting Window Exploitation
+  dilemma: Long-term client has documented gatekeeper rule (store manager only available
+    before 11:00 AM). Exploiting relationship memory avoids missed visit.

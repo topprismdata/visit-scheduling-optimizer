@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "svdebench"
+version = "0.1.0"
+description = "SVDE-Bench: A Benchmark for Decision Compiler & Enterprise Decision Systems"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "TopPrism SVDE Research Team" }]
+requires-python = ">=3.9"
+dependencies = [
+    "pydantic>=2.0.0",
+    "pyyaml>=6.0",
+    "ortools>=9.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["svdebench*"]

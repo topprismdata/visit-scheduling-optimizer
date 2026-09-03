@@ -18,7 +18,12 @@ overhead dominates short legs) and converges to a fixed highway speed
 "exploding" on long inter-county legs.
 
 Public entry point:
-  build_time_matrix(lats, lons, dep_latlons, segments) -> (T, t0, svc_county)
+  build_time_matrix(lats, lons, dep_latlons, segments, fallback_rate=6.0,
+                    counties=None, depot_county=None)
+    -> (T, t0, diagnostics)
+
+counties 传入后 destination-county 校准才生效; 省略时全部回退全局 rate
+(diagnostics.fallback_ratio_client_legs == 1.0)。
 """
 
 from __future__ import annotations
@@ -79,29 +84,76 @@ def build_time_matrix(
     dep_latlons: tuple[float, float],
     segments: Sequence[tuple[float, float, float, float, float, str]],
     fallback_rate: float = DEFAULT_GLOBAL_RATE,
-) -> tuple[list[list[float]], list[float]]:
-    """Build a calibrated time matrix T and depot legs t0.
+    counties: Sequence[str] | None = None,
+    depot_county: str | None = None,
+) -> tuple[list[list[float]], list[float], dict]:
+    """Build a calibrated time matrix T, depot legs t0, and diagnostics.
 
-    Returns
-    -------
-    T  : n × n matrix of effective travel times (minutes), T[i][j] = rate(dest_j) × km(i, j)
-    t0 : n-vector of depot→customer leg times (minutes)
+    Args:
+        lats/lons: 客户坐标。
+        dep_latlons: (depot_lat, depot_lon)。
+        segments: 历史行程 (from_lat, from_lon, to_lat, to_lon, obs_min, county)。
+        fallback_rate: county 样本不足/未匹配时的全局回退 min/km。
+        counties: 客户所属 county (len == len(lats)); None = 全部使用 fallback
+            (兼容旧调用形态, 但 diagnostics 将标记 fallback_ratio = 1.0)。
+        depot_county: depot 所属 county; None = 回退 fallback_rate 或首个客户 county。
+
+    Returns:
+        T  : n×n 校准时间矩阵 (分钟), T[i][j] = rate_eff(mpk_dest, km) × km —
+             采用 **destination county** (到达端密度主导城市拥堵 premium)。
+        t0 : depot→客户 leg 时间 (分钟), 使用各客户的 county rate。
+        diagnostics: {rates_fitted, n_customers_with_county, fallback_ratio_client_legs,
+                      fallback_ratio_depot_legs, warn}
     """
     rates = fit_county_rates(segments)
     n = len(lats)
     dep_lat, dep_lon = dep_latlons
+
+    if counties is not None and len(counties) != n:
+        raise ValueError(f"counties 长度 {len(counties)} != 客户数 {n}")
+
+    def _mpk_for(county: str | None) -> tuple[float, bool]:
+        if county is not None and county in rates:
+            return rates[county], True
+        return fallback_rate, False
+
+    cust_county = list(counties) if counties is not None else [None] * n
+
     T = [[0.0] * n for _ in range(n)]
+    fb_client = 0
+    total_client = 0
     for i in range(n):
         for j in range(n):
             if i == j:
                 continue
             km = _hav(lats[i], lons[i], lats[j], lons[j])
-            county = ""  # rate by origin would need per-origin county mapping
-            mpk = rates.get(county, fallback_rate)
+            mpk, fitted = _mpk_for(cust_county[j])
+            total_client += 1
+            if not fitted:
+                fb_client += 1
             T[i][j] = rate_eff(mpk, km) * km
-    t0 = [
-        rate_eff(fallback_rate, _hav(dep_lat, dep_lon, lats[i], lons[i]))
-        * _hav(dep_lat, dep_lon, lats[i], lons[i])
-        for i in range(n)
-    ]
-    return T, t0
+
+    # depot legs: 显式 depot_county, 否则尝试首个客户 county (同区常见), 否则 fallback
+    leg_county = depot_county if depot_county is not None else (cust_county[0] if n else None)
+    t0 = []
+    fb_depot = 0
+    for i in range(n):
+        mpk, fitted = _mpk_for(leg_county)
+        if not fitted:
+            fb_depot += 1
+        km = _hav(dep_lat, dep_lon, lats[i], lons[i])
+        t0.append(rate_eff(mpk, km) * km)
+
+    diagnostics = {
+        "rates_fitted": dict(rates),
+        "counties_with_rates": sorted(rates),
+        "fallback_ratio_client_legs": (fb_client / total_client) if total_client else 0.0,
+        "fallback_ratio_depot_legs": (fb_depot / n) if n else 0.0,
+        "warn": (
+            f"{fb_client}/{total_client} client legs 与 {fb_depot}/{n} depot legs "
+            f"使用了全局回退 {fallback_rate} min/km"
+            if (fb_client or fb_depot)
+            else ""
+        ),
+    }
+    return T, t0, diagnostics

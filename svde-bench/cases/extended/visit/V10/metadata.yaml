@@ -1,0 +1,16 @@
+case_id: CASE-V10
+domain: delivery
+version: '1.0'
+created_at: '2026-08-24'
+tags:
+- extended
+- v0.2
+- pattern-v5-relationship-memory-transfer
+- variant:negative_memory_transfer_defense_(store_management_change)
+difficulty: L2
+pattern:
+  id: PATTERN-V5-RELATIONSHIP-MEMORY-TRANSFER
+  variant_name: Negative Memory Transfer Defense (Store Management Change)
+  dilemma: Historical memory says Friday manager is absent; new management has taken
+    over and operates on Fridays. Agent must reject stale memory and exploit Friday
+    slot.

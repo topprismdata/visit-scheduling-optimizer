@@ -1,0 +1,26 @@
+hard:
+- id: C1
+  name: DailyTimeLimit
+  type: VEHICLE_CAPACITY
+  hardness: HARD
+  relaxable: false
+- id: C2
+  name: SpecialistCertificationMatch
+  type: COLD_CHAIN_MATCH
+  hardness: HARD
+  relaxable: false
+- id: C3
+  name: OncologyLock
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: VISIT_ONCOLOGY
+  locked_window:
+  - 60
+  - 180
+  relaxable: false
+soft:
+- id: C4
+  name: TravelTimePenalty
+  weight: 1.0
+preference:
+- description: Dispatch Specialist to Oncology account regardless of travel distance

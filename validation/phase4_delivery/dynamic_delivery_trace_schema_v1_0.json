@@ -1,0 +1,118 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DynamicDeliveryDecisionRuntimeTraceSchema",
+  "type": "object",
+  "required": [
+    "trace_id",
+    "domain",
+    "timestamp_min",
+    "event_context",
+    "runtime_state_snapshot",
+    "typed_constraints_incremental",
+    "dsvl_precheck",
+    "mathopt_model_meta",
+    "solver_solution",
+    "post_event_dsvl_check",
+    "dynamic_explainability",
+    "research_memory_update"
+  ],
+  "properties": {
+    "trace_id": {"type": "string"},
+    "domain": {"type": "string", "enum": ["Dynamic Fleet Route Logistics Decision"]},
+    "timestamp_min": {"type": "integer"},
+    "event_context": {
+      "type": "object",
+      "required": ["event_id", "event_type", "variation_classification", "recompilation_triggered"],
+      "properties": {
+        "event_id": {"type": "string"},
+        "event_type": {"type": "string"},
+        "variation_classification": {"type": "string", "enum": ["DATA_VARIATION", "SEMANTIC_VARIATION"]},
+        "recompilation_triggered": {"type": "boolean"}
+      }
+    },
+    "runtime_state_snapshot": {
+      "type": "object",
+      "required": ["vehicles_state", "orders_lifecycle_state", "past_executed_facts_immutable"],
+      "properties": {
+        "vehicles_state": {"type": "object"},
+        "orders_lifecycle_state": {"type": "object"},
+        "past_executed_facts_immutable": {"type": "boolean"}
+      }
+    },
+    "typed_constraints_incremental": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["cid", "name", "semantic_class", "hardness", "provenance"],
+        "properties": {
+          "cid": {"type": "string"},
+          "name": {"type": "string"},
+          "semantic_class": {"type": "string"},
+          "hardness": {"type": "string"},
+          "provenance": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "dsvl_precheck": {
+      "type": "object",
+      "required": ["decision_feasible", "gates", "rules"],
+      "properties": {
+        "decision_feasible": {"type": "boolean"},
+        "gates": {"type": "object"},
+        "rules": {"type": "array"}
+      }
+    },
+    "mathopt_model_meta": {
+      "type": "object",
+      "required": ["solver_type", "variables_count", "constraints_count", "m1_preservation_status"],
+      "properties": {
+        "solver_type": {"type": "string"},
+        "variables_count": {"type": "integer"},
+        "constraints_count": {"type": "integer"},
+        "m1_preservation_status": {"type": "string"}
+      }
+    },
+    "solver_solution": {
+      "type": "object",
+      "required": ["status", "objective_tuple", "reallocated_routes"],
+      "properties": {
+        "status": {"type": "string"},
+        "objective_tuple": {
+          "type": "array",
+          "items": {"type": ["string", "number"]}
+        },
+        "reallocated_routes": {"type": "object"}
+      }
+    },
+    "post_event_dsvl_check": {
+      "type": "object",
+      "required": ["dsvl_postcheck_feasible", "locked_commitments_preserved", "invariants_preserved"],
+      "properties": {
+        "dsvl_postcheck_feasible": {"type": "boolean"},
+        "locked_commitments_preserved": {"type": "boolean"},
+        "invariants_preserved": {"type": "boolean"}
+      }
+    },
+    "dynamic_explainability": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["order_id", "previous_plan", "new_plan", "decision_rationale"],
+        "properties": {
+          "order_id": {"type": "string"},
+          "previous_plan": {"type": "string"},
+          "new_plan": {"type": "string"},
+          "decision_rationale": {"type": "string"}
+        }
+      }
+    },
+    "research_memory_update": {
+      "type": "object",
+      "required": ["kernel_reuse_verified", "failure_triage"],
+      "properties": {
+        "kernel_reuse_verified": {"type": "boolean"},
+        "failure_triage": {"type": "string"}
+      }
+    }
+  }
+}

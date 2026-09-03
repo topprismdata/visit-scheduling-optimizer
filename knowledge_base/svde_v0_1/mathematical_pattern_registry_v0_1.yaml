@@ -1,0 +1,187 @@
+# SVDE Knowledge Base v0.1 — Decision-to-Mathematical Pattern Registry
+## Knowledge Expansion · Step 2 · Decision → Mathematical Pattern（反推，非论文正推）
+## 纪律：Pattern 是 Decision 的表达，不是 Decision 的来源；数学形态仅 Candidate，不裁定
+
+version: SVDE-KB-MathPattern-v0.1
+generated_at: "2026-08-22"
+role: Knowledge Builder
+inputs:
+  - business_decision_candidate_v0_1.yaml   # BDC-01..08 + NDC-01..03（反推入口）
+  - step2_handoff 契约（direction/pattern_seeds/excluded/evidence_for_patterns）
+evidence_sources:
+  primary:   "Hillier & Lieberman, Introduction to Operations Research 9e (McGraw-Hill)——Pattern 数学证据源（Evidence ≠ Design）"
+  secondary: "Ahuja/Magnanti/Orlin Network Flows（批2 待深挖）；A01 §5 同行评审映射表（Rothenbächer/Groër/Sethi&Ríos-Mercado/Nekooghadirli DOI 已在册）"
+extraction_method: "pypdf 全书索引 + 页面标签锚定；7 条关键数学定义引文逐字核对（连字符断行还原）通过"
+
+rules:                       # Task v5 五规则原文固化
+  - 不新增 Domain
+  - 不新增 Approved Decision
+  - Pattern 一律 Candidate
+  - 不允许从算法反推业务（anti-pattern: Book→Territory→Clustering 禁止）
+  - 不允许因某 Solver 支持某模型而定义 Pattern（Backend=Reference，KB-GOV-009）
+
+# ═══════════════════════════════════════════════════════════════
+# Part 1 — Pattern Cards（每 Pattern 九字段：含 not_suitable_for 防滥用）
+# ═══════════════════════════════════════════════════════════════
+patterns:
+
+  - pattern_id: MP-01
+    pattern_name: Assignment Problem（指派问题）
+    business_questions: ["每次拜访活动由谁执行？（BDC-05）", "辖区层面账户×活动批量指派？（NDC-01 组成件）"]
+    decision_types: [BDC-05 Assignment, NDC-01 TerritoryAlignment(组成件)]
+    mathematical_structure: |
+      指派矩阵 x_ij∈{0,1}: min Σc_ij·x_ij s.t. Σ_j x_ij=1(每任务一执行者), Σ_i x_ij=1(每执行者一任务)。
+      Hillier 9e（书页~336, pdf360）："the assignment problem is just a special type of transportation problem where the sources now are assignees and the destinations now are tasks"——特殊结构：供应/需求全 1、方阵。
+    assumptions: [任务与执行者均为离散可数集, 一对一(可松为广义指派), 成本/效用可量化可比]
+    strength: "结构最简、整数解性质好（运输问题特例——LP 松弛即整数最优）；S-D 五要素审计链天然对应变量语义"
+    limitations: [一对一假设需松绑（销售×多日→Generalized Assignment）, 无时序/路径耦合——不表达行程顺序]
+    not_suitable_for: "排程序列问题（何时/何序→MP-04 Scheduling）；路线问题（行程成本耦合→MP-05）；覆盖结构（多需求共享一访问→MP-02）"
+    evidence: [Hillier 9e Ch8（transportation 特例定义·逐字核）, A01 §5 无直接对应——P&G 案例 pdf364 'each product must be assigned to just one plant'（指派语义的经典工业落地）]
+    status: Candidate
+
+  - pattern_id: MP-02
+    pattern_name: Set Covering / Set Partitioning（集覆盖/集划分）
+    business_questions: ["哪些客户、以什么组合被一次访问覆盖？（BDC-01）", "周期节奏的周次模式选择？（BDC-01 数学注记 M1）"]
+    decision_types: [BDC-01 Coverage]
+    mathematical_structure: |
+      覆盖: min Σc_j·x_j s.t. Σ_{j∈S_i} x_j ≥ 1 ∀i（每客户 i 至少被一组合 j 覆盖）; 划分: 等号=1。
+      Hillier 9e（pdf510）："Any set covering problem can be described in general terms as involving a number of potential activities... The objective is to determine the least costly combination of activities that collectively possess (cover) each characteristic at least [once]"
+    assumptions: [需求可由组合覆盖（一次访问服务多 demand——对应 MergePolicy 同日合并）, 覆盖关系可枚举]
+    strength: "拜访=组合选择的本体映射（VisitCandidate 即 column）；Set Partitioning 是 VRP 精确求解的 column 生成基底（与 algos/pvrp_cg 呼应）"
+    limitations: [列爆炸（组合数）——需列生成/启发式, 覆盖≥1 不含频次/节奏——EXACT(k) 需 k 重覆盖扩展]
+    not_suitable_for: "频次节奏（CadenceSpec min/max gap→MP-07 时序依赖）；连续容量分配（→MP-03）"
+    evidence: [Hillier 9e Ch11 应用节（pdf510 定义·逐字核）, A01 §5 Rothenbächer 2019（周次模式 y_ip——partition 变体）]
+    status: Candidate
+
+  - pattern_id: MP-03
+    pattern_name: Transportation / Network Flow（运输与网络流）
+    business_questions: ["有限容量如何在多需求间分配？（BDC-04）", "多周期负载在资源-时间网络上的流动？（NDC-03 组成件）"]
+    decision_types: [BDC-04 ResourceAlloc, NDC-02 SalesCapacity(测算层), NDC-03(组成件)]
+    mathematical_structure: |
+      运输问题: min ΣΣc_ij·x_ij s.t. Σ_j x_ij ≤ s_i, Σ_i x_ij = d_j——LP 整数解性质。
+      Hillier 9e（pdf328）："many of its applications involve determining how to optimally transport goods"；Ch9（pdf380 域）网络适用面 "production, distribution, project planning, facilities location, resource management, and financial planning"——最小费用流为统一框架（最短路/最大流/运输均为特例）。
+    assumptions: [供应/需求可量化为节点流量, 边成本线性（无固定费→MP-06 扩展）, 单商品或可分解]
+    strength: "容量可行性判定=LP 可行域（BDC-04 的 feasibility 语义即此）；Ahuja 金字塔统一性——多 Pattern 共享求解基座"
+    limitations: [线性边成本——拜访选择是 0-1 固定决策（→MP-06 IP）, 无时序——周期耦合需时间扩展网络]
+    not_suitable_for: "是否拜访的离散选择（→MP-06）；访问顺序（→MP-05）"
+    evidence: [Hillier 9e Ch8 p304 定义 + Ch9 p358 域描述（均逐字核）, Ahuja/Magnanti/Orlin Network Flows（批2 深挖待续）]
+    status: Candidate
+
+  - pattern_id: MP-04
+    pattern_name: Scheduling / Constraint Programming（排程与约束传播）
+    business_questions: ["何时、何序执行？（BDC-06）", "锁定/冻结下的可行排序？（BDC-06 E 维度）"]
+    decision_types: [BDC-06 VisitPlanning(时序面)]
+    mathematical_structure: |
+      变量=开始时间/顺序布尔；约束=时窗(TW)/先后(prec)/资源日历/序列锁(SEQUENCE_LOCKED)；CP 通过域传播+全局约束（interval/circuit/optional-visit）表达，无需线性化。
+    assumptions: [时窗与先后关系可显式声明, 可行性优先于最优性（CP 传统强项）]
+    strength: "F3 路线（CP-SAT）的本体映射；CommitmentLock/时窗/日历直接对应全局约束——表达密度高；PROVEN_INFEASIBLE 归因天然（传播失败即冲突集）"
+    limitations: [最优性（目标优化）弱于 MIP 分支定界（CP-SAT 已融合但语义仍偏可行）, 大规模目标优化收敛证明难]
+    not_suitable_for: "连续容量分配（→MP-03）；覆盖组合选择（→MP-02——CP 表达组合覆盖冗长）"
+    evidence: [A04 Backend 基线（CP-SAT/interval 缺口注记 #5144）, backend_reference known_limits, S-E 结构不可行归因先例（Tue-only+gap10）]
+    status: Candidate
+
+  - pattern_id: MP-05
+    pattern_name: Vehicle Routing Problem（车辆路径问题）
+    business_questions: ["单日多访问的行程顺序与路径？（BDC-06 行程面）"]
+    decision_types: [BDC-06 VisitPlanning(行程面)]
+    mathematical_structure: |
+      指派(哪个访问属于哪条路线) × 排序(路线内顺序) × 容量/时窗; 形式族: 三下标流模型 / 集划分主问题+列生成（Dantzig-Wolfe）。
+    assumptions: [行程成本与访问顺序耦合（欧氏/路网距离矩阵可算）, 单日闭合路线（ depot 起讫——StartEndPolicy）]
+    strength: "拜访域本体近亲（StartEndPolicy/FulfillmentClass/时窗齐备）；列生成与本项目 algos/pvrp_cg 直接呼应"
+    limitations: [多周节奏耦合弱（PVRP 变体尚开——A04 #441）, 大规模精确求解难——启发式/列生成分层]
+    not_suitable_for: "辖区设计（NDC-01 ≠ 聚类/路径——评审警示：Territory 是归属决策不是空间算法）; 容量测算（NDC-02 无路径语义）"
+    evidence: [A01 §5 Archetti/Speranza/Vigo 2014（定向/奖赏收集 VRP）, A04 PyVRP PVRP 缺口 #441]
+    status: Candidate
+
+  - pattern_id: MP-06
+    pattern_name: Integer Programming（0-1 整数规划，含固定费用结构）
+    business_questions: ["是否拜访/是否开通路线/是否雇员的离散结构性决策？（多 BDC/NDC 的离散骨架）"]
+    decision_types: [BDC-02(容器), BDC-04(离散面), NDC-01(紧凑度+平衡 MIP), NDC-02(结构决策)]
+    mathematical_structure: |
+      LP + 整数变量: "one key limitation that prevents many more applications is the assumption of divisibility"（Hillier Ch11 pdf488）→ 0-1 变量表达逻辑选择（do/don't）与蕴含（if-then）; 固定费用/最小访问次数（EXACT(k)）=整数计数约束。
+    assumptions: [离散决策可二元化, 目标与约束可线性化（或分段线性——非线性另立）]
+    strength: "表达通用骨架——F2 compact-MIP 路线核心；'binary integer programming'（pdf489）即拜访选择 x∈{0,1} 的数学本质"
+    limitations: [规模可解性（NP-hard）——需分解/松弛/启发式, 线性化失真（业务非线性需近似）]
+    not_suitable_for: "纯分配连续量（LP 足够——MP-03）; 强时序传播问题（CP 更自然——MP-04）"
+    evidence: [Hillier 9e Ch11 开篇（divisibility 局限·逐字核）+ binary 定义（pdf489）]
+    status: Candidate
+
+  - pattern_id: MP-07
+    pattern_name: Temporal Dependency / Pattern-based Cadence（时序依赖与周次模式）
+    business_questions: ["拜访间隔边界如何成约束？（BDC-01 节奏面）", "周期以周次模式表达还是连续间隔？（BDC-06 数学注记 M1）"]
+    decision_types: [BDC-01 Coverage(节奏), BDC-06 VisitPlanning(周期形态)]
+    mathematical_structure: |
+      两候选形态（math-note-M1 登记，Phase 3 F1 裁定）:
+      (a) 周次模式: 构造模式集 P_i（如{周二隔周}），Σ_{p∈P_i} y_ip=1——Rothenbächer 2019 BCP 框架;
+      (b) 连续间隔: (δ_min, δ_max) 时间差不等式——van Montfort, Leitner & Paradiso 2026 (arXiv:2604.16064) 时间依赖 VRP 精确算法。
+    assumptions: [节奏语义可离散化（模式枚举）或可线性化（间隔不等式）]
+    strength: "CadenceSpec min/max_gap 的两族直接数学化；S-C 已验语义层（双边界+三源时窗分离）——数学层只选形态不改语义"
+    limitations: [(a) 模式集爆炸（周期长×例外多）, (b) 间隔不等式在滚动重排中变量老化（stale lag 同族问题）]
+    not_suitable_for: "单日内时序（→MP-04）；无节奏语义的纯容量问题（→MP-03）"
+    evidence: [A01 §5 Rothenbächer 2019 DOI 10.1287/trsc.2018.0855, van Montfort et al. 2026 arXiv:2604.16064（A01 2.1 节在册）]
+    status: Candidate
+
+  - pattern_id: MP-08
+    pattern_name: Rolling Horizon Optimization（滚动时域优化）
+    business_questions: ["扰动后如何最小破坏重排？（BDC-06+07 执行模式）", "冻结/比例预算如何进模型？（BDC-06 E 维度）"]
+    decision_types: [BDC-06 VisitPlanning(重排面), BDC-07 ExceptionHandling(短路量)]
+    mathematical_structure: |
+      Sethi & Sorger 1991 理论框架: 仅优化近端、远端柔性、随 t 推进重解; 冻结=前 N 日变量固定常数（"冻结前 N 天工作日为常数"——A01 §5 候选 1）; 限扰动=扰动惩罚 β‖x−x₀‖ 或预算约束（max_reassignment_ratio 即预算式）。
+    assumptions: [未来不确定性通过滚动近似（非随机规划）, 承诺/冻结可硬约束化]
+    strength: "三源互证（Sethi 理论 + Zoltners BE-024 + S-E 17/17 实证）——语义已定，数学仅承载；freeze/ratio 已在 S-E 非零生效验证"
+    limitations: [端效应（horizon 尾部次优）, 无随机前瞻（分布鲁棒/随机规划另立——当前无证据需求）]
+    not_suitable_for: "一次性静态规划（无滚动语义——S-A 即此，直接 MIP/CP）; 实时应急（日内→事件驱动插入，S-B 已证复用注入+容量+DP 链）"
+    evidence: [A01 §5 Sethi & Sorger 1991 DOI 10.1007/BF02283611, BE-024 Zoltners 三源互证, S-E domain report]
+    status: Candidate
+
+  - pattern_id: MP-09
+    pattern_name: Multi-objective / Lexicographic Equity（多目标与公平族）
+    business_questions: ["负荷与机会分布如何治理？（NDC-03）", "价值优先 vs 吞吐 vs 稳定的目标权衡？（BDC-02/04）"]
+    decision_types: [NDC-03 WorkloadBalance, BDC-02(目标形态), BDC-04(目标形态)]
+    mathematical_structure: |
+      四候选形态（并列不选——评审警示：公平三形态选定权在业务方+场景）:
+      (a) Min-Max: min max_t L_t（最小化最大负载差）;
+      (b) Variance: min Σ(L_t − L̄)²（方差最小）;
+      (c) Acceptable Range: L_t ∈ [L̲, L̄+δ] 约束式（BE-023 区间带——潜力可接受区间）;
+      (d) Lexicographic 二阶段: 先 min 全局工时 C*，再约束 C≤C* 下 min max_t L_t（BE-013 Nekooghadirli 两段式）。
+      通用注: S-A §2.5 已定五级字典序规范目标（Frozen）——(d) 与其同构，为既有目标结构的均衡扩展位。
+    assumptions: [公平口径由业务裁定（min-max/方差/区间带——组织文化变量）, 负载可度量同质化]
+    strength: "四形态全部 Candidate 并列——数学不预选业务价值判断"
+    limitations: [口径未定前不可编译（G-5 场景缺失）, 多目标权重量纲敏感]
+    not_suitable_for: "单一目标场景（五场景现状——勿为对称而强加公平项）"
+    evidence: [BE-013 Nekooghadirli et al. 2026 DOI 10.1111/itor.70012, BE-023 Zoltners 边际回报+区间带, S-A §2.5 五级字典序（Frozen 基准）]
+    status: Candidate（guard: 形态选择=业务方+场景验证；Agent 不预选）
+
+# ═══════════════════════════════════════════════════════════════
+# Part 2 — Decision → Pattern 反查表（每 Decision 的候选族——多 Pattern 并列）
+# ═══════════════════════════════════════════════════════════════
+decision_pattern_map:
+  BDC-01 Coverage:          [MP-02(组合覆盖), MP-07(节奏), MP-06(频次计数)]
+  BDC-02 Prioritization:    [MP-06(0-1 选择容器), MP-09(目标形态), MP-02(奖赏收集结构)]
+  BDC-03 ReqGeneration:     []    # 生成层——不建优化 Pattern（A1.5 裁定保持）
+  BDC-04 ResourceAlloc:     [MP-03(容量可行域), MP-06(离散面), MP-09(均衡目标候选)]
+  BDC-05 Assignment:        [MP-01(指派), MP-06(广义指派扩展)]
+  BDC-06 VisitPlanning:     [MP-04(时序), MP-05(行程), MP-08(滚动), MP-07(周期形态)]
+  BDC-07 ExceptionHandling: [MP-08(冻结/预算), MP-09(字典序分层——S-A §2.5)]
+  BDC-08 ExecutionMonitor:  []    # 监测层——不建优化 Pattern（A1.5 裁定保持）
+  NDC-01 TerritoryAlignment:[MP-01(批量指派件), MP-06(紧凑+平衡 MIP), MP-03(网络流件)]   # 注: 非聚类——见 MP-05 not_suitable_for
+  NDC-02 SalesCapacity:     [MP-03(工作量网络), MP-06(结构决策)]   # 测算主体=活动法汇总(BE-019)非优化
+  NDC-03 WorkloadBalance:   [MP-09(四形态并列)]
+
+# ═══════════════════════════════════════════════════════════════
+# Part 3 — 汇总
+# ═══════════════════════════════════════════════════════════════
+summary:
+  pattern_cards: 9                  # MP-01..MP-09
+  verbatim_math_quotes: 7           # Hillier 9e 逐字核（transport/assign-special/pg-case/network-domains/divisibility/binary/set-covering）
+  not_suitable_for_fields: 9        # 每 Pattern 均带防滥用边界（评审要求字段）
+  decision_coverage: "BDC 8/8 + NDC 3/3 全挂接（BDC-03/08 显式空——生成/监测层无优化 Pattern）"
+  pattern_selection_made: 0         # 零裁定——含 MP-07 两形态、MP-09 四形态全部并列
+  frozen_kb_touched: false
+  new_domain_concept: 0
+  solver_driven_pattern: 0          # 无一 Pattern 因 Solver 支持而立（规则 5）
+  key_guards:
+    - "MP-05 not_suitable_for 显式写明: Territory Design ≠ VRP/聚类——NDC-01 反查表仅指派/MIP/网络流件"
+    - "MP-09 四形态并列 + guard 字段——公平口径选定权在业务方"
+    - "MP-07 两形态属 Phase 3 F1 判定（math-note-M1）——本层只登记"
+  next_step_hint: "Phase 3 Semantic Compilation 天然衔接：F1(Pattern)/F2(compact-MIP)/F3(CP-SAT) 三方等价验证的 Pattern 底座即本 Registry 的 MP-02/04/05/06/07/08"

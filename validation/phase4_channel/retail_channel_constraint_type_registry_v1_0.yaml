@@ -1,0 +1,117 @@
+# Retail Channel Constraint Type Registry v1.0 — Phase 4.2 Artifact 2（Immutable）
+## 渠道布局领域约束类型系统 · 战略级强类型定义与生成期检查规则
+
+registry_id: CH-CTR-V1.0
+generated_at: "2026-08-22"
+input: retail_channel_layout_semantic_contract_v1_0.yaml
+direction_rule: "Contract → Type——禁止从数学求解反推；类型是渠道战略契约的类型化投影"
+
+semantic_class_enum: [FiscalBudget, CapacityQuota, EligibilityRule, SpatialExclusion, StrategicCoverage, OpportunityObjective]
+hardness_enum: [HARD, SOFT_PREFERENCE, OBJECTIVE_PENALTY]
+
+types:
+
+  CC01:
+    name: TotalCapexBudget
+    contract_ref: C1（Capex 预算红线）
+    semantic_class: FiscalBudget
+    cardinality: {op: "<=", limit_k: 1800}
+    hardness: HARD
+    relaxable: false
+    translation: "Σ_{z,f} capex[f] · x[z, f] <= 1800"
+    domain_provenance: ["Corporate Capital Allocation Committee", "Strategic CFO Directive"]
+    solver_bindings: {MIP: "AddLinearConstraint Capex", CP_SAT: "Add(sum(capex*x) <= 1800)"}
+
+  CC02:
+    name: TotalOpexBudget
+    contract_ref: C2（Opex 年运营预算红线）
+    semantic_class: FiscalBudget
+    cardinality: {op: "<=", limit_k: 700}
+    hardness: HARD
+    relaxable: false
+    translation: "Σ_{z,f} opex[f] · x[z, f] <= 700"
+    domain_provenance: ["Annual Operational Budget Directive"]
+    solver_bindings: {MIP: "AddLinearConstraint Opex", CP_SAT: "Add(sum(opex*x) <= 700)"}
+
+  CC03:
+    name: DirectStoreQuota
+    contract_ref: C3（自营配额）
+    semantic_class: CapacityQuota
+    cardinality: {op: "<=", max_count: 4}
+    hardness: HARD
+    relaxable: false
+    translation: "Σ_{z, f∈Direct} x[z, f] <= 4"
+    domain_provenance: ["Retail Direct Operations Bandwidth Policy"]
+    solver_bindings: {MIP: "AddLinearConstraint DirectCount <= 4", CP_SAT: "AddAtMost(4)"}
+
+  CC04:
+    name: FlagshipTierEligibility
+    contract_ref: C4（旗舰店商圈等级）
+    semantic_class: EligibilityRule
+    cardinality: {op: "mask", allowed_tiers: ["T1"]}
+    hardness: HARD
+    relaxable: false
+    translation: "x[z, FMT_FLAGSHIP] == 0 (∀z ∉ T1)"
+    domain_provenance: ["Brand Strategic Identity Guideline"]
+    solver_bindings: {MIP: "变量禁用/置0", CP_SAT: "变量不创建"}
+
+  CC05:
+    name: PopulationThreshold
+    contract_ref: C5（人口门槛）
+    semantic_class: EligibilityRule
+    cardinality: {op: "threshold", min_pop: "min_pop_req"}
+    hardness: HARD
+    relaxable: false
+    translation: "x[z, f] == 0 (∀z, f s.t. pop_density[z] < min_pop_req[f])"
+    domain_provenance: ["Commercial Location Viability Standard"]
+    solver_bindings: {MIP: "变量预裁剪", CP_SAT: "变量禁用"}
+
+  CC06:
+    name: CannibalizationRadius
+    contract_ref: C6（同业态自相残杀保护）
+    semantic_class: SpatialExclusion
+    cardinality: {op: "pairwise_mutex", min_dist: 4}
+    hardness: HARD
+    relaxable: false
+    translation: "x[z1, f] + x[z2, f] <= 1 (∀f, ∀z1, z2 s.t. dist(z1, z2) < 4)"
+    domain_provenance: ["Franchise Territory Protection Policy", "Store Density Control"]
+    solver_bindings: {MIP: "互斥对不等式", CP_SAT: "AddAtMostOne"}
+
+  CC07:
+    name: MinimumStrategicCoverage
+    contract_ref: C7（T1 核心战略覆盖）
+    semantic_class: StrategicCoverage
+    cardinality: {op: ">=", min_stores: 1}
+    hardness: HARD
+    relaxable: false
+    translation: "Σ_f x[z, f] >= 1 (∀z ∈ T1)"
+    domain_provenance: ["Market Defense Directive"]
+    solver_bindings: {MIP: "AddLinearConstraint sum >= 1", CP_SAT: "AddAtLeastOne"}
+
+  CC08:
+    name: OptionalPopupPenetration
+    contract_ref: C8（快闪机会点）
+    semantic_class: OpportunityObjective
+    cardinality: null
+    hardness: SOFT_PREFERENCE
+    relaxable: true
+    translation: "max Σ (revenue[FMT_POPUP] · x[z, FMT_POPUP])"
+    domain_provenance: ["Agile Market Penetration Framework"]
+    solver_bindings: {MIP: "目标项加权", CP_SAT: "目标项加权"}
+
+# ═══════════════════════════════════════════════════════════════
+# 生成期检查规则（Type Check Rules CH-TC-001..004）
+# ═══════════════════════════════════════════════════════════════
+type_check_rules:
+  - id: CH-TC-001
+    name: FiscalBudgetHardnessCheck
+    rule: "CC01 (Capex) 与 CC02 (Opex) 的 hardness 恒为 HARD，relaxable 恒为 false；严禁通过罚项软化财政红线"
+  - id: CH-TC-002
+    name: TierEligibilityIntegrity
+    rule: "旗舰店（FMT_FLAGSHIP）变量仅允许在 T1 商圈创建，非 T1 商圈变量创建立即阻断"
+  - id: CH-TC-003
+    name: StrategicCoverageNotZero
+    rule: "T1 核心商圈的 C07 约束右端项必须 >= 1，严禁生成允许零覆盖的空约束"
+  - id: CH-TC-004
+    name: SpatialExclusionPairGeneration
+    rule: "空间排他点对生成器必须基于商圈距离矩阵生成全部距离 < 4 的同业态互斥对"

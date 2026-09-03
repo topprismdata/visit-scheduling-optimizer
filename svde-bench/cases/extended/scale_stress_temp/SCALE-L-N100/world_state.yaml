@@ -1,0 +1,1158 @@
+entities:
+  vehicles:
+  - id: VEH_001
+    type: COLD_REFRIGERATED
+    capacity_kg: 1200
+    status: AVAILABLE
+  - id: VEH_002
+    type: COLD_REFRIGERATED
+    capacity_kg: 1200
+    status: AVAILABLE
+  - id: VEH_003
+    type: COLD_REFRIGERATED
+    capacity_kg: 1200
+    status: AVAILABLE
+  - id: VEH_004
+    type: COLD_REFRIGERATED
+    capacity_kg: 1200
+    status: AVAILABLE
+  - id: VEH_005
+    type: COLD_REFRIGERATED
+    capacity_kg: 1200
+    status: AVAILABLE
+  - id: VEH_006
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  - id: VEH_007
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  - id: VEH_008
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  - id: VEH_009
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  - id: VEH_010
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  - id: VEH_011
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  - id: VEH_012
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  - id: VEH_013
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  - id: VEH_014
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  - id: VEH_015
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  - id: VEH_016
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  - id: VEH_017
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  - id: VEH_018
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  - id: VEH_019
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  - id: VEH_020
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  customers:
+  - id: CUST_001
+    name: Enterprise Client 1
+    priority: standard
+  - id: CUST_002
+    name: Enterprise Client 2
+    priority: standard
+  - id: CUST_003
+    name: Enterprise Client 3
+    priority: vip
+  - id: CUST_004
+    name: Enterprise Client 4
+    priority: standard
+  - id: CUST_005
+    name: Enterprise Client 5
+    priority: vip
+  - id: CUST_006
+    name: Enterprise Client 6
+    priority: vip
+  - id: CUST_007
+    name: Enterprise Client 7
+    priority: standard
+  - id: CUST_008
+    name: Enterprise Client 8
+    priority: vip
+  - id: CUST_009
+    name: Enterprise Client 9
+    priority: standard
+  - id: CUST_010
+    name: Enterprise Client 10
+    priority: standard
+  - id: CUST_011
+    name: Enterprise Client 11
+    priority: standard
+  - id: CUST_012
+    name: Enterprise Client 12
+    priority: vip
+  - id: CUST_013
+    name: Enterprise Client 13
+    priority: standard
+  - id: CUST_014
+    name: Enterprise Client 14
+    priority: standard
+  - id: CUST_015
+    name: Enterprise Client 15
+    priority: standard
+  - id: CUST_016
+    name: Enterprise Client 16
+    priority: standard
+  - id: CUST_017
+    name: Enterprise Client 17
+    priority: vip
+  - id: CUST_018
+    name: Enterprise Client 18
+    priority: vip
+  - id: CUST_019
+    name: Enterprise Client 19
+    priority: standard
+  - id: CUST_020
+    name: Enterprise Client 20
+    priority: standard
+  - id: CUST_021
+    name: Enterprise Client 21
+    priority: standard
+  - id: CUST_022
+    name: Enterprise Client 22
+    priority: standard
+  - id: CUST_023
+    name: Enterprise Client 23
+    priority: standard
+  - id: CUST_024
+    name: Enterprise Client 24
+    priority: standard
+  - id: CUST_025
+    name: Enterprise Client 25
+    priority: standard
+  - id: CUST_026
+    name: Enterprise Client 26
+    priority: vip
+  - id: CUST_027
+    name: Enterprise Client 27
+    priority: vip
+  - id: CUST_028
+    name: Enterprise Client 28
+    priority: standard
+  - id: CUST_029
+    name: Enterprise Client 29
+    priority: standard
+  - id: CUST_030
+    name: Enterprise Client 30
+    priority: standard
+  - id: CUST_031
+    name: Enterprise Client 31
+    priority: standard
+  - id: CUST_032
+    name: Enterprise Client 32
+    priority: standard
+  - id: CUST_033
+    name: Enterprise Client 33
+    priority: standard
+  - id: CUST_034
+    name: Enterprise Client 34
+    priority: vip
+  - id: CUST_035
+    name: Enterprise Client 35
+    priority: standard
+  - id: CUST_036
+    name: Enterprise Client 36
+    priority: standard
+  - id: CUST_037
+    name: Enterprise Client 37
+    priority: vip
+  - id: CUST_038
+    name: Enterprise Client 38
+    priority: standard
+  - id: CUST_039
+    name: Enterprise Client 39
+    priority: standard
+  - id: CUST_040
+    name: Enterprise Client 40
+    priority: standard
+  - id: CUST_041
+    name: Enterprise Client 41
+    priority: standard
+  - id: CUST_042
+    name: Enterprise Client 42
+    priority: standard
+  - id: CUST_043
+    name: Enterprise Client 43
+    priority: standard
+  - id: CUST_044
+    name: Enterprise Client 44
+    priority: vip
+  - id: CUST_045
+    name: Enterprise Client 45
+    priority: standard
+  - id: CUST_046
+    name: Enterprise Client 46
+    priority: standard
+  - id: CUST_047
+    name: Enterprise Client 47
+    priority: standard
+  - id: CUST_048
+    name: Enterprise Client 48
+    priority: standard
+  - id: CUST_049
+    name: Enterprise Client 49
+    priority: standard
+  - id: CUST_050
+    name: Enterprise Client 50
+    priority: standard
+  - id: CUST_051
+    name: Enterprise Client 51
+    priority: standard
+  - id: CUST_052
+    name: Enterprise Client 52
+    priority: standard
+  - id: CUST_053
+    name: Enterprise Client 53
+    priority: standard
+  - id: CUST_054
+    name: Enterprise Client 54
+    priority: standard
+  - id: CUST_055
+    name: Enterprise Client 55
+    priority: standard
+  - id: CUST_056
+    name: Enterprise Client 56
+    priority: vip
+  - id: CUST_057
+    name: Enterprise Client 57
+    priority: standard
+  - id: CUST_058
+    name: Enterprise Client 58
+    priority: standard
+  - id: CUST_059
+    name: Enterprise Client 59
+    priority: standard
+  - id: CUST_060
+    name: Enterprise Client 60
+    priority: standard
+  - id: CUST_061
+    name: Enterprise Client 61
+    priority: standard
+  - id: CUST_062
+    name: Enterprise Client 62
+    priority: standard
+  - id: CUST_063
+    name: Enterprise Client 63
+    priority: vip
+  - id: CUST_064
+    name: Enterprise Client 64
+    priority: vip
+  - id: CUST_065
+    name: Enterprise Client 65
+    priority: standard
+  - id: CUST_066
+    name: Enterprise Client 66
+    priority: standard
+  - id: CUST_067
+    name: Enterprise Client 67
+    priority: standard
+  - id: CUST_068
+    name: Enterprise Client 68
+    priority: standard
+  - id: CUST_069
+    name: Enterprise Client 69
+    priority: standard
+  - id: CUST_070
+    name: Enterprise Client 70
+    priority: standard
+  - id: CUST_071
+    name: Enterprise Client 71
+    priority: vip
+  - id: CUST_072
+    name: Enterprise Client 72
+    priority: vip
+  - id: CUST_073
+    name: Enterprise Client 73
+    priority: standard
+  - id: CUST_074
+    name: Enterprise Client 74
+    priority: standard
+  - id: CUST_075
+    name: Enterprise Client 75
+    priority: standard
+  - id: CUST_076
+    name: Enterprise Client 76
+    priority: standard
+  - id: CUST_077
+    name: Enterprise Client 77
+    priority: standard
+  - id: CUST_078
+    name: Enterprise Client 78
+    priority: standard
+  - id: CUST_079
+    name: Enterprise Client 79
+    priority: standard
+  - id: CUST_080
+    name: Enterprise Client 80
+    priority: standard
+  - id: CUST_081
+    name: Enterprise Client 81
+    priority: vip
+  - id: CUST_082
+    name: Enterprise Client 82
+    priority: vip
+  - id: CUST_083
+    name: Enterprise Client 83
+    priority: vip
+  - id: CUST_084
+    name: Enterprise Client 84
+    priority: standard
+  - id: CUST_085
+    name: Enterprise Client 85
+    priority: standard
+  - id: CUST_086
+    name: Enterprise Client 86
+    priority: standard
+  - id: CUST_087
+    name: Enterprise Client 87
+    priority: standard
+  - id: CUST_088
+    name: Enterprise Client 88
+    priority: standard
+  - id: CUST_089
+    name: Enterprise Client 89
+    priority: standard
+  - id: CUST_090
+    name: Enterprise Client 90
+    priority: standard
+  - id: CUST_091
+    name: Enterprise Client 91
+    priority: vip
+  - id: CUST_092
+    name: Enterprise Client 92
+    priority: standard
+  - id: CUST_093
+    name: Enterprise Client 93
+    priority: standard
+  - id: CUST_094
+    name: Enterprise Client 94
+    priority: standard
+  - id: CUST_095
+    name: Enterprise Client 95
+    priority: vip
+  - id: CUST_096
+    name: Enterprise Client 96
+    priority: standard
+  - id: CUST_097
+    name: Enterprise Client 97
+    priority: standard
+  - id: CUST_098
+    name: Enterprise Client 98
+    priority: standard
+  - id: CUST_099
+    name: Enterprise Client 99
+    priority: vip
+  - id: CUST_100
+    name: Enterprise Client 100
+    priority: standard
+  orders:
+  - id: ORD_001
+    weight_kg: 103
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 216
+    tw_late: 456
+  - id: ORD_002
+    weight_kg: 172
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 249
+    tw_late: 480
+  - id: ORD_003
+    weight_kg: 44
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 296
+    tw_late: 416
+  - id: ORD_004
+    weight_kg: 110
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 29
+    tw_late: 269
+  - id: ORD_005
+    weight_kg: 165
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 80
+    tw_late: 200
+  - id: ORD_006
+    weight_kg: 77
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 35
+    tw_late: 155
+  - id: ORD_007
+    weight_kg: 90
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 206
+    tw_late: 446
+  - id: ORD_008
+    weight_kg: 93
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 296
+    tw_late: 416
+  - id: ORD_009
+    weight_kg: 137
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 298
+    tw_late: 480
+  - id: ORD_010
+    weight_kg: 96
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 104
+    tw_late: 344
+  - id: ORD_011
+    weight_kg: 97
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 202
+    tw_late: 442
+  - id: ORD_012
+    weight_kg: 147
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 161
+    tw_late: 281
+  - id: ORD_013
+    weight_kg: 32
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 234
+    tw_late: 474
+  - id: ORD_014
+    weight_kg: 55
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 37
+    tw_late: 277
+  - id: ORD_015
+    weight_kg: 63
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 178
+    tw_late: 418
+  - id: ORD_016
+    weight_kg: 124
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 145
+    tw_late: 385
+  - id: ORD_017
+    weight_kg: 107
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 270
+    tw_late: 390
+  - id: ORD_018
+    weight_kg: 106
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 53
+    tw_late: 173
+  - id: ORD_019
+    weight_kg: 59
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 54
+    tw_late: 294
+  - id: ORD_020
+    weight_kg: 102
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 107
+    tw_late: 347
+  - id: ORD_021
+    weight_kg: 192
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 135
+    tw_late: 375
+  - id: ORD_022
+    weight_kg: 43
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 47
+    tw_late: 287
+  - id: ORD_023
+    weight_kg: 41
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 1
+    tw_late: 241
+  - id: ORD_024
+    weight_kg: 97
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 82
+    tw_late: 322
+  - id: ORD_025
+    weight_kg: 139
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 287
+    tw_late: 480
+  - id: ORD_026
+    weight_kg: 68
+    req_cold: true
+    is_locked: true
+    is_vip: true
+    tw_early: 279
+    tw_late: 399
+  - id: ORD_027
+    weight_kg: 171
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 75
+    tw_late: 195
+  - id: ORD_028
+    weight_kg: 123
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 20
+    tw_late: 260
+  - id: ORD_029
+    weight_kg: 93
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 52
+    tw_late: 292
+  - id: ORD_030
+    weight_kg: 134
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 79
+    tw_late: 319
+  - id: ORD_031
+    weight_kg: 71
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 90
+    tw_late: 330
+  - id: ORD_032
+    weight_kg: 115
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 210
+    tw_late: 450
+  - id: ORD_033
+    weight_kg: 93
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 136
+    tw_late: 376
+  - id: ORD_034
+    weight_kg: 127
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 19
+    tw_late: 139
+  - id: ORD_035
+    weight_kg: 147
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 179
+    tw_late: 419
+  - id: ORD_036
+    weight_kg: 88
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 114
+    tw_late: 354
+  - id: ORD_037
+    weight_kg: 114
+    req_cold: true
+    is_locked: true
+    is_vip: true
+    tw_early: 142
+    tw_late: 262
+  - id: ORD_038
+    weight_kg: 101
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 179
+    tw_late: 419
+  - id: ORD_039
+    weight_kg: 167
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 169
+    tw_late: 409
+  - id: ORD_040
+    weight_kg: 96
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 91
+    tw_late: 331
+  - id: ORD_041
+    weight_kg: 39
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 55
+    tw_late: 295
+  - id: ORD_042
+    weight_kg: 110
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 223
+    tw_late: 463
+  - id: ORD_043
+    weight_kg: 128
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 295
+    tw_late: 480
+  - id: ORD_044
+    weight_kg: 141
+    req_cold: true
+    is_locked: true
+    is_vip: true
+    tw_early: 0
+    tw_late: 120
+  - id: ORD_045
+    weight_kg: 80
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 186
+    tw_late: 426
+  - id: ORD_046
+    weight_kg: 114
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 160
+    tw_late: 400
+  - id: ORD_047
+    weight_kg: 106
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 259
+    tw_late: 480
+  - id: ORD_048
+    weight_kg: 133
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 151
+    tw_late: 391
+  - id: ORD_049
+    weight_kg: 200
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 194
+    tw_late: 434
+  - id: ORD_050
+    weight_kg: 187
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 291
+    tw_late: 480
+  - id: ORD_051
+    weight_kg: 30
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 155
+    tw_late: 395
+  - id: ORD_052
+    weight_kg: 178
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 164
+    tw_late: 404
+  - id: ORD_053
+    weight_kg: 84
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 261
+    tw_late: 480
+  - id: ORD_054
+    weight_kg: 73
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 43
+    tw_late: 283
+  - id: ORD_055
+    weight_kg: 188
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 171
+    tw_late: 411
+  - id: ORD_056
+    weight_kg: 90
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 158
+    tw_late: 278
+  - id: ORD_057
+    weight_kg: 36
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 23
+    tw_late: 263
+  - id: ORD_058
+    weight_kg: 48
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 233
+    tw_late: 473
+  - id: ORD_059
+    weight_kg: 79
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 196
+    tw_late: 436
+  - id: ORD_060
+    weight_kg: 197
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 2
+    tw_late: 242
+  - id: ORD_061
+    weight_kg: 57
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 217
+    tw_late: 457
+  - id: ORD_062
+    weight_kg: 162
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 237
+    tw_late: 477
+  - id: ORD_063
+    weight_kg: 61
+    req_cold: true
+    is_locked: true
+    is_vip: true
+    tw_early: 233
+    tw_late: 353
+  - id: ORD_064
+    weight_kg: 165
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 286
+    tw_late: 406
+  - id: ORD_065
+    weight_kg: 143
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 258
+    tw_late: 480
+  - id: ORD_066
+    weight_kg: 144
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 81
+    tw_late: 321
+  - id: ORD_067
+    weight_kg: 96
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 126
+    tw_late: 366
+  - id: ORD_068
+    weight_kg: 163
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 248
+    tw_late: 480
+  - id: ORD_069
+    weight_kg: 49
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 146
+    tw_late: 386
+  - id: ORD_070
+    weight_kg: 168
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 41
+    tw_late: 281
+  - id: ORD_071
+    weight_kg: 69
+    req_cold: true
+    is_locked: true
+    is_vip: true
+    tw_early: 109
+    tw_late: 229
+  - id: ORD_072
+    weight_kg: 168
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 238
+    tw_late: 358
+  - id: ORD_073
+    weight_kg: 137
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 199
+    tw_late: 439
+  - id: ORD_074
+    weight_kg: 35
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 294
+    tw_late: 480
+  - id: ORD_075
+    weight_kg: 120
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 152
+    tw_late: 392
+  - id: ORD_076
+    weight_kg: 137
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 275
+    tw_late: 480
+  - id: ORD_077
+    weight_kg: 184
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 112
+    tw_late: 352
+  - id: ORD_078
+    weight_kg: 154
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 14
+    tw_late: 254
+  - id: ORD_079
+    weight_kg: 133
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 84
+    tw_late: 324
+  - id: ORD_080
+    weight_kg: 189
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 273
+    tw_late: 480
+  - id: ORD_081
+    weight_kg: 174
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 13
+    tw_late: 133
+  - id: ORD_082
+    weight_kg: 148
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 93
+    tw_late: 213
+  - id: ORD_083
+    weight_kg: 84
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 232
+    tw_late: 352
+  - id: ORD_084
+    weight_kg: 127
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 142
+    tw_late: 382
+  - id: ORD_085
+    weight_kg: 94
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 41
+    tw_late: 281
+  - id: ORD_086
+    weight_kg: 43
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 179
+    tw_late: 419
+  - id: ORD_087
+    weight_kg: 196
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 20
+    tw_late: 260
+  - id: ORD_088
+    weight_kg: 81
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 10
+    tw_late: 250
+  - id: ORD_089
+    weight_kg: 151
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 58
+    tw_late: 298
+  - id: ORD_090
+    weight_kg: 95
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 188
+    tw_late: 428
+  - id: ORD_091
+    weight_kg: 59
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 83
+    tw_late: 203
+  - id: ORD_092
+    weight_kg: 36
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 159
+    tw_late: 399
+  - id: ORD_093
+    weight_kg: 126
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 203
+    tw_late: 443
+  - id: ORD_094
+    weight_kg: 181
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 124
+    tw_late: 364
+  - id: ORD_095
+    weight_kg: 183
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 61
+    tw_late: 181
+  - id: ORD_096
+    weight_kg: 40
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 177
+    tw_late: 417
+  - id: ORD_097
+    weight_kg: 47
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 259
+    tw_late: 480
+  - id: ORD_098
+    weight_kg: 137
+    req_cold: true
+    is_locked: false
+    is_vip: false
+    tw_early: 250
+    tw_late: 480
+  - id: ORD_099
+    weight_kg: 192
+    req_cold: false
+    is_locked: true
+    is_vip: true
+    tw_early: 235
+    tw_late: 355
+  - id: ORD_100
+    weight_kg: 163
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 138
+    tw_late: 378
+relationships:
+  vehicle_route:
+  - vehicle: VEH_001
+    planned_orders:
+    - ORD_003
+    - ORD_005
+    - ORD_006
+    - ORD_008
+    - ORD_012
+    - ORD_017
+    - ORD_018
+    - ORD_026
+    - ORD_027
+    - ORD_034
+    - ORD_037
+    - ORD_044
+    - ORD_056
+    - ORD_063
+    - ORD_064
+    - ORD_071
+    - ORD_072
+    - ORD_081
+    - ORD_082
+    - ORD_083
+    - ORD_091
+    - ORD_095
+    - ORD_099
+  customer_priority:
+  - customer: CUST_003
+    commitment: sla_lock
+  - customer: CUST_005
+    commitment: sla_lock
+  - customer: CUST_006
+    commitment: sla_lock
+  - customer: CUST_008
+    commitment: sla_lock
+  - customer: CUST_012
+    commitment: sla_lock
+  - customer: CUST_017
+    commitment: sla_lock
+  - customer: CUST_018
+    commitment: sla_lock
+  - customer: CUST_026
+    commitment: sla_lock
+  - customer: CUST_027
+    commitment: sla_lock
+  - customer: CUST_034
+    commitment: sla_lock
+  - customer: CUST_037
+    commitment: sla_lock
+  - customer: CUST_044
+    commitment: sla_lock
+  - customer: CUST_056
+    commitment: sla_lock
+  - customer: CUST_063
+    commitment: sla_lock
+  - customer: CUST_064
+    commitment: sla_lock
+  - customer: CUST_071
+    commitment: sla_lock
+  - customer: CUST_072
+    commitment: sla_lock
+  - customer: CUST_081
+    commitment: sla_lock
+  - customer: CUST_082
+    commitment: sla_lock
+  - customer: CUST_083
+    commitment: sla_lock
+  - customer: CUST_091
+    commitment: sla_lock
+  - customer: CUST_095
+    commitment: sla_lock
+  - customer: CUST_099
+    commitment: sla_lock

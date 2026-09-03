@@ -1,0 +1,177 @@
+{
+  "manifest_version": "1.0",
+  "generated_at": "2026-08-23T16:18:11.143412",
+  "leakage_scan": "PASS",
+  "registry_size": 10,
+  "entries": [
+    {
+      "entry_id": "oracle_CASE-001-DELIVERY-RECOVERY",
+      "case_id": "CASE-001-DELIVERY-RECOVERY",
+      "solver": "OR-Tools CP-SAT",
+      "version": "9.15.6755",
+      "constraints": [
+        "VehicleCapacity",
+        "ColdChainMatch",
+        "TimeWindowLock_ORD03",
+        "MinimalRerouteDisruption"
+      ],
+      "objective": "max_total_fulfilled_then_min_travel",
+      "runtime_seconds": 60.0,
+      "timeout": 60.0,
+      "status": "OPTIMAL",
+      "objective_value": 49950.0,
+      "wall_time": 0.031,
+      "leakage_scan": "PASS"
+    },
+    {
+      "entry_id": "oracle_CASE-002-MULTI-DC",
+      "case_id": "CASE-002-MULTI-DC",
+      "solver": "OR-Tools CP-SAT",
+      "version": "9.15.6755",
+      "constraints": [
+        "VehicleCapacity"
+      ],
+      "objective": "max_total_fulfilled_then_min_travel",
+      "runtime_seconds": 60.0,
+      "timeout": 60.0,
+      "status": "OPTIMAL",
+      "objective_value": 29970.0,
+      "wall_time": 0.002,
+      "leakage_scan": "PASS"
+    },
+    {
+      "entry_id": "oracle_CASE-003-COLDCHAIN-RECOVERY",
+      "case_id": "CASE-003-COLDCHAIN-RECOVERY",
+      "solver": "OR-Tools CP-SAT",
+      "version": "9.15.6755",
+      "constraints": [
+        "ColdChainMatch"
+      ],
+      "objective": "max_total_fulfilled_then_min_travel",
+      "runtime_seconds": 60.0,
+      "timeout": 60.0,
+      "status": "OPTIMAL",
+      "objective_value": 29970.0,
+      "wall_time": 0.0,
+      "leakage_scan": "PASS"
+    },
+    {
+      "entry_id": "oracle_CASE-004-PRIORITY-CONFLICT",
+      "case_id": "CASE-004-PRIORITY-CONFLICT",
+      "solver": "OR-Tools CP-SAT",
+      "version": "9.15.6755",
+      "constraints": [
+        "VIP_TimeWindowLock"
+      ],
+      "objective": "max_total_fulfilled_then_min_travel",
+      "runtime_seconds": 60.0,
+      "timeout": 60.0,
+      "status": "OPTIMAL",
+      "objective_value": 19980.0,
+      "wall_time": 0.0,
+      "leakage_scan": "PASS"
+    },
+    {
+      "entry_id": "oracle_CASE-005-WAREHOUSE-DYN",
+      "case_id": "CASE-005-WAREHOUSE-DYN",
+      "solver": "OR-Tools CP-SAT",
+      "version": "9.15.6755",
+      "constraints": [
+        "Capacity"
+      ],
+      "objective": "max_total_fulfilled_then_min_travel",
+      "runtime_seconds": 60.0,
+      "timeout": 60.0,
+      "status": "OPTIMAL",
+      "objective_value": 19980.0,
+      "wall_time": 0.002,
+      "leakage_scan": "PASS"
+    },
+    {
+      "entry_id": "oracle_CASE-006-WAREHOUSE-CONGESTION",
+      "case_id": "CASE-006-WAREHOUSE-CONGESTION",
+      "solver": "OR-Tools CP-SAT",
+      "version": "9.15.6755",
+      "constraints": [
+        "LaneCapacity"
+      ],
+      "objective": "max_total_fulfilled_then_min_travel",
+      "runtime_seconds": 60.0,
+      "timeout": 60.0,
+      "status": "OPTIMAL",
+      "objective_value": 39960.0,
+      "wall_time": 0.0,
+      "leakage_scan": "PASS"
+    },
+    {
+      "entry_id": "oracle_CASE-007-CHANNEL-DIST",
+      "case_id": "CASE-007-CHANNEL-DIST",
+      "solver": "OR-Tools CP-SAT",
+      "version": "9.15.6755",
+      "constraints": [
+        "Budget"
+      ],
+      "objective": "max_total_fulfilled_then_min_travel",
+      "runtime_seconds": 60.0,
+      "timeout": 60.0,
+      "status": "OPTIMAL",
+      "objective_value": 19980.0,
+      "wall_time": 0.002,
+      "leakage_scan": "PASS"
+    },
+    {
+      "entry_id": "oracle_CASE-008-OPPORTUNITY-ALLOC",
+      "case_id": "CASE-008-OPPORTUNITY-ALLOC",
+      "solver": "OR-Tools CP-SAT",
+      "version": "9.15.6755",
+      "constraints": [
+        "BudgetLimit"
+      ],
+      "objective": "max_total_fulfilled_then_min_travel",
+      "runtime_seconds": 60.0,
+      "timeout": 60.0,
+      "status": "OPTIMAL",
+      "objective_value": 19980.0,
+      "wall_time": 0.002,
+      "leakage_scan": "PASS"
+    },
+    {
+      "entry_id": "oracle_CASE-009-VISIT-PERIODIC",
+      "case_id": "CASE-009-VISIT-PERIODIC",
+      "solver": "OR-Tools CP-SAT",
+      "version": "9.15.6755",
+      "constraints": [
+        "VehicleCapacity"
+      ],
+      "objective": "max_total_fulfilled_then_min_travel",
+      "runtime_seconds": 60.0,
+      "timeout": 60.0,
+      "status": "OPTIMAL",
+      "objective_value": 19980.0,
+      "wall_time": 0.002,
+      "leakage_scan": "PASS"
+    },
+    {
+      "entry_id": "oracle_CASE-010-VISIT-REPLAN",
+      "case_id": "CASE-010-VISIT-REPLAN",
+      "solver": "OR-Tools CP-SAT",
+      "version": "9.15.6755",
+      "constraints": [
+        "Capacity"
+      ],
+      "objective": "max_total_fulfilled_then_min_travel",
+      "runtime_seconds": 60.0,
+      "timeout": 60.0,
+      "status": "OPTIMAL",
+      "objective_value": 19980.0,
+      "wall_time": 0.002,
+      "leakage_scan": "PASS"
+    }
+  ],
+  "summary": {
+    "total_cases": 10,
+    "optimal_count": 10,
+    "feasible_count": 0,
+    "infeasible_count": 0
+  }
+}

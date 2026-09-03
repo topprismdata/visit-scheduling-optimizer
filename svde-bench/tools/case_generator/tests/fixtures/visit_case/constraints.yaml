@@ -1,0 +1,8 @@
+hard:
+  - id: "C_VISIT_LOCK"
+    name: "VIPVisitWindowLock"
+    type: "TIME_WINDOW_HARD"
+    expression: "assigned(VISIT_01, slot=0..240)"
+soft: []
+preference:
+  - description: "Group geographically adjacent stores on the same day"

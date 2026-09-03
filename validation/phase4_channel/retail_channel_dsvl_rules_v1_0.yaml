@@ -1,0 +1,49 @@
+# Retail Channel DSVL Rules v1.0 — Phase 4.2 Artifact 3（Immutable）
+## 渠道布局决策语义验证层规则集 · Strategic Feasibility 守卫
+
+rules_id: CH-DSVL-REG-V1.0
+generated_at: "2026-08-22"
+inputs: [retail_channel_layout_semantic_contract_v1_0.yaml, retail_channel_constraint_type_registry_v1_0.yaml]
+mandate: "验证渠道布局 Typed Constraint 组合是否忠实代表战略商业意图（Decision Feasibility）"
+
+rules:
+
+  # ═══ Family I: Strategic Invariant Rules（战略不变量 —— Gate V1）═══
+  - {rule_id: CH-DSVL-I001, family: invariant, name: fiscal_budget_not_exceeded,
+     statement: "总 Capex 严格 ≤ 1800k，总 Opex 严格 ≤ 700k，刚性财政红线零容忍超支",
+     contract_ref: "§3 I1 财政红线不变量", severity: BLOCKING}
+
+  - {rule_id: CH-DSVL-I002, family: invariant, name: flagship_tier_strictly_preserved,
+     statement: "旗舰店（FMT_FLAGSHIP）布局目标 100% 属于 T1 商圈（Z01/Z02），低线商圈变量 100% 裁剪",
+     contract_ref: "§3 I2 品牌等级不变量", severity: BLOCKING}
+
+  - {rule_id: CH-DSVL-I003, family: invariant, name: core_market_presence_enforced,
+     statement: "T1 核心商圈（Z01, Z02）进驻门店数 ≥ 1（零覆盖直接判定 Decision Infeasible）",
+     contract_ref: "§3 I3 核心市场存在性不变量", severity: BLOCKING}
+
+  - {rule_id: CH-DSVL-I004, family: invariant, name: cannibalization_distance_enforced,
+     statement: "同业态在距离 < 4 的商圈组合间互斥约束 100% 部署生效",
+     contract_ref: "§3 I4 自相残杀保护不变量", severity: BLOCKING}
+
+  # ═══ Family S: Constraint Semantic Rules（战略语义保持 —— Gate V2）═══
+  - {rule_id: CH-DSVL-S001, family: semantic, name: direct_store_quota_enforced,
+     statement: "自营门店（FLAGSHIP + STANDARD）总开店数 ≤ 4 家",
+     contract_ref: "§2 C3 自营配额", severity: BLOCKING}
+
+  - {rule_id: CH-DSVL-S002, family: semantic, name: zero_phantom_channel_constraints,
+     statement: "生成的渠道约束 100% 具备合法来源（零幻影约束）",
+     contract_ref: "Contract→Type 禁反推铁律", severity: BLOCKING}
+
+  - {rule_id: CH-DSVL-S003, family: semantic, name: population_threshold_respected,
+     statement: "所有开店点位的商圈人口密度必须 ≥ 该业态门槛",
+     contract_ref: "§2 C5 人口门槛", severity: BLOCKING}
+
+  # ═══ Family T: Trace Rules（全链路战略因果追踪 —— Gate V3）═══
+  - {rule_id: CH-DSVL-T001, family: trace, name: zone_format_strategic_rationale,
+     statement: "每个商圈的业态选择必须输出明确的商业战略因果解释（如：Z01 选择旗舰店因 T1 核心商圈且人口密度 85 达标；Z03 选择加盟店因 T2 发展期且防范直营资本超支）",
+     contract_ref: "Strategic Decision Trace Integrity", severity: BLOCKING}
+
+gates:
+  V1_strategic_invariants: "I001–I004 全 PASS"
+  V2_channel_semantics: "S001–S003 全 PASS"
+  V3_strategic_trace: "T001 PASS"

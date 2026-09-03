@@ -1,0 +1,49 @@
+# Warehouse DSVL Rules v1.0 — Phase 4.1 Artifact 3（Immutable）
+## 仓储领域决策语义验证层规则集 · Decision Feasibility 守卫
+
+rules_id: WH-DSVL-REG-V1.0
+generated_at: "2026-08-22"
+inputs: [warehouse_slotting_semantic_contract_v1_0.yaml, warehouse_constraint_type_registry_v1_0.yaml]
+mandate: "验证仓储 Typed Constraint 组合是否依然忠实代表库位决策意图（Decision Feasibility）"
+
+rules:
+
+  # ═══ Family I: Invariant Rules（仓储安全不变量 —— Gate V1）═══
+  - {rule_id: WH-DSVL-I001, family: invariant, name: hazmat_food_strict_isolation,
+     statement: "危化品与食品类货物在空间指派上绝对不可相邻（距离 < 15 的库位组合互斥 100% 存在），违者直接判定 Decision Infeasible",
+     contract_ref: "§3 I1 危化品安全不变量", severity: BLOCKING}
+
+  - {rule_id: WH-DSVL-I002, family: invariant, name: cold_chain_no_crossover,
+     statement: "冷链品类（FRESH/DAIRY）指派目标库位 100% 属于 ColdZone（L09-L12），常温货位变量 100% 裁剪",
+     contract_ref: "§3 I2 冷链完整性不变量", severity: BLOCKING}
+
+  - {rule_id: WH-DSVL-I003, family: invariant, name: physical_capacity_no_overflow,
+     statement: "体积容量与承重容量 100% 刚性执法，不存在容差溢出",
+     contract_ref: "§3 I3 物理容量安全不变量", severity: BLOCKING}
+
+  - {rule_id: WH-DSVL-I004, family: invariant, name: heavy_sku_reinforced_rack,
+     statement: "重型 SKU（SKU_B1, SKU_B2）指派库位承重必 ≥ 700kg（L04-L08），轻型货架变量 100% 裁剪",
+     contract_ref: "§3 I4 重物安全不变量", severity: BLOCKING}
+
+  # ═══ Family S: Constraint Semantic Rules（仓储语义保持 —— Gate V2）═══
+  - {rule_id: WH-DSVL-S001, family: semantic, name: all_mandatory_skus_slotted,
+     statement: "必存 SKU（7 种非可选品类）在指派解中 100% 成功分配库位（L2 count == 7+1）",
+     contract_ref: "§2 C1 必存分配", severity: BLOCKING}
+
+  - {rule_id: WH-DSVL-S002, family: semantic, name: zero_phantom_warehouse_constraints,
+     statement: "生成的仓储约束 100% 具备合法 `domain_provenance`（零幻影约束）",
+     contract_ref: "Contract→Type 禁反推铁律", severity: BLOCKING}
+
+  - {rule_id: WH-DSVL-S003, family: semantic, name: single_sku_per_location,
+     statement: "库位独占性在解中 100% 满足（每个库位最多指派 1 个 SKU）",
+     contract_ref: "§2 C3 独占货位策略", severity: BLOCKING}
+
+  # ═══ Family T: Trace Rules（全链路因果追踪 —— Gate V3）═══
+  - {rule_id: WH-DSVL-T001, family: trace, name: sku_to_location_causal_chain,
+     statement: "每个 SKU 的库位分配必须具备结构化业务解释（如：SKU_A1 选 L01 是因为周转率高且临近 I/O 门；SKU_D1 选 L08 是因为远离食品区）",
+     contract_ref: "Decision Trace Integrity", severity: BLOCKING}
+
+gates:
+  V1_warehouse_safety_invariants: "I001–I004 全 PASS"
+  V2_warehouse_semantics: "S001–S003 全 PASS"
+  V3_warehouse_trace: "T001 PASS"

@@ -1,0 +1,29 @@
+{
+  "benchmark_id": "CH-BENCHMARK-V1.0",
+  "domain": "Retail Channel Layout",
+  "overall_status": "PASS",
+  "q1_strategic_decision_generalization": "PASS (Strategic allocation compiled successfully)",
+  "q2_kernel_reuse": "PASS (Contract->Type->DSVL->MathOpt pipeline 100% reused)",
+  "q3_independent_oracle_equivalence": "PASS (MathOpt == CP-SAT Oracle)",
+  "q4_strategic_explainability_trace": "PASS (Complete strategic causal chain emitted)",
+  "mathopt_solution": [
+    "FEASIBLE",
+    340,
+    2255
+  ],
+  "oracle_solution": [
+    "FEASIBLE",
+    340,
+    2255
+  ],
+  "portfolio": {
+    "Z01": "FMT_STANDARD",
+    "Z02": "FMT_FLAGSHIP",
+    "Z03": "FMT_STANDARD",
+    "Z04": "FMT_STANDARD",
+    "Z05": "FMT_FRANCHISE",
+    "Z06": "FMT_POPUP"
+  },
+  "dsvl_precheck_status": "ALL_RULES_PASSED",
+  "external_data_variation_status": "DATA_VARIATION (Revenue Delta = +112k on +5% potential shift, zero strategy drift)"
+}

@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "visit-scheduling-optimizer"
+version = "0.1.0"
+description = "Periodic visit scheduling via column generation + CP-SAT, with ALNS baseline and calibrated travel times"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Proprietary" }
+dependencies = [
+    "ortools>=9.7,<10",
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "openpyxl>=3.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[tool.setuptools]
+packages = ["algos", "algos.pvrp_cg"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

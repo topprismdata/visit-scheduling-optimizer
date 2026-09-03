@@ -1,0 +1,29 @@
+{
+  "scenario": "S-B",
+  "phase": "P2-final",
+  "check1_opportunity": "requirement-source (DemandReason 4 动态来源承载)",
+  "check2_priority": "decision-policy (VisitCandidate.priority_score 派生)",
+  "check3_emergency": "reuse (注入+插入+DP 链，不设 Emergency DM)",
+  "dm008_verdict": "INDEPENDENT-VALIDATED",
+  "dm009_verdict": "MERGE-INTO-DM004",
+  "classification_log": [
+    {
+      "point": "机会时限语义（今天必须）",
+      "predicted": "无风险",
+      "actual": "无风险",
+      "evidence": "DateRange(TODAY,TODAY) 即表达"
+    },
+    {
+      "point": "新门店无 VisitPolicy 的机会直入",
+      "predicted": "待判",
+      "actual": "无风险",
+      "evidence": "demand 直挂 target，policy 解析仅在 OccurrenceGenerator 层需要（B 类解释规则候选）"
+    },
+    {
+      "point": "取消恢复策略",
+      "predicted": "B",
+      "actual": "B",
+      "evidence": "CANCELLED→恢复无解释规则；契约可表达（重新生成 demand），归 CRR 候选"
+    }
+  ]
+}

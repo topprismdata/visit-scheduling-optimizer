@@ -1,0 +1,35 @@
+entities:
+  vehicles:
+  - id: REP_01
+    type: STANDARD_VAN
+    capacity_kg: 480
+    status: AVAILABLE
+  customers:
+  - id: CUST_ANCHOR_PHARMA
+    name: Anchor Pharmacy
+    priority: vip
+  - id: CUST_DEFERRED_STORE
+    name: Twice-Deferred Clinic
+    priority: standard
+  orders:
+  - id: VISIT_ANCHOR
+    weight_kg: 180
+    is_locked: true
+    is_vip: true
+    tw_early: 0
+    tw_late: 240
+  - id: VISIT_DEFERRED
+    weight_kg: 120
+    is_locked: true
+    is_vip: true
+    tw_early: 120
+    tw_late: 360
+relationships:
+  vehicle_route:
+  - vehicle: REP_01
+    planned_orders:
+    - VISIT_ANCHOR
+    - VISIT_DEFERRED
+  customer_priority:
+  - customer: CUST_ANCHOR_PHARMA
+    commitment: sla_commitment

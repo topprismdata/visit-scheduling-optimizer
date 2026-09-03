@@ -1,0 +1,78 @@
+# Warehouse Slotting Semantic Contract v1.0 — Phase 4.1 Artifact 1（Immutable）
+## 仓储库位优化决策语义契约 · SVDE Kernel 跨领域通用化验证第一战
+
+contract_id: WAREHOUSE-SLOTTING-CONTRACT-V1.0
+generated_at: "2026-08-22"
+domain_name: "Warehouse Slotting Decision (仓储库位分配决策)"
+boundary_definition:
+  in_scope: ["Warehouse Slotting Decision", "SKU-Location 空间指派", "Storage Compatibility 存储兼容性", "Movement & Pick Cost 拣选动线权衡", "Replenishment Penalty 补货惩罚"]
+  out_of_scope: ["Full WMS 全流程", "Robotics/AGV 控制", "Order Execution 订单实时执行", "Warehouse Automation Platform 平台化系统"]
+negative_knowledge:
+  statement: "Warehouse Slotting ≠ TSP/VRP（非车辆路径问题）；Warehouse Slotting ≠ 纯 3D 装箱（非几何紧密堆叠，重在周转率与兼容性约束权衡）"
+
+# ═══════════════════════════════════════════════════════════════
+# §1 领域实体与输入模式（Entities & Intent）
+# ═══════════════════════════════════════════════════════════════
+entities:
+  locations:   # 12 库位（3 区域: FastZone 靠近 I/O 点, AmbientZone 常温深区, ColdZone 冷藏区）
+    - {id: L01, zone: FAST,    temp: AMBIENT, cap_volume_m3: 2.0, cap_weight_kg: 500, dist_to_io: 5}
+    - {id: L02, zone: FAST,    temp: AMBIENT, cap_volume_m3: 2.0, cap_weight_kg: 500, dist_to_io: 8}
+    - {id: L03, zone: FAST,    temp: AMBIENT, cap_volume_m3: 2.0, cap_weight_kg: 500, dist_to_io: 10}
+    - {id: L04, zone: AMBIENT, temp: AMBIENT, cap_volume_m3: 3.0, cap_weight_kg: 800, dist_to_io: 20}
+    - {id: L05, zone: AMBIENT, temp: AMBIENT, cap_volume_m3: 3.0, cap_weight_kg: 800, dist_to_io: 25}
+    - {id: L06, zone: AMBIENT, temp: AMBIENT, cap_volume_m3: 3.0, cap_weight_kg: 800, dist_to_io: 30}
+    - {id: L07, zone: AMBIENT, temp: AMBIENT, cap_volume_m3: 3.0, cap_weight_kg: 800, dist_to_io: 35}
+    - {id: L08, zone: AMBIENT, temp: AMBIENT, cap_volume_m3: 3.0, cap_weight_kg: 800, dist_to_io: 40}
+    - {id: L09, zone: COLD,    temp: COLD,    cap_volume_m3: 2.5, cap_weight_kg: 600, dist_to_io: 15}
+    - {id: L10, zone: COLD,    temp: COLD,    cap_volume_m3: 2.5, cap_weight_kg: 600, dist_to_io: 18}
+    - {id: L11, zone: COLD,    temp: COLD,    cap_volume_m3: 2.5, cap_weight_kg: 600, dist_to_io: 22}
+    - {id: L12, zone: COLD,    temp: COLD,    cap_volume_m3: 2.5, cap_weight_kg: 600, dist_to_io: 28}
+
+  skus:   # 8 类核心 SKU（覆盖高低周转、温区需求、危化品排他、重型货品）
+    - {id: SKU_A1, category: BEVERAGE, temp_req: AMBIENT, velocity_pick_freq: 120, unit_vol_m3: 1.5, unit_wt_kg: 300, is_hazmat: false, is_heavy: false}
+    - {id: SKU_A2, category: SNACK,    temp_req: AMBIENT, velocity_pick_freq: 100, unit_vol_m3: 1.2, unit_wt_kg: 200, is_hazmat: false, is_heavy: false}
+    - {id: SKU_B1, category: GRAIN,    temp_req: AMBIENT, velocity_pick_freq: 30,  unit_vol_m3: 2.5, unit_wt_kg: 700, is_hazmat: false, is_heavy: true}
+    - {id: SKU_B2, category: OIL,      temp_req: AMBIENT, velocity_pick_freq: 20,  unit_vol_m3: 2.0, unit_wt_kg: 600, is_hazmat: false, is_heavy: true}
+    - {id: SKU_C1, category: FRESH,    temp_req: COLD,    velocity_pick_freq: 90,  unit_vol_m3: 1.8, unit_wt_kg: 250, is_hazmat: false, is_heavy: false}
+    - {id: SKU_C2, category: DAIRY,    temp_req: COLD,    velocity_pick_freq: 70,  unit_vol_m3: 1.5, unit_wt_kg: 350, is_hazmat: false, is_heavy: false}
+    - {id: SKU_D1, category: CHEMICAL, temp_req: AMBIENT, velocity_pick_freq: 15,  unit_vol_m3: 1.0, unit_wt_kg: 150, is_hazmat: true,  is_heavy: false}
+    - {id: SKU_E1, category: PROMO,    temp_req: AMBIENT, velocity_pick_freq: 50,  unit_vol_m3: 1.0, unit_wt_kg: 100, is_hazmat: false, is_heavy: false, is_optional: true}
+
+# ═══════════════════════════════════════════════════════════════
+# §2 业务约束清单（Semantic Constraints C1–C8）
+# ═══════════════════════════════════════════════════════════════
+constraints:
+  - {id: C1, name: SKUAssignmentExact,   type: ASSIGNMENT_EXACT,   hardness: HARD,  relaxable: false, text: "每个必存 SKU 必须且仅能分配到一个库位（一次性完整存放）"}
+  - {id: C2, name: LocationCapacity,     type: LOCATION_CAPACITY,  hardness: HARD,  relaxable: false, text: "分配到库位的 SKU 体积 ≤ cap_volume 且 重量 ≤ cap_weight"}
+  - {id: C3, name: LocationOccupancy,    type: LOCATION_OCCUPANCY, hardness: HARD,  relaxable: false, text: "每个库位最多容纳 1 个 SKU（独占货位策略）"}
+  - {id: C4, name: TempCompatibility,    type: TEMP_COMPATIBILITY, hardness: HARD,  relaxable: false, text: "SKU 温度需求与库位温度严格一致（冷藏 SKU 严禁入常温区）"}
+  - {id: C5, name: HazmatIsolation,      type: HAZMAT_ISOLATION,   hardness: HARD,  relaxable: false, text: "危化品 SKU（SKU_D1）严禁与食品类（BEVERAGE/SNACK/FRESH/DAIRY/GRAIN）相邻（曼哈顿距离 < 15 视为相邻违规）"}
+  - {id: C6, name: HeavyBottomFloor,     type: HEAVY_FLOOR_RULE,   hardness: HARD,  relaxable: false, text: "重型 SKU（is_heavy==true）必须存放在承重 ≥ 700kg 的强化库位（L04-L08）"}
+  - {id: C7, name: FastVelocityAffinity, type: VELOCITY_AFFINITY,  hardness: SOFT_PREFERENCE, relaxable: true, text: "高周转 SKU（pick_freq ≥ 80）优先分配至 FastZone（靠近 I/O 门）"}
+  - {id: C8, name: OptionalSlotting,     type: OPTIONAL_SLOTTING,  hardness: SOFT_PREFERENCE, relaxable: true, text: "促销 SKU（is_optional==true）在库位充裕时择优存放，不足时可 defer"}
+
+# ═══════════════════════════════════════════════════════════════
+# §3 决策级不变量（Decision Invariants I1–I4 —— DSVL 核心守卫）
+# ═══════════════════════════════════════════════════════════════
+invariants:
+  - {id: I1, name: HazmatSafetyInvariant, statement: "食品安全与危化品绝对物理隔离，任何优化目标不得牺牲此项（Hard 0 违规）"}
+  - {id: I2, name: ColdChainIntegrityInvariant, statement: "冷链品类（FRESH/DAIRY）100% 锁定 ColdZone（L09-L12），温区不可穿越"}
+  - {id: I3, name: PhysicalCapacitySafetyInvariant, statement: "体积与承重为刚性物理上限，零容忍过载"}
+  - {id: I4, name: HeavySafetyInvariant, statement: "重型货品禁止上高位或轻质货架，承重不变量绝对保持"}
+
+# ═══════════════════════════════════════════════════════════════
+# §4 规范目标函数（Canonical Objective: Lexicographic 3-Tier）
+# ═══════════════════════════════════════════════════════════════
+objective_canonical:
+  L1: "∀ HARD 约束满足（C1–C6 全部为 0 违反）"
+  L2: "max Σ 必存 SKU 存放数 + 促销 SKU 存放数（满分 = 7 + 1 = 8 SKU）"
+  L3: "min 搬运拣选总功耗 = Σ (velocity_pick_freq × dist_to_io)"
+  comparison: lexicographic
+  output: "(L1_status, L2_count, L3_pick_cost)"
+
+# ═══════════════════════════════════════════════════════════════
+# §5 变异分类法（Data Variation vs. Semantic Variation）
+# ═══════════════════════════════════════════════════════════════
+variation_boundary:
+  data_variation: "拣选动线距离微调、SKU 货重在承重上限内波动、周转率微调（仅影响 L3 功耗数值，不改变 L1/L2 结构）"
+  semantic_variation: "冷链温区故障（Cold 库位归零）、新增危化品强制排他、库位承重下调导致 Heavy SKU 无法入库（迫使触发异常链）"

@@ -1,0 +1,15 @@
+case_id: CASE-V05
+domain: delivery
+version: '1.0'
+created_at: '2026-08-24'
+tags:
+- extended
+- v0.2
+- pattern-v3-territory-workload-balance
+- variant:territory_boundary_re-balancing_vs_workload_equity
+difficulty: L2
+pattern:
+  id: PATTERN-V3-TERRITORY-WORKLOAD-BALANCE
+  variant_name: Territory Boundary Re-Balancing vs Workload Equity
+  dilemma: Dense downtown territory causes rep overload (500 mins) while suburban
+    rep is idle (120 mins). Cross-territory dispatch vs travel penalty.

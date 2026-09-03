@@ -1,0 +1,34 @@
+{
+  "case_id": "CASE-004-PRIORITY-CONFLICT",
+  "domain": "Dynamic Fleet Route Logistics",
+  "difficulty": "unknown",
+  "agents": {
+    "PureSolverMockAgent": {
+      "error": "'NoneType' object has no attribute 'get'"
+    },
+    "SemanticAwareAgent": {
+      "semantic_pass": false,
+      "semantic_violations": [
+        "C_COMMIT: Hard commitment for ORD_VIP violated"
+      ],
+      "feasibility_status": "INFEASIBLE",
+      "commitment_survival_rate": 0.0,
+      "memory_promotion": "PROMOTED",
+      "objective_gap": null
+    },
+    "FullDecisionAgent": {
+      "semantic_pass": true,
+      "semantic_violations": [],
+      "feasibility_status": "FEASIBLE",
+      "commitment_survival_rate": 1.0,
+      "memory_promotion": "PROMOTED",
+      "objective_gap": null
+    }
+  },
+  "oracle": {
+    "status": "OPTIMAL",
+    "feasibility": "FEASIBLE",
+    "objective_value": 19980.0,
+    "wall_time": 0.001
+  }
+}

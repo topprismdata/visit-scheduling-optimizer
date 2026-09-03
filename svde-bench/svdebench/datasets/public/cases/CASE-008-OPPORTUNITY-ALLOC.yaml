@@ -1,0 +1,32 @@
+# Golden Case 008 — Market Opportunity Allocation Decision v0.1
+metadata:
+  id: "CASE-008-OPPORTUNITY-ALLOC"
+  domain: "Retail Channel Layout"
+  name: "Market Opportunity Allocation Decision v0.1"
+  tags: ["opportunity_decision", "channel", "business"]
+
+intent:
+  objective: "Allocate limited sales resources across candidate zones"
+
+world_state:
+  depot: [0, 0]
+  fleet:
+    - {id: "ZONE_A", type: "ZONE", capacity_kg: 1000, status: "AVAILABLE"}
+    - {id: "ZONE_B", type: "ZONE", capacity_kg: 1000, status: "AVAILABLE"}
+  orders:
+    - {id: "OPP_A", weight_kg: 400, is_locked: false}
+    - {id: "OPP_B", weight_kg: 400, is_locked: false}
+
+semantic_contract:
+  constraints:
+    - id: "C_BUDGET"
+      name: "BudgetLimit"
+      type: "BUDGET"
+      hardness: "HARD"
+      relaxable: false
+
+runtime_context:
+  timestamp_min: 0
+  past_delivered_orders: []
+
+events: []

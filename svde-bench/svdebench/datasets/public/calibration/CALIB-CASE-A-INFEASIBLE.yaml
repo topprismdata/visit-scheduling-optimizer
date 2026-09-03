@@ -1,0 +1,30 @@
+# Calibration Case A — Infeasible Case (Immutable)
+metadata:
+  id: "CALIB-CASE-A-INFEASIBLE"
+  domain: "Dynamic Fleet Route Logistics"
+  name: "Overloaded Demand Infeasible Sanity Test"
+  tags: ["calibration", "infeasible_test", "sanity"]
+
+intent:
+  objective: "Test Oracle capacity limit enforcement and infeasibility detection"
+
+world_state:
+  depot: [0, 0]
+  fleet:
+    - {id: "VEH_01", type: "STANDARD_VAN", capacity_kg: 100, status: "AVAILABLE"} # 仅 100kg 运力
+  orders:
+    - {id: "ORD_OVERLOAD", weight_kg: 250, req_cold: false, is_locked: false}     # 需求 250kg > 100kg
+
+semantic_contract:
+  constraints:
+    - id: "C1"
+      name: "VehicleCapacity"
+      type: "VEHICLE_CAPACITY"
+      hardness: "HARD"
+      relaxable: false
+
+runtime_context:
+  timestamp_min: 0
+  past_delivered_orders: []
+
+events: []

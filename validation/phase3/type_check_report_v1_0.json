@@ -1,0 +1,65 @@
+{
+  "registry": "CTR-V1.0",
+  "rules": "TCR-V1.0",
+  "checks": [
+    {
+      "gate": "normal_generation",
+      "status": "PASS",
+      "detail": "49 typed constraints; 目标侧类型唯一(C03×B 类 4 实例)"
+    },
+    {
+      "gate": "TC-004_alignment",
+      "status": "PASS",
+      "detail": "10 实体键严格同序"
+    },
+    {
+      "gate": "TC-005_lock_merge",
+      "status": "PASS",
+      "detail": "四锁四目标最强合并，无窗口冲突"
+    }
+  ],
+  "injection_tests": [
+    {
+      "case": "AddExactlyOne@k=4 (3.2 #3)",
+      "status": "BLOCKED",
+      "code": "TC-E002",
+      "detail": "C01 ExactlyOne 用于 k=4——须 Add(sum==k)"
+    },
+    {
+      "case": "C04 relaxable=True (3.2 #4 / TC-001)",
+      "status": "BLOCKED",
+      "code": "TC-E001",
+      "detail": "C04 HARD 但 relaxable=True"
+    },
+    {
+      "case": "C04 入罚项槽 (TC-003)",
+      "status": "BLOCKED",
+      "code": "TC-E003",
+      "detail": "C04 HARD 类型进入罚项槽位"
+    },
+    {
+      "case": "keys 错位 (3.2 #2 / TC-004)",
+      "status": "BLOCKED",
+      "code": "TC-E004",
+      "detail": "实体键错位: ['T01', 'T02', 'T03'] vs ['T01', 'T01', 'T01']"
+    },
+    {
+      "case": "锁日∉可用窗 (TC-005)",
+      "status": "BLOCKED",
+      "code": "TC-E005",
+      "detail": "T01 锁日 25 不在可用窗 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]"
+    },
+    {
+      "case": "频次>可用日 (TC-006)",
+      "status": "BLOCKED",
+      "code": "TC-E006",
+      "detail": "T09 可用日 3 < 频次 4——结构不可行预报"
+    }
+  ],
+  "gates": {
+    "T1_unique_mapping": "PASS",
+    "T2_attributes": "PASS",
+    "T3_3_2_modes_blocked": "PASS"
+  },
+  "overall": "PASS"
+}

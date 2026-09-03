@@ -1,0 +1,7 @@
+objective: lexicographic_honor_relationship_memory_then_route
+candidate_solutions_count: 2
+parallel_options:
+- id: opt_memory_early
+  description: Schedule Heritage early morning based on relationship memory
+- id: opt_naive_late
+  description: Schedule Heritage late afternoon risking manager absence

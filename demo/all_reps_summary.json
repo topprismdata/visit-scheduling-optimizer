@@ -1,0 +1,502 @@
+{
+  "10": {
+    "line": "10",
+    "rep_name": "黄志成",
+    "summary": {
+      "line": "10",
+      "rep_name": "黄志成",
+      "days": 23,
+      "total_visits": 1098,
+      "in_plan_visits": 684,
+      "adhoc_visits": 414,
+      "adhoc_pct": 37.7,
+      "actual_km": 927.3,
+      "agent_km": 390.7,
+      "saved_km": 536.5,
+      "saved_pct": 57.9,
+      "sec": 145.3
+    },
+    "daily": [
+      {
+        "date": "2026-07-01",
+        "weekday": "Wed",
+        "total_stores": 39,
+        "in_plan": 33,
+        "adhoc": 6,
+        "actual_km": 22.04,
+        "agent_km": 22.02,
+        "saved_km": 0.02
+      },
+      {
+        "date": "2026-07-02",
+        "weekday": "Thu",
+        "total_stores": 35,
+        "in_plan": 30,
+        "adhoc": 5,
+        "actual_km": 15.07,
+        "agent_km": 8.42,
+        "saved_km": 6.65
+      },
+      {
+        "date": "2026-07-03",
+        "weekday": "Fri",
+        "total_stores": 134,
+        "in_plan": 31,
+        "adhoc": 103,
+        "actual_km": 16.36,
+        "agent_km": 10.57,
+        "saved_km": 5.79
+      },
+      {
+        "date": "2026-07-06",
+        "weekday": "Mon",
+        "total_stores": 32,
+        "in_plan": 30,
+        "adhoc": 2,
+        "actual_km": 8.16,
+        "agent_km": 3.55,
+        "saved_km": 4.61
+      },
+      {
+        "date": "2026-07-07",
+        "weekday": "Tue",
+        "total_stores": 87,
+        "in_plan": 25,
+        "adhoc": 62,
+        "actual_km": 130.59,
+        "agent_km": 30.49,
+        "saved_km": 100.1
+      },
+      {
+        "date": "2026-07-08",
+        "weekday": "Wed",
+        "total_stores": 66,
+        "in_plan": 30,
+        "adhoc": 36,
+        "actual_km": 95.95,
+        "agent_km": 31.05,
+        "saved_km": 64.9
+      },
+      {
+        "date": "2026-07-09",
+        "weekday": "Thu",
+        "total_stores": 46,
+        "in_plan": 30,
+        "adhoc": 16,
+        "actual_km": 35.78,
+        "agent_km": 14.57,
+        "saved_km": 21.21
+      },
+      {
+        "date": "2026-07-10",
+        "weekday": "Fri",
+        "total_stores": 38,
+        "in_plan": 31,
+        "adhoc": 7,
+        "actual_km": 30.28,
+        "agent_km": 17.1,
+        "saved_km": 13.18
+      },
+      {
+        "date": "2026-07-13",
+        "weekday": "Mon",
+        "total_stores": 34,
+        "in_plan": 30,
+        "adhoc": 4,
+        "actual_km": 18.23,
+        "agent_km": 13.01,
+        "saved_km": 5.22
+      },
+      {
+        "date": "2026-07-14",
+        "weekday": "Tue",
+        "total_stores": 25,
+        "in_plan": 25,
+        "adhoc": 0,
+        "actual_km": 3.68,
+        "agent_km": 3.29,
+        "saved_km": 0.39
+      },
+      {
+        "date": "2026-07-15",
+        "weekday": "Wed",
+        "total_stores": 34,
+        "in_plan": 33,
+        "adhoc": 1,
+        "actual_km": 21.67,
+        "agent_km": 15.82,
+        "saved_km": 5.85
+      },
+      {
+        "date": "2026-07-16",
+        "weekday": "Thu",
+        "total_stores": 56,
+        "in_plan": 30,
+        "adhoc": 26,
+        "actual_km": 66.52,
+        "agent_km": 27.07,
+        "saved_km": 39.45
+      },
+      {
+        "date": "2026-07-17",
+        "weekday": "Fri",
+        "total_stores": 31,
+        "in_plan": 31,
+        "adhoc": 0,
+        "actual_km": 5.28,
+        "agent_km": 3.62,
+        "saved_km": 1.66
+      },
+      {
+        "date": "2026-07-20",
+        "weekday": "Mon",
+        "total_stores": 63,
+        "in_plan": 30,
+        "adhoc": 33,
+        "actual_km": 45.88,
+        "agent_km": 27.71,
+        "saved_km": 18.17
+      },
+      {
+        "date": "2026-07-21",
+        "weekday": "Tue",
+        "total_stores": 63,
+        "in_plan": 25,
+        "adhoc": 38,
+        "actual_km": 97.89,
+        "agent_km": 32.02,
+        "saved_km": 65.87
+      },
+      {
+        "date": "2026-07-22",
+        "weekday": "Wed",
+        "total_stores": 47,
+        "in_plan": 30,
+        "adhoc": 17,
+        "actual_km": 80.2,
+        "agent_km": 30.88,
+        "saved_km": 49.32
+      },
+      {
+        "date": "2026-07-23",
+        "weekday": "Thu",
+        "total_stores": 41,
+        "in_plan": 30,
+        "adhoc": 11,
+        "actual_km": 36.27,
+        "agent_km": 16.75,
+        "saved_km": 19.52
+      },
+      {
+        "date": "2026-07-24",
+        "weekday": "Fri",
+        "total_stores": 34,
+        "in_plan": 31,
+        "adhoc": 3,
+        "actual_km": 28.52,
+        "agent_km": 20.08,
+        "saved_km": 8.44
+      },
+      {
+        "date": "2026-07-27",
+        "weekday": "Mon",
+        "total_stores": 36,
+        "in_plan": 30,
+        "adhoc": 6,
+        "actual_km": 8.75,
+        "agent_km": 11.0,
+        "saved_km": -2.25
+      },
+      {
+        "date": "2026-07-28",
+        "weekday": "Tue",
+        "total_stores": 27,
+        "in_plan": 25,
+        "adhoc": 2,
+        "actual_km": 3.93,
+        "agent_km": 3.79,
+        "saved_km": 0.14
+      },
+      {
+        "date": "2026-07-29",
+        "weekday": "Wed",
+        "total_stores": 37,
+        "in_plan": 33,
+        "adhoc": 4,
+        "actual_km": 11.7,
+        "agent_km": 9.06,
+        "saved_km": 2.64
+      },
+      {
+        "date": "2026-07-30",
+        "weekday": "Thu",
+        "total_stores": 61,
+        "in_plan": 30,
+        "adhoc": 31,
+        "actual_km": 133.45,
+        "agent_km": 28.0,
+        "saved_km": 105.45
+      },
+      {
+        "date": "2026-07-31",
+        "weekday": "Fri",
+        "total_stores": 32,
+        "in_plan": 31,
+        "adhoc": 1,
+        "actual_km": 11.06,
+        "agent_km": 10.88,
+        "saved_km": 0.18
+      }
+    ]
+  },
+  "11": {
+    "line": "11",
+    "rep_name": "苏泳江",
+    "summary": {
+      "line": "11",
+      "rep_name": "苏泳江",
+      "days": 23,
+      "total_visits": 405,
+      "in_plan_visits": 405,
+      "adhoc_visits": 0,
+      "adhoc_pct": 0.0,
+      "actual_km": 721.9,
+      "agent_km": 553.7,
+      "saved_km": 168.2,
+      "saved_pct": 23.3,
+      "sec": 354.1
+    },
+    "daily": [
+      {
+        "date": "2026-07-01",
+        "weekday": "Wed",
+        "total_stores": 15,
+        "in_plan": 15,
+        "adhoc": 0,
+        "actual_km": 45.83,
+        "agent_km": 36.04,
+        "saved_km": 9.79
+      },
+      {
+        "date": "2026-07-02",
+        "weekday": "Thu",
+        "total_stores": 16,
+        "in_plan": 16,
+        "adhoc": 0,
+        "actual_km": 20.86,
+        "agent_km": 17.77,
+        "saved_km": 3.09
+      },
+      {
+        "date": "2026-07-03",
+        "weekday": "Fri",
+        "total_stores": 18,
+        "in_plan": 18,
+        "adhoc": 0,
+        "actual_km": 24.54,
+        "agent_km": 17.2,
+        "saved_km": 7.34
+      },
+      {
+        "date": "2026-07-06",
+        "weekday": "Mon",
+        "total_stores": 21,
+        "in_plan": 21,
+        "adhoc": 0,
+        "actual_km": 38.24,
+        "agent_km": 28.35,
+        "saved_km": 9.89
+      },
+      {
+        "date": "2026-07-07",
+        "weekday": "Tue",
+        "total_stores": 18,
+        "in_plan": 18,
+        "adhoc": 0,
+        "actual_km": 29.58,
+        "agent_km": 21.89,
+        "saved_km": 7.69
+      },
+      {
+        "date": "2026-07-08",
+        "weekday": "Wed",
+        "total_stores": 15,
+        "in_plan": 15,
+        "adhoc": 0,
+        "actual_km": 37.66,
+        "agent_km": 35.14,
+        "saved_km": 2.52
+      },
+      {
+        "date": "2026-07-09",
+        "weekday": "Thu",
+        "total_stores": 19,
+        "in_plan": 19,
+        "adhoc": 0,
+        "actual_km": 34.61,
+        "agent_km": 18.19,
+        "saved_km": 16.42
+      },
+      {
+        "date": "2026-07-10",
+        "weekday": "Fri",
+        "total_stores": 18,
+        "in_plan": 18,
+        "adhoc": 0,
+        "actual_km": 18.27,
+        "agent_km": 16.87,
+        "saved_km": 1.4
+      },
+      {
+        "date": "2026-07-13",
+        "weekday": "Mon",
+        "total_stores": 21,
+        "in_plan": 21,
+        "adhoc": 0,
+        "actual_km": 37.54,
+        "agent_km": 28.32,
+        "saved_km": 9.22
+      },
+      {
+        "date": "2026-07-14",
+        "weekday": "Tue",
+        "total_stores": 17,
+        "in_plan": 17,
+        "adhoc": 0,
+        "actual_km": 38.92,
+        "agent_km": 20.32,
+        "saved_km": 18.6
+      },
+      {
+        "date": "2026-07-15",
+        "weekday": "Wed",
+        "total_stores": 15,
+        "in_plan": 15,
+        "adhoc": 0,
+        "actual_km": 42.16,
+        "agent_km": 36.72,
+        "saved_km": 5.44
+      },
+      {
+        "date": "2026-07-16",
+        "weekday": "Thu",
+        "total_stores": 16,
+        "in_plan": 16,
+        "adhoc": 0,
+        "actual_km": 21.52,
+        "agent_km": 18.17,
+        "saved_km": 3.35
+      },
+      {
+        "date": "2026-07-17",
+        "weekday": "Fri",
+        "total_stores": 18,
+        "in_plan": 18,
+        "adhoc": 0,
+        "actual_km": 18.25,
+        "agent_km": 16.93,
+        "saved_km": 1.32
+      },
+      {
+        "date": "2026-07-20",
+        "weekday": "Mon",
+        "total_stores": 21,
+        "in_plan": 21,
+        "adhoc": 0,
+        "actual_km": 34.0,
+        "agent_km": 28.4,
+        "saved_km": 5.6
+      },
+      {
+        "date": "2026-07-21",
+        "weekday": "Tue",
+        "total_stores": 18,
+        "in_plan": 18,
+        "adhoc": 0,
+        "actual_km": 30.88,
+        "agent_km": 20.6,
+        "saved_km": 10.28
+      },
+      {
+        "date": "2026-07-22",
+        "weekday": "Wed",
+        "total_stores": 15,
+        "in_plan": 15,
+        "adhoc": 0,
+        "actual_km": 40.3,
+        "agent_km": 36.31,
+        "saved_km": 3.99
+      },
+      {
+        "date": "2026-07-23",
+        "weekday": "Thu",
+        "total_stores": 19,
+        "in_plan": 19,
+        "adhoc": 0,
+        "actual_km": 28.27,
+        "agent_km": 18.44,
+        "saved_km": 9.83
+      },
+      {
+        "date": "2026-07-24",
+        "weekday": "Fri",
+        "total_stores": 18,
+        "in_plan": 18,
+        "adhoc": 0,
+        "actual_km": 19.03,
+        "agent_km": 18.23,
+        "saved_km": 0.8
+      },
+      {
+        "date": "2026-07-27",
+        "weekday": "Mon",
+        "total_stores": 21,
+        "in_plan": 21,
+        "adhoc": 0,
+        "actual_km": 46.94,
+        "agent_km": 28.38,
+        "saved_km": 18.56
+      },
+      {
+        "date": "2026-07-28",
+        "weekday": "Tue",
+        "total_stores": 17,
+        "in_plan": 17,
+        "adhoc": 0,
+        "actual_km": 26.83,
+        "agent_km": 20.8,
+        "saved_km": 6.03
+      },
+      {
+        "date": "2026-07-29",
+        "weekday": "Wed",
+        "total_stores": 15,
+        "in_plan": 15,
+        "adhoc": 0,
+        "actual_km": 49.5,
+        "agent_km": 36.59,
+        "saved_km": 12.91
+      },
+      {
+        "date": "2026-07-30",
+        "weekday": "Thu",
+        "total_stores": 16,
+        "in_plan": 16,
+        "adhoc": 0,
+        "actual_km": 21.14,
+        "agent_km": 17.03,
+        "saved_km": 4.11
+      },
+      {
+        "date": "2026-07-31",
+        "weekday": "Fri",
+        "total_stores": 18,
+        "in_plan": 18,
+        "adhoc": 0,
+        "actual_km": 17.01,
+        "agent_km": 17.01,
+        "saved_km": 0.0
+      }
+    ]
+  }
+}

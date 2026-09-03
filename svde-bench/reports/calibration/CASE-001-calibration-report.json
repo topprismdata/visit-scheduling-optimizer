@@ -1,0 +1,47 @@
+{
+  "report_id": "CALIB-CASE-001-V1.0",
+  "generated_at": "2026-08-22",
+  "case_id": "CASE-001-DELIVERY-RECOVERY",
+  "domain": "Dynamic Fleet Route Logistics",
+  "oracle_status": {
+    "oracle_engine": "OR-Tools CP-SAT (Independent)",
+    "status": "OPTIMAL",
+    "feasibility_status": "FEASIBLE",
+    "objective_value": 480.0,
+    "sanity_verification": "PASS"
+  },
+  "evaluator_independence": {
+    "semantic_independent": true,
+    "feasibility_independent": true,
+    "runtime_independent": true,
+    "memory_independent": true,
+    "not_an_oracle_checker": true
+  },
+  "leakage_audit": {
+    "all_clean": true,
+    "agent_oracle_isolation": "PASS",
+    "evaluator_agent_isolation": "PASS",
+    "oracle_evaluator_isolation": "PASS"
+  },
+  "profile_separation": {
+    "pure_solver_baseline": {
+      "semantic_pass": false,
+      "feasibility_pass": true,
+      "runtime_survival_rate": 0.0,
+      "verdict": "FAIL"
+    },
+    "semantic_aware_baseline": {
+      "semantic_pass": true,
+      "feasibility_pass": true,
+      "runtime_survival_rate": 1.0,
+      "verdict": "PASS"
+    },
+    "separation_strength": "STRONG_SEPARATION"
+  },
+  "failure_explanation_quality": {
+    "interpretable": true,
+    "violation_identified": "C4: Hard commitment for ORD_03 violated",
+    "rationale": "Causal trace clearly identifies cost minimization overriding VIP lock commitment."
+  },
+  "overall_calibration_verdict": "PASS"
+}

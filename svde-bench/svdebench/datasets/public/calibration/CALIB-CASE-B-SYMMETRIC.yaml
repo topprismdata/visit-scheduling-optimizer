@@ -1,0 +1,32 @@
+# Calibration Case B — Multiple Optimal Solutions (Immutable)
+metadata:
+  id: "CALIB-CASE-B-SYMMETRIC"
+  domain: "Dynamic Fleet Route Logistics"
+  name: "Multiple Symmetrical Optimums Stability Test"
+  tags: ["calibration", "symmetric_optimum", "stability"]
+
+intent:
+  objective: "Verify Oracle objective stability across symmetrical route permutations"
+
+world_state:
+  depot: [0, 0]
+  fleet:
+    - {id: "VEH_01", type: "STANDARD_VAN", capacity_kg: 500, status: "AVAILABLE"}
+    - {id: "VEH_02", type: "STANDARD_VAN", capacity_kg: 500, status: "AVAILABLE"} # 2 辆对称完全相同车辆
+  orders:
+    - {id: "ORD_SYM_01", weight_kg: 100, x: 5, y: 5, req_cold: false, is_locked: false}
+    - {id: "ORD_SYM_02", weight_kg: 100, x: 5, y: 5, req_cold: false, is_locked: false}
+
+semantic_contract:
+  constraints:
+    - id: "C1"
+      name: "VehicleCapacity"
+      type: "VEHICLE_CAPACITY"
+      hardness: "HARD"
+      relaxable: false
+
+runtime_context:
+  timestamp_min: 0
+  past_delivered_orders: []
+
+events: []

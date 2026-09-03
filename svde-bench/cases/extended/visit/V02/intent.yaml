@@ -1,0 +1,7 @@
+primary_objective: eliminate_consecutive_postponements
+secondary_objectives:
+- minimize_overtime_cost
+priority_rules:
+  vip_customer: high
+  cost: medium
+  service_level: high

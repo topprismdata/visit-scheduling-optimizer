@@ -1,0 +1,7 @@
+objective: lexicographic_reject_stale_memory_then_route
+candidate_solutions_count: 2
+parallel_options:
+- id: opt_direct_friday
+  description: Schedule Friday directly based on updated world state
+- id: opt_stale_avoidance
+  description: Blindly avoid Friday based on stale memory (Negative transfer breach)

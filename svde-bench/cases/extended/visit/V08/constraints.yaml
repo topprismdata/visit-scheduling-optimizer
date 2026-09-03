@@ -1,0 +1,22 @@
+hard:
+- id: C1
+  name: WorkloadLimit
+  type: VEHICLE_CAPACITY
+  hardness: HARD
+  relaxable: false
+- id: C2
+  name: UrgentClinicLock
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: VISIT_URGENT_1
+  locked_window:
+  - 0
+  - 240
+  relaxable: false
+soft:
+- id: C3
+  name: SchedulePerturbationPenalty
+  weight: 1.5
+preference:
+- description: Transfer orphan visit to REP_ACTIVE_1 without modifying REP_ACTIVE_2
+    schedule

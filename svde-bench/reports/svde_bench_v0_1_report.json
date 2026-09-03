@@ -1,0 +1,45 @@
+{
+  "benchmark_version": "SVDE-Bench v0.1",
+  "case_registry": {
+    "CASE-001-DELIVERY-RECOVERY": {"domain": "delivery", "difficulty": "L3"},
+    "CASE-002-MULTI-DC": {"domain": "delivery", "difficulty": "L2"},
+    "CASE-003-COLDCHAIN-RECOVERY": {"domain": "delivery", "difficulty": "L3"},
+    "CASE-004-PRIORITY-CONFLICT": {"domain": "delivery", "difficulty": "L4"},
+    "CASE-005-WAREHOUSE-DYN": {"domain": "warehouse", "difficulty": "L3"},
+    "CASE-006-WAREHOUSE-CONGESTION": {"domain": "warehouse", "difficulty": "L3"},
+    "CASE-007-CHANNEL-DIST": {"domain": "channel", "difficulty": "L4"},
+    "CASE-008-OPPORTUNITY-ALLOC": {"domain": "channel", "difficulty": "L4"},
+    "CASE-009-VISIT-PERIODIC": {"domain": "visit_scheduling", "difficulty": "L2"},
+    "CASE-010-VISIT-REPLAN": {"domain": "visit_scheduling", "difficulty": "L3"}
+  },
+  "domain_distribution": {
+    "delivery": 4, "warehouse": 2, "channel": 2, "visit_scheduling": 2
+  },
+  "difficulty_distribution": {
+    "L2": 3, "L3": 5, "L4": 2
+  },
+  "capability_distribution": {
+    "semantic_constraint_covered_cases": 10,
+    "feasibility_check_covered_cases": 6,
+    "runtime_adaptation_covered_cases": 5,
+    "memory_evolution_covered_cases": 2
+  },
+  "agent_comparison": {
+    "PureSolverMockAgent": {"semantic_pass_rate": 0.0, "feasibility_pass_rate": 1.0, "runtime_survival": 0.0},
+    "SemanticAwareAgent": {"semantic_pass_rate": 1.0, "feasibility_pass_rate": 1.0, "runtime_survival": 1.0},
+    "FullDecisionAgent": {"semantic_pass_rate": 1.0, "feasibility_pass_rate": 1.0, "runtime_survival": 1.0}
+  },
+  "oracle_statistics": {
+    "available_cases": 10,
+    "engine": "OR-Tools CP-SAT (Independent)",
+    "status": "OPTIMAL verified for Golden Case 001"
+  },
+  "failure_distribution": {
+    "FT-01_Semantic_Violation": ["CASE-001 (PureSolver)"],
+    "FT-02_Physical_Infeasibility": [],
+    "FT-03_Runtime_Instability": ["CASE-001 (PureSolver)"],
+    "FT-04_Memory_Overgeneralization": ["PureSolver v.s. SemanticAware"],
+    "FT-05_Constraint_Conflict": ["CASE-001 (PureSolver)"]
+  },
+  "calibration_status": "PASS (Sprint 4.5)"
+}

@@ -1,0 +1,40 @@
+# SVDE-Bench v0.3 — Visit Domain Relational & Continuity Model
+# Explicitly models rep-customer management, cadence governance, and relationship continuity
+
+domain: "visit"
+version: "1.0"
+
+relationship_types:
+  territory_assignment:
+    source: "sales_resource"
+    target: "territory_zone"
+    cardinality: "many_to_one"
+    properties:
+      is_primary_territory: {type: "bool", default: true}
+      cross_territory_allowed: {type: "bool", default: false}
+
+  account_ownership:
+    source: "sales_resource"
+    target: "customer_account"
+    cardinality: "one_to_many"
+    properties:
+      relationship_tenure_months: {type: "int", min: 0}
+      continuity_preference_weight: {type: "float", default: 2.0}
+      lock_status: {type: "string", enum: ["LOCKED_TO_REP", "FLOAT_ASSIGNABLE"]}
+
+  visit_cadence_obligation:
+    source: "customer_account"
+    target: "visit_demand"
+    cardinality: "one_to_many"
+    properties:
+      cadence_cycle: {type: "string", enum: ["WEEKLY_FIXED", "BIWEEKLY_STAGGERED", "MONTHLY_FLEX"]}
+      min_inter_visit_gap_days: {type: "int", min: 1}
+      max_inter_visit_gap_days: {type: "int", min: 1}
+
+  episodic_relationship_memory:
+    source: "customer_account"
+    target: "memory_artifact"
+    cardinality: "one_to_many"
+    properties:
+      context_key: {type: "string", description: "e.g., gatekeeper_lunch_hour, preferred_manager_slot"}
+      validity_status: {type: "string", enum: ["PROMOTED", "REJECTED", "OVERRIDDEN"]}

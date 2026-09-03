@@ -1,0 +1,5 @@
+objective: "lexicographic_priority_then_cost"
+candidate_solutions_count: 2
+parallel_options:
+  - {id: "a", description: "Honor VIP, pay cost"}
+  - {id: "b", description: "Delay VIP, save cost"}

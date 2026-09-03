@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<title>SRP 拜访计划优化引擎</title>
+<style>
+:root{--bg:#fafaf7;--surface:#fff;--fg:#1a1916;--muted:#6b6964;--border:#e8e5df;--accent:#0f6f5c;--fd:Georgia,serif;--fb:-apple-system,system-ui,sans-serif;--fm:ui-monospace,Menlo,monospace}
+*,*::before,*::after{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--fb);font-size:13px;line-height:1.5}
+h3{margin:0;font-size:12px}p{margin:0}
+.eyebrow{font-family:var(--fm);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 8px}
+.container{max-width:1440px;margin-inline:auto;padding-inline:20px}
+.topnav{position:sticky;top:0;z-index:100;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.tin{display:flex;align-items:center;justify-content:space-between;padding-block:8px;gap:10px;flex-wrap:wrap}
+.logo{font-family:var(--fd);font-size:16px;font-weight:600}
+.nc{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+select{padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font:inherit;font-size:11px}
+.sec{padding-block:16px}.sec+.sec{border-top:1px solid var(--border)}
+.kr{display:flex;gap:10px;flex-wrap:wrap}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;flex:1;min-width:130px}
+.kn{font-family:var(--fd);font-size:24px;line-height:1;color:var(--accent);font-weight:600}.kl{color:var(--muted);font-size:11px;margin-top:3px}
+.kn.green{color:#16a34a}
+.diag{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}@media(max-width:920px){.diag{grid-template-columns:1fr}}
+.dc{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px}
+.dc p{font-size:10px;color:var(--muted);margin-top:4px}
+.tbl-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto}
+.tbl-box table{width:100%;border-collapse:collapse;font-size:11px}
+.tbl-box th{padding:8px 6px;background:#f1f5f9;color:var(--muted);text-align:left;font-weight:600;white-space:nowrap}
+.tbl-box td{padding:7px 6px;border-bottom:1px solid var(--border);font-family:var(--fm);white-space:nowrap}
+.tbl-box tr:hover td{background:#f8fafc}
+.tbl-box tr.total-row td{font-weight:700;background:#f0fdf4;border-top:2px solid var(--accent)}
+.badge{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600}
+.badge-ok{background:#d1fae5;color:#047857}
+.pf{padding-block:14px;color:var(--muted);font-size:10px;border-top:1px solid var(--border)}
+.note{font-size:10px;color:var(--muted);padding:6px 0}
+
+.mp{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:920px){.mp{grid-template-columns:1fr}}
+.mc{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.mh{padding:8px 12px;border-bottom:1px solid var(--border);font-size:12px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.mh span{font-family:var(--fm);font-size:11px;color:var(--muted);font-weight:400}
+.mb{height:420px}
+.lg{display:flex;gap:10px;padding:6px 12px;flex-wrap:wrap;font-size:10px;color:var(--muted)}
+</style></head><body>
+<header class="topnav"><div class="container tin">
+<span class="logo">SRP 拜访计划优化引擎 · 全办 10 线对比</span>
+<div class="nc">
+<select id="lineSel"><option value="all">📊 全办合计</option></select>
+<a href="actual_vs_agent_comparison.html" style="text-decoration:none;padding:5px 10px;background:#0f766e;color:#fff;border-radius:6px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:4px">🚀 实际走访与 Agent 动态插单对比</a>
+<a href="v4_pareto.html" style="text-decoration:none;padding:5px 10px;background:#fef3c7;color:#92400e;border-radius:6px;font-size:11px;font-weight:600">🎛️ V4 帕累托</a>
+</div></div></header>
+<main>
+<section class="sec" style="padding-block:12px 0"><div class="container"><div class="kr" id="kpis"></div></div></section>
+
+<section class="sec"><div class="container">
+<p class="eyebrow">全办 10 条线路对比台账（以 TSP 日内重排为诚实基线）</p>
+<div class="tbl-box">
+<table id="mainTable">
+<thead><tr>
+<th>线路</th><th>业代</th><th>门店</th><th>拜访次数</th>
+<th>原始计划<br/>(km)</th><th>TSP 重排<br/>(km)</th><th>ALNS v1<br/>(km)</th><th>ALNS v3<br/>(km)</th>
+<th>v1 vs TSP</th><th>v3 vs TSP</th><th>v3 vs v1</th><th>全程降幅</th><th>频次</th>
+</tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</div></section>
+
+
+<section class="sec" id="mapSection" style="display:none"><div class="container">
+<div class="mp">
+<div class="mc"><div class="mh">① 原始计划分配<span id="kmL"></span></div><div class="mb" id="mapL"></div><div class="lg" id="lgL"></div></div>
+<div class="mc"><div class="mh">② ALNS v3 优化后<span id="kmR"></span></div><div class="mb" id="mapR"></div><div class="lg" id="lgR"></div></div>
+</div>
+<div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
+<select id="wdSel"><option value="all">所有天</option><option value="0">周一</option><option value="1">周二</option><option value="2">周三</option><option value="3">周四</option><option value="4">周五</option></select>
+<select id="weekSel"><option value="all">全月汇总</option></select>
+<label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer"><input type="checkbox" id="hlChk" checked> 跨区高亮</label>
+<label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer"><input type="checkbox" id="diffChk" checked> 差异标记</label>
+<span class="note">地图下钻目前仅支持 09 线路</span>
+</div>
+</div></section>
+
+<section class="sec"><div class="container">
+<p class="eyebrow">算法层级说明</p>
+<div class="diag">
+<div class="dc"><h3>TSP 日内重排（基线）</h3><p>保持 SRP 店→日分配不变，仅优化每日拜访顺序（NN + 2-opt）。这是不改任何业务规则的"免费改善"，作为后续对比的诚实基线。</p></div>
+<div class="dc"><h3>ALNS v1 评估耦合</h3><p>允许跨日移店 + 日内 2-opt。每次候选移动从头跑 TSP 评估。300s 预算内仅几百次迭代。Ropke & Pisinger 2006。</p></div>
+<div class="dc"><h3>ALNS v3 反馈耦合</h3><p>Tour-carrying 路径携带 + worst-edge 路径感知拆除 + regret-2 修复 + SA 接受。同样 300s 迭代 10 万~30 万次。10 线较 v1 再降 18.8%。</p></div>
+<div class="dc"><h3>已否决方案</h3><p><s>Clustered TSP</s>（路边店场景 +14.6% 纯损失，详见 ALGORITHM_GUIDE §5.7）。保留代码作园区店储备。</p></div>
+</div>
+</div></section>
+</main>
+<footer class="pf"><div class="container">底图©高德地图 · 路网距离(FOSSGIS 骑行) · GCJ-02 · 频次守恒 100% · v8</div></footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+let DATA=null;
+
+async function init(){
+  const res=await fetch('all_lines_summary.json');
+  DATA=await res.json();
+  const sel=document.getElementById('lineSel');
+  DATA.lines.forEach(l=>{
+    const o=document.createElement('option');
+    o.value=l.line;
+    o.textContent=`海珠荔湾${l.line} · ${l.rep_name}`;
+    sel.appendChild(o);
+  });
+  sel.addEventListener('change',()=>render());
+  render();
+}
+
+function fmt(n){return n.toLocaleString('zh-CN',{minimumFractionDigits:1,maximumFractionDigits:1})}
+
+function render(){
+  const sel=document.getElementById('lineSel').value;
+  const isAll=sel==='all';
+  let row;
+  if(isAll){
+    row=DATA.totals;
+    row.line='合计';row.rep_name=`${DATA.lines.length}位业代`;
+    row.stores=DATA.totals.total_stores;row.visits=DATA.totals.total_visits;
+  }else{
+    row=DATA.lines.find(l=>l.line===sel);
+  }
+  const p1=((row.km_alns_v1-row.km_tsp)/row.km_tsp*100).toFixed(1);
+  const p3=((row.km_alns_v3-row.km_tsp)/row.km_tsp*100).toFixed(1);
+  const p31=((row.km_alns_v3-row.km_alns_v1)/row.km_alns_v1*100).toFixed(1);
+  const pAll=((row.km_alns_v3-row.km_baseline)/row.km_baseline*100).toFixed(1);
+
+  document.getElementById('kpis').innerHTML=
+    `<div class="kpi"><div class="kn">${fmt(row.km_baseline)}km</div><div class="kl">① 原始计划</div></div>`+
+    `<div class="kpi"><div class="kn">${fmt(row.km_tsp)}km</div><div class="kl">② TSP 日内重排（基线）</div></div>`+
+    `<div class="kpi"><div class="kn">${fmt(row.km_alns_v1)}km</div><div class="kl">③ ALNS v1 跨日</div></div>`+
+    `<div class="kpi"><div class="kn green">${fmt(row.km_alns_v3)}km</div><div class="kl">④ ALNS v3 反馈耦合</div></div>`+
+    `<div class="kpi"><div class="kn green">−${p3}%</div><div class="kl">v3 vs TSP 额外降</div></div>`;
+
+  const tb=document.querySelector('#mainTable tbody');
+  tb.innerHTML='';
+  DATA.lines.forEach(l=>{
+    const _p1=((l.km_alns_v1-l.km_tsp)/l.km_tsp*100).toFixed(1);
+    const _p3=((l.km_alns_v3-l.km_tsp)/l.km_tsp*100).toFixed(1);
+    const _p31=((l.km_alns_v3-l.km_alns_v1)/l.km_alns_v1*100).toFixed(1);
+    const _pAll=((l.km_alns_v3-l.km_baseline)/l.km_baseline*100).toFixed(1);
+    const tr=document.createElement('tr');
+    if(!isAll && l.line===sel)tr.style.background='#f0fdf4';
+    tr.innerHTML=`<td><strong>${l.line}</strong></td><td>${l.rep_name}</td><td>${l.stores}</td><td>${l.visits}</td>`+
+      `<td>${fmt(l.km_baseline)}</td><td>${fmt(l.km_tsp)}</td><td>${fmt(l.km_alns_v1)}</td><td style="color:var(--accent);font-weight:600">${fmt(l.km_alns_v3)}</td>`+
+      `<td style="color:#64748b">${_p1}%</td><td style="color:#16a34a;font-weight:600">${_p3}%</td><td style="color:#64748b">${_p31}%</td>`+
+      `<td style="color:#16a34a">${_pAll}%</td><td><span class="badge badge-ok">✅</span></td>`;
+    tb.appendChild(tr);
+  });
+  if(isAll){
+    const tr=document.createElement('tr');tr.className='total-row';
+    tr.innerHTML=`<td>合计</td><td>${DATA.lines.length}人</td><td>${row.stores}</td><td>${row.visits}</td>`+
+      `<td>${fmt(row.km_baseline)}</td><td>${fmt(row.km_tsp)}</td><td>${fmt(row.km_alns_v1)}</td><td style="color:var(--accent)">${fmt(row.km_alns_v3)}</td>`+
+      `<td>${p1}%</td><td style="color:#16a34a">${p3}%</td><td>${p31}%</td><td style="color:#16a34a">${pAll}%</td><td>✅</td>`;
+    tb.appendChild(tr);
+  }
+}
+init();
+
+// ==================== 地图模块 (09线详细下钻) ====================
+let D09=null,mL=null,mR=null,lL=null,lR=null,syncing=false,cR='alns',GEO=null,crossCountL=0,crossCountR=0;
+const WDC={0:'#3b82c4',1:'#0f6f5c',2:'#c96442',3:'#8b5cf6',4:'#e6a817'};
+const WDN=['周一','周二','周三','周四','周五'];
+const MC={tsp:'#3b82c4',alns:'#c96442'};
+const ML={tsp:'\u2460 原始顺序',alns:'\u2461 ALNS v3'};
+
+function initMaps(){
+  if(mL)return;
+  mL=L.map('mapL',{zoomControl:false}).setView([23.06,113.22],13);
+  mR=L.map('mapR',{zoomControl:false}).setView([23.06,113.22],13);
+  L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{subdomains:['1','2','3','4'],maxZoom:18}).addTo(mL);
+  L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{subdomains:['1','2','3','4'],maxZoom:18}).addTo(mR);
+  drawFences(mL);drawFences(mR);
+  mL.on('moveend',function(){syncMaps(mL,mR)});
+  mR.on('moveend',function(){syncMaps(mR,mL)});
+}
+function syncMaps(a,b){if(syncing)return;syncing=true;b.setView(a.getCenter(),a.getZoom());setTimeout(function(){syncing=false},50)}
+function drawFences(m){if(!D09||!D09.blocks)return;Object.entries(D09.blocks).forEach(function(e){var z=e[0],cs=e[1];var gc=cs.map(function(c){return[c[1],c[0]]});L.polygon(gc,{color:D09.zone_colors[z]||'#999',weight:2,fillColor:D09.zone_colors[z]||'#999',fillOpacity:0.06,opacity:0.5}).addTo(m)})}
+
+function drawPathSegs(lg,seq,baseColor,geoLegs){
+  var SS=D09.stores,hl=document.getElementById('hlChk').checked;
+  var useGeo=geoLegs&&geoLegs.length===(seq.length-1);var n=0;
+  for(var k=0;k<seq.length-1;k++){
+    var i=seq[k],j=seq[k+1];var a=SS[i],b=SS[j];if(!a||!b)continue;
+    var isX=useGeo?(geoLegs[k].x===1):(a.zone!==b.zone);
+    var pts=useGeo?geoLegs[k].p:[[a.lat,a.lon],[b.lat,b.lon]];
+    L.polyline(pts,{color:hl?baseColor:(isX?'#e11d48':'#bbb'),weight:hl?2.5:(isX?4.5:1.5),opacity:hl?0.7:(isX?0.95:0.5)}).addTo(lg);
+    if(isX)n++;
+  }
+  return{cross:n};
+}
+
+function drawDayMaps(){
+  if(!D09)return;
+  var wdV=document.getElementById('wdSel').value,wkV=document.getElementById('weekSel').value;
+  var allS=D09.stores,hasWD=wdV!=='all',hasWeek=wkV!=='all',wd=hasWD?parseInt(wdV):-1;
+  if(!mL)initMaps();
+  if(lL)mL.removeLayer(lL);if(lR)mR.removeLayer(lR);
+  lL=L.layerGroup().addTo(mL);lR=L.layerGroup().addTo(mR);
+  var idx=[];
+  if(hasWD){idx=allS.map(function(s,i){return s.wd===wd?i:-1}).filter(function(i){return i>=0})}
+  else{idx=allS.map(function(_,i){return i})}
+  var curRd=(hasWeek&&hasWD)?((D09.weekly_routes[wkV]||{})[wdV]||null):null;
+  var dayAlns=curRd?curRd.seq_alns:null;
+  var dayOrig=curRd?curRd.seq_orig:null;
+  var showDiff=document.getElementById('diffChk').checked;
+  idx.forEach(function(i){
+    var s=allS[i];if(!s)return;
+    var c=WDC[s.wd]||'#999';
+    L.circleMarker([s.lat,s.lon],{radius:4,color:c,fillColor:c,fillOpacity:0.7,weight:1}).addTo(lL);
+    if(showDiff){
+      var movedOut;
+      if(dayAlns&&dayOrig){movedOut=dayAlns.indexOf(i)<0}
+      else{movedOut=!((s.alns_wds||[s.wd]).length===1&&(s.alns_wds||[s.wd])[0]===s.wd)}
+      if(movedOut)L.circleMarker([s.lat,s.lon],{radius:9,color:'#e11d48',fillColor:'transparent',fillOpacity:0,weight:3,dashArray:'3,2'}).addTo(lL);
+    }
+  });
+  var leftRoute=null,leftKey=null;
+  if(hasWeek&&hasWD&&curRd&&curRd.seq_tsp){leftRoute=curRd.seq_tsp;leftKey=wkV+'_'+wdV+'_tsp'}
+  if(leftRoute&&leftRoute.length>=2){crossCountL=drawPathSegs(lL,leftRoute,'#3b82c4',(GEO&&leftKey)?GEO[leftKey]:null).cross}else crossCountL=0;
+  var seqR=[];
+  if(hasWeek&&hasWD){if(cR==='alns')seqR=dayAlns||[];else seqR=(curRd&&curRd.seq_tsp)||[]}
+  else if(hasWD){if(cR==='alns')seqR=allS.map(function(s,i){return(s.alns_wds||[s.wd]).indexOf(wd)>=0?i:-1}).filter(function(i){return i>=0});else seqR=idx}
+  else{seqR=idx}
+  var rightKey=null;
+  if(hasWeek&&hasWD){rightKey=wkV+'_'+wdV+'_'+(cR==='alns'?'alns':'tsp')}
+  seqR.forEach(function(i){
+    var s=allS[i];if(!s)return;
+    var c=(cR==='alns'&&hasWD)?WDC[wd]:(WDC[s.wd]||'#999');
+    L.circleMarker([s.lat,s.lon],{radius:4,color:c,fillColor:c,fillOpacity:0.7,weight:1}).addTo(lR);
+    if(cR==='alns'&&showDiff){
+      var movedIn;
+      if(dayAlns&&dayOrig){movedIn=dayOrig.indexOf(i)<0}
+      else{movedIn=!((s.alns_wds||[s.wd]).length===1&&(s.alns_wds||[s.wd])[0]===wd)}
+      if(movedIn)L.circleMarker([s.lat,s.lon],{radius:9,color:'#22c55e',fillColor:'transparent',fillOpacity:0,weight:3,dashArray:'3,2'}).addTo(lR);
+    }
+  });
+  if(hasWeek&&hasWD&&seqR.length>=2){crossCountR=drawPathSegs(lR,seqR,MC[cR]||'#c96442',(GEO&&rightKey)?GEO[rightKey]:null).cross}else crossCountR=0;
+  var isDay=hasWeek&&hasWD;
+  document.getElementById('lgL').innerHTML=isDay
+    ?'<span>\u25cf \u8272=\u661f\u671f | <span style="color:#3b82c4">\u2014 \u8def\u7ebf</span> | <span style="color:#e11d48">\u25b3 \u8de8\u533a '+crossCountL+'\u6b21</span> | <span style="color:#e11d48">\u25cb \u88ab\u79fb\u8d70\u7684\u5e97</span></span>'
+    :'<span>\u25cf \u8272=\u661f\u671f <span style="color:#3b82c4">\u25cf</span>\u4e00 <span style="color:#0f6f5c">\u25cf</span>\u4e8c <span style="color:#c96442">\u25cf</span>\u4e09 <span style="color:#8b5cf6">\u25cf</span>\u56db <span style="color:#e6a817">\u25cf</span>\u4e94</span>';
+  document.getElementById('lgR').innerHTML=isDay
+    ?'<span>\u25cf \u8272=\u4f18\u5316\u540e | <span style="color:'+MC[cR]+'">\u2014 \u8def\u7ebf</span> | <span style="color:#e11d48">\u25b3 \u8de8\u533a '+crossCountR+'\u6b21</span> | <span style="color:#22c55e">\u25cb \u65b0\u79fb\u5165</span></span>'
+    :'<span>\u25cf \u8272=\u4f18\u5316\u540e | <span style="color:#22c55e">\u25cb \u65b0\u79fb\u5165\u7684\u5e97</span></span>';
+  document.getElementById('kmL').textContent=hasWeek&&hasWD&&curRd?(curRd.km_tsp||'')+' km':'';
+  document.getElementById('kmR').textContent=hasWeek&&hasWD&&curRd?(curRd.km_alns||'')+' km (ALNS v3)':'';
+}
+
+(function(){
+  const origRender=render;
+  window.render=function(){
+    origRender();
+    const sel=document.getElementById('lineSel').value;
+    const mapSec=document.getElementById('mapSection');
+    if(sel==='09'){
+      mapSec.style.display='';
+      if(!D09){
+        D09=DATA.line09_detail;
+        fetch('route_geo.json').then(function(r){return r.json()}).then(function(g){GEO=g;drawDayMaps()}).catch(function(){drawDayMaps()});
+        const ws=document.getElementById('weekSel');
+        (D09.weeks||[]).forEach(function(w){var o=document.createElement('option');o.value=String(w.week);o.textContent='\u7b2c'+w.week+'\u5468';ws.appendChild(o)});
+        ws.addEventListener('change',drawDayMaps);
+        document.getElementById('wdSel').addEventListener('change',drawDayMaps);
+        document.getElementById('hlChk').addEventListener('change',drawDayMaps);
+        document.getElementById('diffChk').addEventListener('change',drawDayMaps);
+      }else{drawDayMaps()}
+    }else{mapSec.style.display='none'}
+  };
+})();
+
+</script></body></html>

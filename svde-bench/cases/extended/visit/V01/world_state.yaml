@@ -1,0 +1,45 @@
+entities:
+  vehicles:
+  - id: REP_01
+    type: STANDARD_VAN
+    capacity_kg: 480
+    status: AVAILABLE
+  - id: REP_02
+    type: STANDARD_VAN
+    capacity_kg: 480
+    status: AVAILABLE
+  customers:
+  - id: ACCOUNT_VIP_HOSPITAL
+    name: Regional Hospital Pharmacy
+    priority: vip
+  - id: ACCOUNT_STD_RETAIL
+    name: Community Drugstore
+    priority: standard
+  orders:
+  - id: VISIT_HOSPITAL_W1
+    weight_kg: 60
+    is_locked: true
+    is_vip: true
+    tw_early: 0
+    tw_late: 240
+  - id: VISIT_HOSPITAL_W2
+    weight_kg: 60
+    is_locked: true
+    is_vip: true
+    tw_early: 240
+    tw_late: 480
+  - id: VISIT_RETAIL
+    weight_kg: 30
+    is_locked: false
+    is_vip: false
+    tw_early: 0
+    tw_late: 480
+relationships:
+  vehicle_route:
+  - vehicle: REP_01
+    planned_orders:
+    - VISIT_HOSPITAL_W1
+    - VISIT_HOSPITAL_W2
+  customer_priority:
+  - customer: ACCOUNT_VIP_HOSPITAL
+    commitment: sla_commitment

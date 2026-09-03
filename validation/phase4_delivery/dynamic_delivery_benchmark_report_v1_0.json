@@ -1,0 +1,27 @@
+{
+  "benchmark_id": "DD-BENCHMARK-SEQUENCE-V1.0",
+  "domain": "Dynamic Fleet Route Logistics",
+  "overall_status": "PASS",
+  "node_0_initial_static_dispatch": {
+    "status": "OPTIMAL",
+    "tuple": [
+      "FEASIBLE",
+      10,
+      0
+    ],
+    "mathopt_equals_oracle": true
+  },
+  "node_1_data_variation_event": {
+    "event": "Traffic Congestion",
+    "classification": "DATA_VARIATION",
+    "recompilation_triggered": false
+  },
+  "node_2_semantic_variation_event": {
+    "event": "Vehicle Breakdown",
+    "classification": "SEMANTIC_VARIATION",
+    "recompilation_triggered": true,
+    "mathopt_equals_oracle": true,
+    "invariants_preserved": true
+  },
+  "gate_R1_state_transition_safety": "PASS (State immutability and valid lifecycle transitions strictly enforced)"
+}

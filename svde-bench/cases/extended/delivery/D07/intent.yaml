@@ -1,0 +1,7 @@
+primary_objective: maximize_cold_chain_compliance_and_payload_rate
+secondary_objectives:
+- minimize_wasted_refrigerated_capacity
+priority_rules:
+  vip_customer: medium
+  cost: medium
+  service_level: high

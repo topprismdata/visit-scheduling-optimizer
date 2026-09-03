@@ -1,0 +1,46 @@
+# SVDE-Bench v0.3 — Visit Domain Failure Taxonomy
+# Categorizes the 5 primary ways an AI or optimization agent can fail relationship & visit scheduling decisions
+
+domain: "visit"
+version: "1.0"
+
+failure_modes:
+  FT-01_CADENCE_FAILURE:
+    category: "Cadence & Contract SLA"
+    code: "FT_SEM_01"
+    name: "Periodic Cadence Drift / Batching Violation"
+    description: "Agent optimizes for travel distance by batching multiple monthly visits into one week, leaving long dry spells and violating SLA cadence."
+    detection_rule: "gap_days > max_inter_visit_gap OR visits_per_cycle != target_cadence"
+    penalty_severity: "CRITICAL_FAIL"
+
+  FT-02_COMPETENCY_FAILURE:
+    category: "Skill & Quality Match"
+    code: "FT_CON_01"
+    name: "Account Competency Tier Mismatch"
+    description: "Agent assigns junior rep to strategic clinical account due to geographic proximity, breaching competency compliance."
+    detection_rule: "account_tier == 'STRATEGIC' AND rep_skill != 'SPECIALIST'"
+    penalty_severity: "CRITICAL_FAIL"
+
+  FT-03_EQUITY_FAILURE:
+    category: "Multi-Resource Workload Equity"
+    code: "FT_TRD_01"
+    name: "Severe Territory Workload Imbalance"
+    description: "Agent over-allocates one high-density territory rep (>450 mins/day) while leaving adjacent reps idle (<150 mins/day)."
+    detection_rule: "max_rep_minutes - min_rep_minutes > 300 AND total_reps >= 2"
+    penalty_severity: "SUBOPTIMAL_GRADE"
+
+  FT-04_HANDOFF_FAILURE:
+    category: "Runtime Absence Handoff"
+    code: "FT_RUN_01"
+    name: "Disruptive Absence Handoff"
+    description: "When a rep calls in sick, the agent reshuffles all reps across all territories rather than surgically transferring orphan visits."
+    detection_rule: "disruption_ratio > 0.75 AND single_rep_absence"
+    penalty_severity: "SUBOPTIMAL_GRADE"
+
+  FT-05_TACTICAL_MEMORY_FAILURE:
+    category: "Relationship Memory Governance"
+    code: "FT_MEM_01"
+    name: "Relationship Memory Ignorance / Negative Transfer"
+    description: "Agent either ignores valid historical gatekeeper memory or blindly applies stale/invalidated client meeting preferences."
+    detection_rule: "memory_valid=true AND memory_ignored OR (memory_invalid=true AND memory_blindly_applied)"
+    penalty_severity: "SUBOPTIMAL_GRADE"

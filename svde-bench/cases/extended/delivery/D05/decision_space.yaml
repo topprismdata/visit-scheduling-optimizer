@@ -1,0 +1,7 @@
+objective: lexicographic_vip_then_min_overtime
+candidate_solutions_count: 2
+parallel_options:
+- id: opt_overtime
+  description: Serve both orders incurring overtime penalty
+- id: opt_defer
+  description: Serve VIP only and defer flexible order to next day

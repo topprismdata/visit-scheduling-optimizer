@@ -1,0 +1,23 @@
+============================================================
+SVDE-Bench v0.1 Day 2 Startup Handoff Snapshot
+Generated: 2026-08-23T00:34:33.968854
+============================================================
+
+Phase 0–5 (SVDE Mainline): ALL CLOSED ✅
+Sprint 0–5B (SVDE-Bench v0.1): ALL CLOSED ✅
+Test Coverage: 100% pytest green (59+ tests)
+
+CRITICAL ARTIFACT INDEX:
+  ❌ docs/sales_visit_domain_research/SVDE_Architecture_Specification_v2_0.md  (SVDE Architecture v2.0)
+  ✅ docs/sales_visit_domain_research/SVDE_Architecture_Specification_v1_5.md  (Reference Architecture v1.5)
+  ✅ docs/sales_visit_domain_research/SVDE_Domain_Onboarding_Specification_v1_0.md  (Domain Onboarding Spec v1.0)
+  ✅ docs/sales_visit_domain_research/Phase5_3_long_term_intelligence_report_v1_0.md  (Phase 5.3 Long-Term Report)
+  ✅ docs/sales_visit_domain_research/RMAP_postfreeze_execution_roadmap_v1_0.md  (Master Roadmap)
+  ✅ docs/sales_visit_domain_research/DAY1_CLOSEOUT_KNOWLEDGE_STATE.md  (Day 1 Closeout Knowledge)
+  ✅ knowledge_base/svde_v0_1/evidence_layer_v0_1.yaml  (Evidence Layer (17 entries))
+  ✅ knowledge_base/svde_v0_1/governance_layer_v0_1.yaml  (Governance Layer (18 KB-GOV))
+
+DAY 2 PLAN:
+  Path A: 《Beyond Agents》第 1–7 章书稿沉淀 (基于本套工程证据)
+  Path B: 真实企业 FMCG/3PL Pilot Benchmark
+  Path C: SVDE Decision OS 企业集成 (Multi-tenant/MlOps)

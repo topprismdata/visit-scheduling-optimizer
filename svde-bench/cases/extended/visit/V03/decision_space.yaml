@@ -1,0 +1,7 @@
+objective: lexicographic_certification_then_distance
+candidate_solutions_count: 2
+parallel_options:
+- id: opt_certified
+  description: Assign Specialist to Oncology account
+- id: opt_junior_prox
+  description: Assign nearby Junior to Oncology to save travel (Compliance Breach)

@@ -1,0 +1,7 @@
+primary_objective: exploit_valid_relationship_memory_and_reject_mismatched_context
+secondary_objectives:
+- avoid_gatekeeper_friction
+priority_rules:
+  vip_customer: high
+  cost: medium
+  service_level: high

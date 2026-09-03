@@ -1,0 +1,7 @@
+primary_objective: detect_memory_invalidation_and_route_optimally
+secondary_objectives:
+- avoid_spurious_detours
+priority_rules:
+  vip_customer: high
+  cost: high
+  service_level: high

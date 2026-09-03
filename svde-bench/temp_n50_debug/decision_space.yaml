@@ -1,0 +1,7 @@
+objective: lexicographic_vip_fulfillment_then_cost
+candidate_solutions_count: 5
+parallel_options:
+- id: opt_sla_first
+  description: Prioritize all VIP windows with dedicated fleet routing
+- id: opt_dense_cluster
+  description: Cluster by geographic proximity risking window delay

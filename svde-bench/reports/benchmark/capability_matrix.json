@@ -1,0 +1,28 @@
+{
+  "benchmark_version": "SVDE-Bench v0.1",
+  "case_registry_size": 10,
+  "domain_distribution": {
+    "delivery": 4,
+    "warehouse": 2,
+    "channel": 2,
+    "visit_scheduling": 2
+  },
+  "capability_distribution": {
+    "semantic_constraint": ["CASE-001","CASE-002","CASE-003","CASE-004","CASE-005","CASE-006","CASE-007","CASE-008","CASE-009","CASE-010"],
+    "feasibility_check": ["CASE-001","CASE-002","CASE-005","CASE-006","CASE-007","CASE-009"],
+    "runtime_adaptation": ["CASE-001","CASE-003","CASE-005","CASE-006","CASE-010"],
+    "memory_evolution": ["CASE-001","CASE-007"]
+  },
+  "agent_capability_matrix": {
+    "PureSolverMockAgent": {"semantic": false, "feasibility": true, "runtime": false, "memory": false},
+    "SemanticAwareAgent": {"semantic": true, "feasibility": true, "runtime": "partial", "memory": "partial"},
+    "FullDecisionAgent": {"semantic": true, "feasibility": true, "runtime": true, "memory": true}
+  },
+  "difficulty_distribution": {
+    "L2": 3,
+    "L3": 5,
+    "L4": 2
+  },
+  "oracle_status": "available for all 10 cases",
+  "calibration_status": "PASS"
+}

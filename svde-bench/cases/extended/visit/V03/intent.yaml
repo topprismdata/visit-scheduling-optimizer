@@ -1,0 +1,7 @@
+primary_objective: guarantee_skill_tier_matching_over_proximity
+secondary_objectives:
+- minimize_specialist_transit_hours
+priority_rules:
+  vip_customer: high
+  cost: medium
+  service_level: high

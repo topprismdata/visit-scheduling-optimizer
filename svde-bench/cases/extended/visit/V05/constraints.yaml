@@ -1,0 +1,22 @@
+hard:
+- id: C1
+  name: DailyShiftLimit
+  type: VEHICLE_CAPACITY
+  hardness: HARD
+  relaxable: false
+- id: C2
+  name: DowntownVIPLock
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: VISIT_DT_1
+  locked_window:
+  - 0
+  - 240
+  relaxable: false
+soft:
+- id: C3
+  name: CrossTerritoryPenalty
+  weight: 1.5
+preference:
+- description: Share load from Downtown to Suburban rep to avoid 400min single-rep
+    overload

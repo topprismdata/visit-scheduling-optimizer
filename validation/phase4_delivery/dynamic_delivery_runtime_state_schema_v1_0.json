@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DynamicDeliveryRuntimeStateSchema",
+  "type": "object",
+  "required": [
+    "timestamp_min",
+    "vehicles",
+    "orders",
+    "executed_history_facts",
+    "active_events_queue"
+  ],
+  "properties": {
+    "timestamp_min": {"type": "integer"},
+    "vehicles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "status", "current_location", "current_payload_kg", "worked_minutes", "is_operational"],
+        "properties": {
+          "id": {"type": "string"},
+          "status": {"type": "string", "enum": ["IDLE_AT_DEPOT", "EN_ROUTE", "SERVICING_STOP", "MECHANICAL_BREAKDOWN", "COMPLETED_SHIFT"]},
+          "current_location": {
+            "type": "array",
+            "items": {"type": "number"},
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "current_payload_kg": {"type": "number"},
+          "worked_minutes": {"type": "number"},
+          "is_operational": {"type": "boolean"}
+        }
+      }
+    },
+    "orders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "lifecycle_state", "assigned_vehicle", "arrival_time_min"],
+        "properties": {
+          "id": {"type": "string"},
+          "lifecycle_state": {
+            "type": "string",
+            "enum": ["PENDING_DISPATCH", "ASSIGNED", "IN_TRANSIT", "AT_STOP", "DELIVERED", "FAILED_DELIVERY", "CANCELLED"]
+          },
+          "assigned_vehicle": {"type": ["string", "null"]},
+          "arrival_time_min": {"type": ["number", "null"]}
+        }
+      }
+    },
+    "executed_history_facts": {
+      "type": "object",
+      "required": ["delivered_orders", "immutable_rule"],
+      "properties": {
+        "delivered_orders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["order_id", "delivered_by_vehicle", "delivered_at_min"],
+            "properties": {
+              "order_id": {"type": "string"},
+              "delivered_by_vehicle": {"type": "string"},
+              "delivered_at_min": {"type": "number"}
+            }
+          }
+        },
+        "immutable_rule": {"type": "string", "enum": ["PAST_FACTS_STRICTLY_READ_ONLY"]}
+      }
+    },
+    "active_events_queue": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["event_id", "timestamp_min", "event_type", "payload"],
+        "properties": {
+          "event_id": {"type": "string"},
+          "timestamp_min": {"type": "number"},
+          "event_type": {"type": "string", "enum": ["TRAFFIC_CONGESTION_DATA", "VEHICLE_BREAKDOWN_SEMANTIC", "EMERGENCY_ORDER_INSERTION", "TIME_WINDOW_CHANGE"]},
+          "payload": {"type": "object"}
+        }
+      }
+    }
+  }
+}

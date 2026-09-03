@@ -1,0 +1,114 @@
+# SVDE Knowledge Base v0.1 — Backend Capability Reference Layer
+## Phase A3 Backend Reference Migration — 状态: Reference（非 Approved Knowledge）
+## source_of_truth: 04_A04_optimization_capabilities_and_build_vs_reuse_v6_1_1.md (Technology-Evidence-Baseline-v1.0)
+
+version: SVDE-KB-Backend-Reference-v0.1
+generated_at: "2026-08-22"
+
+layer_status_convention:
+  note: "Backend 层降级为 Reference（Phase 0.5 Review 条件 3）——Backend 能力随版本变化，
+        不应作为稳定业务知识；solver 更替不触发知识库变更"
+  review_cycle: "随 A04 Evidence Baseline 复审（2026-11-22）同步更新"
+  selection_authority: "SolverStrategySelector 依据 ProblemProfile + Phase 4 Benchmark 实验事实选择，本层仅提供能力事实"
+
+backends:
+
+  - id: KB-BE-001
+    name: Google OR-Tools (MathOpt / CP-SAT / GLOP)
+    role: 首选主力 Primary Backend
+    capabilities: [LP, MIP, CP, 离散时序互斥]
+    proof: "CP-SAT 状态 OPTIMAL 时提供整数最优证明；GLOP/HiGHS 数值 LP（受容差约束）"
+    python: "官方一级支持, 9.15 [2026-01-12]"
+    license: Apache-2.0
+    known_limits: "MathOpt Python API 暂缺 CP-SAT interval/no-overlap 排程原语（issue #5144）——需原生 cp_model"
+    build_vs_reuse: REUSE-100%
+    provenance: {origin_asset: 04_A04_..._v6_1_1.md, source_version: Technology-Evidence-Baseline-v1.0}
+
+  - id: KB-BE-002
+    name: HiGHS
+    role: 首选通用 LP/MIP 备用引擎
+    capabilities: [LP, MIP, QP]
+    python: "highspy 官方原生; 1.15.1 [2026-07]"
+    license: MIT
+    build_vs_reuse: REUSE-100%
+    provenance: {origin_asset: 04_A04_..._v6_1_1.md, source_version: Technology-Evidence-Baseline-v1.0}
+
+  - id: KB-BE-003
+    name: SCIP & GCG
+    role: 通用分解验证基准 (Generic Decomposition framework)
+    capabilities: [MINLP, Dantzig-Wolfe 分解, Branch-Cut-and-Price]
+    python: "PySCIPOpt; SCIP 10.0.2 / GCG 4.0.2 [2026-04]"
+    license: Apache-2.0 (v8.0+)
+    usage_note: "仅当 ProblemProfile+Benchmark 证明需要 decomposition 时经 Adapter 使用——非必选架构"
+    build_vs_reuse: REUSE-100%
+    provenance: {origin_asset: 04_A04_..._v6_1_1.md, source_version: Technology-Evidence-Baseline-v1.0}
+
+  - id: KB-BE-004
+    name: Coluna.jl
+    role: 通用分解框架参考 (Generic BPC framework)
+    capabilities: [Branch-and-Price-and-Cut]
+    python: "Julia 原生，Python 需胶水"
+    license: MPL-2.0
+    build_vs_reuse: REUSE-100%
+    provenance: {origin_asset: 04_A04_..._v6_1_1.md, source_version: Technology-Evidence-Baseline-v1.0}
+
+  - id: KB-BE-005
+    name: VRPSolverEasy
+    role: 专用精确路径预言机 (Specialized Exact VRP Oracle)
+    capabilities: [Rich VRP Branch-Price-and-Cut (ESPPRC+Labeling)]
+    license: MIT
+    maturity_caveat: "官方声明 Research/Teaching Prototype, not suited for production——仅作小算例 Exact Oracle 验证工具"
+    build_vs_reuse: REUSE-100%
+    provenance: {origin_asset: 04_A04_..._v6_1_1.md, source_version: Technology-Evidence-Baseline-v1.0}
+
+  - id: KB-BE-006
+    name: PyVRP
+    role: 单日/富路径启发式基准
+    capabilities: [CVRP, VRPTW, Multi-trip]
+    algorithm: "ILS (Iterated Local Search)——v0.13.0+ 已从 HGS 切换"
+    paper: "Wouda, Lan & Kool (2024) INFORMS J. Computing, DOI 10.1287/ijoc.2023.0055"
+    python: "C++ 核心 + Pybind11; 0.13.4"
+    license: MIT
+    known_limits: "PVRP（多周期）仍 open（issue #441）——当前仅作单日/富路径基准，非多周期完整规划器"
+    build_vs_reuse: REUSE-100%
+    provenance: {origin_asset: 04_A04_..._v6_1_1.md, source_version: Technology-Evidence-Baseline-v1.0}
+
+  - id: KB-BE-007
+    name: Timefold Solver & Platform
+    role: 外部独立微服务选项
+    capabilities: [复杂业务排程, 员工排班, 富 VRP]
+    architecture_note: "Solver 2.3.0 = Java/Kotlin 引擎; Platform = 托管 REST 产品层; timefold-solver-python 已于 2025 归档"
+    license: Apache-2.0 (Solver)
+    build_vs_reuse: REUSE-100% (REST 对接)
+    provenance: {origin_asset: 04_A04_..._v6_1_1.md, source_version: Technology-Evidence-Baseline-v1.0}
+
+  - id: KB-BE-008
+    name: Gurobi / COPT
+    role: 企业级商用可选插件
+    capabilities: [LP, MIP, QP, MIQP]
+    license: 商业收费
+    build_vs_reuse: REUSE-100% (需 License)
+    provenance: {origin_asset: 04_A04_..._v6_1_1.md, source_version: Technology-Evidence-Baseline-v1.0}
+
+routing_infra:
+  - id: KB-BE-010
+    name: OSRM / 高德开放平台
+    role: L1 真实路网引擎
+    build_vs_reuse: REUSE-100%
+    provenance: {origin_asset: 04_A04_..._v6_1_1.md, source_version: Technology-Evidence-Baseline-v1.0}
+
+build_vs_reuse_gate:
+  six_questions:
+    - "是否存在成熟开源/工业级方案?"
+    - "成熟方案能否通过 Adapter 适配?"
+    - "该组件是否构成 TopPrism 核心业务差异化壁垒?"
+    - "自研成本是否显著低于'适配+定制'?"
+    - "是否承诺对齐成熟组件的完整测试与文档?"
+    - "无法保障维护 → 强制 REUSE"
+  default_verdict: "底层算力 100% REUSE / ADAPT，绝对禁止自研造轮子"
+  top_prism_own_list:
+    - 销售拜访决策本体与需求引擎 (VisitDemand 生成)
+    - DecisionModelCompiler (显式可追溯、多后端编译)
+    - 拜访场景专属 Pricing (CONDITIONAL BUILD——仅当选定分解策略且现成工具不满足)
+    - ReLoop 行为测试套件
+    - PROV-O aligned 可审计决策因果图

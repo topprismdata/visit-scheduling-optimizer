@@ -1,0 +1,189 @@
+# SVDE Knowledge Base v0.1 — Business Decision Candidate Registry
+## Knowledge Expansion · Phase A1.5 · Business Decision Consolidation
+## 任务：Evidence → Decision 中间层（数学模式之前的必经层——"数学需要 Decision，不是书"）
+
+version: SVDE-KB-BusinessDecision-v0.1
+generated_at: "2026-08-22"
+role: Knowledge Builder
+inputs:
+  - business_knowledge_library_v0_1.yaml   # BE-001..BE-017
+  - book_evidence_batch_a1_v0_1.yaml       # BE-018..BE-026
+  - decision_mapping_candidate_v0_1.yaml   # 17 条映射 + dm_support_matrix
+consolidation_rules:
+  - "不新增 Frozen Domain（本文件零触碰五层 Frozen 资产）"
+  - "不新增 Approved Decision Model（8 DM 终态不动）"
+  - "Decision 一律 Candidate——晋升唯 Gate 复审通道"
+  - "每 Decision 五要件：Business Question / Supporting Evidence / Existing Ontology Mapping / Required Scenario Validation / Possible Mathematical Pattern（仅候选，数学形态留给 Step 2 反推裁定）"
+  - "同构归并：跨层（战略/运营）语义相同的决策合并为一条，层别用 scope 字段标注——不因层别不同分裂 Decision"
+
+scope_convention:
+  strategic: "季度-年度周期，改变资源结构/归属结构（当前 8 DM 边界外——P6 锁定）"
+  tactical:  "周-月周期，容量与覆盖的分配（DM-004 口径）"
+  operational: "日-时周期，排程与执行调整（DM-005/006/007 口径）"
+
+# ═══════════════════════════════════════════════════════════════
+# Part 1 — 既有 8 DM 的决策归纳（consolidation 不新建，先收敛已有）
+# ═══════════════════════════════════════════════════════════════
+consolidated_decisions:
+
+  - id: BDC-01
+    name: Coverage Decision（客户覆盖决策）
+    business_question: "哪些客户、以什么节奏、被覆盖到什么程度？"
+    supporting_evidence: [BE-001, BE-002, BE-017]
+    existing_ontology_mapping: [VisitPolicy, FrequencySpec, CadenceSpec, VisitDemand, FulfillmentClass]
+    existing_DM: DM-001
+    scope: tactical/operational
+    required_scenario_validation: "已验——S-A 18/18 + S-C 20/20（cadence 双边界）"
+    possible_mathematical_pattern: ["Set Covering / Set Partitioning（覆盖结构）", "Pattern-based 周次模式（BE-002，y_ip 形态——math-note-M1）"]
+    status: Candidate（consolidated；对应 DM-001 Validated Candidate）
+
+  - id: BDC-02
+    name: Prioritization Decision（优先级决策）
+    business_question: "有限销售投入投向哪些客户边际回报最高？"
+    supporting_evidence: [BE-004, BE-007, BE-008, BE-023]
+    existing_ontology_mapping: [VisitCandidate.priority_score, ObjectivePolicy, FulfillmentClass]
+    existing_DM: DM-002
+    scope: tactical
+    required_scenario_validation: "已验——S-A TA-CAP 分层准入 + S-B TB-PRIORITY 派生策略"
+    possible_mathematical_pattern: ["Prize-Collecting 结构（BE-004/005 语义）", "边际回报排序（BE-023 equalize marginal returns 的离散化）", "Knapsack（容量内选点）"]
+    status: Candidate（consolidated）
+
+  - id: BDC-03
+    name: Requirement Generation Decision（需求物化决策）
+    business_question: "业务规则+历史如何物化为无资源偏见的拜访需求？"
+    supporting_evidence: [BE-016, BE-025]
+    existing_ontology_mapping: [VisitDemand, DemandReason, VisitOccurrence, ExecutionHistory, MergePolicy]
+    existing_DM: DM-003
+    scope: tactical/operational
+    required_scenario_validation: "已验——S-A §2.3 + S-C stale anchor + S-E 滚动 regen"
+    possible_mathematical_pattern: ["规则展开（非优化——生成层）", "状态机 regen（missed→COMMITTED 升级）"]
+    status: Candidate（consolidated）
+    note: "BE-025 给出独立性业务理由：激励扭曲申报→需求物化必须独立于资源自报"
+
+  - id: BDC-04
+    name: Resource Allocation Decision（资源分配决策）
+    business_question: "有限资源如何在需求间分配，容量边界在哪里？"
+    supporting_evidence: [BE-009, BE-018, BE-022, BE-019(战术同构)]
+    existing_ontology_mapping: [SalesResource, ResourceAvailability, ResourceDayProfile, ObjectivePolicy, ParameterRegistry]
+    existing_DM: DM-004（含并入的容量判定——B5 裁定）
+    scope: tactical（战略级规模=BDC-08 边界外）
+    required_scenario_validation: "已验——S-A TA-CAP + S-D 三资源异构 + S-B 日内容量（240min 口径）"
+    possible_mathematical_pattern: ["Assignment/Transportation 结构", "容量可行性判定（LP 可行域）"]
+    status: Candidate（consolidated）
+
+  - id: BDC-05
+    name: Assignment Decision（指派决策）
+    business_question: "每次拜访活动由谁执行？客户归属与活动指派如何分离？"
+    supporting_evidence: [BE-021(战略同构), BE-017, BE-006(Groer 一致性——CC-01 未验扩展)]
+    existing_ontology_mapping: [OwnershipPolicy, SubstitutionPolicy, EligibilityPolicy, ResourceAvailability, PlannedVisit.resource_id]
+    existing_DM: DM-005
+    scope: operational（战略级批量指派=BDC-07）
+    required_scenario_validation: "已验——S-D 20/20 MRE×3 五要素链；CC-01 familiarity 待 G-3 场景"
+    possible_mathematical_pattern: ["Assignment Problem（指派矩阵）", "Generalized Assignment（容量+资质约束）"]
+    status: Candidate（consolidated）
+
+  - id: BDC-06
+    name: Visit Planning Decision（排程决策）
+    business_question: "何时、何序、以何路径执行已指派的拜访？"
+    supporting_evidence: [BE-003, BE-011, BE-015, BE-024]
+    existing_ontology_mapping: [PlannedVisit, WorkingCalendar, PlanningPolicy, ExistingCommitment, CommitmentLock]
+    existing_DM: DM-006（含 H2 并入的重排执行模式）
+    scope: operational
+    required_scenario_validation: "已验——S-A/C/D/E 四场景（E 验收缩域再规划+freeze/ratio 非零生效）"
+    possible_mathematical_pattern: ["Scheduling/CP（时窗+顺序）", "VRP/Routing（日序+行程）", "Rolling Horizon（BE-011+BE-024 三源互证）"]
+    status: Candidate（consolidated）
+
+  - id: BDC-07
+    name: Exception Handling Decision（异常处理决策）
+    business_question: "需求未被满足时如何处置——defer/escalate/substitute/drop？"
+    supporting_evidence: [BE-005, BE-010, BE-011, BE-024]
+    existing_ontology_mapping: [DeferralPolicy, BusinessRequirement.exception_handling_policy_ref, FulfillmentClass]
+    existing_DM: DM-007
+    scope: operational
+    required_scenario_validation: "已验——五场景（A 四段链/B 挤占链/E 冻结窗口 shortfall 显式）"
+    possible_mathematical_pattern: ["未安排惩罚项（non_assignment_cost——BE-005）", "字典序目标分层（S-A §2.5 已定五级）"]
+    status: Candidate（consolidated）
+
+  - id: BDC-08
+    name: Execution Monitoring Decision（执行监测决策）
+    business_question: "当前执行状态与计划偏离是什么？（状态事实层——下游 regen/异常/人工介入的输入）"
+    supporting_evidence: [BE-010, BE-016, BE-017, BE-020, BE-026]
+    existing_ontology_mapping: [ExecutionHistory, LifecycleState, PlannedVisit]
+    existing_DM: DM-008（独立成立——B5 三判据）
+    scope: operational
+    required_scenario_validation: "已验——S-E 多轮历史 + S-B 状态机/偏离 diff"
+    possible_mathematical_pattern: ["状态机（七态单调+终态吸收）", "计划-实际 diff 归集（非优化——监测层）"]
+    status: Candidate（consolidated）
+    calibration_note: "BE-014 ObservedStopTime 32.0min 挂本决策的参数证据通道（CALIBRATED，AC-8 防双计）——证据型知识不构成决策输入面"
+
+# ═══════════════════════════════════════════════════════════════
+# Part 2 — 新增 Decision Candidate（边界外——战略层；只登记不建 DM）
+# ═══════════════════════════════════════════════════════════════
+new_decision_candidates:
+
+  - id: NDC-01
+    name: Territory Alignment Decision（辖区对齐决策）
+    business_question: "客户归属与销售活动如何在辖区层面批量分配？（别名 deployment/districting）"
+    supporting_evidence: [BE-021(权威定义,A), BE-012, BE-022, BE-026(八触发), BE-019(活动法)]
+    existing_ontology_mapping: "同构复用——OwnershipPolicy(归属)+Assignment(指派) 的战略层组合（BE-021↔MRE-D-1 跨层一致）；无新实体需求"
+    existing_DM: null（边界外——与 DM-009 合并裁定同构：无场景证据不立 DM）
+    scope: strategic
+    required_scenario_validation: "战略层场景未开（G-4/P6 锁定）；解锁需 新场景+DCR 双通道——可能触碰 Ownership/Resource Boundary/Coverage Logic"
+    possible_mathematical_pattern: ["Assignment/Partitioning（账户×活动批量指派）", "Location-Allocation", "紧凑度+平衡 MIP（BE-012 Ríos-Mercado）", "Voronoi/P-中值（候选形态，勿先验）"]
+    status: Candidate
+    guard: "评审警示已内置：可能改变 Ownership/Coverage Logic——P6 前零推进；数学候选仅列不选"
+
+  - id: NDC-02
+    name: Sales Capacity Decision（销售规模决策）
+    business_question: "多少资源服务多少需求？（headcount/结构——季度-年度）"
+    supporting_evidence: [BE-018(因果链), BE-019(活动法三步), BE-020(五快测), BE-009(ORTEC 分层)]
+    existing_ontology_mapping: "战术同构——ResourceDayProfile.capacity_min × VisitDemand.expected_duration_min × FrequencySpec（活动法数据要件即契约三对象）"
+    existing_DM: null（战术级=BDC-04 已承载；本条仅战略级规模——与 DM-009 合并裁定边界一致）
+    scope: strategic
+    required_scenario_validation: "G-4 战略层未开；customer test 等感知信号=DM-008 的战略层输入形态（BE-020）"
+    possible_mathematical_pattern: ["Activity-based workload 汇总（非优化——测算层）", "Sales response function（BE-019 Approach 4 候选）"]
+    status: Candidate
+
+  - id: NDC-03
+    name: Workload Balance Decision（负荷均衡决策）
+    business_question: "多周期/多辖区的工作量与机会分布是否需要治理？（忙闲不均/激励不公）"
+    supporting_evidence: [BE-013, BE-022(Chicago/Indianapolis 双症状), BE-023(边际回报+区间带)]
+    existing_ontology_mapping: "部分承载——ObjectiveProfile 四态不含 equity（CC-03 候选第五态 BALANCED_EQUITY=枚举扩展需 DCR）；负荷事实可由 ResourceDayProfile 表达"
+    existing_DM: null（候选扩展挂 DM-004/BDC-04）
+    scope: tactical/strategic
+    required_scenario_validation: "G-5 多周×多资源×公平场景未验；公平口径（min-max/方差/区间带）属业务裁定非数学选择"
+    possible_mathematical_pattern: ["Min-Max Equity（最小化最大负载差）", "Variance Equity（最小化方差）", "Acceptable Range（区间带约束——BE-023 形态）", "Lexicographic 二阶段（BE-013 Nekooghadirli 两段式）"]
+    status: Candidate
+    guard: "评审警示内置：公平涉组织文化——三形态仅为数学候选，选定权在业务方+场景验证，Agent 不预选"
+
+# ═══════════════════════════════════════════════════════════════
+# Part 3 — Step 2 交接契约（Decision → Math Pattern 反推入口）
+# ═══════════════════════════════════════════════════════════════
+step2_handoff:
+  direction: "从本 Registry 的每条 Decision 反推其 possible_mathematical_pattern——不从论文正推"
+  pattern_seeds_from_decisions:
+    - {decision: BDC-01 Coverage, patterns: [Set Covering/Partitioning, 周次模式]}
+    - {decision: BDC-02 Prioritization, patterns: [Prize-Collecting, Knapsack, 边际回报排序]}
+    - {decision: BDC-04 ResourceAlloc, patterns: [Assignment/Transportation, LP 可行域]}
+    - {decision: BDC-05 Assignment, patterns: [Assignment, Generalized Assignment]}
+    - {decision: BDC-06 VisitPlanning, patterns: [Scheduling/CP, VRP, Rolling Horizon]}
+    - {decision: BDC-07 Exception, patterns: [未安排惩罚项, 字典序分层]}
+    - {decision: NDC-01 Territory, patterns: [Partitioning, Location-Allocation, 紧凑 MIP]}
+    - {decision: NDC-03 WorkloadBalance, patterns: [Min-Max, Variance, Range-band, Lexicographic]}
+  excluded_decisions: "BDC-03/BDC-08 无优化结构（生成层/监测层）——Step 2 不为其建 Pattern，仅登记形态说明"
+  evidence_for_patterns: "Hillier OR 9e + Network Flows（批2 书）作为 Pattern 的数学证据源——按 Evidence ≠ Design 使用"
+
+# ═══════════════════════════════════════════════════════════════
+# Part 4 — 汇总
+# ═══════════════════════════════════════════════════════════════
+summary:
+  consolidated_from_existing_DMs: 8    # BDC-01..08 ↔ DM-001..008 一一对应
+  new_decision_candidates: 3           # NDC-01/02/03 全部战略层或扩展——零建 DM
+  evidence_coverage: "26 条 BE 全量归位：21 条直接挂 BDC · 战略层证据挂 NDC（012/019/021/022/023/026）· BE-006 挂 BDC-05 扩展 · BE-014 挂 BDC-08 参数通道"
+  mathematical_pattern_candidates: 0   # 本层零数学裁定——possible 字段仅为候选清单
+  frozen_kb_touched: false
+  dm_registry_touched: false
+  key_design_choices:
+    - "同构归并：战略/运营同语义合并登记（BDC-05 含 BE-021 战略同构注记），scope 字段区分层别——不为层别分裂 Decision"
+    - "NDC 三条全部带 guard：数学候选仅列不选，公平三形态选定权在业务方（评审警示落实）"
+    - "BDC-03/08 显式排除于 Step 2 优化结构——生成/监测层不建数学 Pattern"

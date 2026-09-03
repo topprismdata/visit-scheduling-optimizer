@@ -1,0 +1,93 @@
+# GT-Micro Instance v1.0 — Phase 3.2 语义编译验证实例
+## 规格：6 客户 × 2 周(10 工作日) × 2 业务员 · 四 Case 扰动设计（评审指令对齐）
+## 本文件 = 三形态共同输入装配物（F1/F2/F3 从同一实例编译——AC-6 零手改）
+
+instance_id: GT-MICRO-V1.0
+generated_at: "2026-08-22"
+upstream: [P3_1_semantic_compilation_mapping_v1_0.md, semantic_compilation_contract_v0_2.yaml]
+base_calendar: {start: "2026-09-07(Mon)", weeks: 2, working_days: 10}   # D1..D10 (Mon-Fri ×2)
+
+resources:
+  - {id: R001, base_territory: "NT-01", cap_min_per_day: 480}
+  - {id: R002, base_territory: "NT-02", cap_min_per_day: 480}
+
+targets:   # 6 客户（评审指定 T={A..F}）；value 仅 OPTIONAL 生效
+  - {id: A, segment: KA, service_min: 60, freq: {semantics: EXACT, k: 2}, cadence: {min_gap: 3, max_gap: 7}, value: 0, availability: ALL_DAYS}
+  - {id: B, segment: A,  service_min: 45, freq: {semantics: EXACT, k: 2}, cadence: {min_gap: 3, max_gap: 7}, value: 0, availability: ALL_DAYS}
+  - {id: C, segment: A,  service_min: 45, freq: {semantics: EXACT, k: 2}, cadence: {min_gap: 3, max_gap: 7}, value: 0, availability: ALL_DAYS}
+  - {id: D, segment: B,  service_min: 40, freq: {semantics: RANGE, lo: 1, hi: 2}, cadence: {min_gap: 4, max_gap: 10}, value: 1.0, availability: ALL_DAYS}
+  - {id: E, segment: B,  service_min: 40, freq: {semantics: RANGE, lo: 1, hi: 2}, cadence: {min_gap: 4, max_gap: 10}, value: 1.0, availability: ALL_DAYS}
+  - {id: F, segment: B,  service_min: 40, freq: {semantics: RANGE, lo: 1, hi: 2}, cadence: {min_gap: 4, max_gap: 10}, value: 1.0, availability: ALL_DAYS}
+
+requirements:   # HARD/SOFT 语义（BDC-01 L1 门）
+  - {id: REQ-GM-001, strength: HARD,  authority: COMPANY_POLICY, text: "EXACT 频次客户须足额（A/B/C 各 2 次）", binds: [A,B,C]}
+  - {id: REQ-GM-002, strength: HARD,  authority: COMPANY_POLICY, text: "B 类底线 1 次（RANGE lo）", binds: [D,E,F]}
+  - {id: REQ-GM-003, strength: HARD,  authority: COMPANY_POLICY, text: "日容量 cap 480min 不可超", binds: []}
+  - {id: REQ-GM-004, strength: SOFT,  authority: COMPANY_POLICY, text: "B 类 stretch(第 2 次)按 value 最大化", binds: [D,E,F]}
+
+travel_model:   # L5 用——GT-Micro 用曼哈顿合成距离（对称·三角不等式成立·HK 可精确）；KBC-05 交叉验证时替换为路网
+  type: synthetic_manhattan
+  depot: {id: R001_home, coord: [0,0]}
+  coords: {A: [1,1], B: [2,0], C: [3,1], D: [0,2], E: [1,3], F: [2,2], R002_home: [4,0]}
+  speed_min_per_unit: 10   # 1 单位 = 10 分钟行程
+
+ownership:   # 三段掩码素材（BDC-05）
+  - {target: A, primary: R001, pool: []}
+  - {target: B, primary: R001, pool: []}
+  - {target: C, primary: R001, pool: []}
+  - {target: D, primary: R001, pool: [R002]}
+  - {target: E, primary: R002, pool: [R001]}
+  - {target: F, primary: R002, pool: [R001]}
+
+objective_canonical:   # S-A §2.5 五级——三形态唯一目标（逐字）
+  L1: "∀ HARD requirements 可行（REQ-GM-001/002/003）"
+  L2: "max Σ REQUIRED+COMMITTED fulfillment（A/B/C=6 + D/E/F 底线 3 = 9 occurrence 满分）"
+  L3: "max Σ v_t·z_t（B stretch ×3 × 1.0 = 3.0 满分）"
+  L4: "min (cadence 软罚 + stability 罚)——GT-Micro 无 prior plan：stability=0；cadence 软罚=max_gap 超期罚 0.1/次"
+  L5: "min Σ_d travel(校准)+Σ s_t·x"
+  comparison: lexicographic
+  output: 五层元组 (L1_status, L2, L3, L4, L5)
+
+cases:   # 评审四 Case 扰动设计
+  case_1_basic_feasible:
+    desc: "基础可行——三形态输出一致（无扰动全量输入）"
+    overrides: {}
+  case_2_capacity_short:
+    desc: "容量不足——required 需求 8 vs 容量约束收窄；须一致进入 Deferral/Shortfall（优雅短缺，不得 INFEASIBLE 崩溃）"
+    overrides:
+      resource_day_capacity: {R001: {D3: 100, D4: 100}, R002: {D3: 100, D4: 100}}   # 中段两日压至 100min
+      softening: "REQ-GM-001/002 降级为可短缺（DeferralPolicy DP-STD: defer≤7d, consequence=OPPORTUNITY_LOSS）——L2 由满分制转为 shortfall 显式"
+  case_3_commitment_locks:
+    desc: "三级锁全上——三形态保持承诺语义（锁零移动）"
+    overrides:
+      commitments:
+        - {id: CMT-1, target: A, resource: R001, day: 2,  lock: DAY_LOCKED}
+        - {id: CMT-2, target: B, resource: R001, day: 7,  lock: SEQUENCE_LOCKED, sequence: [B, C]}   # B(D7) 先于 C(D8)
+        - {id: CMT-3, target: C, resource: R001, day: 8,  lock: SEQUENCE_LOCKED, sequence: [B, C]}
+        - {id: CMT-4, target: D, resource: R002, day: 5,  lock: COMPLETELY_LOCKED}
+  case_4_cadence_stress:
+    desc: "Cadence 压力——MP-07 两形态（模式列 vs 间隔不等式）一致性"
+    overrides:
+      target_overrides:
+        A: {cadence: {min_gap: 4, max_gap: 5}}   # 10 日内 EXACT(2)+gap∈[4,5] → 合法窗口收窄
+        B: {cadence: {min_gap: 4, max_gap: 5}}
+        C: {availability: [1, 6]}                # 仅 D1/D6 可访 → EXACT(2) 恰可满足
+
+acceptance:   # 评审验收三条（必须 PASS）
+  - {id: AC-P32-1, check: "可行性一致: F1.feasible == F2.feasible == F3.feasible（逐 Case）"}
+  - {id: AC-P32-2, check: "五级目标一致: (L1,L2,L3,L4,L5) 元组逐层相等（容差 1e-6；L5 由同一 HK oracle 评估——路径不要求一致）"}
+  - {id: AC-P32-3, check: "业务解释一致: 三形态均输出 defer/keep/select 解释（X 为何延期·Y 为何保留·Z 为何入选）"}
+
+equivalence_output_schema:   # 评审输出格式——不是"最佳方案"而是 Semantic Trace
+  decision: <BDC id>
+  formulations:
+    F1: {objective_tuple: [L1,L2,L3,L4,L5], feasible: bool, trace: [...]}
+    F2: {objective_tuple: [...], feasible: bool, trace: [...]}
+    F3: {objective_tuple: [...], feasible: bool, trace: [...]}
+  equivalence: PASS|FAIL
+
+constraints_from_review:
+  - 不修改 Domain Contract（0 DCR 预期）
+  - 不新增 Decision / 不新增 Pattern
+  - 不以 runtime 作评价（不记录求解耗时为指标）
+  - 输出 objective tuple + decision trace（评审 schema）

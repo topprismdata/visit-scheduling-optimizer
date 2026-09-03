@@ -1,0 +1,46 @@
+{
+  "benchmark_version": "SVDE-Bench v0.1",
+  "domain_distribution": {
+    "delivery": 4,
+    "warehouse": 2,
+    "channel": 2,
+    "visit_scheduling": 2
+  },
+  "case_coverage": [
+    {
+      "case_id": "CASE-001-DELIVERY-RECOVERY",
+      "domain": "delivery",
+      "title": "Dynamic Delivery Failure Recovery",
+      "dimensions": {"semantic": true, "feasibility": true, "runtime": true, "memory": true}
+    },
+    {
+      "case_id": "CASE-002-MULTI-DC",
+      "domain": "delivery",
+      "title": "Multi-Distribution-Center Collaborative Delivery",
+      "dimensions": {"semantic": true, "feasibility": true, "runtime": false, "memory": false}
+    },
+    {
+      "case_id": "CASE-005-WAREHOUSE-DYN",
+      "domain": "warehouse",
+      "title": "Dynamic Warehouse Slotting Adaptation",
+      "dimensions": {"semantic": true, "feasibility": true, "runtime": true, "memory": false}
+    },
+    {
+      "case_id": "CASE-007-CHANNEL-DIST",
+      "domain": "channel",
+      "title": "Channel Resource Allocation Trade-off",
+      "dimensions": {"semantic": true, "feasibility": true, "runtime": false, "memory": true}
+    },
+    {
+      "case_id": "CASE-009-VISIT-PERIODIC",
+      "domain": "visit_scheduling",
+      "title": "Multi-Cycle Periodic Visit Planning",
+      "dimensions": {"semantic": true, "feasibility": true, "runtime": false, "memory": false}
+    }
+  ],
+  "agent_matrix": {
+    "Baseline_A_PureSolver": "Lower Bound",
+    "Baseline_B_SemanticAware": "Verifies Core SVDE Hypothesis",
+    "Baseline_C_FullDecisionAgent": "Verifies Full Capability (Semantic + Feasibility + Runtime + Memory)"
+  }
+}

@@ -1,0 +1,130 @@
+# Decision Memory Seed Set v1.0 — Phase 5.1 Artifact（Immutable）
+## 决策记忆种子集资产实例库 · 四大资产类型实例 · MDVL 验证与转态记录
+
+registry_id: DMEM-SEED-V1.0
+generated_at: "2026-08-22"
+governance_mandate: "P51-05-MEMORY-SCHEMA-PROTOCOL-V1.0"
+
+memories:
+
+  # ── 1. Episode Memory: 动态配送故障承诺保护 ──
+  - memory_id: "DMEM-EPISODE-001"
+    memory_class: "EPISODE"
+    decision_domain: "Dynamic Fleet Route Logistics"
+    context:
+      applicable_scope: ["Dynamic Rerouting", "Vehicle Mechanical Breakdown", "Fleet Disruption"]
+      preconditions:
+        fleet_size: ">= 2"
+        has_locked_commitments: true
+        load_headroom: ">= 20%"
+      invalidation_conditions: "单车队全灭或无备用车辆可接单"
+    trigger:
+      event_type: "VEHICLE_MECHANICAL_BREAKDOWN"
+      variation_classification: "SEMANTIC_VARIATION"
+    semantic_recommendation:
+      target_layer: "Constraint Type System & Semantic Contract"
+      guideline: "当发生车辆故障导致运力归零时，首要保障锁定订单（TIME_WINDOW_LOCKED）优先转派至可用运力，非锁定订单承担改派扰动，严禁放弃锁定承诺。"
+      suggested_constraint_patch:
+        type: "CommitmentPriorityOverride"
+        hardness: "HARD"
+        relaxable: false
+    outcome_evaluation:
+      realized_benchmark: "ORD_03 锁定时窗 100% 保持，冷链不变量 0 破损，改派扰动控制在 3 单"
+      predicted_vs_actual_variance: "0.0%"
+      confidence_score: 0.98
+    source_evidence:
+      source_episode_id: "DD-EPISODE-001"
+      source_trace_id: "DD-TRACE-SEQUENCE-001"
+    lifecycle:
+      status: "PROMOTED"
+      mdvl_gates_passed: ["MP-G1", "MP-G2", "MP-G3", "MP-G4", "MP-G5"]
+      expiration_date: "2027-08-22"
+
+  # ── 2. Constraint Evolution Memory: min_gap 误软化教训与刚性升级 ──
+  - memory_id: "DMEM-CONST-001"
+    memory_class: "CONSTRAINT_EVOLUTION"
+    decision_domain: "Sales Visit Scheduling"
+    context:
+      applicable_scope: ["Periodic Visit Cadence", "Capacity Tight Scheduling"]
+      preconditions:
+        has_cadence_spacing: true
+      invalidation_conditions: "业务明确取消间隔要求"
+    trigger:
+      event_type: "COMPILATION_SEMANTIC_PRIORITY_INVERSION"
+      historical_failure: "Phase 3.2 中 min_gap 在容量压缩 Case 中被错误放入目标罚项导致假不可行"
+    evolution_path:
+      initial_level: "SOFT_PREFERENCE (误软化)"
+      evolved_level: "HARD (relaxable: false 刚性锁定)"
+      governance_reason: "最小拜访间隔属于客户服务节奏结构约束，非容量不足时的可妥协选项，必须在任何情况下刚性执法。"
+    semantic_recommendation:
+      target_layer: "Constraint Type System (TC-001 & DSVL-I003)"
+      suggested_constraint_patch:
+        type: "MinimumVisitGap"
+        hardness: "HARD"
+        relaxable: false
+    outcome_evaluation:
+      realized_benchmark: "彻底消除 Phase 3.2 假可行缺陷，Phase 3.3 中 4/4 Case 100% 语义等价"
+      confidence_score: 1.0
+    source_evidence:
+      source_trace_id: "P32-GT-MICRO-TRACE-001"
+    lifecycle:
+      status: "PROMOTED"
+      mdvl_gates_passed: ["MP-G1", "MP-G2", "MP-G3", "MP-G4", "MP-G5"]
+      expiration_date: "2028-08-22"
+
+  # ── 3. Decision Outcome Memory: 渠道潜能环境偏差校准 ──
+  - memory_id: "DMEM-OUTCOME-001"
+    memory_class: "OUTCOME"
+    decision_domain: "Retail Channel Layout"
+    context:
+      applicable_scope: ["Strategic Store Location", "T1 Commercial Zone Allocation"]
+      preconditions:
+        format: "FMT_FLAGSHIP"
+        zone_tier: "T1"
+      invalidation_conditions: "商圈发生大规模拆迁或政策级重新规划"
+    trigger:
+      event_type: "ANNUAL_REVENUE_REALIZATION_VARIANCE"
+    outcome_evaluation:
+      predicted_objective_revenue_k: 960
+      realized_actual_revenue_k: 820
+      variance_delta_percent: "-14.58%"
+      calibration_feedback: "T1 商圈旗舰店受周边新兴竞品微弱分流，实际转化率略低于理想线性预测，建议将该类商圈的潜能转化乘数由 1.0 校准为 0.85。"
+      confidence_score: 0.92
+    semantic_recommendation:
+      target_layer: "Semantic Contract (Parameter Calibration)"
+      suggested_contract_patch:
+        parameter: "potential_conversion_multiplier"
+        calibrated_value: 0.85
+    source_evidence:
+      source_episode_id: "CH-EPISODE-001"
+      source_trace_id: "CH-TRACE-001"
+    lifecycle:
+      status: "VALIDATED"  # MP-G5 判定: 仅限渠道领域生效，禁止向其他领域跨域泛化
+      mdvl_gates_passed: ["MP-G1", "MP-G2", "MP-G3", "MP-G4"]
+      expiration_date: "2027-08-22"
+
+  # ── 4. Assumption Memory: A004 路网语义等价性实证记忆 ──
+  - memory_id: "DMEM-ASSUME-001"
+    memory_class: "ASSUMPTION"
+    decision_domain: "General Transportation & Routing"
+    context:
+      applicable_scope: ["Travel Representation", "Synthetic vs Real Road Matrix"]
+      preconditions:
+        road_network_circuity_factor: "<= 1.5"
+        no_hard_road_closures: true
+      invalidation_conditions: "引入动态时变拥堵导致时窗反转"
+    trigger:
+      event_type: "KBC05_ARBITRATION_VERIFICATION"
+    assumption_status_evolution:
+      initial_status: "ACTIVE (Phase 3.3-0)"
+      validated_status: "VALIDATED (Phase 3.3-⑤)"
+      scientific_conclusion: "城市真实路网 1.28 绕行系数与非对称性仅引起 L5 成本数值微调 (<1.5%)，决策结构 100% 保持，证实路网扰动属于 Data Variation。"
+    semantic_recommendation:
+      target_layer: "Decision Compiler & DSVL"
+      guideline: "外部路网更新时，默认走 Data Variation 平滑更新通道，不触发重新编译。"
+    source_evidence:
+      source_report_id: "P33-FINAL-EVALUATION-REPORT-V1.0"
+    lifecycle:
+      status: "PROMOTED"
+      mdvl_gates_passed: ["MP-G1", "MP-G2", "MP-G3", "MP-G4", "MP-G5"]
+      expiration_date: "2028-08-22"

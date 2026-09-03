@@ -1,0 +1,488 @@
+{
+  "trace_id": "WH-TRACE-001",
+  "domain": "Warehouse Slotting Optimization",
+  "business_intent": "8 类 SKU 库位最优分配，确保危化品/冷链绝对安全，最小化总拣选搬运成本",
+  "semantic_contract_ref": "WAREHOUSE-SLOTTING-CONTRACT-V1.0",
+  "typed_constraints": [
+    {
+      "cid": "WC01",
+      "entity": "SKU_A1",
+      "semantic_class": "Assignment",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Mandatory Policy"
+      ]
+    },
+    {
+      "cid": "WC01",
+      "entity": "SKU_A2",
+      "semantic_class": "Assignment",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Mandatory Policy"
+      ]
+    },
+    {
+      "cid": "WC01",
+      "entity": "SKU_B1",
+      "semantic_class": "Assignment",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Mandatory Policy"
+      ]
+    },
+    {
+      "cid": "WC01",
+      "entity": "SKU_B2",
+      "semantic_class": "Assignment",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Mandatory Policy"
+      ]
+    },
+    {
+      "cid": "WC01",
+      "entity": "SKU_C1",
+      "semantic_class": "Assignment",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Mandatory Policy"
+      ]
+    },
+    {
+      "cid": "WC01",
+      "entity": "SKU_C2",
+      "semantic_class": "Assignment",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Mandatory Policy"
+      ]
+    },
+    {
+      "cid": "WC01",
+      "entity": "SKU_D1",
+      "semantic_class": "Assignment",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Mandatory Policy"
+      ]
+    },
+    {
+      "cid": "WC08",
+      "entity": "SKU_E1",
+      "semantic_class": "Assignment",
+      "hardness": "SOFT_PREFERENCE",
+      "relaxable": true,
+      "provenance": [
+        "Promo Space Optimization"
+      ]
+    },
+    {
+      "cid": "WC02",
+      "entity": "L01",
+      "semantic_class": "Capacity",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Rack Physical Limits"
+      ]
+    },
+    {
+      "cid": "WC03",
+      "entity": "L01",
+      "semantic_class": "Occupancy",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Single-SKU Pallet Strategy"
+      ]
+    },
+    {
+      "cid": "WC02",
+      "entity": "L02",
+      "semantic_class": "Capacity",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Rack Physical Limits"
+      ]
+    },
+    {
+      "cid": "WC03",
+      "entity": "L02",
+      "semantic_class": "Occupancy",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Single-SKU Pallet Strategy"
+      ]
+    },
+    {
+      "cid": "WC02",
+      "entity": "L03",
+      "semantic_class": "Capacity",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Rack Physical Limits"
+      ]
+    },
+    {
+      "cid": "WC03",
+      "entity": "L03",
+      "semantic_class": "Occupancy",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Single-SKU Pallet Strategy"
+      ]
+    },
+    {
+      "cid": "WC02",
+      "entity": "L04",
+      "semantic_class": "Capacity",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Rack Physical Limits"
+      ]
+    },
+    {
+      "cid": "WC03",
+      "entity": "L04",
+      "semantic_class": "Occupancy",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Single-SKU Pallet Strategy"
+      ]
+    },
+    {
+      "cid": "WC02",
+      "entity": "L05",
+      "semantic_class": "Capacity",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Rack Physical Limits"
+      ]
+    },
+    {
+      "cid": "WC03",
+      "entity": "L05",
+      "semantic_class": "Occupancy",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Single-SKU Pallet Strategy"
+      ]
+    },
+    {
+      "cid": "WC02",
+      "entity": "L06",
+      "semantic_class": "Capacity",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Rack Physical Limits"
+      ]
+    },
+    {
+      "cid": "WC03",
+      "entity": "L06",
+      "semantic_class": "Occupancy",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Single-SKU Pallet Strategy"
+      ]
+    },
+    {
+      "cid": "WC02",
+      "entity": "L07",
+      "semantic_class": "Capacity",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Rack Physical Limits"
+      ]
+    },
+    {
+      "cid": "WC03",
+      "entity": "L07",
+      "semantic_class": "Occupancy",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Single-SKU Pallet Strategy"
+      ]
+    },
+    {
+      "cid": "WC02",
+      "entity": "L08",
+      "semantic_class": "Capacity",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Rack Physical Limits"
+      ]
+    },
+    {
+      "cid": "WC03",
+      "entity": "L08",
+      "semantic_class": "Occupancy",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Single-SKU Pallet Strategy"
+      ]
+    },
+    {
+      "cid": "WC02",
+      "entity": "L09",
+      "semantic_class": "Capacity",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Rack Physical Limits"
+      ]
+    },
+    {
+      "cid": "WC03",
+      "entity": "L09",
+      "semantic_class": "Occupancy",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Single-SKU Pallet Strategy"
+      ]
+    },
+    {
+      "cid": "WC02",
+      "entity": "L10",
+      "semantic_class": "Capacity",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Rack Physical Limits"
+      ]
+    },
+    {
+      "cid": "WC03",
+      "entity": "L10",
+      "semantic_class": "Occupancy",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Single-SKU Pallet Strategy"
+      ]
+    },
+    {
+      "cid": "WC02",
+      "entity": "L11",
+      "semantic_class": "Capacity",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Rack Physical Limits"
+      ]
+    },
+    {
+      "cid": "WC03",
+      "entity": "L11",
+      "semantic_class": "Occupancy",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Single-SKU Pallet Strategy"
+      ]
+    },
+    {
+      "cid": "WC02",
+      "entity": "L12",
+      "semantic_class": "Capacity",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Rack Physical Limits"
+      ]
+    },
+    {
+      "cid": "WC03",
+      "entity": "L12",
+      "semantic_class": "Occupancy",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Single-SKU Pallet Strategy"
+      ]
+    },
+    {
+      "cid": "WC04",
+      "entity": "ALL_SKU_LOC",
+      "semantic_class": "Compatibility",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Cold Chain Standard"
+      ]
+    },
+    {
+      "cid": "WC05",
+      "entity": "SKU_D1",
+      "semantic_class": "SafetyIsolation",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "OSHA Hazmat Segregation"
+      ]
+    },
+    {
+      "cid": "WC06",
+      "entity": "HEAVY_SKUS",
+      "semantic_class": "PhysicalRule",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Rack Engineering Load"
+      ]
+    },
+    {
+      "cid": "WC07",
+      "entity": "OBJECTIVE",
+      "semantic_class": "Objective",
+      "hardness": "OBJECTIVE_PENALTY",
+      "relaxable": true,
+      "provenance": [
+        "ABC Analysis"
+      ]
+    }
+  ],
+  "dsvl_precheck": {
+    "decision_feasible": true,
+    "rules": [
+      {
+        "rule_id": "WH-DSVL-I001",
+        "status": "PASS",
+        "evidence": "生成 34 个危化品安全间距互斥点对 (<15m)"
+      },
+      {
+        "rule_id": "WH-DSVL-I002",
+        "status": "PASS",
+        "evidence": "冷链库位集 ['L09', 'L10', 'L11', 'L12'] 100% 隔离"
+      },
+      {
+        "rule_id": "WH-DSVL-I003",
+        "status": "PASS",
+        "evidence": "12 库位体积与承重上限 100% 硬绑定"
+      },
+      {
+        "rule_id": "WH-DSVL-I004",
+        "status": "PASS",
+        "evidence": "重货候选库位 ['L04', 'L05', 'L06', 'L07', 'L08'] 承重 >= 700kg"
+      },
+      {
+        "rule_id": "WH-DSVL-S001",
+        "status": "PASS",
+        "evidence": "7 必存 SKU + 1 可选 SKU 覆盖无空洞"
+      },
+      {
+        "rule_id": "WH-DSVL-S002",
+        "status": "PASS",
+        "evidence": "100% Typed 约束具备合法来源（零幻影）"
+      },
+      {
+        "rule_id": "WH-DSVL-S003",
+        "status": "PASS",
+        "evidence": "库位独占性约束 WC03 100% 部署"
+      },
+      {
+        "rule_id": "WH-DSVL-T001",
+        "status": "PASS",
+        "evidence": "SKU 与库位属性映射双射完整"
+      }
+    ]
+  },
+  "mathopt_model_meta": {
+    "solver_type": "MathOpt+HiGHS",
+    "variables_count": 50,
+    "constraints_count": 33,
+    "m1_preservation_status": "100%_PRESERVED"
+  },
+  "solver_solution": {
+    "status": "OPTIMAL",
+    "objective_tuple": [
+      "FEASIBLE",
+      8,
+      6135
+    ],
+    "sku_location_assignments": {
+      "SKU_A1": "L01",
+      "SKU_A2": "L02",
+      "SKU_B1": "L04",
+      "SKU_B2": "L05",
+      "SKU_C1": "L09",
+      "SKU_C2": "L10",
+      "SKU_D1": "L07",
+      "SKU_E1": "L03"
+    }
+  },
+  "external_reality_check": {
+    "variation_classification": "DATA_VARIATION",
+    "dsvl_postcheck_feasible": true,
+    "invariants_preserved": true
+  },
+  "decision_explainability": [
+    {
+      "sku": "SKU_A1",
+      "assigned_location": "L01",
+      "business_rationale": "高周转命中快速拣选区 (FastZone)"
+    },
+    {
+      "sku": "SKU_A2",
+      "assigned_location": "L02",
+      "business_rationale": "高周转命中快速拣选区 (FastZone)"
+    },
+    {
+      "sku": "SKU_B1",
+      "assigned_location": "L04",
+      "business_rationale": "重型货品命中强化承重货架 (800kg >= 700kg)"
+    },
+    {
+      "sku": "SKU_B2",
+      "assigned_location": "L05",
+      "business_rationale": "重型货品命中强化承重货架 (800kg >= 700kg)"
+    },
+    {
+      "sku": "SKU_C1",
+      "assigned_location": "L09",
+      "business_rationale": "冷链温区 100% 严格匹配"
+    },
+    {
+      "sku": "SKU_C2",
+      "assigned_location": "L10",
+      "business_rationale": "冷链温区 100% 严格匹配"
+    },
+    {
+      "sku": "SKU_D1",
+      "assigned_location": "L07",
+      "business_rationale": "危化品安全隔离 (离最近食品区 >= 15m)"
+    },
+    {
+      "sku": "SKU_E1",
+      "assigned_location": "L03",
+      "business_rationale": "高周转命中快速拣选区 (FastZone)"
+    }
+  ],
+  "research_memory_update": {
+    "kernel_reuse_verified": true,
+    "failure_triage": "Zero Failures. All Invariants Preserved."
+  }
+}

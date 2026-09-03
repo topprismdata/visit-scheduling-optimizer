@@ -1,0 +1,7 @@
+# SVDE-Bench v0.2 — Case Schema Layer 1 (Required Fields)
+case_id: "CASE-001-DELIVERY-RECOVERY"
+domain: "delivery"  # enum: delivery | warehouse | channel | visit
+version: "1.0"
+created_at: "2026-08-24"
+tags: ["golden", "v0.1-carried-over", "dynamic-runtime"]
+difficulty: "L3"  # enum: L1 | L2 | L3 | L4 | L5

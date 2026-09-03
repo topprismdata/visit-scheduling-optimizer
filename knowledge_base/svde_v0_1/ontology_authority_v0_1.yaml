@@ -1,0 +1,722 @@
+# SVDE Knowledge Base v0.1 — Ontology Authority Layer
+## source_of_truth: A03 Domain-Contract-v1.0.1 FROZEN
+## generation: Phase A1 Authority Migration — VERBATIM transcription, ZERO semantic edits
+## status_scheme: Frozen / Candidate / Reference
+
+version: SVDE-KB-Ontology-v0.1
+generated_at: "2026-08-22"
+provenance_convention:
+  origin_asset: 既有治理资产文件名（唯一权威源）
+  source_version: 该资产冻结版本号
+  migration_method: verbatim | structural-transform | candidate-registry
+  review_history: 评审事件链
+  approved_date: 冻结/签字日期
+  change_reference: DCR 编号（如有）
+
+semantic_stability_convention:   # Phase A Review 条件3
+  type: Frozen | Stable | Candidate
+  reason:
+    - Domain Contract        # 冻结契约直接来源（47 对象默认）
+    - DCR Validated          # 经变更请求验证（4 条）
+    - Scenario Validated     # 经场景执行验证
+    - Research Reference     # 仅研究参考
+    - No Failure Evidence    # Candidate 阻塞原因
+
+concepts:
+
+  # ============ 时间值对象 ============
+  - id: KB-ONT-001
+    name: DateRange
+    type: value_object
+    definition: "闭区间日期范围 [start_date, end_date]"
+    business_meaning: 业务规则中的时间跨度（如"28 天参考期"）
+    not_this: [非单日 TimeWindow, 非规划时域 PlanningHorizon 本身]
+    relations: [PlanningHorizon.date_range, VisitOccurrence.eligible_date_range]
+    evidence: [EV-A03-GENERIC]
+    decision_models: []
+    scenario_mapping: [S-A, S-C, S-D]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance:
+      origin_asset: 03_A03_domain_ontology_v1_0_1.md
+      source_version: Domain-Contract-v1.0.1
+      migration_method: verbatim
+      review_history: [v6.0 draft, v6.1 closure, v6.1.1 cleanup, sign-off 2026-08-22]
+      approved_date: "2026-08-22"
+      change_reference: null
+
+  - id: KB-ONT-002
+    name: TimeWindow
+    type: value_object
+    definition: "单日内时间窗 [start_time, end_time]"
+    business_meaning: 门店营业/客户指定/资源工作时段的统一表达
+    not_this: [非跨日 DateRange, 非来源标签——来源由持有对象决定]
+    relations: [WeeklyAvailabilityRule, ResourceDayProfile.working_windows, PlannedVisit.planned_time_window]
+    evidence: [EV-A03-GENERIC, EV-C-TIMEWINDOW-SOURCE]
+    decision_models: []
+    scenario_mapping: [S-C]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [C 场景三源分离验证 PASS], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-003
+    name: WorkingCalendar
+    type: value_object
+    definition: "企业/个人工作日历：法定工作日、公休日"
+    business_meaning: 哪些日期是工作日
+    not_this: [非资源可用性 ResourceAvailability]
+    relations: [PlanningHorizon.calendar]
+    evidence: [EV-A03-GENERIC]
+    decision_models: []
+    scenario_mapping: [S-A, S-C, S-D]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [], approved_date: "2026-08-22", change_reference: null}
+
+  # ============ 目标平面 ============
+  - id: KB-ONT-010
+    name: VisitTarget
+    type: entity
+    definition: "被拜访的物理门店/终端实体（地理坐标、区县、客群属性、可用性）"
+    business_meaning: 销售覆盖的物理对象——是地点，不是任务
+    not_this: [非 VisitDemand, 非 VisitOccurrence, 非 PlannedVisit, 包内 Customer 概念仅为其索引名]
+    relations: [拥有 TargetAvailability, 拥有 GeoLocation, 被 PolicyScope 匹配]
+    evidence: [EV-SF-ROUTABLE, EV-PTV-LOCATION]
+    decision_models: [Coverage Decision*candidate*, Customer Prioritization Decision*candidate*]
+    scenario_mapping: [S-A, S-C, S-D]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [DVR Glossary G-01], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-011
+    name: GeoLocation
+    type: value_object
+    definition: "地理坐标 + 地址"
+    business_meaning: 物理位置
+    not_this: [非 Territory（辖区是分区关系非坐标）]
+    relations: [VisitTarget.location, ResourceDayProfile.day_start_location]
+    evidence: [EV-A03-GENERIC]
+    decision_models: []
+    scenario_mapping: [S-A]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-012
+    name: WeeklyAvailabilityRule
+    type: value_object
+    definition: "按星期分化的可服务时段规则（weekday→windows + date_exceptions + blackout）"
+    business_meaning: 表达"周二上午、周四下午"类真实门店时窗
+    not_this: [非资源时段 ResourceDayProfile, 严禁塞入 VisitPolicy]
+    relations: [TargetAvailability.weekly_rule]
+    evidence: [EV-C-TIMEWINDOW-SOURCE]
+    decision_models: []
+    scenario_mapping: [S-C Gate-C2 PASS]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [Phase2-C 三源分离 PASS], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-013
+    name: TargetAvailability
+    type: value_object
+    definition: "目标可服务性聚合（持有 WeeklyAvailabilityRule）"
+    business_meaning: 门店/客户侧时间约束的统一入口
+    not_this: [非 EligibilityPolicy（资质非时间）]
+    relations: [VisitTarget.availability]
+    evidence: [EV-C-TIMEWINDOW-SOURCE]
+    decision_models: []
+    scenario_mapping: [S-C]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [], approved_date: "2026-08-22", change_reference: null}
+
+  # ============ 资源平面 ============
+  - id: KB-ONT-020
+    name: StartEndPolicy
+    type: enum
+    definition: "BASE_DEPOT / HOME_LOCATION / DYNAMIC_DAILY"
+    business_meaning: 出发地策略（办事处/住家/每日动态）
+    not_this: []
+    relations: [ResourceAvailability.default_policy]
+    evidence: [EV-PTV-HOME-LOCATION, EV-MSFT-STARTEND]
+    decision_models: []
+    scenario_mapping: [S-A]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-021
+    name: ResourceDayProfile
+    type: value_object
+    definition: "资源在特定日期的完整作业画像（工作窗+容量+起止位置+缺勤）"
+    business_meaning: "按日表达'周一9-18从家出发、周二10-16培训半天'"
+    not_this: [非 TargetAvailability（对象不同）, 非全局 SalesResource 字段——按日覆盖]
+    relations: [ResourceAvailability.date_profiles]
+    evidence: [EV-MSFT-CALENDAR]
+    decision_models: [Resource Allocation Decision*candidate*]
+    scenario_mapping: [S-A TA-RES, S-C TC-TW-3, S-D TD-AVAIL]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v6.1 DayProfile 补全], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-022
+    name: ResourceAvailability
+    type: value_object
+    definition: "资源可用性聚合（默认策略+按日覆盖档案）"
+    business_meaning: 回答"谁现在有时间"——Availability 概念
+    not_this: [非 OwnershipPolicy（谁拥有客户）, 非 EligibilityPolicy（谁有资格）——D 场景三反例已证分离]
+    relations: [SalesResource.availability]
+    evidence: [EV-D-FOURCONCEPT]
+    decision_models: [Assignment Decision*candidate*, Resource Allocation Decision*candidate*]
+    scenario_mapping: [S-D MRE-D-1/3]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v6.1.1 补全], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-023
+    name: SalesResource
+    type: entity
+    definition: "执行拜访的销售人员（可用性+日目标上限+辖区标签+资质）"
+    business_meaning: 销售资源主体
+    not_this: [非包内粗概念 Resource——展开含 qualifications 字段]
+    relations: [拥有 ResourceAvailability, 被 OwnershipPolicy.primary 引用]
+    evidence: [EV-MSFT-BOOKABLE, EV-SAP-SALESREP]
+    decision_models: [Resource Allocation Decision*candidate*, Assignment Decision*candidate*]
+    scenario_mapping: [S-A, S-C, S-D]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [], approved_date: "2026-08-22", change_reference: null}
+
+  # ============ 政策平面 ============
+  - id: KB-ONT-030
+    name: PolicyScope
+    type: value_object
+    definition: "政策适用对象选择器（任意条件组合）"
+    business_meaning: 对齐 Salesforce Dataset / SAP Sales Area 的群体抽象——segment 只是条件之一
+    not_this: [非 customer_segment 硬绑定（v6.0 已废除）, 规则对象不拥有匹配逻辑]
+    relations: [VisitPolicy.scope, BusinessRequirement.applies_to]
+    evidence: [EV-SF-DATASET, EV-SAP-SALESAREA]
+    decision_models: []
+    scenario_mapping: [S-A, S-C, S-D]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v6.1 PolicyScope 替代 segment 绑定], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-031
+    name: FrequencySpec
+    type: value_object
+    definition: "频次规格（semantics∈{EXACT,RANGE,TARGET} + target + 参考期 + min/max）"
+    business_meaning: 每参考期多少次——与 CadenceSpec 完全独立（TC-CAD-3 已证）
+    not_this: [非 CadenceSpec, 非 W1W3 模式——模式是数学层表达]
+    relations: [VisitPolicy.frequency_spec]
+    evidence: [EV-SF-FREQ, EV-PTV-VISITSPERORDER]
+    decision_models: [Coverage Decision*candidate*, Requirement Generation Decision*candidate*]
+    scenario_mapping: [S-A TA-POL, S-C TC-CAD-3]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v6.1 FrequencySemantics 互斥语义], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-032
+    name: CadenceSpec
+    type: value_object
+    definition: "节奏规格（min_spacing_days + max_spacing_days）"
+    business_meaning: 两次拜访间隔的强制边界——强制级别由 Requirement.strength 承载
+    not_this: [非 FrequencySpec, 无 preferred_weekday 字段（TA-DAY 裁定不存在于冻结契约）]
+    relations: [VisitPolicy.cadence_spec]
+    evidence: [EV-SF-MINMAXGAP, EV-PTV-WEEKRHYTHM]
+    decision_models: [Coverage Decision*candidate*]
+    scenario_mapping: [S-C Gate-C1, S-A TA-GAP]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [C 场景语义边界 PASS], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-033
+    name: VisitPolicy
+    type: entity
+    definition: "常态覆盖政策模板（Scope+FrequencySpec+CadenceSpec+标准时长）"
+    business_meaning: "如何服务"的规则——不含异常处理（已移至 Requirement 级）
+    not_this: [非 DeferralPolicy 容器（DCR-SA-001-R 裁定）, 非单次规划配置]
+    relations: [持有 PolicyScope/FrequencySpec/CadenceSpec, 被 OccurrenceGenerator 消费]
+    evidence: [EV-SF-VISITPLAN, EV-SAP-VISITPLAN, EV-PTV-MULTIWEEK]
+    decision_models: [Requirement Generation Decision*candidate*]
+    scenario_mapping: [S-A, S-C, S-D]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: DCR Validated}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [DCR-SA-001-R 将 deferral 移出], approved_date: "2026-08-22", change_reference: DCR-SA-001-R}
+
+  # ============ 需求-发生平面（Visit 四态） ============
+  - id: KB-ONT-040
+    name: DemandReason
+    type: enum
+    definition: "COVERAGE_POLICY / CONTRACT_SLA / SALES_SIGNAL / OUT_OF_STOCK / CAMPAIGN / CUSTOMER_REQUEST"
+    business_meaning: 拜访需求的业务动因——Obligation/Opportunity 双轨为解释分类非实体
+    not_this: [Obligation/Opportunity 非正式 Domain Entity（跨文档统一裁定）]
+    relations: [VisitDemand.reason]
+    evidence: [EV-SAP-DUALTRACK, EV-STAYINFRONT-SOP]
+    decision_models: [Requirement Generation Decision*candidate*]
+    scenario_mapping: [S-A, S-B-pending]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [跨文档词汇统一], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-041
+    name: FulfillmentClass
+    type: enum
+    definition: "REQUIRED / COMMITTED / OPTIONAL——业务期望服务等级"
+    business_meaning: 与 RequirementStrength 正交——REQUIRED 资源不足时输出 shortage 而非 infeasible
+    not_this: [非 RequirementStrength, "绝对必须排入=不可违反"是过强表述（v6.1.1 修正）]
+    relations: [VisitDemand.fulfillment_class, VisitCandidate.fulfillment_class]
+    evidence: [EV-A03-GENERIC]
+    decision_models: [Exception Handling Decision*candidate*]
+    scenario_mapping: [S-A TA-CAP, S-C TC-CAP]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v6.1.1 P0-3 修正], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-042
+    name: VisitDemand
+    type: entity
+    definition: "单一业务动因产生的拜访需求（Reason+FulfillmentClass+时长+日期范围）"
+    business_meaning: "为什么需要这次拜访"——Glossary G-02
+    not_this: [非 VisitOccurrence（物化实例）, 非任务, 非排班结果——Visit 四态之一]
+    relations: [物化为 VisitOccurrence, 合并为 VisitCandidate, policy_ref 仅溯源指针 G-07a]
+    evidence: [EV-SF-VISITREQ, EV-SAP-VISITPLANITEM]
+    decision_models: [Requirement Generation Decision*candidate*, Coverage Decision*candidate*]
+    scenario_mapping: [S-A 18/18, S-C 20/20, S-D]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [DVR G-02 冻结], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-043
+    name: VisitOccurrence
+    type: entity
+    definition: "Demand 经 OccurrenceGenerator 物化的可排实例（第 k 次）"
+    business_meaning: "一次计划需求实例"——Glossary G-03
+    not_this: [非 VisitDemand 本身, 非 VisitCandidate, 无独立 fulfillment_class（随 demand）]
+    relations: [由 VisitDemand 物化, 经 MergePolicy 合并, 携带 eligible_date_range]
+    evidence: [EV-A03-GENERIC, EV-PROOF-E1]
+    decision_models: [Visit Planning Decision*candidate*]
+    scenario_mapping: [S-A §2.3 全表, S-C]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v6.1 OccurrenceGenerator 语义], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-044
+    name: VisitCandidate
+    type: entity
+    definition: "MergePolicy 归并后的排程输入单元（可含多 occurrence/多 reason）"
+    business_meaning: "合并后的排程输入"——Glossary G-04
+    not_this: [非 VisitOccurrence, 非输出物]
+    relations: [持有 source_occurrences, eligible_resource_ids 三轴派生, 生成 PlannedVisit]
+    evidence: [EV-A03-GENERIC]
+    decision_models: [Assignment Decision*candidate*]
+    scenario_mapping: [S-A, S-D]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [PROOF-E1 baseline+stretch], approved_date: "2026-08-22", change_reference: null}
+
+  # ============ 治理平面 ============
+  - id: KB-ONT-050
+    name: RequirementStrength
+    type: enum
+    definition: "HARD / SOFT / ADVISORY——业务规则强制级别"
+    business_meaning: 是否允许违反；编译层映射 hard-constraint / soft-penalty / objective-preference
+    not_this: [非"数学严格度"（v6.1.1 措辞修正）, 算法参数已剔除（三层解耦）]
+    relations: [BusinessRequirement.strength]
+    evidence: [EV-A03-GENERIC]
+    decision_models: []
+    scenario_mapping: [S-A REQ-A-001/002, S-C REQ-C-002, S-D REQ-D-002]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v6.1.1 四轴拆分+措辞修正], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-051
+    name: RequirementAuthority
+    type: enum
+    definition: "LEGAL / CONTRACT / COMPANY_POLICY / MANAGER_RULE / USER_PREFERENCE"
+    business_meaning: 权威源头——与 Strength 正交
+    not_this: [非证据类型 ParameterEvidenceType]
+    relations: [BusinessRequirement.authority, ConflictResolutionStrategy 可选排序键]
+    evidence: [EV-A03-GENERIC]
+    decision_models: [Exception Handling Decision*candidate*]
+    scenario_mapping: [S-A R3/R4, S-C, S-D REQ-D-001]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v6.1.1 四轴拆分], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-052
+    name: BusinessRequirement
+    type: entity
+    definition: "业务需求条目（含 exception_handling_policy_ref——DCR-SA-001-R）"
+    business_meaning: Requirement Fulfillment 是核心对象，Visit 是执行载体（核心原则）
+    not_this: [非 VisitPolicy（如何服务）, 警惕未来膨胀承载执行流程（Domain Debt 观察）]
+    relations: [持有 Strength/Authority/PolicyScope, 引用 ParameterRegistry, 经 exception_ref 引用 DeferralPolicy]
+    evidence: [EV-A03-GENERIC, EV-DOV-MRE1]
+    decision_models: [Requirement Generation Decision*candidate*, Exception Handling Decision*candidate*, Coverage Decision*candidate*]
+    scenario_mapping: [S-A TRACE-1/2/3/4, S-C, S-D]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: DCR Validated}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [DCR-SA-001-R 增字段], approved_date: "2026-08-22", change_reference: DCR-SA-001-R}
+
+  - id: KB-ONT-053
+    name: DeferralPolicy
+    type: entity
+    definition: "Requirement 未满足处理策略（deferrable+max_days+escalation+unmet_consequence）"
+    business_meaning: 承载 defer/escalate/substitute/manual-review/drop/transfer 全谱异常语义——非 deferral 专属
+    not_this: [不自带绑定/选择逻辑, 非 VisitPolicy 字段（DCR-SA-001 双双证伪）]
+    relations: [被 BusinessRequirement.exception_handling_policy_ref 引用（Requirement 级绑定）]
+    evidence: [EV-ORA-NONASSIGN, EV-PTV-ORDERPRIORITY, EV-DOV-MRE1]
+    decision_models: [Exception Handling Decision*candidate*]
+    scenario_mapping: [S-A TA-CAP 四段链, S-C TC-CAP, S-D]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: DCR Validated}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [DCR-SA-001→MRE-1 证伪→-R 裁定], approved_date: "2026-08-22", change_reference: DCR-SA-001-R}
+
+  - id: KB-ONT-054
+    name: ParameterDescriptor
+    type: value_object
+    definition: "参数描述（id+name+evidence_type+source+verified_at+value）"
+    business_meaning: 参数可信度治理
+    not_this: []
+    relations: [ParameterRegistry.descriptors]
+    evidence: [EV-A03-GENERIC]
+    decision_models: []
+    scenario_mapping: [S-A FC-3]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-055
+    name: ParameterRegistry
+    type: entity
+    definition: "强类型参数注册表——白盒链路参数节点"
+    business_meaning: 缺参数=显式 KeyError（禁静默默认值）
+    not_this: []
+    relations: [被 BusinessRequirement.parameter_refs 引用]
+    evidence: [EV-A03-GENERIC]
+    decision_models: []
+    scenario_mapping: [S-A FC-3]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [], approved_date: "2026-08-22", change_reference: null}
+
+  # ============ 归属三轴（D 场景核心） ============
+  - id: KB-ONT-060
+    name: OwnershipPolicy
+    type: entity
+    definition: "归属轴：primary_resource_ids（可多）+ allow_shared_pool"
+    business_meaning: "谁拥有客户关系"——规划期不可变，变更=显式管理动作
+    not_this: [非执行指派（Assignment 是输出）, 非互斥枚举, Owner≠Assigned Rep 禁令]
+    relations: [与 SubstitutionPolicy/EligibilityPolicy 三轴组合派生 eligible]
+    evidence: [EV-PTV-TERRITORY, EV-SAP-SALESAREA, EV-MRE-D1]
+    decision_models: [Assignment Decision*candidate*]
+    scenario_mapping: [S-D MRE-D-1, Gate-D4]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v6.1.1 互斥枚举→三轴], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-061
+    name: SubstitutionPolicy
+    type: entity
+    definition: "替补轴：allow_backup+backup_ids+conditions（trigger=PRIMARY_ABSENT）"
+    business_meaning: "primary 不可用时谁可代访"——触发语义明确
+    not_this: [非 Ownership 一部分（独立轴）]
+    relations: [与 OwnershipPolicy 组合, 审计 via=SUBSTITUTION 五要素]
+    evidence: [EV-MRE-D1, EV-MSFT-BOOKINGLOCK]
+    decision_models: [Assignment Decision*candidate*, Replanning Decision*candidate*]
+    scenario_mapping: [S-D MRE-D-1 双向]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [D 20/20 0-DCR], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-062
+    name: EligibilityPolicy
+    type: entity
+    definition: "适格轴：required_qualifications + required_territory_tags"
+    business_meaning: "谁具备执行资格"——有归属≠有资格（MRE-D-2 已证）
+    not_this: [非 OwnershipPolicy, 非 Availability]
+    relations: [三轴过滤第二段, 排除带显式原因标签]
+    evidence: [EV-MRE-D2]
+    decision_models: [Assignment Decision*candidate*]
+    scenario_mapping: [S-D MRE-D-2, Gate-D2]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [], approved_date: "2026-08-22", change_reference: null}
+
+  # ============ 承诺与计划平面 ============
+  - id: KB-ONT-070
+    name: LifecycleState
+    type: enum
+    definition: "PROPOSED→PLANNED→COMMITTED→IN_PROGRESS→COMPLETED / MISSED / CANCELLED"
+    business_meaning: 业务流程状态机——与锁定级别正交
+    not_this: [非 CommitmentLock]
+    relations: [PlannedVisit.lifecycle_state]
+    evidence: [EV-MSFT-BOOKINGSTATUS, EV-SF-GENERATED]
+    decision_models: [Execution Monitoring Decision*candidate*]
+    scenario_mapping: [S-E-pending, S-B-pending]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-071
+    name: CommitmentLock
+    type: enum
+    definition: "FREE / RESOURCE_LOCKED / DAY_LOCKED / SEQUENCE_LOCKED / COMPLETELY_LOCKED"
+    business_meaning: 算法可优化程度——TopPrism 归一化（非 PTV 原厂枚举）
+    not_this: [非 LifecycleState, 非 PTV TourPointFixation 原厂枚举]
+    relations: [PlannedVisit.commitment_lock, ExistingCommitment.lock_level]
+    evidence: [EV-MSFT-BOOKINGLOCK, EV-PTV-TOURPOINTFIXATION]
+    decision_models: [Replanning Decision*candidate*]
+    scenario_mapping: [S-A TA-LOCK, S-E-pending-core]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v6.1 PTV 枚举纠正], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-072
+    name: ExistingCommitment
+    type: entity
+    definition: "既有承诺（target+resource+date+window+lock_level）"
+    business_meaning: "已承诺的计划不能随意变动"——重排冻结输入
+    not_this: []
+    relations: [持有 CommitmentLock]
+    evidence: [EV-MSFT-BOOKINGLOCK, EV-ORA-CONTINUOUS]
+    decision_models: [Replanning Decision*candidate*]
+    scenario_mapping: [S-A TA-LOCK, S-E-pending]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-074
+    name: PlannedVisit
+    type: entity
+    definition: "优化/指派输出的计划拜访（date+window+service_estimate+双轨状态）"
+    business_meaning: "优化结果"——Glossary G-05；resource_id 即 Assignment 输出
+    not_this: [非实际发生（ExecutionVisit）, 非需求]
+    relations: [由 VisitCandidate 生成, 组成 Route]
+    evidence: [EV-A03-GENERIC]
+    decision_models: [Visit Planning Decision*candidate*, Assignment Decision*candidate*]
+    scenario_mapping: [S-A, S-C, S-D]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v6.1.1 route_sequence 拆出], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-075
+    name: Route
+    type: entity
+    definition: "单日路线（ordered_visits+RouteMetrics）——顺序属结构非成本"
+    business_meaning: 可执行行程
+    not_this: [route_sequence 不在成本对象（v6.1.1 拆分）]
+    relations: [持有 PlannedVisit 序列 + RouteMetrics]
+    evidence: [EV-A03-GENERIC]
+    decision_models: [Visit Planning Decision*candidate*]
+    scenario_mapping: [S-A, S-C, S-D]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-076
+    name: RouteMetrics
+    type: value_object
+    definition: "路线指标（driving_time+distance+total_work_time）"
+    business_meaning: 纯指标
+    not_this: [非成本+结构混合体（v6.1.1 拆分裁定）]
+    relations: [Route.metrics]
+    evidence: [EV-A03-GENERIC]
+    decision_models: []
+    scenario_mapping: [S-A]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v6.1.1 拆分], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-077
+    name: ObservedStopTime
+    type: value_object
+    definition: "实证门店停留总耗时证据（median 32.0min, breakdown=UNKNOWN_NOT_DISAGGREGATED）"
+    business_meaning: 校准证据——不与 service_duration 叠加（AC-8）
+    not_this: [非"停车时间"（分项未知）, 非 Dwell——术语已统一替换]
+    relations: [校准 VisitPolicy.standard_service_duration_min]
+    evidence: [EV-DALLACHIARA2020, EV-INTERNAL-319]
+    decision_models: []
+    scenario_mapping: [S-A §2.1 口径, AC-8]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v1.1 双计风险修正], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-078
+    name: ExecutionHistory
+    type: entity
+    definition: "执行历史（completed+missed）——OccurrenceGenerator 三输入之一"
+    business_meaning: 漏访重生（REQ-A-006）+ 历史抵扣（REQ-A-007）驱动
+    not_this: [非 PlannedVisit 终态镜像——计划态 vs 历史事实分界（OBS-2）]
+    relations: [输入 OccurrenceGenerator, missed→COMMITTED 升级, completed→carryover]
+    evidence: [EV-SF-MISSEDREGEN, EV-A03-GENERIC]
+    decision_models: [Execution Monitoring Decision*candidate*, Replanning Decision*candidate*]
+    scenario_mapping: [S-A TA-HIST, S-C OBS-C-1, S-E-pending-core]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-079
+    name: MergePolicy
+    type: value_object
+    definition: "多动因归并策略（allow_same_day+max_service）"
+    business_meaning: 同店多需求合并为一次物理拜访
+    not_this: []
+    relations: [VisitOccurrence→VisitCandidate]
+    evidence: [EV-A03-GENERIC, EV-PROOF-E1]
+    decision_models: [Requirement Generation Decision*candidate*]
+    scenario_mapping: [S-A]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [PROOF-E1], approved_date: "2026-08-22", change_reference: null}
+
+  # ============ 规划策略平面 ============
+  - id: KB-ONT-080
+    name: PlanningPolicy
+    type: value_object
+    definition: "mode∈{TACTICAL_PJP,WEEKLY_ROLLING,DAILY_EXECUTION,INTRADAY_REPAIR}+freeze+reassign_ratio"
+    business_meaning: 运营模式（STRATEGIC_TERRITORY 已删——Territory 属上游域）
+    not_this: [非 ObjectivePolicy]
+    relations: [Scenario.planning_policy]
+    evidence: [EV-ORTEC-TACTICAL, EV-PTV-PLANWEEK]
+    decision_models: [Replanning Decision*candidate*, Visit Planning Decision*candidate*]
+    scenario_mapping: [S-A, S-E-pending]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v6.1.1 STRATEGIC 删除], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-081
+    name: ObjectivePolicy
+    type: value_object
+    definition: "profile∈{VALUE_IMPACT_FIRST,MAX_THROUGHPUT,BALANCED_STABILITY,COST_EFFICIENCY_FIRST}+weights"
+    business_meaning: 多目标策略档案——无固定全局排序
+    not_this: [非固定四级 Lexicographic（v6 审查修正）]
+    relations: [Scenario.objective_policy]
+    evidence: [EV-SAP-HIGHESTIMPACT, EV-ORA-GOALS]
+    decision_models: [Visit Planning Decision*candidate*]
+    scenario_mapping: [S-A §2.5 canonical 五层]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-082
+    name: PlanningHorizon
+    type: value_object
+    definition: "date_range+WorkingCalendar+working_days_count"
+    business_meaning: 规划时域
+    not_this: [非 FrequencySpec.reference_period（参考期独立于时域——v6.1 关键解耦）]
+    relations: [Scenario.horizon]
+    evidence: [EV-A03-GENERIC]
+    decision_models: []
+    scenario_mapping: [S-A, S-C, S-D]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-083
+    name: SalesVisitPlanningScenario
+    type: aggregate_root
+    definition: "聚合根——双输入面汇聚点（Facts+Policy → DecisionScenarioAssembler 输入）"
+    business_meaning: 完整规划输入
+    not_this: [非求解器输入——纯业务装配]
+    relations: [聚合全部上述对象]
+    evidence: [EV-A03-GENERIC]
+    decision_models: [Visit Planning Decision*candidate*]
+    scenario_mapping: [S-A, S-C, S-D]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v6.1.1 聚合补全], approved_date: "2026-08-22", change_reference: null}
+
+
+  - id: KB-ONT-090
+    name: ParameterEvidenceType
+    type: enum
+    definition: "MEASURED / CALIBRATED / EMPIRICAL / EXTERNAL_REFERENCE / DEFAULT"
+    business_meaning: 参数证据性质——与来源权威度正交
+    not_this: [非 RequirementAuthority（权威源头）]
+    relations: [ParameterDescriptor.evidence_type]
+    evidence: [EV-A03-GENERIC]
+    decision_models: []
+    scenario_mapping: [S-A REQ-A-004]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v6.1.1 四轴拆分], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-091
+    name: ObjectiveProfile
+    type: enum
+    definition: "VALUE_IMPACT_FIRST / MAX_THROUGHPUT / BALANCED_STABILITY / COST_EFFICIENCY_FIRST"
+    business_meaning: 多目标策略档案枚举
+    not_this: []
+    relations: [ObjectivePolicy.profile]
+    evidence: [EV-SAP-HIGHESTIMPACT, EV-ORA-GOALS]
+    decision_models: [Visit Planning Decision*candidate*]
+    scenario_mapping: [S-A §2.5]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-092
+    name: PlanningMode
+    type: enum
+    definition: "TACTICAL_PJP / WEEKLY_ROLLING / DAILY_EXECUTION / INTRADAY_REPAIR"
+    business_meaning: 运营模式枚举（STRATEGIC_TERRITORY 已删除——Territory 属上游域）
+    not_this: [非 STRATEGIC（v6.1.1 边界修正）]
+    relations: [PlanningPolicy.mode]
+    evidence: [EV-ORTEC-TACTICAL]
+    decision_models: [Replanning Decision*candidate*]
+    scenario_mapping: [S-A, S-E-pending]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v6.1.1 STRATEGIC 删除], approved_date: "2026-08-22", change_reference: null}
+
+  - id: KB-ONT-093
+    name: RequirementRegistry
+    type: entity
+    definition: "需求注册表——白盒链路源头（Requirement→Parameter→Formulation→ConstraintTag→Result）+ Exception Audit Trace 四段链规范"
+    business_meaning: 治理核心：每条业务规则的唯一登记处与追溯起点
+    not_this: [非 ParameterRegistry（参数注册）]
+    relations: [聚合 BusinessRequirement, 被 Scenario.requirement_registry 引用]
+    evidence: [EV-A03-GENERIC, EV-DOV-MRE1]
+    decision_models: []
+    scenario_mapping: [S-A TRACE-1/2/3/4, S-C, S-D]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: DCR Validated}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v6.1.1 从枚举升级为一等对象], approved_date: "2026-08-22", change_reference: DCR-SA-001-R}
+
+
+  - id: KB-ONT-094
+    name: FrequencySemantics
+    type: enum
+    definition: "EXACT / RANGE / TARGET——频次语义互斥三态"
+    business_meaning: RANGE 的 fulfillment 分层由 OccurrenceGenerator 拆 baseline(REQUIRED)+stretch(OPTIONAL) 表达（PROOF-E1）
+    not_this: [EXACT≠RANGE≠TARGET 不可混用（v6.1 契约歧义修正）]
+    relations: [FrequencySpec.semantics]
+    evidence: [EV-PROOF-E1]
+    decision_models: [Requirement Generation Decision*candidate*]
+    scenario_mapping: [S-A PROOF-E1, S-C RANGE layering]
+    status: Frozen
+    semantic_stability: {type: Frozen, reason: Domain Contract}
+    provenance: {origin_asset: 03_A03_domain_ontology_v1_0_1.md, source_version: v1.0.1, migration_method: verbatim, review_history: [v6.1 互斥语义修正], approved_date: "2026-08-22", change_reference: null}
+
+# ============ Candidate 队列（不 Approved） ============
+candidate_concepts:
+  - id: KB-CAND-001
+    name: Outcome
+    definition: null
+    status: Candidate
+    semantic_stability: {type: Candidate, reason: No Failure Evidence}
+    blocking: [无 A03 对应, 无 evidence, 无 scenario——三无；需 Failure Evidence 才可提议 DCR]
+
+# ============ 包内概念 → 精确对象 强制展开表（R1 缓解） ============
+package_index_expansion:
+  Customer: [VisitTarget]
+  Territory: [territory_id 上游域输入, OwnershipPolicy 辖区归属]
+  Requirement: [BusinessRequirement, RequirementStrength, RequirementAuthority]
+  Resource: [SalesResource, ResourceAvailability, ResourceDayProfile]
+  Ownership: [OwnershipPolicy, SubstitutionPolicy, EligibilityPolicy]
+  Visit: [VisitDemand, VisitOccurrence, VisitCandidate, PlannedVisit, ExecutionHistory.ExecutionVisit]
+  Execution: [ExecutionHistory]
+  Outcome: []
+  Policy: [VisitPolicy, PolicyScope, FrequencySpec, CadenceSpec, PlanningPolicy, ObjectivePolicy]
+  "Exception Handling Policy": [DeferralPolicy, BusinessRequirement.exception_handling_policy_ref]

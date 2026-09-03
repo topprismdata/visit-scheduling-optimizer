@@ -1,0 +1,15 @@
+case_id: CASE-V04
+domain: delivery
+version: '1.0'
+created_at: '2026-08-24'
+tags:
+- extended
+- v0.2
+- pattern-v2-skill-tier-matching
+- variant:skill_competency_match_vs_daily_rep_workload
+difficulty: L2
+pattern:
+  id: PATTERN-V2-SKILL-TIER-MATCHING
+  variant_name: Skill Competency Match vs Daily Rep Workload
+  dilemma: Certified Specialist rep has heavy schedule; temptation to delegate complex
+    negotiation to junior rep.

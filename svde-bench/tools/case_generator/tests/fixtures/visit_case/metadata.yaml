@@ -1,0 +1,7 @@
+case_id: "FIXTURE-VISIT-001"
+domain: "visit"
+version: "1.0-fixture"
+created_at: "2026-08-24"
+tags: ["fixture", "visit-scheduling", "gate-7"]
+difficulty: "L1"
+fixture_note: "Gate 7 independent fixture to prove pipeline portability"

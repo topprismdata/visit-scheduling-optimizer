@@ -1,0 +1,38 @@
+entities:
+  vehicles:
+  - id: REP_SENIOR_LEGACY
+    type: STANDARD_VAN
+    capacity_kg: 480
+    status: AVAILABLE
+  - id: REP_EXPANSION
+    type: STANDARD_VAN
+    capacity_kg: 480
+    status: AVAILABLE
+  customers:
+  - id: CUST_LEGACY_VIP
+    name: Heritage Chain HQ
+    priority: vip
+  - id: CUST_EXPANSION_STORE
+    name: New Suburb Supermarket
+    priority: standard
+  orders:
+  - id: VISIT_LEGACY_VIP
+    weight_kg: 250
+    is_locked: true
+    is_vip: true
+    tw_early: 0
+    tw_late: 240
+  - id: VISIT_EXPANSION
+    weight_kg: 150
+    is_locked: false
+    is_vip: false
+    tw_early: 60
+    tw_late: 360
+relationships:
+  vehicle_route:
+  - vehicle: REP_SENIOR_LEGACY
+    planned_orders:
+    - VISIT_LEGACY_VIP
+  customer_priority:
+  - customer: CUST_LEGACY_VIP
+    commitment: sla_commitment

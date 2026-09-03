@@ -1,0 +1,30 @@
+{
+  "scenario": "S-A-STD",
+  "phase": "2-domain-validation",
+  "requirement_bindings": [
+    {
+      "requirement": "REQ-A-008",
+      "authority": "COMPANY_POLICY",
+      "exception_policy": "DP-STD"
+    },
+    {
+      "requirement": "REQ-A-009",
+      "authority": "CONTRACT",
+      "exception_policy": "DP-SLA"
+    }
+  ],
+  "occurrence_summary": {
+    "total": 62,
+    "required_layer": 40,
+    "optional_layer": 16,
+    "committed": 6
+  },
+  "exception_audit_trace": [
+    {
+      "unfulfilled_requirement": "REQ-A-008",
+      "applied_policy": "DP-STD",
+      "action": "defer<=7d",
+      "reason": "resource capacity shortage"
+    }
+  ]
+}

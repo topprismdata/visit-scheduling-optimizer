@@ -1,0 +1,7 @@
+objective: lexicographic_cold_safety_then_payload_rate
+candidate_solutions_count: 2
+parallel_options:
+- id: opt_split
+  description: Dedicate cold van to cold items, standard van to dry goods
+- id: opt_mix
+  description: Mix dry goods into cold van to balance vehicle utilization

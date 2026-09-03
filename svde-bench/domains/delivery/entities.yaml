@@ -1,0 +1,51 @@
+# SVDE-Bench v0.2 — Delivery Domain Entity Model
+# Defines standard entity archetypes and property constraints for Delivery
+
+domain: "delivery"
+version: "1.0"
+
+entity_types:
+  vehicle:
+    description: "Physical transport resource"
+    archetypes:
+      STANDARD_VAN:
+        capacity_kg_range: [500, 1200]
+        supported_storage: ["AMBIENT"]
+        default_status: "AVAILABLE"
+      COLD_REFRIGERATED:
+        capacity_kg_range: [800, 2000]
+        supported_storage: ["AMBIENT", "COLD"]
+        default_status: "AVAILABLE"
+      ELECTRIC_CARGO_BIKE:
+        capacity_kg_range: [150, 300]
+        supported_storage: ["AMBIENT"]
+        default_status: "AVAILABLE"
+    lifecycle_states: ["AVAILABLE", "EN_ROUTE", "LOADING", "BROKEN_DOWN", "OFF_DUTY"]
+
+  customer:
+    description: "Delivery recipient endpoint"
+    priority_tiers:
+      vip:
+        service_commitment: "MUST_FULFILL_TIME_WINDOW"
+        penalty_weight: 10.0
+      standard:
+        service_commitment: "BEST_EFFORT_OR_NEXT_SHIFT"
+        penalty_weight: 1.0
+      flexible:
+        service_commitment: "WINDOW_RELAXABLE"
+        penalty_weight: 0.2
+
+  order:
+    description: "Cargo payload with fulfillment constraints"
+    storage_classes: ["AMBIENT", "COLD_REFRIGERATED", "HAZARDOUS"]
+    attributes:
+      weight_kg: {type: "float", min: 1.0, max: 2000.0}
+      tw_early: {type: "int", min: 0, description: "Minutes from horizon start"}
+      tw_late: {type: "int", min: 0, description: "Minutes from horizon start"}
+      is_locked: {type: "bool", default: false}
+      is_vip: {type: "bool", default: false}
+      req_cold: {type: "bool", default: false}
+
+  depot:
+    description: "Distribution Center / Fulfillment Hub"
+    coordinates: [0, 0]

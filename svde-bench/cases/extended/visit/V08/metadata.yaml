@@ -1,0 +1,15 @@
+case_id: CASE-V08
+domain: delivery
+version: '1.0'
+created_at: '2026-08-24'
+tags:
+- extended
+- v0.2
+- pattern-v4-dynamic-absence-handoff
+- variant:temporary_schedule_perturbation_minimization
+difficulty: L2
+pattern:
+  id: PATTERN-V4-DYNAMIC-ABSENCE-HANDOFF
+  variant_name: Temporary Schedule Perturbation Minimization
+  dilemma: Absence coverage must avoid ripple perturbations across the entire regional
+    sales schedule.

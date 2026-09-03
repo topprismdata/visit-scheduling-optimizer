@@ -1,0 +1,7 @@
+objective: lexicographic_protect_both_accounts_then_travel
+candidate_solutions_count: 2
+parallel_options:
+- id: opt_serve_both
+  description: Execute both visits within 300 minutes total
+- id: opt_defer_again
+  description: Defer clinic third time to minimize mileage (Churn breach)

@@ -1,0 +1,21 @@
+hard:
+- id: C1
+  name: VehicleCapacity
+  type: VEHICLE_CAPACITY
+  hardness: HARD
+  relaxable: false
+- id: C2
+  name: RiversideLock
+  type: TIME_WINDOW_LOCKED
+  hardness: HARD_COMMITMENT
+  target_order: ORD_RIVERSIDE
+  locked_window:
+  - 0
+  - 180
+  relaxable: false
+soft:
+- id: C3
+  name: DetourDistancePenalty
+  weight: 1.0
+preference:
+- description: Do not take historical 30km detour if bridge repair is confirmed complete

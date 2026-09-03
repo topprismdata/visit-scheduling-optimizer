@@ -1,0 +1,4 @@
+expected_difficulty: 'easy'
+expected_agent_separation: false
+separation_dimensions: []
+success_threshold: {}

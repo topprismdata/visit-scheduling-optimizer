@@ -1,0 +1,29 @@
+{
+  "ab_test_id": "DMEM-AB-TEST-001",
+  "benchmark": "Memory Closed-Loop Semantic Feedback Test",
+  "group_a_no_memory": {
+    "group": "Group_A_No_Memory",
+    "plan": {
+      "VIP_CUST_WED": "D4_THU",
+      "CUST_A": "D1_MON",
+      "CUST_B": "D2_TUE",
+      "CUST_C": "D5_FRI"
+    },
+    "total_travel_cost": 60.0,
+    "vip_commitment_preserved": false,
+    "decision_feasibility": "FAIL (Broken Commitment for Route Efficiency)"
+  },
+  "group_b_with_memory": {
+    "group": "Group_B_With_Memory",
+    "plan": {
+      "VIP_CUST_WED": "D3_WED",
+      "CUST_A": "D1_MON",
+      "CUST_B": "D2_TUE",
+      "CUST_C": "D5_FRI"
+    },
+    "total_travel_cost": 70.0,
+    "vip_commitment_preserved": true,
+    "decision_feasibility": "PASS (Commitment 100% Preserved via Semantic Memory)"
+  },
+  "closed_loop_conclusion": "PASS (Memory injection strictly improved decision feasibility from FAIL to PASS without solver layer variable pollution)"
+}

@@ -1,0 +1,196 @@
+# SVDE Knowledge Base — Book Evidence Batch A1 (Candidate Layer)
+## Knowledge Expansion · 图书 Evidence 第一批 · Step 1.5 延伸（Business Concept → Decision）
+## 本批处理：Sales Force Design for Strategic Advantage（评审排序第一优先级）
+## 纪律：图书= Evidence Source ≠ 设计依据；不总结书内容；按 Evidence → Concept → Decision → Pattern 提取
+
+version: SVDE-KB-BookEvidence-A1-v0.1
+generated_at: "2026-08-22"
+role: Knowledge Builder
+feeding_instruction: "以下图书作为 Evidence Source 输入 SVDE Knowledge Engineer——不总结书籍内容，按 Evidence → Concept → Decision → Pattern 流程提取可复用知识"
+
+source_book:
+  title: "Sales Force Design for Strategic Advantage"
+  authors: "Andris A. Zoltners, Prabhakant Sinha, Sally E. Lorimer"
+  publisher_year: "Palgrave Macmillan, 2004"
+  file: "~/Downloads/epdf.tips_sales-force-design-for-strategic-advantage(1).pdf"
+  chapters_mined: [Ch7 Sizing the Selling Organization (p215-268), Ch8 Sales Territory Alignment (p269-310)]
+  extraction_method: "pypdf 定位章节 + 书页↔PDF页偏移(OFF=20) + 逐字引文核对（9/9 关键引文 verbatim 验证通过）"
+
+# ═══════════════════════════════════════════════════════════════
+# Part 1 — Evidence Entries（BE-018..，接 business_knowledge_library 编号）
+# ═══════════════════════════════════════════════════════════════
+entries:
+
+  - id: BE-018
+    source: {book: source_book, page: "p218"}
+    author: Zoltners, Sinha & Lorimer
+    year: 2004
+    type: {authority: PEER_REVIEWED_RESEARCH_comparable(学术型专著), claim: DOMAIN_PRACTICE}
+    business_topic: 规模→覆盖→销售因果链
+    claim: "'sales force effort drives sales'——作者明确指出因果方向是销售投入驱动销售（而非销售驱动投入），并引 Fortune 50 CEO 误读因果的案例；规模决策先于覆盖决策"
+    supports:
+      concept_candidate: [复用→ResourceAvailability/SalesResource（能力面）+ ExecutionHistory（投入面）]
+      decision_candidate: [决策链证据: DM-004 ResourceAlloc(投入) → DM-001 Coverage(覆盖) → 销售结果——三 DM 的业务因果序]
+    confidence: B
+    scenario_mapping: 已有间接背书（S-A TA-CAP 容量→准入链）；因果链本身是 Decision Mapping 层知识，无需新场景
+
+  - id: BE-019
+    source: {book: source_book, page: "p242-243"}
+    author: 同上
+    year: 2004
+    type: {authority: 专著方法, claim: DOMAIN_PRACTICE}
+    business_topic: 活动法规模测算（Activity-based Sizing）
+    claim: "活动法三步：'developing a list of sales force activities required to cover the accounts in each customer segment, estimating the time it takes for a salesperson to complete these activities, then calculating the number of salespeople required to do the work'——按活动×时间×覆盖目标算人力"
+    supports:
+      concept_candidate: [复用→ResourceDayProfile.capacity_min × VisitDemand.expected_duration_min × FrequencySpec——契约三对象即活动法的数据要件]
+      decision_candidate: [Sales Capacity Decision（战略级规模）——当前边界外；战术级同构=DM-004 已验（S-A/D/B 容量判定口径一致）]
+    confidence: B
+    scenario_mapping: 战术同构已验；战略级规模场景=G-4 未开——本条为 CC-02 战略层提供方法证据（与 BE-009 ORTEC 分层互证）
+
+  - id: BE-020
+    source: {book: source_book, page: "p229-237"}
+    author: 同上
+    year: 2004
+    type: {authority: 专著方法, claim: DOMAIN_PRACTICE}
+    business_topic: 规模健康五快测
+    claim: "五个快速判断规模是否合适的测试：customer test（客户答不出'我的销售是谁'/久未见面/考虑更换供应商=过小信号）、morale test、selling activities test、competitive position test、financial test——规模失衡以客户可感知信号先行暴露"
+    supports:
+      concept_candidate: [复用→ExecutionHistory.missed + VisitCandidate.priority_score（客户侧信号=监测输入）]
+      decision_candidate: [DM-008 ExecutionMonitor 的战略层输入形态——覆盖不足的早期信号定义]
+    confidence: B
+    scenario_mapping: S-B 偏离 diff 已验机制同构；customer test 语义（客户感知）属战略层——随 G-4
+
+  - id: BE-021
+    source: {book: source_book, page: "p271"}
+    author: 同上
+    year: 2004
+    type: {authority: 专著定义, claim: DOMAIN_PRACTICE}
+    business_topic: 辖区对齐定义（Territory Alignment）
+    claim: "'The assignment of accounts and their associated selling activities to salespeople and teams is called sales territory alignment'——对齐=客户账户+其销售活动到销售人员的指派（别名 assignment/deployment/districting）"
+    supports:
+      concept_candidate: [复用→战略层的 Ownership(账户归属)+Assignment(活动指派)——与 S-D 已验的 Ownership≠Assignment 同构放大：专著在战略层同样把'归属'与'活动'作为对齐的两要素]
+      decision_candidate: [CC-02 TerritoryDesign 的权威定义证据——辖区设计决策=账户×活动的批量指派决策]
+    confidence: A    # 领域权威专著的可直引定义
+    scenario_mapping: 战术级同构已验（S-D MRE-D-1 五要素链）；战略级=G-4——本条显著强化 CC-02（从'文献存在'升级为'权威定义+方法体系'）
+
+  - id: BE-022
+    source: {book: source_book, page: "p269-270"}
+    author: 同上
+    year: 2004
+    type: {authority: 专著案例, claim: EMPIRICAL_EVIDENCE}
+    business_topic: 对齐失衡的双向症状
+    claim: "Chicago 辖区销售领先但'prospective customers have never been contacted'且存量客户服务不足；Indianapolis 辖区'market share 领先'但高流失——同等人力下对齐失准同时制造覆盖缺口与过劳/激励不公两种症状"
+    supports:
+      concept_candidate: [复用→FulfillmentClass(覆盖分层) + CC-03 WorkloadEquity(负荷/潜力失衡)]
+      decision_candidate: [DM-001 覆盖 与 DM-004 容量 的耦合失衡证据——单侧优化任一者都不够]
+    confidence: B
+    scenario_mapping: 单场景内耦合已验（S-A TA-CAP 容量压力→分层准入）；跨辖区均衡=G-5 未验
+
+  - id: BE-023
+    source: {book: source_book, page: "p291-293"}
+    author: 同上
+    year: 2004
+    type: {authority: 专著方法, claim: DOMAIN_PRACTICE}
+    business_topic: 对齐目标（经济学口径）
+    claim: "四大对齐目标之首：'Equalizing marginal returns is the objective preferred by economists'——稀缺销售投入的利润最大化发生在各输入边际回报相等时（报酬递减律）；其余目标含潜力分布公平（'rules that define an acceptable range of territory'潜力区间规则）"
+    supports:
+      concept_candidate: [复用→DM-002 Prioritization 的经济学基础（与 BE-004 逾期累积/BE-007 Size-of-Prize 同族：边际回报口径）+ CC-03 的'区间带'形态（潜力可接受区间=公平带）]
+      decision_candidate: [战略层 ResourceAlloc 目标函数语义——candidate 映射（不建 DM）]
+    confidence: A
+    scenario_mapping: 战术同构（priority_score 排序=离散版边际回报均衡）；战略级目标形态=G-4/G-5
+
+  - id: BE-024
+    source: {book: source_book, page: "p294-298"}
+    author: 同上
+    year: 2004
+    type: {authority: 专著方法, claim: DOMAIN_PRACTICE}
+    business_topic: 扰动管理（Manage Disruption）
+    claim: "对齐规则二'Manage Disruption'：重排破坏销售员客户关系（'a single account between territories is seen by one salesperson as losing the best account and by the other as gaining the worst'）；实证跟踪重排后 test 组（换人账户）vs control 组（未换）销售差异，支持完整账户交接程序；过渡期双账户计酬（'paid based on sales performance at both his or her old accounts and his or her new accounts for a period following realignment'）"
+    supports:
+      concept_candidate: [复用→PlanningPolicy.freeze_days_count + max_reassignment_ratio + ExistingCommitment——战略层与运营层共享'最小破坏'语义；过渡期计酬=重排补偿策略（策略配置）]
+      decision_candidate: [DM-006+DM-007（H2 合并裁定）的**跨层语义证据**：专著在战略重排场景同样采用'冻结+限扰动+补偿'三件套，与 S-E/S-B 运营层实证同构]
+    confidence: A
+    scenario_mapping: 运营层已验（S-E 17/17 freeze/ratio/承诺存活）；本条证明该语义非运营层特有——跨层复用证据（无新概念需求）
+    note: "BE-011(Sethi&Serger) + BE-024(Zoltners) + S-E 实证三源互证：稳定性语义在理论/专著/场景三层一致"
+
+  - id: BE-025
+    source: {book: source_book, page: "p299-300"}
+    author: 同上
+    year: 2004
+    type: {authority: 专著方法, claim: DOMAIN_PRACTICE}
+    business_topic: 激励与对齐的交互
+    claim: "对齐规则三'Manage Incentive Compensation Issues'：销量导向激励使销售员'want more accounts than they can cover effectively'（贪多），市场份额导向使'them to want fewer accounts than they could manage'（贪少）——激励结构系统性扭曲账户需求申报"
+    supports:
+      concept_candidate: [复用→需求侧失真证据：VisitDemand 生成需独立于资源侧自报（DemandReason 显式化=防申报失真）——契约'需求与资源分离'设计的业务理由]
+      decision_candidate: [DM-003 ReqGeneration 的独立性佐证：需求物化不能被资源侧偏好污染]
+    confidence: B
+    scenario_mapping: 契约已按此原则冻结（demand/policy 分离）；无新场景需求
+
+  - id: BE-026
+    source: {book: source_book, page: "p290"}
+    author: 同上
+    year: 2004
+    type: {authority: 专著方法, claim: DOMAIN_PRACTICE}
+    business_topic: 重对齐触发条件
+    claim: "产品组合变化即使规模不变也改变'workload and sales potential across various sales territories'的分布——'Companies stand to lose significant sales and profits if they do not reexamine...alignments'；列举八类触发（结构调整/增员/减员/并购/市场变化/新建/新品）"
+    supports:
+      concept_candidate: [复用→S-E 滚动重排的战略层触发器集合——触发器=执行事件流的战略级扩展（ExecutionHistory 概念族）]
+      decision_candidate: [DM-008 监测的触发维度证据（何時该重排的战略级信号）]
+    confidence: B
+    scenario_mapping: 战术触发已验（S-E 扰动包/S-B 四事件）；战略触发集合=G-4
+
+# ═══════════════════════════════════════════════════════════════
+# Part 2 — Decision Mapping 增量钩子（挂 decision_mapping_candidate 层，本批不改动其文件）
+# ═══════════════════════════════════════════════════════════════
+mapping_hooks:
+  CC-02_TerritoryDesign:
+    evidence_gain: "BE-021(权威定义,A) + BE-019(活动法,B) + BE-026(触发集,B)——从'文献存在'(BE-012) 升级为'定义+方法+触发'三件套"
+    decision_sharpening: "辖区设计=账户×活动批量指派（Ownership+Assignment 战略同构）——未来 DCR 时概念落点应在既有两概念族的组合，而非新实体"
+    status: 仍 Candidate（G-4/P6 锁定不变）
+  CC-03_WorkloadEquity:
+    evidence_gain: "BE-022(双向症状,B) + BE-023(边际回报/潜力区间带,A)——公平语义获得经济学口径（equalize marginal returns）与工程口径（acceptable range band）两种形态"
+    decision_sharpening: "min-max 与 区间带 两候选数学形态提前登记——Step 2 反推 Pattern 时的目标形态选项"
+    status: 仍 Candidate（G-5 不变）
+  DM-006+007_H2跨层:
+    evidence_gain: "BE-024 三源互证（Sethi&Serger 理论 / Zoltners 专著 / S-E 场景）——freeze/ratio/补偿语义跨运营-战略两层成立"
+    status: 加注不改（已 Validated Candidate）
+  DM-003_独立性:
+    evidence_gain: "BE-025 激励扭曲——需求物化独立于资源自报的业务理由"
+    status: 加注不改
+
+# ═══════════════════════════════════════════════════════════════
+# Part 3 — 全部 12 份图书的 SVDE 三阶段优先级排序（评审口径）
+# ═══════════════════════════════════════════════════════════════
+book_intake_plan:
+  batch_1_business_concept_to_decision:      # Step 1.5 现阶段
+    - {file: "epdf.tips_sales-force-design-for-strategic-advantage(1).pdf", status: "✅ 本批已处理", rank: 1}
+    - {file: "Building a winning sales management team (Zoltners).pdf", status: 排队, rank: 2, note: "同作者团队设计/人员配置——CC-02/容量证据补强"}
+    - {file: "Sales Force Management 12th (Johnston & Marshall).pdf", status: 排队, rank: 3, note: "销售管理通论——决策上下文补全"}
+    - {file: "Handbook of strategic account management (Woodburn & Wilson).pdf", status: 排队, rank: 4, note: "战略客户管理——KA 覆盖决策证据（太古/美素佳儿语境直接相关）"}
+    - {file: "Marketing Channels (Anderson & Stern).pdf", status: 排队, rank: 5, note: "渠道结构——渠道覆盖决策证据"}
+  batch_1_edge:
+    - {file: "The Ultimate Route to Market (Ian Shanahan).pdf", status: 暂缓, note: "GSI/外包 RTM——窄场景，渠道批后再评"}
+    - {file: "420238005-CDSD-Brochure.pdf", status: 按纪律拒入当前批, note: "疑似厂商 brochure——防厂商对象污染（评审'暂缓厂商资料'条款）"}
+  batch_2_decision_to_math_pattern:          # Step 2
+    - {file: "Introduction to Operations Research 9th (Hillier & Lieberman).pdf", note: "Pattern Library 主源：Assignment/Transportation/NetworkFlow/IP"}
+    - {file: "Network Flows (Ahuja, Magnanti & Orlin).pdf", note: "网络流深化——Routing/分配 Pattern 证据"}
+  batch_3_dynamic_decision:                  # Phase 3+
+    - {file: "无 DP/控制书在列", note: "Dynamic Programming and Optimal Control 未提供——Step 2 后可补"}
+  out_of_scope_deferred:
+    - {file: "Thinking in Systems and Mental Models (Dawson).pdf", note: "通识系统思维——非本域决策证据，低优先"}
+    - {file: "Decision-Making on Mega-Projects (Priemus et al).pdf", note: "大型项目 CBA——非销售域，暂缓"}
+
+# ═══════════════════════════════════════════════════════════════
+# Part 4 — 汇总
+# ═══════════════════════════════════════════════════════════════
+summary:
+  entries: 9                    # BE-018..BE-026
+  verbatim_quotes_verified: 9   # 全部 claim 锚点逐字核对（pypdf 书页偏移法）
+  new_concept_candidates: 0     # 零新增——CC-02/03 仅证据增强
+  mapping_hooks: 4              # CC-02/CC-03/DM-006+007/DM-003
+  frozen_kb_touched: false
+  key_findings:
+    - "专著在战略层与 S-D 场景在战术层得到同构结论：对齐=归属+指派两要素分离（BE-021 ↔ MRE-D-1）"
+    - "最小破坏三件套(冻结/限扰动/补偿)获三源互证：理论(Sethi)/专著(Zoltners)/场景(S-E)（BE-024）"
+    - "CC-03 公平语义获经济学口径：equalize marginal returns + acceptable range band（BE-023）——Step 2 目标形态两候选提前登记"
+    - "需求/资源分离的契约设计获业务理由：激励结构系统性扭曲申报（BE-025）"

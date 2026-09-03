@@ -1,0 +1,53 @@
+# SVDE-Bench v0.3 — Visit Domain Constraint Taxonomy
+# Classifies constraints into Hard Invariants, Soft Tradeoffs, and Business Preferences
+
+domain: "visit"
+version: "1.0"
+
+taxonomy:
+  hard_constraints:
+    - type: "SKILL_TIER_MATCH"
+      scope: "rep_account_pair"
+      description: "Strategic accounts require SPECIALIST reps; Core accounts require at least SENIOR reps."
+      hardness: "HARD"
+      relaxable: false
+
+    - type: "DAILY_WORKING_TIME_LIMIT"
+      scope: "sales_resource"
+      description: "Total travel + on-site visit duration must not exceed rep daily limit (480 mins)."
+      hardness: "HARD"
+      relaxable: false
+
+    - type: "MANDATORY_ACCOUNT_TIME_WINDOW"
+      scope: "visit_commitment"
+      description: "Locked account appointment windows must be satisfied within [tw_early, tw_late]."
+      hardness: "HARD_COMMITMENT"
+      relaxable: false
+
+    - type: "REP_ABSENCE_IMMOBILITY"
+      scope: "sales_resource_runtime"
+      description: "Sales resources with status ON_LEAVE / SICK_LEAVE cannot execute visits during absence window."
+      hardness: "HARD"
+      relaxable: false
+
+  soft_constraints:
+    - type: "CADENCE_GAP_REGULARITY"
+      scope: "account_timeline"
+      description: "Penalty per day of deviation from target bi-weekly interval (e.g., target 14 days +- 2)."
+      default_weight: 2.0
+
+    - type: "TOTAL_TRAVEL_OVERHEAD"
+      scope: "territory"
+      description: "Minimize total kilometers / transit minutes between customer accounts."
+      default_weight: 1.0
+
+    - type: "CROSS_TERRITORY_PENALTY"
+      scope: "rep_territory_pair"
+      description: "Penalty for assigning rep outside primary territory boundary."
+      default_weight: 1.5
+
+  business_preferences:
+    - type: "ACCOUNT_CONTINUITY_PREFERENCE"
+      description: "Prefer assigning the historically familiar rep to maintain long-term client rapport."
+    - type: "HISTORICAL_CONTACT_PREFERENCE"
+      description: "Honor account unwritten gatekeeper preferences (e.g. morning meetings preferred)."

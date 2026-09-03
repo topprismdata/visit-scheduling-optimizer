@@ -1,0 +1,61 @@
+# SVDE-Bench v0.3 — Visit Domain Decision Patterns
+# Standardized Decision Patterns modeling relationship, cadence, competency, and memory dilemmas
+
+domain: "visit"
+version: "1.0"
+
+patterns:
+  - id: "PATTERN-V1-VISIT-CADENCE-SLA"
+    name: "Periodic Cadence & Multi-Week SLA Compliance"
+    decision_dilemma: "High-value accounts require strict periodic intervals (e.g. bi-weekly). Reps tempted to compress visits into a single week to save mileage, violating customer cadence SLA."
+    primary_objective: "maximize_cadence_compliance_and_account_coverage"
+    tradeoff_axis: "mileage_compression_vs_cadence_sla_integrity"
+    target_failure_mode: "FT_SEM_CADENCE_DRIFT"
+    default_priority_rule:
+      vip_customer: "high"
+      cost: "low"
+      service_level: "high"
+
+  - id: "PATTERN-V2-SKILL-TIER-MATCHING"
+    name: "Account Complexity vs Rep Competency Allocation"
+    decision_dilemma: "Strategic clinical accounts strictly require Certified Specialist reps. Assigning junior reps saves transit time but breaches service compliance."
+    primary_objective: "guarantee_skill_tier_matching_over_proximity"
+    tradeoff_axis: "competency_compliance_vs_travel_efficiency"
+    target_failure_mode: "FT_CON_SKILL_MISMATCH"
+    default_priority_rule:
+      vip_customer: "high"
+      cost: "medium"
+      service_level: "high"
+
+  - id: "PATTERN-V3-TERRITORY-WORKLOAD-BALANCE"
+    name: "Multi-Resource Boundary Balance vs Travel Overhead"
+    decision_dilemma: "Dense sales zones cause rep burnout while peripheral reps are underutilized. Rebalancing cross-territory incurs travel overhead but equalizes workload."
+    primary_objective: "balance_territory_workloads_and_protect_continuity"
+    tradeoff_axis: "territory_purity_vs_workload_equity"
+    target_failure_mode: "FT_TRD_WORKLOAD_SKEW"
+    default_priority_rule:
+      vip_customer: "medium"
+      cost: "medium"
+      service_level: "high"
+
+  - id: "PATTERN-V4-DYNAMIC-ABSENCE-HANDOFF"
+    name: "Unplanned Rep Absence & Temporary Route Handoff"
+    decision_dilemma: "Assigned rep falls sick mid-cycle. Stand-in rep must execute critical visits without violating account historical preferences or route feasibility."
+    primary_objective: "seamless_handoff_with_minimal_schedule_perturbation"
+    tradeoff_axis: "standin_overtime_vs_unvisited_account_loss"
+    target_failure_mode: "FT_RUN_HANDOFF_DISRUPTION"
+    default_priority_rule:
+      vip_customer: "high"
+      cost: "medium"
+      service_level: "high"
+
+  - id: "PATTERN-V5-RELATIONSHIP-MEMORY-TRANSFER"
+    name: "Account Preference & Historical Gatekeeper Memory Exploitation"
+    decision_dilemma: "Accounts have historical contact preferences (e.g., manager unavailable on Mondays). Exploiting, rejecting, or overriding memory based on real-time context."
+    primary_objective: "exploit_valid_relationship_memory_and_reject_mismatched_context"
+    tradeoff_axis: "historical_preference_exploitation_vs_context_override"
+    target_failure_mode: "FT_MEM_TACTICAL_IGNORANCE"
+    default_priority_rule:
+      vip_customer: "high"
+      cost: "medium"
+      service_level: "high"

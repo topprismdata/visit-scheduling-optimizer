@@ -1,0 +1,234 @@
+{
+  "report_id": "KBC05-ARB-V1.0",
+  "contract_id": "KBC05-TRAVEL-CONTRACT-V1.0",
+  "mandate": "验证外部 travel 接入 Decision Compiler 属于 Data Variation 还是 Semantic Variation——决策语义保持",
+  "cases_arbitration": {
+    "case_1_basic_feasible": {
+      "travel_semantic": "PRESERVED",
+      "variation_classification": "DATA_VARIATION",
+      "synthetic_travel_total": 2500.0,
+      "kbc05_travel_total": 2494.95,
+      "total_delta": -5.05,
+      "dsvl_decision_feasible": true,
+      "lock_constraints_preserved": true,
+      "affected_constraints": [
+        "C06 (Capacity margin)",
+        "C07/C08/C09 (Locks intact)"
+      ],
+      "sample_routes": {
+        "D1": {
+          "stops": [
+            "T10"
+          ],
+          "synthetic": {
+            "cost": 200.0,
+            "route": [
+              "T10"
+            ]
+          },
+          "kbc05": {
+            "cost": 181.02,
+            "route": [
+              "T10"
+            ]
+          },
+          "delta_cost": -18.98
+        },
+        "D4": {
+          "stops": [
+            "T02"
+          ],
+          "synthetic": {
+            "cost": 80.0,
+            "route": [
+              "T02"
+            ]
+          },
+          "kbc05": {
+            "cost": 81.06,
+            "route": [
+              "T02"
+            ]
+          },
+          "delta_cost": 1.06
+        }
+      }
+    },
+    "case_2_capacity_short": {
+      "travel_semantic": "PRESERVED",
+      "variation_classification": "DATA_VARIATION",
+      "synthetic_travel_total": 2500.0,
+      "kbc05_travel_total": 2466.53,
+      "total_delta": -33.47,
+      "dsvl_decision_feasible": true,
+      "lock_constraints_preserved": true,
+      "affected_constraints": [
+        "C06 (Capacity margin)",
+        "C07/C08/C09 (Locks intact)"
+      ],
+      "sample_routes": {
+        "D1": {
+          "stops": [
+            "T02"
+          ],
+          "synthetic": {
+            "cost": 80.0,
+            "route": [
+              "T02"
+            ]
+          },
+          "kbc05": {
+            "cost": 81.06,
+            "route": [
+              "T02"
+            ]
+          },
+          "delta_cost": 1.06
+        },
+        "D4": {
+          "stops": [
+            "T01"
+          ],
+          "synthetic": {
+            "cost": 40.0,
+            "route": [
+              "T01"
+            ]
+          },
+          "kbc05": {
+            "cost": 36.2,
+            "route": [
+              "T01"
+            ]
+          },
+          "delta_cost": -3.8
+        }
+      }
+    },
+    "case_3_commitment_locks": {
+      "travel_semantic": "PRESERVED",
+      "variation_classification": "DATA_VARIATION",
+      "synthetic_travel_total": 2480.0,
+      "kbc05_travel_total": 2463.85,
+      "total_delta": -16.15,
+      "dsvl_decision_feasible": true,
+      "lock_constraints_preserved": true,
+      "affected_constraints": [
+        "C06 (Capacity margin)",
+        "C07/C08/C09 (Locks intact)"
+      ],
+      "sample_routes": {
+        "D1": {
+          "stops": [
+            "T07",
+            "T08",
+            "T09"
+          ],
+          "synthetic": {
+            "cost": 260.0,
+            "route": [
+              "T07",
+              "T08",
+              "T09"
+            ]
+          },
+          "kbc05": {
+            "cost": 255.34000000000003,
+            "route": [
+              "T07",
+              "T08",
+              "T09"
+            ]
+          },
+          "delta_cost": -4.66
+        },
+        "D3": {
+          "stops": [
+            "T01"
+          ],
+          "synthetic": {
+            "cost": 40.0,
+            "route": [
+              "T01"
+            ]
+          },
+          "kbc05": {
+            "cost": 36.2,
+            "route": [
+              "T01"
+            ]
+          },
+          "delta_cost": -3.8
+        }
+      }
+    },
+    "case_4_cadence_stress": {
+      "travel_semantic": "PRESERVED",
+      "variation_classification": "DATA_VARIATION",
+      "synthetic_travel_total": 2280.0,
+      "kbc05_travel_total": 2278.93,
+      "total_delta": -1.07,
+      "dsvl_decision_feasible": true,
+      "lock_constraints_preserved": true,
+      "affected_constraints": [
+        "C06 (Capacity margin)",
+        "C07/C08/C09 (Locks intact)"
+      ],
+      "sample_routes": {
+        "D1": {
+          "stops": [
+            "T03",
+            "T10"
+          ],
+          "synthetic": {
+            "cost": 200.0,
+            "route": [
+              "T03",
+              "T10"
+            ]
+          },
+          "kbc05": {
+            "cost": 207.18,
+            "route": [
+              "T03",
+              "T10"
+            ]
+          },
+          "delta_cost": 7.18
+        },
+        "D5": {
+          "stops": [
+            "T02",
+            "T05",
+            "T08"
+          ],
+          "synthetic": {
+            "cost": 220.0,
+            "route": [
+              "T02",
+              "T08",
+              "T05"
+            ]
+          },
+          "kbc05": {
+            "cost": 232.66,
+            "route": [
+              "T05",
+              "T08",
+              "T02"
+            ]
+          },
+          "delta_cost": 12.66
+        }
+      }
+    }
+  },
+  "criteria_checks": {
+    "ARB-01_typed_constraint_preservation": "PASS",
+    "ARB-02_lock_preservation_under_travel": "PASS",
+    "ARB-03_capacity_feasibility_boundary": "PASS",
+    "ARB-04_decision_feasibility_preservation": "PASS"
+  },
+  "overall_arbitration": "PASS",
+  "academic_conclusion": "外部路网表达（KBC-05 风格绕行系数与非对称性）接入后，属于典型的 Data Variation；决策语义（不变量、频次、锁定、指派、DSVL 规则）100% 保持，无 Semantic Drift。"
+}

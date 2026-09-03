@@ -1,0 +1,123 @@
+# SVDE Knowledge Base v0.1 — Decision Model Candidate Registry
+## Phase A5 — 状态: Candidate（全部未 Approved；按 Phase 0.5 Review 条件 4 + RECON R3）
+## source: SVDE_Knowledge_Base_Agent_Package decision_models_v0_1.yaml (10 models 清单)
+
+version: SVDE-KB-DecisionModel-Candidate-v0.1
+generated_at: "2026-08-22"
+
+registry_convention:
+  approval_requirement: "每个 Decision Model 须同时具备: (1) ontology 概念挂接 (2) evidence 支持 (3) scenario 验证 —— 三者齐备才可转 Approved（五步流程 Step 4+5）"
+  evidence_plus_scenario_rule: "Phase 0.5 Review 建议 2: Decision Model 不只挂 Scenario，还需挂 Evidence——防止'经验定义'"
+
+decision_models:
+
+  - id: DM-001
+    name: Coverage Decision
+    status: Validated Candidate
+    classification: mapping-complete
+    question: "客户覆盖要求是否被满足？"
+    ontology_concepts: [KB-ONT-031 FrequencySpec, KB-ONT-032 CadenceSpec, KB-ONT-042 VisitDemand, KB-ONT-052 BusinessRequirement]
+    evidence: [EV-SF-VISITPLAN, EV-SAP-DUALTRACK, EV-ROTHENBACHER2019]
+    scenario_validation: "S-A 18/18（coverage=100% 断言 + TA-POL 频次变化）· S-C 20/20（cadence Gate C1）"
+    gaps: []
+
+  - id: DM-002
+    name: Customer Prioritization Decision
+    status: Validated Candidate
+    classification: mapping-complete
+    question: "哪些客户应优先获得服务资源？"
+    ontology_concepts: [KB-ONT-010 VisitTarget, KB-ONT-041 FulfillmentClass]
+    evidence: [EV-SAP-DUALTRACK, EV-SAP-HIGHESTIMPACT]
+    scenario_validation: "S-A TA-CAP（REQUIRED/OPTIONAL 分层准入）"
+    gaps: []
+
+  - id: DM-003
+    name: Requirement Generation Decision
+    status: Validated Candidate
+    classification: mapping-complete
+    question: "业务规则+历史如何物化为拜访需求实例？"
+    ontology_concepts: [KB-ONT-033 VisitPolicy, KB-ONT-040 DemandReason, KB-ONT-043 VisitOccurrence, KB-ONT-078 ExecutionHistory, KB-ONT-079 MergePolicy]
+    evidence: [EV-SAP-DUALTRACK, EV-SF-MISSEDREGEN, EV-PROOF-E1]
+    scenario_validation: "S-A §2.3 全表命中 + TA-HIST（漏访重生/抵扣）· S-C stale anchor OBS"
+    gaps: []
+
+  - id: DM-004
+    name: Resource Allocation Decision
+    status: Validated Candidate
+    classification: mapping-complete
+    question: "有限资源如何在需求间分配？"
+    ontology_concepts: [KB-ONT-021 ResourceDayProfile, KB-ONT-023 SalesResource, KB-ONT-081 ObjectivePolicy]
+    evidence: [EV-MSFT-CALENDAR, EV-SAP-HIGHESTIMPACT]
+    scenario_validation: "S-A TA-CAP（容量不足分流）· S-D 三资源差异化"
+    gaps: []
+
+  - id: DM-005
+    name: Assignment Decision
+    status: Validated Candidate
+    classification: mapping-complete
+    question: "每次拜访实际指派给谁执行？"
+    ontology_concepts: [KB-ONT-060/061/062 归属三轴, KB-ONT-022 ResourceAvailability, KB-ONT-074 PlannedVisit.resource_id]
+    evidence: [EV-D-FOURCONCEPT, EV-MSFT-BOOKINGLOCK]
+    scenario_validation: "S-D 20/20 全场景（MRE-D-1/2/3 三反例 + 五要素审计链）"
+    gaps: []
+
+  - id: DM-006
+    name: Visit Planning Decision
+    status: Validated Candidate
+    classification: mapping-complete
+    question: "何时、何序生成可执行拜访计划？"
+    ontology_concepts: [KB-ONT-044 VisitCandidate, KB-ONT-074 PlannedVisit, KB-ONT-075 Route, KB-ONT-083 Scenario]
+    evidence: [EV-PTV-MULTIWEEK, EV-ROTHENBACHER2019]
+    scenario_validation: "S-A/C/D 三场景装配与输出（解释层；数学层属 Phase 3）"
+    gaps: ["Phase 3 语义编译验证待做（F1/F2/F3 三路等价）"]
+
+  - id: DM-007
+    name: Exception Handling Decision
+    status: Validated Candidate
+    classification: mapping-complete
+    question: "需求未满足时如何处理（defer/escalate/substitute）？"
+    ontology_concepts: [KB-ONT-053 DeferralPolicy, KB-ONT-052 exception_handling_policy_ref, KB-ONT-041 FulfillmentClass]
+    evidence: [EV-ORA-NONASSIGN, EV-PTV-ORDERPRIORITY, EV-DOV-MRE1]
+    scenario_validation: "S-A TA-CAP 四段链 · S-C TC-CAP · S-D REQ-D-002 升级"
+    gaps: []
+
+  - id: DM-008
+    name: Execution Monitoring Decision
+    status: Validated Candidate
+    classification: independent-validated    # Gate B5 裁定：独立成立
+    question: "当前执行状态是什么、偏差是什么？（状态事实层——非计划生成、非违例处理）"
+    ontology_concepts: [KB-ONT-070 LifecycleState, KB-ONT-078 ExecutionHistory]
+    evidence: [EV-MSFT-BOOKINGSTATUS, EV-SF-MISSEDREGEN]
+    scenario_validation: "S-E 多轮历史输入 · S-B 状态机七态单调+终态吸收+CANCELLED 首次运行期流转+偏离 diff 产出 regen/exception 输入（13/13）"
+    independence_adjudication: "Gate B5 三判据全过：问题独立(状态真值)·输入独立(执行事件流)·承载缺口(DM-006/007 均不拥有状态真值)"
+    gaps: []
+
+  - id: DM-009
+    name: Capacity Planning Decision
+    status: MERGED into DM-004
+    classification: merged    # Gate B5 裁定：并入 DM-004
+    question: "（已并入 DM-004）资源总量是否足以覆盖需求？缺口多大？"
+    ontology_concepts: [KB-ONT-021 ResourceDayProfile, KB-ONT-022 ResourceAvailability]
+    evidence: [EV-MSFT-CALENDAR]
+    scenario_validation: "五场景全部战术级容量判定（A TA-CAP/D 三资源异构/E 冻结窗口/B 日内容量 240min 口径）——无战略级(headcount/辖区)业务决策证据"
+    merge_adjudication: "Gate B5：容量本质是资源约束下的可行性评估（Capacity Constraint→Feasibility Evaluation），归 DM-004；无 Failure Evidence 反对"
+    gaps: []
+
+  - id: DM-010
+    name: Replanning Decision
+    status: MERGED into DM-006+007
+    classification: merged    # Gate E6 裁定 H2 + Gate B5 日内复证
+    question: "（已并入 DM-006+007）计划受扰后如何最小破坏地重排？"
+    ontology_concepts: [KB-ONT-072 ExistingCommitment, KB-ONT-071 CommitmentLock, KB-ONT-080 PlanningPolicy, KB-ONT-061 SubstitutionPolicy]
+    evidence: [EV-ORA-CONTINUOUS, EV-MSFT-BOOKINGLOCK]
+    scenario_validation: "S-E H2 判定：freeze/ratio→PlanningPolicy·regen→History+DM-003·shortfall→DP 链·diff-audit→trace 维度（17/17）；S-B 日内尺度复证（注入+容量+DP 链，不设 Emergency DM）"
+    merge_adjudication: "重排=已有 Planning+Exception 在动态状态下的执行模式，非独立业务决策；重排特有决策输入缺失=无（无 Failure Evidence）"
+    gaps: []
+
+summary:
+  total: 10
+  active_after_phase2: 8    # DM-001..008（Phase 2 Closure 冻结终态）
+  merged: 2                 # DM-009→DM-004 · DM-010→DM-006+007
+  validated_candidate: 8    # DM-001..008 全部 Validated Candidate
+  approved: 0               # 保持不 Approved（Phase 2 Review 条件 2：Phase 3 可能因数学表达调整 Decision 边界）
+  note: "Phase 2 Closure（2026-08-22）：10→8；Validated Candidate 为终态快照，Approved 留待 Phase 3 语义编译验证后 Gate 复审"

@@ -1,0 +1,196 @@
+{
+  "trace_id": "CH-TRACE-001",
+  "domain": "Retail Channel Layout Decision",
+  "business_intent": "6 大商圈战略渠道组合优化，严格控制 1800k Capex / 700k Opex 财政红线，避免自相残杀，最大化战略核心覆盖与商业收益",
+  "semantic_contract_ref": "CHANNEL-LAYOUT-CONTRACT-V1.0",
+  "typed_constraints": [
+    {
+      "cid": "CC01",
+      "entity": "PORTFOLIO",
+      "semantic_class": "FiscalBudget",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Capex Budget Limit"
+      ]
+    },
+    {
+      "cid": "CC02",
+      "entity": "PORTFOLIO",
+      "semantic_class": "FiscalBudget",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Opex Budget Limit"
+      ]
+    },
+    {
+      "cid": "CC03",
+      "entity": "DIRECT_STORES",
+      "semantic_class": "CapacityQuota",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Direct Bandwidth Policy"
+      ]
+    },
+    {
+      "cid": "CC04",
+      "entity": "FMT_FLAGSHIP",
+      "semantic_class": "EligibilityRule",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Brand Identity Guideline"
+      ]
+    },
+    {
+      "cid": "CC05",
+      "entity": "ALL_FORMATS",
+      "semantic_class": "EligibilityRule",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Pop Threshold Standard"
+      ]
+    },
+    {
+      "cid": "CC06",
+      "entity": "SPATIAL_PAIRS",
+      "semantic_class": "SpatialExclusion",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Anti-Cannibalization Policy"
+      ]
+    },
+    {
+      "cid": "CC07",
+      "entity": "T1_ZONES",
+      "semantic_class": "StrategicCoverage",
+      "hardness": "HARD",
+      "relaxable": false,
+      "provenance": [
+        "Core Market Defense"
+      ]
+    },
+    {
+      "cid": "CC08",
+      "entity": "FMT_POPUP",
+      "semantic_class": "OpportunityObjective",
+      "hardness": "SOFT_PREFERENCE",
+      "relaxable": true,
+      "provenance": [
+        "Agile Penetration"
+      ]
+    }
+  ],
+  "dsvl_precheck": {
+    "decision_feasible": true,
+    "rules": [
+      {
+        "rule_id": "CH-DSVL-I001",
+        "status": "PASS",
+        "evidence": "Capex ≤ 1800k, Opex ≤ 700k 财政红线硬绑定"
+      },
+      {
+        "rule_id": "CH-DSVL-I002",
+        "status": "PASS",
+        "evidence": "旗舰店仅限 T1 商圈 ['Z01', 'Z02']，低线商圈变量 100% 裁剪"
+      },
+      {
+        "rule_id": "CH-DSVL-I003",
+        "status": "PASS",
+        "evidence": "T1 商圈 ['Z01', 'Z02'] 进驻约束强制生效"
+      },
+      {
+        "rule_id": "CH-DSVL-I004",
+        "status": "PASS",
+        "evidence": "生成 3 组距离 < 4 自相残杀保护对"
+      },
+      {
+        "rule_id": "CH-DSVL-S001",
+        "status": "PASS",
+        "evidence": "自营门店上限 ≤ 4 约束就绪"
+      },
+      {
+        "rule_id": "CH-DSVL-S002",
+        "status": "PASS",
+        "evidence": "100% 战略约束具备合法来源（零幻影）"
+      },
+      {
+        "rule_id": "CH-DSVL-S003",
+        "status": "PASS",
+        "evidence": "人口门槛预检查 100% 通过"
+      },
+      {
+        "rule_id": "CH-DSVL-T001",
+        "status": "PASS",
+        "evidence": "商圈战略因果映射双射完整"
+      }
+    ]
+  },
+  "mathopt_model_meta": {
+    "solver_type": "MathOpt+HiGHS",
+    "variables_count": 17,
+    "constraints_count": 5,
+    "m1_preservation_status": "100%_PRESERVED"
+  },
+  "solver_solution": {
+    "status": "OPTIMAL",
+    "objective_tuple": [
+      "FEASIBLE",
+      340,
+      2255
+    ],
+    "channel_portfolio_selected": {
+      "Z01": "FMT_STANDARD",
+      "Z02": "FMT_FLAGSHIP",
+      "Z03": "FMT_STANDARD",
+      "Z04": "FMT_STANDARD",
+      "Z05": "FMT_FRANCHISE",
+      "Z06": "FMT_POPUP"
+    }
+  },
+  "external_reality_check": {
+    "variation_classification": "DATA_VARIATION",
+    "dsvl_postcheck_feasible": true,
+    "invariants_preserved": true
+  },
+  "strategic_explainability": [
+    {
+      "zone": "Z01 (CBD核心商圈)",
+      "selected_format": "FMT_STANDARD (标准专卖店)",
+      "strategic_rationale": "战略防御：高密人口区部署标准品牌专卖店，平衡开店 Capex 与产出"
+    },
+    {
+      "zone": "Z02 (高密成熟居住区)",
+      "selected_format": "FMT_FLAGSHIP (自营旗舰店)",
+      "strategic_rationale": "战略进攻：T1 顶级商圈配建自营旗舰店，最大化品牌势能与核心收益"
+    },
+    {
+      "zone": "Z03 (科技新城发展区)",
+      "selected_format": "FMT_STANDARD (标准专卖店)",
+      "strategic_rationale": "战略防御：高密人口区部署标准品牌专卖店，平衡开店 Capex 与产出"
+    },
+    {
+      "zone": "Z04 (文教大学园区)",
+      "selected_format": "FMT_STANDARD (标准专卖店)",
+      "strategic_rationale": "战略防御：高密人口区部署标准品牌专卖店，平衡开店 Capex 与产出"
+    },
+    {
+      "zone": "Z05 (产业临港工业区)",
+      "selected_format": "FMT_FRANCHISE (加盟合作店)",
+      "strategic_rationale": "轻资产渗透：加盟模式覆盖新兴发展区/次级商圈，低资本占用快速锁位"
+    },
+    {
+      "zone": "Z06 (远郊枢纽小城镇)",
+      "selected_format": "FMT_POPUP (快闪机会点)",
+      "strategic_rationale": ""
+    }
+  ],
+  "research_memory_update": {
+    "kernel_reuse_verified": true,
+    "failure_triage": "Zero Failures. Strategic Invariants 100% Preserved."
+  }
+}

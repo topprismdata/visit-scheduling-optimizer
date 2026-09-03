@@ -1,0 +1,7 @@
+objective: lexicographic_tier1_then_tier2_then_tier3
+candidate_solutions_count: 2
+parallel_options:
+- id: opt_protect_t1_t2
+  description: Deliver T1 and T2, defer T3
+- id: opt_attempt_all
+  description: Attempt all 3, causing late delivery on T2

@@ -1,0 +1,9 @@
+# SVDE-Bench v0.2 — Minimal Fixture (Single case proving validation works)
+# NOT a domain case. Built ONLY to exercise the validator.
+case_id: "FIXTURE-MINIMAL-001"
+domain: "delivery"
+version: "1.0-fixture"
+created_at: "2026-08-24"
+tags: ["fixture", "day-1"]
+difficulty: "L1"
+fixture_note: "Day 1 minimal fixture for schema validation pass"

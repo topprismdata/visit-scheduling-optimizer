@@ -1,0 +1,7 @@
+primary_objective: balance_specialist_load_maintain_competency_tier
+secondary_objectives:
+- minimize_overtime
+priority_rules:
+  vip_customer: high
+  cost: medium
+  service_level: high

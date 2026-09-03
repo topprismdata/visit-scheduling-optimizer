@@ -1,0 +1,7 @@
+objective: lexicographic_absorb_orphan_vip_then_stability
+candidate_solutions_count: 2
+parallel_options:
+- id: opt_absorb
+  description: Standin absorbs orphan VIP visit alongside own store
+- id: opt_cancel_orphan
+  description: Cancel sick rep visits (SLA breach on Key Account)

@@ -1,0 +1,31 @@
+{
+  "benchmark_id": "WH-BENCHMARK-V1.0",
+  "domain": "Warehouse Slotting",
+  "overall_status": "PASS",
+  "q1_scale_semantic_stability": "PASS (8 SKU x 12 Location, L1/L2/L3 100% preserved)",
+  "q2_kernel_reuse": "PASS (Contract->Type->DSVL->MathOpt pipeline 100% reused)",
+  "q3_independent_oracle_equivalence": "PASS (MathOpt == CP-SAT Oracle)",
+  "q4_decision_explainability_trace": "PASS (Complete causal chain emitted)",
+  "mathopt_solution": [
+    "FEASIBLE",
+    8,
+    6135
+  ],
+  "oracle_solution": [
+    "FEASIBLE",
+    8,
+    6135
+  ],
+  "assignments": {
+    "SKU_A1": "L01",
+    "SKU_A2": "L02",
+    "SKU_B1": "L04",
+    "SKU_B2": "L05",
+    "SKU_C1": "L09",
+    "SKU_C2": "L10",
+    "SKU_D1": "L07",
+    "SKU_E1": "L03"
+  },
+  "dsvl_precheck_status": "ALL_RULES_PASSED",
+  "external_data_variation_status": "DATA_VARIATION (Cost Delta = +495 on +1m shift, zero decision drift)"
+}

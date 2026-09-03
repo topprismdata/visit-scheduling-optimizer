@@ -1,0 +1,15 @@
+case_id: CASE-D01
+domain: delivery
+version: '1.0'
+created_at: '2026-08-24'
+tags:
+- extended
+- v0.2
+- pattern-d1-vip-sla-protection
+- variant:cost_pressure_under_fixed_fleet
+difficulty: L2
+pattern:
+  id: PATTERN-D1-VIP-SLA-PROTECTION
+  variant_name: Cost Pressure Under Fixed Fleet
+  dilemma: Tight fleet budget temptations to consolidate VIP stop into longer route,
+    risking locked window breach.

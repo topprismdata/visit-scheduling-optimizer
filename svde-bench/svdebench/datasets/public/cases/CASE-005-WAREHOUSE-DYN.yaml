@@ -1,0 +1,36 @@
+# Golden Case 005 — Dynamic Warehouse Slotting Reallocation v0.1
+metadata:
+  id: "CASE-005-WAREHOUSE-DYN"
+  domain: "Warehouse Slotting"
+  name: "Dynamic Warehouse Slotting Adaptation v0.1"
+  tags: ["sequential_decision", "warehouse", "adaptation"]
+
+intent:
+  objective: "Minimize picking distance while maintaining slot stability"
+
+world_state:
+  depot: [0, 0]
+  fleet:
+    - {id: "ZONE_FAST", type: "ZONE", capacity_kg: 1500, status: "AVAILABLE"}
+    - {id: "ZONE_AMB", type: "ZONE", capacity_kg: 1500, status: "AVAILABLE"}
+  orders:
+    - {id: "SKU_HOT", weight_kg: 100, req_cold: false, is_locked: false, freq: 80}
+    - {id: "SKU_NORMAL", weight_kg: 100, req_cold: false, is_locked: false, freq: 20}
+
+semantic_contract:
+  constraints:
+    - id: "C1"
+      name: "Capacity"
+      type: "CAPACITY"
+      hardness: "HARD"
+      relaxable: false
+
+runtime_context:
+  timestamp_min: 0
+  past_delivered_orders: []
+
+events:
+  - event_id: "EVT_HOT_FREQ_SURGE"
+    event_type: "SKU_FREQUENCY_SURGE"
+    timestamp_min: 90
+    variation_classification: "DATA_VARIATION"

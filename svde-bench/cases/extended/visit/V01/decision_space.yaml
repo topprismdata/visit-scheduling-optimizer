@@ -1,0 +1,7 @@
+objective: lexicographic_cadence_then_transit
+candidate_solutions_count: 2
+parallel_options:
+- id: opt_staggered
+  description: Stagger visits across weeks honoring cadence
+- id: opt_compressed
+  description: Batch both visits into Day 1 saving transit time (Cadence failure)

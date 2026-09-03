@@ -1,0 +1,32 @@
+# Golden Case 004 — VIP vs Normal Order Priority Conflict v0.1
+metadata:
+  id: "CASE-004-PRIORITY-CONFLICT"
+  domain: "Dynamic Fleet Route Logistics"
+  name: "VIP vs Normal Order Priority Conflict v0.1"
+  tags: ["priority_conflict", "business_intent", "delivery"]
+
+intent:
+  objective: "Maximize VIP commitment preservation over local cost optimal"
+
+world_state:
+  depot: [0, 0]
+  fleet:
+    - {id: "VEH_01", type: "STANDARD_VAN", capacity_kg: 300, status: "AVAILABLE"}
+  orders:
+    - {id: "ORD_VIP",   weight_kg: 100, req_cold: false, is_locked: true, is_vip: true, tw_early: 60, tw_late: 120}
+    - {id: "ORD_NORM",  weight_kg: 100, req_cold: false, is_locked: false, tw_early: 60, tw_late: 120}
+
+semantic_contract:
+  constraints:
+    - id: "C_COMMIT"
+      name: "VIP_TimeWindowLock"
+      type: "TIME_WINDOW_LOCKED"
+      hardness: "HARD_COMMITMENT"
+      target_order: "ORD_VIP"
+      relaxable: false
+
+runtime_context:
+  timestamp_min: 0
+  past_delivered_orders: []
+
+events: []

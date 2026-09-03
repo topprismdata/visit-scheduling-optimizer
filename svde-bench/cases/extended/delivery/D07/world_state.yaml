@@ -1,0 +1,44 @@
+entities:
+  vehicles:
+  - id: VEH_COLD_01
+    type: COLD_REFRIGERATED
+    capacity_kg: 1000
+    status: AVAILABLE
+  - id: VEH_STD_02
+    type: STANDARD_VAN
+    capacity_kg: 1000
+    status: AVAILABLE
+  customers:
+  - id: CUST_FRESH
+    name: Supermarket Fresh Section
+    priority: vip
+  - id: CUST_DRY
+    name: General Goods Warehouse
+    priority: standard
+  orders:
+  - id: ORD_ICE
+    weight_kg: 400
+    req_cold: true
+    is_locked: true
+    tw_early: 0
+    tw_late: 240
+  - id: ORD_DRY_01
+    weight_kg: 500
+    req_cold: false
+    is_locked: false
+    tw_early: 0
+    tw_late: 360
+  - id: ORD_DRY_02
+    weight_kg: 400
+    req_cold: false
+    is_locked: false
+    tw_early: 60
+    tw_late: 360
+relationships:
+  vehicle_route:
+  - vehicle: VEH_COLD_01
+    planned_orders:
+    - ORD_ICE
+  customer_priority:
+  - customer: CUST_FRESH
+    commitment: sla_commitment

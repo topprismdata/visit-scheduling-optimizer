@@ -1,0 +1,15 @@
+case_id: CASE-V02
+domain: delivery
+version: '1.0'
+created_at: '2026-08-24'
+tags:
+- extended
+- v0.2
+- pattern-v1-visit-cadence-sla
+- variant:consecutive_visit_postponement_accumulation
+difficulty: L2
+pattern:
+  id: PATTERN-V1-VISIT-CADENCE-SLA
+  variant_name: Consecutive Visit Postponement Accumulation
+  dilemma: Postponing peripheral store visits across consecutive cycles creates relationship
+    breakdown risk.

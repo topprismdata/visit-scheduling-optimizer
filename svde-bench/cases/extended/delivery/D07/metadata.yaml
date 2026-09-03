@@ -1,0 +1,15 @@
+case_id: CASE-D07
+domain: delivery
+version: '1.0'
+created_at: '2026-08-24'
+tags:
+- extended
+- v0.2
+- pattern-d4-capacity-coldchain-allocation
+- variant:refrigerated_compartment_shortage
+difficulty: L2
+pattern:
+  id: PATTERN-D4-CAPACITY-COLDCHAIN-ALLOCATION
+  variant_name: Refrigerated Compartment Shortage
+  dilemma: High cold cargo demand with limited refrigerated van volume. Must preserve
+    food safety compliance strictly.

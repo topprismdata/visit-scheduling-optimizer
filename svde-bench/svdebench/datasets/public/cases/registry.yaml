@@ -1,0 +1,79 @@
+cases:
+  - case_id: CASE-001-DELIVERY-RECOVERY
+    domain: delivery
+    difficulty: L3
+    capability_tags: [semantic_constraint, runtime_adaptation, memory_update]
+    oracle_available: true
+    expected_failure_modes: [FT-01, FT-03]
+
+  - case_id: CASE-002-MULTI-DC
+    domain: delivery
+    title: Multi-Distribution-Center Collaborative Delivery Optimization
+    difficulty: L2
+    capability_tags: [semantic_constraint, feasibility_check]
+    oracle_available: true
+    expected_failure_modes: [FT-02]
+
+  - case_id: CASE-003-COLDCHAIN-RECOVERY
+    domain: delivery
+    title: Cold Chain Vehicle Anomaly Recovery
+    difficulty: L3
+    capability_tags: [semantic_constraint, runtime_adaptation, hard_commitment]
+    oracle_available: true
+    expected_failure_modes: [FT-01, FT-03]
+
+  - case_id: CASE-004-PRIORITY-CONFLICT
+    domain: delivery
+    title: VIP vs. Normal Order Priority Conflict
+    difficulty: L4
+    capability_tags: [semantic_intent, multi_objective]
+    oracle_available: true
+    expected_failure_modes: [FT-01, FT-05]
+
+  - case_id: CASE-005-WAREHOUSE-DYN
+    domain: warehouse
+    title: Dynamic Warehouse Slotting Adaptation
+    difficulty: L3
+    capability_tags: [sequential_decision, runtime_adaptation]
+    oracle_available: true
+    expected_failure_modes: [FT-03]
+
+  - case_id: CASE-006-WAREHOUSE-CONGESTION
+    domain: warehouse
+    title: Warehouse Peak Congestion Recovery
+    difficulty: L3
+    capability_tags: [runtime_adaptation, resource_conflict]
+    oracle_available: true
+    expected_failure_modes: [FT-03]
+
+  - case_id: CASE-007-CHANNEL-DIST
+    domain: channel
+    title: Channel Resource Allocation Trade-off
+    difficulty: L4
+    capability_tags: [business_tradeoff, multi_objective]
+    oracle_available: true
+    expected_failure_modes: [FT-01, FT-05]
+
+  - case_id: CASE-008-OPPORTUNITY-ALLOC
+    domain: channel
+    title: Market Opportunity Allocation Decision
+    difficulty: L4
+    capability_tags: [opportunity_decision, multi_objective]
+    oracle_available: true
+    expected_failure_modes: [FT-01]
+
+  - case_id: CASE-009-VISIT-PERIODIC
+    domain: visit_scheduling
+    title: Multi-Cycle Periodic Visit Planning
+    difficulty: L2
+    capability_tags: [semantic_constraint, feasibility_check]
+    oracle_available: true
+    expected_failure_modes: [FT-02]
+
+  - case_id: CASE-010-VISIT-REPLAN
+    domain: visit_scheduling
+    title: Dynamic Visit Replanning with Emergency Insert
+    difficulty: L3
+    capability_tags: [runtime_adaptation, dynamic_replanning]
+    oracle_available: true
+    expected_failure_modes: [FT-03]

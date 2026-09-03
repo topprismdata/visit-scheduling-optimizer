@@ -1,0 +1,15 @@
+case_id: CASE-D09
+domain: delivery
+version: '1.0'
+created_at: '2026-08-24'
+tags:
+- extended
+- v0.2
+- pattern-d5-memory-guided-adaptation
+- variant:valid_episodic_congestion_memory_exploitation
+difficulty: L2
+pattern:
+  id: PATTERN-D5-MEMORY-GUIDED-ADAPTATION
+  variant_name: Valid Episodic Congestion Memory Exploitation
+  dilemma: Historical memory shows recurring morning dock bottleneck at commercial
+    hub. Exploiting memory avoids severe delivery failure.

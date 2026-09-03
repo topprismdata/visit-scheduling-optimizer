@@ -1,0 +1,179 @@
+# SVDE Knowledge Base v0.2 — Mathematical Backend Capability Registry
+## Knowledge Expansion · Step 3 · Pattern → Backend 能力映射（非工具列表）
+## 纪律：Backend 不定义 Pattern；Solver 名称不是知识重点；方向恒为 Decision → Pattern → Backend
+
+version: SVDE-KB-BackendCapability-v0.2
+generated_at: "2026-08-22"
+role: Knowledge Builder
+supersedes: backend_reference_v0_1.yaml（能力边界视角重构；v0_1 保留为历史层——不覆盖）
+inputs:
+  - mathematical_pattern_registry_v0_1.yaml   # MP-01..09（唯一合法上游）
+  - backend_reference_v0_1.yaml              # KB-BE-001..008+010 事实基线（A04 v6_1_1）
+
+rules:                       # Task v6 规则固化
+  - Backend 不定义 Pattern（禁止：CP-SAT 有 interval → 创造 DynamicVisit）
+  - Solver 名称不是知识重点——重点=支持哪些 Pattern/表达优势/建模限制/不适用场景
+  - capability 事实以 A04 v6_1_1 Evidence Baseline 为准（known_limits 含 issue 编号可溯）
+  - 本层全部 Reference 态——solver 更替不触发知识库变更（KB-GOV-009）
+
+pattern_coverage_convention:
+  supports_patterns: "该 backend 能可靠表达的 MP 编号（含子集注记）"
+  partial: "表达可行但非该 backend 优势面——标 partial 并注明"
+  none: "明确不适用——not_suitable_for 列出"
+
+# ═══════════════════════════════════════════════════════════════
+# Part 1 — Backend Capability Cards（八引擎，Pattern 视角）
+# ═══════════════════════════════════════════════════════════════
+backends:
+
+  - backend_id: KBC-01
+    name: Google OR-Tools CP-SAT
+    type: 约束规划求解器（含 SAT/MIP 融合）
+    upstream_ref: KB-BE-001
+    supports_patterns:
+      - MP-04 Scheduling/CP（本体面——interval/no-overlap/circuit/optional 原语直映射 CommitmentLock/时窗/SEQUENCE_LOCKED）
+      - MP-06 Integer Programming（subset——0-1 与整数变量齐全，但无对偶/松弛信息通道，LP 弱于专用 MIP）
+      - MP-01 Assignment（subset——整数指派可解，但大指派无运输特例加速）
+      - MP-07 Temporal Dependency（partial——间隔不等式 (b) 形态可表达；周次模式 (a) 形态表达冗长）
+    strength: "复杂逻辑约束表达密度最高（评审示例语义：complex logical constraints / interval scheduling）；PROVEN_INFEASIBLE 归因天然——传播失败即冲突集（S-E 结构不可行归因先例）"
+    limitations: "非大规模 LP 松弛天然载体（linear relaxation 信息弱——评审示例语义：not natural for large LP relaxation）；建模需谨慎（requires careful modeling）；最优性证明依赖搜索完备性"
+    scale_characteristics: "数千变量级排程强；纯 MIP 大实例收敛慢于商用 MIP"
+    explainability: "传播日志+solver log；无对偶价格（影子价格语义缺——需 MIP 侧补）"
+    deployment: "Apache-2.0；Python 官方一级（9.15 [2026-01-12]）；原生 cp_model（MathOpt 缺 interval——#5144 已注记）"
+    evidence: [A04 v6_1_1 KB-BE-001, backend_reference known_limits #5144, MP-04 卡]
+    not_suitable_for: "纯连续优化（MP-03 LP 面）；大规模 Set Partitioning 列生成主问题（无对偶→列定价弱）"
+
+  - backend_id: KBC-02
+    name: Google OR-Tools MathOpt + GLOP/HiGHS（LP/MIP 通道）
+    type: 求解器无关建模层 + LP 引擎
+    upstream_ref: KB-BE-001/002
+    supports_patterns:
+      - MP-03 Transportation/Network Flow（本体面——最小费用流/运输直接建模，整数解性质好）
+      - MP-06 Integer Programming（完整——0-1/整数/松弛切换；F2 compact-MIP 候选载体）
+      - MP-01 Assignment（完整——运输特例）
+      - MP-02 Set Covering/Partitioning（subset——紧凑式可行；列生成需外层框架）
+    strength: "求解器无关接口（solver-independent）——F2/MIP 侧多后端等价验证的统一建模层；对偶/影子价格可用（容量边际语义）"
+    limitations: "暂缺 CP 原语（interval #5144）——时序强问题需转 CP-SAT；MIP 大规模依赖底层引擎（GLOP 仅 LP）"
+    scale_characteristics: "LP 数万约束级稳；MIP 视结构（拜访域紧凑式中小规模可证最优）"
+    explainability: "对偶价格/约简成本（容量与优先级的边际解释——BE-023 边际回报语义的数学通道）"
+    deployment: "Apache-2.0；Python 一级"
+    evidence: [A04 KB-BE-001/002, MP-03/MP-06 卡]
+    not_suitable_for: "MP-04 强时序传播（无 interval）；MP-05 富 VRP 精确求解（非专用）"
+
+  - backend_id: KBC-03
+    name: SCIP & GCG
+    type: 通用分解验证框架（Generic Decomposition）
+    upstream_ref: KB-BE-003
+    supports_patterns:
+      - MP-02 Set Partitioning（分解面——Dantzig-Wolfe/BCP：Pricing 生成 VisitCandidate column 的理论验证器）
+      - MP-05 VRP（exact 分解面——Branch-Cut-and-Price）
+      - MP-06 IP（含 MINLP 扩展）
+    strength: "GCG 自动检测块结构做 D-W 分解——'业务列(VisitCandidate)定价'路线的学术级验证基座"
+    limitations: "仅当 ProblemProfile+Benchmark 证明需要 decomposition 才启用（usage_note 纪律）；通用框架对拜访域特化定价慢于专用 BPC"
+    scale_characteristics: "中大规模分解结构；定价子问题 ESPPRC 类需专用 labeling"
+    explainability: "分解结构与主从问题可分离审计——与 PROV-O 决策因果图天然对齐"
+    deployment: "Apache-2.0（v8+）；PySCIPOpt（SCIP 10.0.2/GCG 4.0.2 [2026-04]）"
+    evidence: [A04 KB-BE-003, MP-02/MP-05 卡]
+    not_suitable_for: "轻量战术判定（MP-03 可行域——杀鸡用牛刀）；生产默认路径（需 Benchmark 证据触发）"
+
+  - backend_id: KBC-04
+    name: Coluna.jl
+    type: 通用 BPC 框架（Julia）
+    upstream_ref: KB-BE-004
+    supports_patterns:
+      - MP-02 Set Partitioning（BPC 面）
+      - MP-05 VRP（BPC 面）
+    strength: "Branch-and-Price-and-Cut 全栈可编程——自定义 pricing（拜访域特化列生成）自由度最高"
+    limitations: "Julia 原生，Python 需胶水层——运维成本；社区规模小于 SCIP 生态"
+    scale_characteristics: "中大规模；适合算法实验而非首产部署"
+    explainability: "分解可审计；胶水层增加 trace 断点"
+    deployment: "MPL-2.0"
+    evidence: [A04 KB-BE-004]
+    not_suitable_for: "无分解需求场景（MP-03/MP-04——引入无益）"
+
+  - backend_id: KBC-05
+    name: VRPSolverEasy
+    type: 专用精确 VRP Oracle（BPC：ESPPRC+Labeling）
+    upstream_ref: KB-BE-005
+    supports_patterns:
+      - MP-05 VRP（exact 本体面——Rich VRP 精确求解）
+    strength: "Rich VRP 精确解+最优性证明——GT-Micro 穷举 oracle 的第三方独立对照（F1/F2/F3 之外的第四方仲裁者）"
+    limitations: "官方声明 Research/Teaching Prototype, not suited for production——仅小算例验证工具"
+    scale_characteristics: "小中算例（GT-Micro 尺度恰配）"
+    explainability: "Bound/proof 输出可作等价性证据"
+    deployment: "MIT"
+    evidence: [A04 KB-BE-005 maturity_caveat]
+    not_suitable_for: "生产路径（官方声明）；非 VRP Pattern（MP-01/03/04 与其无关）"
+
+  - backend_id: KBC-06
+    name: PyVRP
+    type: 单日富路径启发式
+    upstream_ref: KB-BE-006
+    supports_patterns:
+      - MP-05 VRP（heuristic 面——CVRP/VRPTW/Multi-trip）
+    strength: "ILS 启发式（v0.13+）单日路径高质量解快速——Phase 4 Benchmark 的启发式基线"
+    limitations: "PVRP 多周期 open（issue #441）——多周节奏（MP-07 耦合）不可承载；无最优性证明（启发式）"
+    scale_characteristics: "大街区规模快；质量依赖迭代预算"
+    explainability: "解可复现（seed），无 gap 证明"
+    deployment: "MIT；C++ 核心+Pybind11 0.13.4"
+    evidence: [A04 KB-BE-006 known_limits #441, Wouda/Lan/Kool 2024 DOI 10.1287/ijoc.2023.0055]
+    not_suitable_for: "多周期规划（PVRP open）；精确性验证（无 proof）；非路径 Pattern"
+
+  - backend_id: KBC-07
+    name: Timefold Solver & Platform
+    type: 约束声明式排程引擎（Java/Kotlin；REST 托管）
+    upstream_ref: KB-BE-007
+    supports_patterns:
+      - MP-04 Scheduling/CP（ConstraintStreams 声明式——业务约束 DSL 参考）
+      - MP-05 VRP（heuristic 面——Field Service Routing）
+    strength: "ScoreDirector/ConstraintStreams 业务约束声明范式——领域 DSL 设计参考价值（A01 4.3 已注记）"
+    limitations: "Python 实验包 2025 归档——当前主力 Java/Kotlin+REST；对偶/松弛无（约束打分式）"
+    scale_characteristics: "企业排班/派工规模"
+    explainability: "Score breakdown 逐约束解释——可解释性强（决策审计友好）"
+    deployment: "Apache-2.0（Solver）；REST 对接（Platform）"
+    evidence: [A04 KB-BE-007 architecture_note, A01 §4.3]
+    not_suitable_for: "Python 原生集成（归档）；精确最优证明（score 启发式）"
+
+  - backend_id: KBC-08
+    name: Gurobi / COPT
+    type: 企业级商用 MIP/LP 引擎（可选插件）
+    upstream_ref: KB-BE-008
+    supports_patterns:
+      - MP-06 Integer Programming（商用最强面——大规模紧凑式）
+      - MP-02 Set Partitioning（主问题侧）
+      - MP-03 Network Flow（LP 面高性能）
+    strength: "大规模 MIP 收敛与稳定性（商用引擎强项）；评审示例语义：strong linear formulation"
+    limitations: "formulation quality dependent（评审示例语义）——建模质量决定成败；商业 License 成本；专有（黑盒程度高）"
+    scale_characteristics: "十万变量级 MIP 生产级"
+    explainability: "对偶/Gap/IIS（不可行归因）——商用级诊断工具链"
+    deployment: "商业收费；License 门控"
+    evidence: [A04 KB-BE-008]
+    not_suitable_for: "MP-04 强时序传播（仍需建模转换）；无 License 环境；架构默认路径（仅 Benchmark 证明必要才引入——Build-vs-Reuse 纪律）"
+
+# ═══════════════════════════════════════════════════════════════
+# Part 2 — Pattern → Backend 反查矩阵（每 Pattern 的候选承载面）
+# ═══════════════════════════════════════════════════════════════
+pattern_backend_matrix:
+  MP-01 Assignment:          {exact: [KBC-02(MathOpt+MIP), KBC-08], cp: [KBC-01(partial)], note: "运输特例整数解性质——LP 即整数最优"}
+  MP-02 SetCovering:         {exact: [KBC-02(紧凑式), KBC-03(D-W 分解), KBC-08], note: "列生成主从分工：KBC-02/08 主问题 · KBC-03/04 pricing 验证"}
+  MP-03 NetworkFlow:         {exact: [KBC-02(GLOP/HiGHS LP), KBC-08], note: "可行域判定=LP——容量语义(BDC-04)最轻承载"}
+  MP-04 Scheduling/CP:       {primary: KBC-01(CP-SAT 本体), reference: [KBC-07(ConstraintStreams DSL 参考)], note: "F3 路线唯一真载体——interval/no-overlap 直映射"}
+  MP-05 VRP:                 {exact_oracle: KBC-05, heuristic: [KBC-06(单日), KBC-07], bpc_research: [KBC-03, KBC-04], note: "GT-Micro 仲裁=KBC-05 · 生产候选=KBC-06 单日+F 系多周"}
+  MP-06 IntegerProgramming:  {primary: [KBC-02(接口), KBC-08(商用强)], cp: [KBC-01(subset)], note: "F2 compact-MIP 载体族——MathOpt 接口层保证 solver 无关（语义等价验证用）"}
+  MP-07 TemporalDependency:  {cp: [KBC-01(间隔不等式形态)], mip: [KBC-02(两形态均可线性化)], note: "两形态（模式列/间隔不等式）承载皆可行——形态选择是 Phase 3 F1 语义编译问题，非 backend 能力问题"}
+  MP-08 RollingHorizon:      {host: [KBC-02/KBC-08(冻结=常数固定·扰动=预算约束), KBC-01(承诺=硬约束传播)], note: "跨层 Pattern——任何可承载 MP-04/06 的 backend 均可承载其单期实例；滚动编排属 Compiler 层非 solver 层"}
+  MP-09 MultiObjective/Equity: {host: [KBC-02(字典序多解序列), KBC-08, KBC-01(min-max 线性化)], note: "四形态全部可承载——口径未定（G-5）前无 backend 约束"}
+  uncovered: []    # 9/9 Pattern 均有承载面——无 Pattern 因 backend 缺口被阻塞
+
+# ═══════════════════════════════════════════════════════════════
+# Part 3 — 汇总
+# ═══════════════════════════════════════════════════════════════
+summary:
+  backend_cards: 8                # KBC-01..08 ↔ KB-BE-001..008（一一对应，Pattern 视角重述）
+  pattern_coverage: "9/9 MP 全部有承载面；uncovered=[]——Semantic Compilation 无 backend 阻塞"
+  direction_enforced: "Decision→Pattern→Backend 单向；零 backend 驱动 pattern（rules 固化 + 每卡 upstream_ref 指回 v0_1 事实层）"
+  solver_name_deemphasized: true  # 名称仅作 upstream_ref 锚——能力/边界/不适用为主文本
+  frozen_kb_touched: false
+  new_pattern_created: 0          # 本层零新 Pattern（规则 1 执行证）
+  verbatim_policy_quotes: 2       # 评审示例语义（not natural for large LP relaxation / formulation quality dependent）按'语义'标注引用——非 Hillier 式逐字（来源为评审指令本身）
+  next: "Semantic Compilation Preparation（Phase 3 预备——五层齐备后的 Knowledge Architecture Final Review 由评审主持）"

@@ -1,0 +1,7 @@
+primary_objective: minimize_disruption_and_protect_locked_orders
+secondary_objectives:
+- minimize_additional_travel_time
+priority_rules:
+  vip_customer: high
+  cost: medium
+  service_level: high

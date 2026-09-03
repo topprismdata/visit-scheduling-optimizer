@@ -1,0 +1,7 @@
+primary_objective: balance_overtime_cost_and_ontime_rate
+secondary_objectives:
+- minimize_overtime_hours
+priority_rules:
+  vip_customer: high
+  cost: high
+  service_level: medium

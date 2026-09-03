@@ -1,0 +1,7 @@
+objective: lexicographic_safety_isolation_then_cost
+candidate_solutions_count: 2
+parallel_options:
+- id: opt_isolate
+  description: Route Food on VEH_01, Chemical on VEH_02
+- id: opt_co_route
+  description: Co-route both on VEH_01 to save vehicle cost (Safety violation)

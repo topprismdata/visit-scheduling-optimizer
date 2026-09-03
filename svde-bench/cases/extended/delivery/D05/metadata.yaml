@@ -1,0 +1,15 @@
+case_id: CASE-D05
+domain: delivery
+version: '1.0'
+created_at: '2026-08-24'
+tags:
+- extended
+- v0.2
+- pattern-d3-cost-service-tradeoff
+- variant:overtime_vehicle_deployment_vs_cost_penalty
+difficulty: L2
+pattern:
+  id: PATTERN-D3-COST-SERVICE-TRADEOFF
+  variant_name: Overtime Vehicle Deployment vs Cost Penalty
+  dilemma: Tight time-windows require deploying extra overtime vehicle vs saving cost
+    by delaying standard orders.

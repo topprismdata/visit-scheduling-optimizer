@@ -1,0 +1,40 @@
+entities:
+  vehicles:
+  - id: REP_SPEC_01
+    type: COLD_REFRIGERATED
+    capacity_kg: 480
+    status: AVAILABLE
+  - id: REP_JUN_02
+    type: STANDARD_VAN
+    capacity_kg: 420
+    status: AVAILABLE
+  customers:
+  - id: CUST_ONCOLOGY
+    name: Academic Oncology Center
+    priority: vip
+  - id: CUST_CLINIC
+    name: General Practice Clinic
+    priority: standard
+  orders:
+  - id: VISIT_ONCOLOGY
+    weight_kg: 90
+    req_cold: true
+    is_locked: true
+    is_vip: true
+    tw_early: 60
+    tw_late: 180
+  - id: VISIT_CLINIC
+    weight_kg: 30
+    req_cold: false
+    is_locked: false
+    is_vip: false
+    tw_early: 0
+    tw_late: 360
+relationships:
+  vehicle_route:
+  - vehicle: REP_SPEC_01
+    planned_orders:
+    - VISIT_ONCOLOGY
+  customer_priority:
+  - customer: CUST_ONCOLOGY
+    commitment: sla_commitment

@@ -1,0 +1,8 @@
+expected_difficulty: medium
+expected_agent_separation: true
+separation_dimensions:
+- memory
+- feasibility
+success_threshold:
+  semantic_min: 0.9
+  commitment_survival_min: 1.0

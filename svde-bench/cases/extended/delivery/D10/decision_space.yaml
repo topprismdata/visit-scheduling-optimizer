@@ -1,0 +1,7 @@
+objective: lexicographic_validate_memory_then_cost
+candidate_solutions_count: 2
+parallel_options:
+- id: opt_direct_bridge
+  description: Take reopened bridge directly
+- id: opt_stale_detour
+  description: Take outdated 30km detour based on stale memory

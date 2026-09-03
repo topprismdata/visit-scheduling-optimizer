@@ -1,0 +1,5 @@
+objective: "lexicographic_vip_coverage_then_travel"
+candidate_solutions_count: 2
+parallel_options:
+  - {id: "route_a", description: "Visit flagship store first, followed by standard store"}
+  - {id: "route_b", description: "Visit standard store first, risking flagship store window"}

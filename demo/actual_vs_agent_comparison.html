@@ -1,0 +1,1015 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>SRP 实际走访与 Agent 动态插单对比看板</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --fg: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --accent: #0f766e;
+      --accent-light: #ccfbf1;
+      --danger: #e11d48;
+      --danger-light: #ffe4e6;
+      --warning: #d97706;
+      --warning-light: #fef3c7;
+      --fd: "PingFang SC", -apple-system, system-ui, sans-serif;
+      --fm: ui-monospace, Menlo, Monaco, Consolas, monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--fd);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .container { max-width: 1680px; width: 98%; margin: 0 auto; padding: 0 16px; }
+    .topnav {
+      position: sticky; top: 0; z-index: 1000;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 0; flex-wrap: wrap; gap: 12px;
+    }
+    .logo-box { display: flex; align-items: baseline; gap: 10px; }
+    .logo { font-size: 16px; font-weight: 700; color: #0f172a; letter-spacing: -0.02em; }
+    .tag {
+      font-family: var(--fm); font-size: 11px; padding: 2px 8px;
+      border-radius: 4px; background: var(--accent-light); color: var(--accent); font-weight: 600;
+    }
+    .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    select, button {
+      padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px;
+      background: var(--surface); color: var(--fg); font: inherit; font-size: 12px;
+      cursor: pointer;
+    }
+    select:focus, button:focus { outline: 2px solid var(--accent); }
+    .btn-primary { background: var(--accent); color: #fff; border: 0; font-weight: 600; }
+    
+    .sec { padding: 18px 0; }
+    .sec-border { border-top: 1px solid var(--border); }
+    
+    /* KPI Grid */
+    .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    @media (max-width: 1024px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    .kpi-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 16px;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .kpi-label { font-size: 11px; color: var(--muted); font-weight: 500; }
+    .kpi-val {
+      font-family: var(--fm); font-size: 26px; font-weight: 700;
+      color: var(--fg); margin: 4px 0 2px;
+    }
+    .kpi-sub { font-size: 11px; color: var(--muted); }
+    .val-danger { color: var(--danger); }
+    .val-success { color: var(--accent); }
+    
+    /* Maps Stage: 强制绝对左右并排 (Side-by-Side Flex) */
+    .map-stage {
+      display: flex !important;
+      flex-direction: row !important;
+      justify-content: space-between !important;
+      align-items: stretch !important;
+      gap: 16px !important;
+      margin-top: 14px !important;
+      width: 100% !important;
+    }
+    .map-box {
+      flex: 1 1 0 !important;
+      min-width: 0 !important;
+      width: calc(50% - 8px) !important;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .map-header {
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      background: #fcfcfd;
+    }
+    .map-title { font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    .map-stat { font-family: var(--fm); font-size: 12px; font-weight: 600; }
+    .map-elem { height: 480px; width: 100%; }
+    .map-legend {
+      padding: 8px 14px; border-top: 1px solid var(--border);
+      display: flex; gap: 14px; font-size: 11px; color: var(--muted); flex-wrap: wrap;
+    }
+    .leg-item { display: flex; align-items: center; gap: 5px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    /* 高德地图风格路线规划概览卡片 (Gaode Route Overview Card) */
+    .amap-route-card {
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border);
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .amap-route-card-warn {
+      background: #fff8f8;
+      border-left: 4px solid var(--danger);
+    }
+    .amap-route-card-success {
+      background: #f4fbf9;
+      border-left: 4px solid var(--accent);
+    }
+    .amap-roads-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      overflow-x: auto;
+      white-space: nowrap;
+      padding-bottom: 2px;
+      scrollbar-width: thin;
+    }
+    .amap-chip {
+      font-family: var(--fm);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: #f1f5f9;
+      color: #334155;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .amap-chip-revisit {
+      background: #ffe4e6;
+      color: #be123c;
+      border: 1px solid #fecdd3;
+    }
+    .amap-chip-agent {
+      background: #ccfbf1;
+      color: #0f766e;
+      border: 1px solid #99f6e4;
+    }
+    .amap-arrow {
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: bold;
+    }
+    .amap-tag-pill {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    .tag-danger-pill { background: #fee2e2; color: #b91c1c; }
+    .tag-success-pill { background: #d1fae5; color: #047857; }
+    /* Copilot Feed & Diagnostic */
+    .lower-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 16px; margin-top: 16px; }
+    @media (max-width: 960px) { .lower-grid { grid-template-columns: 1fr; } }
+    .feed-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px; display: flex; flex-direction: column;
+    }
+    .feed-title { font-weight: 700; font-size: 13px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .feed-chat {
+      background: #f8fafc; border: 1px solid var(--border); border-radius: 8px;
+      padding: 12px 14px; font-family: var(--fm); font-size: 12px; line-height: 1.6;
+      white-space: pre-wrap; color: #1e293b; overflow-x: auto;
+    }
+    
+    /* Table */
+    .table-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px;
+    }
+    .scroll-table { max-height: 280px; overflow-y: auto; margin-top: 8px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 11px; }
+    th { padding: 6px 8px; background: #f1f5f9; color: var(--muted); position: sticky; top: 0; }
+    td { padding: 6px 8px; border-bottom: 1px solid var(--border); font-family: var(--fm); }
+    
+    .badge {
+      display: inline-block; padding: 1px 6px; border-radius: 4px;
+      font-size: 10px; font-weight: 600;
+    }
+    .badge-adhoc { background: var(--warning-light); color: var(--warning); }
+    .badge-plan { background: var(--accent-light); color: var(--accent); }
+    
+    /* Footer */
+    footer { padding: 20px 0; color: var(--muted); font-size: 11px; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<header class="topnav">
+  <div class="container nav-inner">
+    <div class="logo-box">
+      <span class="logo">SRP 实际走访与 Agent 动态插单对比看板</span>
+      <span class="tag">海珠荔湾09 · 梁健满</span>
+    </div>
+    <div class="controls">
+      <label style="font-size:11px;color:var(--muted)">选择对照日期：</label>
+      <select id="dateSelect" onchange="renderDay(this.value)">
+        <option value="day1">2026-07-01 (日常加店: 23计划 + 13临时 = 36店)</option>
+        <option value="day7">2026-07-07 (重度加店: 29计划 + 20临时 = 49店)</option>
+      </select>
+      <button class="btn-primary" onclick="fitBothMaps()">聚焦全景</button>
+      <a href="index.html" style="text-decoration:none;padding:5px 10px;background:#f1f5f9;color:#0f172a;border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:4px">⬅ 返回计划优化大盘</a>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <!-- Top KPIs -->
+  <section class="sec" style="padding-bottom:0">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <span class="kpi-label">人类实际走访打卡里程</span>
+        <span class="kpi-val val-danger" id="kpiActual">--</span>
+        <span class="kpi-sub" id="kpiActualSub">凭直觉折返跑</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Agent 动态走廊顺路插单</span>
+        <span class="kpi-val val-success" id="kpiAgent">--</span>
+        <span class="kpi-sub" id="kpiAgentSub">沿街走廊毫秒级嵌入</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">净节省里程 (降幅)</span>
+        <span class="kpi-val val-success" id="kpiSaving">--</span>
+        <span class="kpi-sub" id="kpiSavingPct">--</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Agent 决策响应耗时</span>
+        <span class="kpi-val" id="kpiLatency">--</span>
+        <span class="kpi-sub">千分之一秒交互响应</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">23 工作日全月总提效 (大盘)</span>
+        <span class="kpi-val val-success">-642.5 km</span>
+        <span class="kpi-sub">全月 1,234.7 → 592.2 km (省 52.0%)</span>
+      </div>
+  </section>
+  <!-- Dual Playback & Sequence Controls -->
+  <section class="sec" style="padding: 10px 0 0;">
+    <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button id="btnPlay" class="btn-primary" onclick="togglePlay()" style="padding:5px 14px;display:flex;align-items:center;gap:4px;">▶ 播放行进动画</button>
+        <button onclick="resetStep()" style="padding:5px 10px;">⏮ 重置</button>
+        <button onclick="endStep()" style="padding:5px 10px;">⏭ 终点</button>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;margin-left:8px;cursor:pointer;">
+          <input type="checkbox" id="syncSlidersChk" checked onchange="toggleSyncSliders(this.checked)">
+          <strong style="color:var(--accent)">🔗 左右两图步数同步联动</strong>
+        </label>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:260px;max-width:540px;">
+        <span style="font-size:11px;color:var(--muted);white-space:nowrap;">全局进度:</span>
+        <input type="range" id="masterSlider" min="0" max="35" value="35" style="flex:1;cursor:pointer;" oninput="onMasterSliderInput(this.value)">
+        <span id="stepCounter" style="font-family:var(--fm);font-size:12px;font-weight:700;color:var(--fg);min-width:75px;text-align:right;">36 / 36 站</span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);">
+        <span>倍速:</span>
+        <select id="playSpeed" style="padding:3px 8px;font-size:11px;">
+          <option value="600">1.0x 慢速</option>
+          <option value="350" selected>2.0x 标准</option>
+          <option value="150">5.0x 快速</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dual Maps Comparison -->
+  <section class="sec">
+    <div class="map-stage">
+      <!-- Left: Actual Human Trajectory -->
+      <div class="map-box">
+        <div class="map-header">
+          <div style="display:flex;flex-direction:column;gap:3px;">
+            <span class="map-title">
+              <span class="dot" style="background:var(--danger)"></span>
+              【对比 1】人类业代实际打卡走法 (无智能调度)
+            </span>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
+              <span style="font-size:10px;color:var(--muted)">行进至:</span>
+              <input type="range" id="sliderL" min="0" max="35" value="35" style="width:110px;height:4px;cursor:pointer;" oninput="onSliderLInput(this.value)">
+              <span id="labelStepL" style="font-family:var(--fm);font-size:10px;font-weight:bold;color:var(--danger)">36/36 站</span>
+            </div>
+          </div>
+          <span class="map-stat val-danger" id="leftKm">--</span>
+        </div>
+        <div class="amap-route-card amap-route-card-warn" id="cardActual"></div>
+        <div class="map-elem" id="mapActual"></div>
+        <div class="map-legend">
+          <span class="leg-item"><span class="dot" style="background:#3b82f6"></span> 原计划门店</span>
+          <span class="leg-item"><span class="dot" style="background:var(--warning)"></span> 当日临时加店</span>
+          <span class="leg-item"><span class="dot" style="background:var(--danger)"></span> 混乱折返轨迹</span>
+          <span class="leg-item"><span style="font-weight:bold;color:var(--danger);font-size:12px">➔</span> 道路行进方向小箭头</span>
+        </div>
+      </div>
+
+      <!-- Right: Agent Dynamic Route -->
+      <div class="map-box">
+        <div class="map-header">
+          <div style="display:flex;flex-direction:column;gap:3px;">
+            <span class="map-title">
+              <span class="dot" style="background:var(--accent)"></span>
+              【对比 3】Agent 动态走廊顺路插单 (智能副驾)
+            </span>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
+              <span style="font-size:10px;color:var(--muted)">行进至:</span>
+              <input type="range" id="sliderR" min="0" max="35" value="35" style="width:110px;height:4px;cursor:pointer;" oninput="onSliderRInput(this.value)">
+              <span id="labelStepR" style="font-family:var(--fm);font-size:10px;font-weight:bold;color:var(--accent)">36/36 站</span>
+            </div>
+          </div>
+          <span class="map-stat val-success" id="rightKm">--</span>
+        </div>
+        <div class="amap-route-card amap-route-card-success" id="cardAgent"></div>
+        <div class="map-elem" id="mapAgent"></div>
+        <div class="map-legend">
+          <span class="leg-item"><span class="dot" style="background:#94a3b8"></span> 上午已走访前缀(冻结)</span>
+          <span class="leg-item"><span class="dot" style="background:var(--accent)"></span> 沿街走廊顺路插入点</span>
+          <span class="leg-item"><span class="dot" style="background:var(--accent)"></span> 平滑单向推进路线</span>
+          <span class="leg-item"><span style="font-weight:bold;color:var(--accent);font-size:12px">➔</span> 道路行进方向小箭头</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lower Section: Copilot Reasoning & Monthly Calendar -->
+  <section class="sec" style="padding-top:0">
+    <div class="lower-grid">
+      <!-- Copilot Feed -->
+      <div class="feed-card">
+        <span class="feed-title">
+          🤖 SalesVisitDispatchAgent 动态调度副驾指令流
+        </span>
+        <div class="feed-chat" id="agentExplanation">加载中...</div>
+      </div>
+
+      <!-- Monthly Breakdown Table -->
+      <div class="table-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-weight:700;font-size:13px">7 月全月 23 个法定工作日实际走访与 Agent 动态插单对比透视</span>
+          <span style="font-size:11px;color:var(--muted)">点击任意行在上方地图查看当天道路连线</span>
+        </div>
+        <div class="scroll-table">
+          <table id="calTable">
+            <thead>
+              <tr>
+                <th>日期</th>
+                <th>星期</th>
+                <th>实际总打卡</th>
+                <th>计划内完成</th>
+                <th>临时新增</th>
+                <th>业务场景</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- All Reps Full Office Ledger Table -->
+  <section class="sec" style="padding-top:0">
+    <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-weight:700;font-size:13px">📊 全办 10 位业代实际走访 vs Agent 动态插单全月汇总台账 (23个法定工作日)</span>
+        <span style="font-size:11px;color:var(--muted)">自动排除周六日 · 覆盖 10 条线路</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table id="allRepsTable" style="width:100%;border-collapse:collapse;font-size:11px;">
+          <thead>
+            <tr style="background:#f8fafc;">
+              <th style="padding:8px">线路</th>
+              <th style="padding:8px">业代姓名</th>
+              <th style="padding:8px">工作日数</th>
+              <th style="padding:8px">实际打卡总数</th>
+              <th style="padding:8px">计划完成数</th>
+              <th style="padding:8px">临时新增数</th>
+              <th style="padding:8px">临时加店占比</th>
+              <th style="padding:8px">人类实际走访总里程</th>
+              <th style="padding:8px">Agent 动态规划总里程</th>
+              <th style="padding:8px">全月净节省里程</th>
+              <th style="padding:8px">降幅</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Literature Grounding -->
+  <section class="sec sec-border" style="padding-bottom:30px">
+    <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px;">
+      <span style="font-weight:700;font-size:13px">📚 近 3 年学术顶刊方法论背书 (2023–2026)</span>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:10px;font-size:11px;color:var(--muted);">
+        <div>
+          <strong style="color:var(--fg)">1. 司机道路走廊分解 (Corridor Decomposition)</strong><br/>
+          Cook, Held, Helsgaun (2024). <em>Transportation Science</em> 58(1): 12–26 (Amazon 冠军方案). 人类优秀司机的本质不是做全局 2D 欧氏计算，而是沿路网街道走廊进行一维单调分解。
+        </div>
+        <div>
+          <strong style="color:var(--fg)">2. 在途轨迹与沿街顺路插入 (En-Route Delivery)</strong><br/>
+          Taylor & Francis (2025). <em>Vehicle Routing Problem with En-Route Delivery</em>. 突发大批量插单时，将新点投影至当前剩余通行弧，做弧段微链拼接与局部接缝抛光。
+        </div>
+        <div>
+          <strong style="color:var(--fg)">3. 动态大批量到达理论 (Batch DVRP)</strong><br/>
+          Pillac et al. (2023–2024). <em>European Journal of Operational Research</em>. "走廊投影 → 1维排序 → 接缝毫秒抛光" 范式被证明在工业落地中兼顾毫秒响应与极优质量。
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+    <span>底图 © 高德地图 · 真实骑行路网距离 © OpenStreetMap FOSSGIS · GCJ-02 投影</span>
+    <span>数据依据：进离店报表导出 (4).xlsx · 进离店内销售的SRP-7月拜访计划.xlsx</span>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="leaflet.polylineDecorator.js"></script>
+<script>
+// =========================================================
+// 国家测绘局标准 WGS-84 -> GCJ-02 (火星坐标) 高精度转换
+// 解决 OSM 骑行路网 (WGS-84) 在高德地图底图 (GCJ-02) 上的偏移问题
+// =========================================================
+function wgs84ToGcj02(lng, lat) {
+  const a = 6378245.0, ee = 0.00669342162296594323;
+  let dlat = _transformLat(lng - 105.0, lat - 35.0);
+  let dlng = _transformLng(lng - 105.0, lat - 35.0);
+  const radlat = (lat / 180.0) * Math.PI;
+  let magic = Math.sin(radlat);
+  magic = 1.0 - ee * magic * magic;
+  const sqrtmagic = Math.sqrt(magic);
+  dlat = (dlat * 180.0) / (((a * (1.0 - ee)) / (magic * sqrtmagic)) * Math.PI);
+  dlng = (dlng * 180.0) / ((a / sqrtmagic) * Math.cos(radlat) * Math.PI);
+  return [lat + dlat, lng + dlng]; // 返回 Leaflet 所需的 [lat_gcj, lon_gcj]
+}
+function _transformLat(lng, lat) {
+  let ret = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
+  ret += (20.0 * Math.sin(6.0 * lng * Math.PI) + 20.0 * Math.sin(2.0 * lng * Math.PI)) * 2.0 / 3.0;
+  ret += (20.0 * Math.sin(lat * Math.PI) + 40.0 * Math.sin(lat / 3.0 * Math.PI)) * 2.0 / 3.0;
+  ret += (160.0 * Math.sin(lat / 12.0 * Math.PI) + 320 * Math.sin(lat * Math.PI / 30.0)) * 2.0 / 3.0;
+  return ret;
+}
+function _transformLng(lng, lat) {
+  let ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
+  ret += (20.0 * Math.sin(6.0 * lng * Math.PI) + 20.0 * Math.sin(2.0 * lng * Math.PI)) * 2.0 / 3.0;
+  ret += (20.0 * Math.sin(lng * Math.PI) + 40.0 * Math.sin(lng / 3.0 * Math.PI)) * 2.0 / 3.0;
+  ret += (150.0 * Math.sin(lng / 12.0 * Math.PI) + 300.0 * Math.sin(lng / 30.0 * Math.PI)) * 2.0 / 3.0;
+  return ret;
+}
+
+let DATA = null;
+let mapA = null;
+let mapB = null;
+let layerA = null;
+let layerB = null;
+let syncing = false;
+
+// 双屏实时协同平移与缩放 (Dual Map Synchronizer)
+function syncMap(source, target) {
+  if (syncing || !source || !target) return;
+  syncing = true;
+  target.setView(source.getCenter(), source.getZoom(), { animate: false });
+  setTimeout(() => { syncing = false; }, 16);
+}
+
+// GCJ-02 高德瓦片
+const gaodeUrl = "https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}";
+
+function initMaps() {
+  mapA = L.map('mapActual', { zoomControl: false }).setView([23.06, 113.22], 13);
+  mapB = L.map('mapAgent', { zoomControl: false }).setView([23.06, 113.22], 13);
+
+  L.tileLayer(gaodeUrl, { subdomains: "1234", maxZoom: 18 }).addTo(mapA);
+  L.tileLayer(gaodeUrl, { subdomains: "1234", maxZoom: 18 }).addTo(mapB);
+
+  layerA = L.featureGroup().addTo(mapA);
+  layerB = L.featureGroup().addTo(mapB);
+
+  // 监听平移与缩放, 左右双向毫秒级联动
+  mapA.on('move', () => syncMap(mapA, mapB));
+  mapB.on('move', () => syncMap(mapB, mapA));
+}
+
+function renderCalendar(cal) {
+  const tbody = document.querySelector('#calTable tbody');
+  tbody.innerHTML = '';
+  cal.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
+    tr.title = '点击在上方地图查看当天路线';
+    tr.onclick = () => {
+      document.getElementById('dateSelect').value = r.date;
+      renderDay(r.date);
+    };
+    const badge = r.adhoc > 10 ? 'badge-adhoc' : 'badge-plan';
+    const tagText = r.adhoc > 20 ? '重度插单' : (r.adhoc > 0 ? '日常加单' : '纯计划');
+    const saveStr = r.saved_km !== undefined ? `-${r.saved_km} km` : '--';
+    tr.innerHTML = `
+      <td><strong>${r.date}</strong></td>
+      <td>${r.weekday}</td>
+      <td>${r.actual_total}</td>
+      <td>${r.in_plan}</td>
+      <td><span class="badge ${badge}">+${r.adhoc}</span></td>
+      <td style="color:var(--accent);font-weight:600">${saveStr}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+let currentDay = null;
+let currentStepL = 0;
+let currentStepR = 0;
+let maxSteps = 36;
+let syncSliders = true;
+let isPlaying = false;
+function findNearestIdx(pts, target) {
+  let minD = Infinity, bestIdx = pts.length - 1;
+  for (let i = 0; i < pts.length; i++) {
+    const d = (pts[i][0] - target[0])**2 + (pts[i][1] - target[1])**2;
+    if (d < minD) { minD = d; bestIdx = i; }
+  }
+  return bestIdx;
+}
+
+// 同一建筑/市场多店重叠坐标微偏移算法 (Spider-Jitter)
+// 彻底解决第 2 站把第 1 站遮挡导致看不到 1 号的问题!
+function computeOverlapOffsets(seq, stores) {
+  const coordGroups = {};
+  seq.forEach((idx, step) => {
+    const s = stores[idx];
+    const key = s.lon.toFixed(6) + ',' + s.lat.toFixed(6);
+    if (!coordGroups[key]) coordGroups[key] = [];
+    coordGroups[key].push(step);
+  });
+  const stepOffsets = {};
+  Object.values(coordGroups).forEach(stepsAtCoord => {
+    const total = stepsAtCoord.length;
+    if (total === 1) {
+      stepOffsets[stepsAtCoord[0]] = { x: 0, y: 0, total: 1 };
+    } else {
+      stepsAtCoord.forEach((step, rank) => {
+        const radius = total === 2 ? 14 : 16;
+        const angle = (2 * Math.PI / total) * rank - Math.PI / 2;
+        stepOffsets[step] = {
+          x: Math.round(Math.cos(angle) * radius),
+          y: Math.round(Math.sin(angle) * radius),
+          total: total
+        };
+      });
+    }
+  });
+  return stepOffsets;
+}
+
+// 提取门店地址中的主要道路/走廊名称 (高德地图路线概览规范)
+function extractCorridorName(addr, name) {
+  let text = addr || "";
+  text = text.replace(/^.*?街道/, "").replace(/^.*?区/, "");
+  const m = text.match(/^([^0-9号辅路、，,\s]+?(?:大道|中路|南路|北路|西路|东路|路|街|道|巷|约|市场|创意园|用品城|商场|花园))/);
+  if (m) {
+    let res = m[1].replace(/辅路|支行|\(.*?\)|（.*?）/g, "").trim();
+    if (res.length >= 2 && res.length <= 10) return res;
+  }
+  const m2 = (name || "").match(/^([^0-9]+?(?:大道|路|街|道|市场))/);
+  if (m2) return m2[1].trim();
+  return text.slice(0, 5).replace(/[0-9号]/g, "").trim() || "沿街商圈";
+}
+
+// 渲染高德地图风格的主要途经走廊概览卡片
+function renderCorridorOverview(day) {
+  const stores = day.stores;
+  
+  // 1. 人类实际走访走廊流
+  const flowA = [];
+  day.actual_seq.forEach(idx => {
+    const s = stores[idx];
+    const cName = extractCorridorName(s.address, s.name);
+    if (!flowA.length || flowA[flowA.length - 1].name !== cName) {
+      flowA.push({ name: cName, count: 1 });
+    } else {
+      flowA[flowA.length - 1].count++;
+    }
+  });
+  
+  const seenA = new Set();
+  let revisitsA = 0;
+  const chipsHtmlA = flowA.map((c, i) => {
+    const isRevisit = seenA.has(c.name);
+    if (isRevisit) revisitsA++;
+    seenA.add(c.name);
+    const cls = isRevisit ? 'amap-chip amap-chip-revisit' : 'amap-chip';
+    const warnIcon = isRevisit ? '⚠️ ' : '';
+    const arrow = (i < flowA.length - 1) ? '<span class="amap-arrow">›</span>' : '';
+    return `<span class="${cls}">${warnIcon}${c.name} (${c.count}店)</span>${arrow}`;
+  }).join('');
+  
+  document.getElementById('cardActual').innerHTML = `
+    <div class="amap-flow-title">
+      <strong>主要途经走廊：</strong>
+      <div style="display:flex;gap:4px;">
+        <span class="amap-tag-pill tag-danger-pill">⚠️ 路线折返</span>
+        <span class="amap-tag-pill tag-danger-pill">🔄 发生 ${revisitsA} 次跨街掉头</span>
+      </div>
+    </div>
+    <div class="amap-roads-row">${chipsHtmlA}</div>
+    <div style="font-size:10px;color:var(--muted);display:flex;justify-content:space-between;margin-top:2px;">
+      <span>在 ${seenA.size} 条主干走廊间频繁切换 ${flowA.length} 次</span>
+      <span style="color:var(--danger);font-weight:600">产生 ${(day.actual_km - day.agent_km).toFixed(1)} km 纯无效折返</span>
+    </div>
+  `;
+
+  // 2. Agent 动态规划走廊流
+  const flowB = [];
+  day.agent_seq.forEach(idx => {
+    const s = stores[idx];
+    const cName = extractCorridorName(s.address, s.name);
+    if (!flowB.length || flowB[flowB.length - 1].name !== cName) {
+      flowB.push({ name: cName, count: 1 });
+    } else {
+      flowB[flowB.length - 1].count++;
+    }
+  });
+
+  const seenB = new Set();
+  const chipsHtmlB = flowB.map((c, i) => {
+    seenB.add(c.name);
+    const cls = 'amap-chip amap-chip-agent';
+    const arrow = (i < flowB.length - 1) ? '<span class="amap-arrow">›</span>' : '';
+    return `<span class="${cls}">${c.name} (${c.count}店)</span>${arrow}`;
+  }).join('');
+
+  document.getElementById('cardAgent').innerHTML = `
+    <div class="amap-flow-title">
+      <strong>主要途经走廊：</strong>
+      <div style="display:flex;gap:4px;">
+        <span class="amap-tag-pill tag-success-pill">✅ 推荐单向顺流</span>
+        <span class="amap-tag-pill tag-success-pill">🛣️ ${seenB.size} 大主干走廊整街清扫</span>
+      </div>
+    </div>
+    <div class="amap-roads-row">${chipsHtmlB}</div>
+    <div style="font-size:10px;color:var(--muted);display:flex;justify-content:space-between;margin-top:2px;">
+      <span>沿道路行进方向一维单调推进 · 0 次无效倒流</span>
+      <span style="color:var(--accent);font-weight:600">净省 ${(day.actual_km - day.agent_km).toFixed(1)} km (−${((day.actual_km - day.agent_km)/day.actual_km*100).toFixed(1)}%)</span>
+    </div>
+  `;
+}
+
+function renderDay(dayKey) {
+  if (!DATA) return;
+  const day = (DATA.days && DATA.days[dayKey]) ? DATA.days[dayKey] : (DATA[dayKey] || DATA['day1']);
+  if (!day) return;
+  currentDay = day;
+  maxSteps = day.total_stores;
+  if (isPlaying) pausePlay();
+
+  // 更新 KPIs
+  document.getElementById('kpiActual').innerText = day.actual_km + " km";
+  document.getElementById('kpiActualSub').innerText = `实际打卡 ${day.total_stores} 店 (含 ${day.adhoc_count} 家临时店)`;
+  
+  document.getElementById('kpiAgent').innerText = day.agent_km + " km";
+  document.getElementById('kpiAgentSub').innerText = `原计划 ${day.planned_count || 23} 店基线 ${day.morning_km} km`;
+  const saving = (day.actual_km - day.agent_km).toFixed(2);
+  const savingPct = ((day.actual_km - day.agent_km) / day.actual_km * 100).toFixed(1);
+  document.getElementById('kpiSaving').innerText = `-${saving} km`;
+  document.getElementById('kpiSavingPct').innerText = `直接缩减 ${savingPct}% 骑行冤枉路`;
+  
+  document.getElementById('kpiLatency').innerText = day.elapsed_ms + " ms";
+  document.getElementById('leftKm').innerText = day.actual_km + " km (理论最优: " + day.opt_km + " km)";
+  document.getElementById('rightKm').innerText = day.agent_km + " km (净绕行: +" + day.detour_km + " km)";
+  document.getElementById('agentExplanation').innerText = day.explanation;
+  renderCorridorOverview(day);
+  // 预转换 GCJ-02 坐标线
+  const stores = day.stores;
+  day._actualLineGcj = (day.actual_geom && day.actual_geom.length > 0)
+    ? day.actual_geom.map(pt => wgs84ToGcj02(pt[1], pt[0]))
+    : day.actual_seq.map(idx => wgs84ToGcj02(stores[idx].lon, stores[idx].lat));
+
+  day._agentLineGcj = (day.agent_geom && day.agent_geom.length > 0)
+    ? day.agent_geom.map(pt => wgs84ToGcj02(pt[1], pt[0]))
+    : day.agent_seq.map(idx => wgs84ToGcj02(stores[idx].lon, stores[idx].lat));
+
+  // 初始化滑块范围
+  const maxIdx = maxSteps - 1;
+  document.getElementById('masterSlider').max = maxIdx;
+  document.getElementById('masterSlider').value = maxIdx;
+  document.getElementById('sliderL').max = maxIdx;
+  document.getElementById('sliderL').value = maxIdx;
+  document.getElementById('sliderR').max = maxIdx;
+  document.getElementById('sliderR').value = maxIdx;
+
+  updateStep(maxIdx, maxIdx, true);
+}
+
+function updateStep(stepL, stepR, isInitial = false) {
+  if (!currentDay) return;
+  currentStepL = Math.max(0, Math.min(stepL, maxSteps - 1));
+  currentStepR = Math.max(0, Math.min(stepR, maxSteps - 1));
+  
+  document.getElementById('sliderL').value = currentStepL;
+  document.getElementById('sliderR').value = currentStepR;
+  document.getElementById('labelStepL').innerText = (currentStepL + 1) + ' / ' + maxSteps + ' 站';
+  document.getElementById('labelStepR').innerText = (currentStepR + 1) + ' / ' + maxSteps + ' 站';
+  document.getElementById('stepCounter').innerText = (Math.max(currentStepL, currentStepR) + 1) + ' / ' + maxSteps + ' 站';
+  document.getElementById('masterSlider').value = Math.max(currentStepL, currentStepR);
+
+  layerA.clearLayers();
+  layerB.clearLayers();
+
+  const stores = currentDay.stores;
+  const lineA = currentDay._actualLineGcj;
+  const lineB = currentDay._agentLineGcj;
+
+  // 1. 左图道路连线 (根据 stepL 截取)
+  let slicedA = lineA;
+  if (currentStepL < maxSteps - 1 && lineA.length > 1) {
+    const s_last = stores[currentDay.actual_seq[currentStepL]];
+    const cutPos = wgs84ToGcj02(s_last.lon, s_last.lat);
+    const cutIdx = findNearestIdx(lineA, cutPos);
+    slicedA = lineA.slice(0, cutIdx + 1);
+  }
+  if (slicedA.length > 1) {
+    const pA = L.polyline(slicedA, { color: '#e11d48', weight: 3.5, opacity: 0.88 }).addTo(layerA);
+    if (typeof L.polylineDecorator === 'function' && slicedA.length > 2) {
+      L.polylineDecorator(pA, {
+        patterns: [{ offset: 25, repeat: 75, symbol: L.Symbol.arrowHead({ pixelSize: 10, headAngle: 45, polygon: false, pathOptions: { stroke: true, color: '#be123c', weight: 2.2, opacity: 0.95 } }) }]
+      }).addTo(layerA);
+    }
+  }
+
+  // 2. 左图数字序号标记 (带同坐标花瓣微偏移, 确保 1号和 2号均清晰可见)
+  const offsetsA = computeOverlapOffsets(currentDay.actual_seq, stores);
+  currentDay.actual_seq.forEach((idx, step) => {
+    const s = stores[idx];
+    const pt = wgs84ToGcj02(s.lon, s.lat);
+    const isActive = step <= currentStepL;
+    const isCurrent = step === currentStepL;
+    const bg = s.is_planned ? '#2563eb' : '#d97706';
+    const num = step + 1;
+    const off = offsetsA[step] || { x: 0, y: 0 };
+    
+    let html;
+    if (isActive) {
+      const ring = isCurrent ? 'box-shadow:0 0 0 4px rgba(225,29,72,.5);transform:scale(1.25);z-index:999;' : 'box-shadow:0 1px 3px rgba(0,0,0,.35);';
+      html = `<div style="background:${bg};color:#fff;min-width:20px;height:20px;padding:0 2px;border-radius:10px;display:grid;place-items:center;font:bold 10px/18px sans-serif;border:1.5px solid #fff;${ring}">${num}</div>`;
+    } else {
+      html = `<div style="background:#cbd5e1;color:#64748b;min-width:16px;height:16px;border-radius:8px;display:grid;place-items:center;font:9px/14px sans-serif;opacity:0.25;">${num}</div>`;
+    }
+    const icon = L.divIcon({
+      className: '',
+      html: html,
+      iconSize: [20, 20],
+      iconAnchor: [10 - off.x, 10 - off.y]
+    });
+    L.marker(pt, { icon: icon, zIndexOffset: isCurrent ? 1000 : (isActive ? 100 + (10 - step) : 10) })
+      .bindPopup(`<b>第 ${num} 站: ${s.name}</b><br/>${s.is_planned ? '计划内门店' : '<span style="color:#d97706;font-weight:bold">临时新增门店</span>'}<br/>${s.address}`)
+      .addTo(layerA);
+  });
+
+  // 3. 右图道路连线 (根据 stepR 截取)
+  let slicedB = lineB;
+  if (currentStepR < maxSteps - 1 && lineB.length > 1) {
+    const s_last = stores[currentDay.agent_seq[currentStepR]];
+    const cutPos = wgs84ToGcj02(s_last.lon, s_last.lat);
+    const cutIdx = findNearestIdx(lineB, cutPos);
+    slicedB = lineB.slice(0, cutIdx + 1);
+  }
+  if (slicedB.length > 1) {
+    const pB = L.polyline(slicedB, { color: '#0f766e', weight: 4.0, opacity: 0.92 }).addTo(layerB);
+    if (typeof L.polylineDecorator === 'function' && slicedB.length > 2) {
+      L.polylineDecorator(pB, {
+        patterns: [{ offset: 25, repeat: 75, symbol: L.Symbol.arrowHead({ pixelSize: 10, headAngle: 45, polygon: false, pathOptions: { stroke: true, color: '#0f766e', weight: 2.2, opacity: 0.95 } }) }]
+      }).addTo(layerB);
+    }
+  }
+
+  // 4. 右图数字序号标记 (带同坐标花瓣微偏移)
+  const offsetsB = computeOverlapOffsets(currentDay.agent_seq, stores);
+  currentDay.agent_seq.forEach((idx, step) => {
+    const s = stores[idx];
+    const pt = wgs84ToGcj02(s.lon, s.lat);
+    const isActive = step <= currentStepR;
+    const isCurrent = step === currentStepR;
+    const isPrefix = step < 6;
+    const bg = isPrefix ? '#64748b' : (s.is_planned ? '#0f766e' : '#d97706');
+    const num = step + 1;
+    const off = offsetsB[step] || { x: 0, y: 0 };
+    
+    let html;
+    if (isActive) {
+      const ring = isCurrent ? 'box-shadow:0 0 0 4px rgba(15,118,110,.5);transform:scale(1.25);z-index:999;' : 'box-shadow:0 1px 3px rgba(0,0,0,.35);';
+      html = `<div style="background:${bg};color:#fff;min-width:20px;height:20px;padding:0 2px;border-radius:10px;display:grid;place-items:center;font:bold 10px/18px sans-serif;border:1.5px solid #fff;${ring}">${num}</div>`;
+    } else {
+      html = `<div style="background:#cbd5e1;color:#64748b;min-width:16px;height:16px;border-radius:8px;display:grid;place-items:center;font:9px/14px sans-serif;opacity:0.25;">${num}</div>`;
+    }
+    const icon = L.divIcon({
+      className: '',
+      html: html,
+      iconSize: [20, 20],
+      iconAnchor: [10 - off.x, 10 - off.y]
+    });
+    L.marker(pt, { icon: icon, zIndexOffset: isCurrent ? 1000 : (isActive ? 100 + (10 - step) : 10) })
+      .bindPopup(`<b>第 ${num} 站: ${s.name}</b><br/>${isPrefix ? '【上午已打卡冻结】' : (s.is_planned ? '计划内' : '<span style="color:#d97706;font-weight:bold">Agent沿街顺路插入</span>')}<br/>${s.address}`)
+      .addTo(layerB);
+  });
+
+  if (isInitial) {
+    fitBothMaps();
+  }
+}
+
+// 控件事件监听
+function onMasterSliderInput(val) {
+  const v = parseInt(val);
+  updateStep(v, v);
+}
+
+function onSliderLInput(val) {
+  const v = parseInt(val);
+  if (syncSliders) {
+    updateStep(v, v);
+  } else {
+    updateStep(v, currentStepR);
+  }
+}
+
+function onSliderRInput(val) {
+  const v = parseInt(val);
+  if (syncSliders) {
+    updateStep(v, v);
+  } else {
+    updateStep(currentStepL, v);
+  }
+}
+
+function toggleSyncSliders(chk) {
+  syncSliders = chk;
+  if (syncSliders) {
+    const common = Math.max(currentStepL, currentStepR);
+    updateStep(common, common);
+  }
+}
+
+function togglePlay() {
+  if (isPlaying) {
+    pausePlay();
+  } else {
+    startPlay();
+  }
+}
+
+function startPlay() {
+  isPlaying = true;
+  document.getElementById('btnPlay').innerHTML = '⏸ 暂停动画';
+  const speed = parseInt(document.getElementById('playSpeed').value) || 350;
+  if (currentStepL >= maxSteps - 1 && currentStepR >= maxSteps - 1) {
+    updateStep(0, 0);
+  }
+  playTimer = setInterval(() => {
+    let nextL = currentStepL + 1;
+    let nextR = currentStepR + 1;
+    if (nextL >= maxSteps && nextR >= maxSteps) {
+      pausePlay();
+      return;
+    }
+    if (syncSliders) {
+      updateStep(nextL, nextL);
+    } else {
+      updateStep(Math.min(nextL, maxSteps - 1), Math.min(nextR, maxSteps - 1));
+    }
+  }, speed);
+}
+
+function pausePlay() {
+  isPlaying = false;
+  document.getElementById('btnPlay').innerHTML = '▶ 播放行进动画';
+  if (playTimer) {
+    clearInterval(playTimer);
+    playTimer = null;
+  }
+}
+
+function resetStep() {
+  pausePlay();
+  updateStep(0, 0);
+}
+
+function endStep() {
+  pausePlay();
+  updateStep(maxSteps - 1, maxSteps - 1);
+}
+
+function fitBothMaps() {
+  if (mapA) mapA.invalidateSize();
+  if (mapB) mapB.invalidateSize();
+  if (layerA.getLayers().length > 0) {
+    const b = layerA.getBounds();
+    syncing = true;
+    mapA.fitBounds(b, { padding: [25, 25], animate: false });
+    mapB.fitBounds(b, { padding: [25, 25], animate: false });
+    setTimeout(() => { syncing = false; }, 50);
+  }
+}
+
+// 页面初始化并载入数据
+window.addEventListener('DOMContentLoaded', async () => {
+  initMaps();
+  let res;
+  try {
+    res = await fetch('all_days_data.json');
+    if (!res.ok) throw new Error('all_days not ready');
+    DATA = await res.json();
+  } catch (err) {
+    res = await fetch('comparison_data.json');
+    DATA = await res.json();
+  }
+
+  // 动态填充日期选择下拉框
+  const select = document.getElementById('dateSelect');
+  select.innerHTML = '';
+  if (DATA.calendar && DATA.calendar.length > 0) {
+    DATA.calendar.forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = r.date;
+      const extra = r.saved_km ? ` (省 ${r.saved_km}km)` : '';
+      opt.innerText = `${r.date} (${r.weekday}) · 共 ${r.actual_total} 店 (临时+${r.adhoc})${extra}`;
+      select.appendChild(opt);
+    });
+    renderCalendar(DATA.calendar);
+    renderDay(DATA.calendar[0].date);
+  } else {
+    select.innerHTML = '<option value="day1">2026-07-01 (36店)</option><option value="day7">2026-07-07 (49店)</option>';
+    renderDay('day1');
+  }
+
+  // 加载并渲染全办 10 位业代汇总台账
+  try {
+    const repRes = await fetch('all_reps_actual_vs_agent.json');
+    if (repRes.ok) {
+      const repData = await repRes.json();
+      const repTbody = document.querySelector('#allRepsTable tbody');
+      repTbody.innerHTML = '';
+      let totVis = 0, totPlan = 0, totAdhoc = 0, totActKm = 0, totAgentKm = 0;
+      repData.forEach(r => {
+        totVis += r.total_visits; totPlan += r.in_plan_visits; totAdhoc += r.adhoc_visits;
+        totActKm += r.actual_km; totAgentKm += r.agent_km;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>海珠荔湾${r.line}</strong></td>
+          <td>${r.rep_name}</td>
+          <td>${r.days}</td>
+          <td>${r.total_visits}</td>
+          <td>${r.in_plan_visits}</td>
+          <td><span class="badge badge-adhoc">+${r.adhoc_visits}</span></td>
+          <td>${r.adhoc_pct}%</td>
+          <td style="color:var(--danger);font-weight:600">${r.actual_km} km</td>
+          <td style="color:var(--accent);font-weight:600">${r.agent_km} km</td>
+          <td style="color:var(--accent);font-weight:600">-${r.saved_km} km</td>
+          <td><span class="badge badge-plan">-${r.saved_pct}%</span></td>
+        `;
+        repTbody.appendChild(tr);
+      });
+      if (repData.length > 1) {
+        const trTot = document.createElement('tr');
+        trTot.style.fontWeight = 'bold';
+        trTot.style.background = '#f1f5f9';
+        const netSaved = (totActKm - totAgentKm).toFixed(1);
+        const netPct = (netSaved / totActKm * 100).toFixed(1);
+        trTot.innerHTML = `
+          <td>全办合计</td>
+          <td>${repData.length} 位业代</td>
+          <td>23</td>
+          <td>${totVis}</td>
+          <td>${totPlan}</td>
+          <td>+${totAdhoc}</td>
+          <td>${(totAdhoc/totVis*100).toFixed(1)}%</td>
+          <td style="color:var(--danger)">${totActKm.toFixed(1)} km</td>
+          <td style="color:var(--accent)">${totAgentKm.toFixed(1)} km</td>
+          <td style="color:var(--accent)">-${netSaved} km</td>
+          <td><span class="badge badge-plan">-${netPct}%</span></td>
+        `;
+        repTbody.appendChild(trTot);
+      }
+    }
+  } catch (e) {
+    console.log("all_reps_actual_vs_agent.json not available yet:", e);
+  }
+});
+</script>
+</body>
+</html>

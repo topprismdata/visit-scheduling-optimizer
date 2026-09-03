@@ -1,0 +1,49 @@
+# Dynamic Delivery DSVL Rules v1.0 — Phase 4.3 Artifact 3（Immutable）
+## 动态配送决策语义验证层规则集 · Pre-Compile 与 Post-Event 双重决策可行性守卫
+
+rules_id: DD-DSVL-REG-V1.0
+generated_at: "2026-08-22"
+inputs: [dynamic_delivery_semantic_contract_v1_0.yaml, dynamic_delivery_constraint_type_registry_v1_0.yaml]
+mandate: "验证动态事件与重排结果是否依然忠实代表配送调度意图（Decision Feasibility Preservation）"
+
+rules:
+
+  # ═══ Family I: Dynamic Invariant Rules（动态不变量 —— Gate V1）═══
+  - {rule_id: DD-DSVL-I001, family: invariant, name: past_executed_fact_immutable,
+     statement: "已完成运单（DELIVERED）与当前装卸点（AT_STOP）在重规划中 100% 只读，严禁发生任何指派或时间重写",
+     contract_ref: "§3 I1 历史事实不可逆不变量", severity: BLOCKING}
+
+  - {rule_id: DD-DSVL-I002, family: invariant, name: locked_commitment_window_preserved,
+     statement: "锁定客户（ORD_03）送达时间 100% 落在 [120, 200] 锁定窗口内，且原派车辆不变更（零移动）",
+     contract_ref: "§3 I2 客户承诺时窗保持不变量", severity: BLOCKING}
+
+  - {rule_id: DD-DSVL-I003, family: invariant, name: driver_max_shift_limit_respected,
+     statement: "所有重排路线中，单车单日总工时（行驶+服务+等待）必须严格 ≤ 600 分钟，零疲劳驾驶溢出",
+     contract_ref: "§3 I3 驾驶员安全上限不变量", severity: BLOCKING}
+
+  - {rule_id: DD-DSVL-I004, family: invariant, name: cold_chain_never_compromised,
+     statement: "所有冷链订单（ORD_01, ORD_04, ORD_08）指派车辆 100% 属于 VEH_01（冷藏车），常温车零接单",
+     contract_ref: "§3 I4 冷链温控不变量", severity: BLOCKING}
+
+  # ═══ Family S: Dynamic Semantic Rules（动态语义保持 —— Gate V2）═══
+  - {rule_id: DD-DSVL-S001, family: semantic, name: vehicle_capacity_never_exceeded,
+     statement: "重排后每辆车上的实时载货重量在任意路段必须严格 ≤ cap_weight_kg",
+     contract_ref: "§2 C1 车辆配载上限", severity: BLOCKING}
+
+  - {rule_id: DD-DSVL-S002, family: semantic, name: zero_phantom_delivery_constraints,
+     statement: "生成的配送约束 100% 具备合法来源（零幻影约束）",
+     contract_ref: "Contract + State → Type 禁反推铁律", severity: BLOCKING}
+
+  - {rule_id: DD-DSVL-S003, family: semantic, name: hard_time_windows_satisfied,
+     statement: "所有已指派非锁定订单到达时间必须严格落在 [tw_early, tw_late] 窗口内",
+     contract_ref: "§2 C2 客户硬时间窗", severity: BLOCKING}
+
+  # ═══ Family T: Dynamic Trace Rules（动态因果与变异追踪 —— Gate V3）═══
+  - {rule_id: DD-DSVL-T001, family: trace, name: event_causal_explainability,
+     statement: "每次增量重排必须输出明确的事件因果理由（如：VEH_02 发生故障导致其未配送订单 ORD_06/07 溢出转移给 VEH_03，同时保持 ORD_03 承诺不动）",
+     contract_ref: "Dynamic Trace Integrity", severity: BLOCKING}
+
+gates:
+  V1_dynamic_invariants: "I001–I004 全 PASS"
+  V2_delivery_semantics: "S001–S003 全 PASS"
+  V3_dynamic_trace: "T001 PASS"
