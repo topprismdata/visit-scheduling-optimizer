@@ -66,8 +66,8 @@ select{padding:6px 10px;border:1px solid var(--border);border-radius:6px;backgro
 
 <section class="sec" id="mapSection" style="display:none"><div class="container">
 <div class="mp">
-<div class="mc"><div class="mh">① 原始计划分配<span id="kmL"></span></div><div class="mb" id="mapL"></div><div class="lg" id="lgL"></div></div>
-<div class="mc"><div class="mh">② ALNS v3 优化后<span id="kmR"></span></div><div class="mb" id="mapR"></div><div class="lg" id="lgR"></div></div>
+<div class="mc"><div class="mh">① CP-SAT 精确日内重排 (09线)<span id="kmL"></span></div><div class="mb" id="mapL"></div><div class="lg" id="lgL"></div></div>
+<div class="mc"><div class="mh">② ALNS v1 跨日优化后 (09线)<span id="kmR"></span></div><div class="mb" id="mapR"></div><div class="lg" id="lgR"></div></div>
 </div>
 <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
 <select id="wdSel"><option value="all">所有天</option><option value="0">周一</option><option value="1">周二</option><option value="2">周三</option><option value="3">周四</option><option value="4">周五</option></select>
@@ -162,7 +162,7 @@ let D09=null,mL=null,mR=null,lL=null,lR=null,syncing=false,cR='alns',GEO=null,cr
 const WDC={0:'#3b82c4',1:'#0f6f5c',2:'#c96442',3:'#8b5cf6',4:'#e6a817'};
 const WDN=['周一','周二','周三','周四','周五'];
 const MC={tsp:'#3b82c4',alns:'#c96442'};
-const ML={tsp:'\u2460 原始顺序',alns:'\u2461 ALNS v3'};
+const ML={tsp:'\u2460 CP-SAT 精确',alns:'\u2461 ALNS v1'};
 
 function initMaps(){
   if(mL)return;

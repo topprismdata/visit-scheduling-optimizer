@@ -45,7 +45,6 @@ class SalesVisitDispatchAgent:
         """事件驱动: 收到当日大批量临时加店请求, 触发 Agent 决策闭环."""
         t0 = time.time()
         num_adhoc = len(adhoc_store_indices)
-        current_loc_name = self.store_info.get(self.current_idx, {}).get("name", "当前位置")
 
         # 1. 工具调用: 沿街走廊动态插单 (冻结已完成前缀)
         res = self.tool.insert_adhoc_batch(

@@ -378,7 +378,8 @@ class MOALNSv4(Algorithm):
                 'pop_size': len(population),
                 'front_size': len(unique_pareto),
                 'preset_names': {k: {'km': v['km'], 'changed': v['changed'],
-                                     'cv': v['cv'], 'cross': v['cross_ratio']}
+                                     'cv': v['cv'], 'cross': v['cross_ratio'],
+                                     'freq_ok': v['freq_ok']}
                                  for k, v in named.items()},
                 'total_stores': len(data.codes),
             }

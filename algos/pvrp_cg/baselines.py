@@ -39,7 +39,6 @@ class ALNS:
         col_cost_fn: Callable | None = None,
         daily_cap: float | None = None,
         seed: int = 42,
-        max_per_day: int = MAX_PER_DAY,
     ):
         self.n = n
         self.freq = list(freq)
@@ -47,7 +46,6 @@ class ALNS:
         self.gap = {i: (days // (freq[i] + 1)) if freq[i] >= 2 else 0 for i in range(n)}
         self.col_cost_fn = col_cost_fn or (lambda ids: 0.0)
         self.daily_cap = daily_cap
-        self.max_per_day = max_per_day
         self.rng = random.Random(seed)
         self.nbrs = [sorted(range(n), key=lambda j: j) for _ in range(n)]
 
@@ -61,9 +59,6 @@ class ALNS:
         return sum(self.day_time(d) for d in sol if d)
 
     def feasible_insert(self, sol: list[set[int]], cust: int, day: int) -> bool:
-        # 硬约束 1: 单日客户数上限 (与 CG/CP-SAT 的 |G| <= max_per_day 对齐)
-        if len(sol[day]) >= self.max_per_day:
-            return False
         if self.daily_cap is not None:
             if (
                 self.day_time(sol[day]) + self._delta_insert(sol[day], cust)
@@ -82,13 +77,10 @@ class ALNS:
 
     def valid(self, sol: list[set[int]]) -> bool:
         cnt = [0] * self.n
-        for d, day in enumerate(sol):
-            # 防御性校验 1: 单日客户数上限
-            if len(day) > self.max_per_day:
-                return False
+        for d in sol:
             if self.daily_cap is not None and self.day_time(d) > self.daily_cap + 1e-6:
                 return False
-            for i in day:
+            for i in d:
                 cnt[i] += 1
         for i in range(self.n):
             if cnt[i] != self.freq[i]:

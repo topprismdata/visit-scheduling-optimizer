@@ -216,8 +216,8 @@ function renderCharts(){
     let isPreset=false,presetKey='';
     entries.forEach(([k,v])=>{if(Math.abs(v.km-p.km)<1&&v.changed===p.changed){isPreset=true;presetKey=k}});
     const color=isPreset?COLORS[presetKey]:'#94a3b8';
-    svg+=`<circle cx="${x}" cy="${y}" r="${isPreset?7:4}" fill="${color}" stroke="#fff" stroke-width="1.5" opacity="${isPreset?1:0.5}"/>`;
-    if(isPreset){svg+=`<text x="${x+10}" y="${y+4}" font-size="9" font-weight="700" fill="${color}">${LABELS[presetKey].split(' ')[1]||presetKey}</text>`}
+    svg2+=`<circle cx="${x}" cy="${y}" r="${isPreset?7:4}" fill="${color}" stroke="#fff" stroke-width="1.5" opacity="${isPreset?1:0.5}"/>`;
+    if(isPreset){svg2+=`<text x="${x+10}" y="${y+4}" font-size="9" font-weight="700" fill="${color}">${LABELS[presetKey].split(' ')[1]||presetKey}</text>`}
   });
   svg2+=`<text x="${svgW/2}" y="${svgH-3}" font-size="10" fill="#6b6964" text-anchor="middle">改动店数 →</text>`;
   svg2+=`<text x="12" y="${svgH/2}" font-size="10" fill="#6b6964" text-anchor="middle" transform="rotate(-90 12 ${svgH/2})">跨区率 → (越低越顺路)</text>`;
