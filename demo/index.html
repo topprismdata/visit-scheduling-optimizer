@@ -67,7 +67,7 @@ select{padding:6px 10px;border:1px solid var(--border);border-radius:6px;backgro
 <section class="sec" id="mapSection" style="display:none"><div class="container">
 <div class="mp">
 <div class="mc"><div class="mh">① CP-SAT 精确日内重排 (09线)<span id="kmL"></span></div><div class="mb" id="mapL"></div><div class="lg" id="lgL"></div></div>
-<div class="mc"><div class="mh">② ALNS v1 跨日优化后 (09线)<span id="kmR"></span></div><div class="mb" id="mapR"></div><div class="lg" id="lgR"></div></div>
+<div class="mc"><div class="mh">② ALNS v3 跨日优化后 (09线)<span id="kmR"></span></div><div class="mb" id="mapR"></div><div class="lg" id="lgR"></div></div>
 </div>
 <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
 <select id="wdSel"><option value="all">所有天</option><option value="0">周一</option><option value="1">周二</option><option value="2">周三</option><option value="3">周四</option><option value="4">周五</option></select>
@@ -162,7 +162,7 @@ let D09=null,mL=null,mR=null,lL=null,lR=null,syncing=false,cR='alns',GEO=null,cr
 const WDC={0:'#3b82c4',1:'#0f6f5c',2:'#c96442',3:'#8b5cf6',4:'#e6a817'};
 const WDN=['周一','周二','周三','周四','周五'];
 const MC={tsp:'#3b82c4',alns:'#c96442'};
-const ML={tsp:'\u2460 CP-SAT 精确',alns:'\u2461 ALNS v1'};
+const ML={tsp:'\u2460 CP-SAT 精确',alns:'\u2461 ALNS v3'};
 
 function initMaps(){
   if(mL)return;
@@ -201,7 +201,7 @@ function drawDayMaps(){
   if(hasWD){idx=allS.map(function(s,i){return s.wd===wd?i:-1}).filter(function(i){return i>=0})}
   else{idx=allS.map(function(_,i){return i})}
   var curRd=(hasWeek&&hasWD)?((D09.weekly_routes[wkV]||{})[wdV]||null):null;
-  var dayAlns=curRd?curRd.seq_alns:null;
+  var dayAlns=curRd?(curRd.seq_alns_v3||curRd.seq_alns):null;
   var dayOrig=curRd?curRd.seq_orig:null;
   var showDiff=document.getElementById('diffChk').checked;
   idx.forEach(function(i){
@@ -244,7 +244,7 @@ function drawDayMaps(){
     ?'<span>\u25cf \u8272=\u4f18\u5316\u540e | <span style="color:'+MC[cR]+'">\u2014 \u8def\u7ebf</span> | <span style="color:#e11d48">\u25b3 \u8de8\u533a '+crossCountR+'\u6b21</span> | <span style="color:#22c55e">\u25cb \u65b0\u79fb\u5165</span></span>'
     :'<span>\u25cf \u8272=\u4f18\u5316\u540e | <span style="color:#22c55e">\u25cb \u65b0\u79fb\u5165\u7684\u5e97</span></span>';
   document.getElementById('kmL').textContent=hasWeek&&hasWD&&curRd?(curRd.km_tsp||'')+' km':'';
-  document.getElementById('kmR').textContent=hasWeek&&hasWD&&curRd?(curRd.km_alns||'')+' km (ALNS v3)':'';
+  document.getElementById('kmR').textContent=hasWeek&&hasWD&&curRd?((curRd.km_alns_v3||curRd.km_alns)||'')+' km (ALNS v3)':'';
 }
 
 (function(){
