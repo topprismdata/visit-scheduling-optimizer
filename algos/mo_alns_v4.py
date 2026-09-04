@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 """V4 MO-ALNS — 多目标帕累托方案生成器 (NSGA-II + ALNS 混合).
 
-定位: 独立的多目标求解器, 不是后处理器.
-输入: 原始计划 + 路网矩阵 + 地理围栏
-输出: 帕累托前沿上的一组非支配解, 自动命名 4 个代表方案.
+定位: 以 v3 月度优化结果为基准 (base), 在其邻域内演化, 生成帕累托前沿上的一组非支配解.
 
-四维目标:
-  f1: 总里程 (km)          — 越小越好
-  f2: 改动店数 (相对原始)   — 越小越好
-  f3: 每日工作量变异系数 CV — 越小越好
-  f4: 跨区边占比            — 越小越好
+三目标 (跨区率 f4 已随 Clustered TSP 场景否决一并废弃):
+  f1: 总里程 (km)                — 越小越好
+  f2: 改动店数 (相对基准 base)   — 越小越好 (base=v3 时 = 在 v3 基础上再挪几家)
+  f3: 每日工作量变异系数 CV       — 越小越均衡
 
-算法: NSGA-II 非支配排序 + 拥挤度 + ALNS destroy/repair 算子
+算法: NSGA-II 非支配排序 + 拥挤度 + ALNS destroy/repair 算子.
+锚点解 (extra_seeds, 如 CP-SAT 0改动下限) 参与进化且单独保全, 最终并入前沿不被淘汰.
 """
 import time, math, random, copy
 from core.base import Algorithm, AlgoResult
 from core.metric import day_km, total_km, check_freq
 from algos.registry import register
 from algos.alns_v3 import two_opt, best_insert, worst_edge
+
+NUM_OBJ = 3  # f1 km, f2 changed, f3 cv
 
 
 def _dates_map(tours):
@@ -39,21 +39,10 @@ def _cv(tours):
     return math.sqrt(var) / mean
 
 
-def _cross_ratio(tours, zone_of):
-    total_edges = 0
-    cross_edges = 0
-    for dd, seq in tours.items():
-        for k in range(len(seq) - 1):
-            total_edges += 1
-            if zone_of and zone_of.get(seq[k]) != zone_of.get(seq[k + 1]):
-                cross_edges += 1
-    return cross_edges / max(1, total_edges)
-
-
 def dominates(a, b):
-    """a dominates b if a is <= in all objectives and < in at least one."""
+    """a dominates b if a <= b in all objectives and < in at least one."""
     better_any = False
-    for i in range(4):
+    for i in range(NUM_OBJ):
         if a[i] > b[i]:
             return False
         if a[i] < b[i]:
@@ -62,7 +51,7 @@ def dominates(a, b):
 
 
 def non_dominated_sort(pop):
-    """Returns list of fronts (each front is list of indices)."""
+    """Returns list of fronts (each is a list of indices)."""
     n = len(pop)
     S = [[] for _ in range(n)]
     rank = [0] * n
@@ -79,15 +68,15 @@ def non_dominated_sort(pop):
             fronts[0].append(p)
     i = 0
     while i < len(fronts):
-        next_front = []
+        nxt = []
         for p in fronts[i]:
             for q in S[p]:
                 rank[q] -= 1
                 if rank[q] == 0:
-                    next_front.append(q)
+                    nxt.append(q)
         i += 1
-        if next_front:
-            fronts.append(next_front)
+        if nxt:
+            fronts.append(nxt)
     return fronts
 
 
@@ -97,16 +86,31 @@ def crowding_distance(pop, front):
     if n <= 2:
         return {i: float('inf') for i in front}
     dist = {i: 0.0 for i in front}
-    for obj_idx in range(4):
-        sorted_front = sorted(front, key=lambda i: pop[i]['obj'][obj_idx])
-        dist[sorted_front[0]] = float('inf')
-        dist[sorted_front[-1]] = float('inf')
-        obj_range = pop[sorted_front[-1]]['obj'][obj_idx] - pop[sorted_front[0]]['obj'][obj_idx]
-        if obj_range == 0:
+    for obj_idx in range(NUM_OBJ):
+        sf = sorted(front, key=lambda i: pop[i]['obj'][obj_idx])
+        dist[sf[0]] = float('inf')
+        dist[sf[-1]] = float('inf')
+        rng = pop[sf[-1]]['obj'][obj_idx] - pop[sf[0]]['obj'][obj_idx]
+        if rng == 0:
             continue
         for k in range(1, n - 1):
-            dist[sorted_front[k]] += (pop[sorted_front[k + 1]]['obj'][obj_idx] - pop[sorted_front[k - 1]]['obj'][obj_idx]) / obj_range
+            dist[sf[k]] += (pop[sf[k + 1]]['obj'][obj_idx] - pop[sf[k - 1]]['obj'][obj_idx]) / rng
     return dist
+
+
+def _truncate(pop, pop_size):
+    """NSGA-II environmental selection: keep pop_size by front rank + crowding."""
+    fronts = non_dominated_sort(pop)
+    new_pop = []
+    for front in fronts:
+        if len(new_pop) + len(front) <= pop_size:
+            new_pop.extend([pop[i] for i in front])
+        else:
+            cd = crowding_distance(pop, front)
+            ordered = sorted(front, key=lambda i: cd[i], reverse=True)
+            new_pop.extend([pop[i] for i in ordered[:pop_size - len(new_pop)]])
+            break
+    return new_pop[:pop_size]
 
 
 @register
@@ -114,73 +118,58 @@ class MOALNSv4(Algorithm):
     name = "mo_alns_v4"
 
     def solve(self, data, D, time_budget=60, zone_of=None, seed=42,
-              pop_size=30, num_presets=4):
+              pop_size=30, num_presets=4, extra_seeds=None, base=None):
+        """
+        参数:
+          base: 基准解 {date:[store_idx]}. 提供时 (通常=v3 结果), 种群围绕它演化,
+                f2 改动量 = 相对 base 的偏离 (即在 v3 基础上再挪几家).
+                省略则退回以 data.days_orig (原始计划) 为基准.
+          extra_seeds: {label: tours} 额外锚点解 (如 CP-SAT 0改动下限), 强制并入最终前沿.
+        """
         rng = random.Random(seed)
         dates = list(data.dates)
-        t0 = time.time()
-        deadline = t0 + time_budget
+        ref = base if base else data.days_orig
+        ref_dm = _dates_map(ref)
+        deadline = time.time() + time_budget
 
-        # ===== 初始化种群 =====
-        population = []
-
-        def evaluate(tours):
-            km = total_km(tours, D)
-            dm = _dates_map(tours)
-            inc_dm = _dates_map(data.days_orig)
-            changed = sum(1 for s in set(list(dm.keys()) + list(inc_dm.keys()))
-                          if dm.get(s, set()) != inc_dm.get(s, set()))
-            cv = _cv(tours)
-            cr = _cross_ratio(tours, zone_of)
-            return [km, changed, cv, cr]
-
-        def deep_copy_tours(t):
+        def dc(t):
             return {dd: list(seq) for dd, seq in t.items()}
 
-        # 1. 原始计划
-        pop_orig = deep_copy_tours(data.days_orig)
-        population.append({'tours': pop_orig, 'obj': evaluate(pop_orig)})
+        def evaluate(tours):
+            dm = _dates_map(tours)
+            changed = sum(1 for s in set(list(dm.keys()) + list(ref_dm.keys()))
+                          if dm.get(s, set()) != ref_dm.get(s, set()))
+            return [total_km(tours, D), changed, _cv(tours)]
 
-        # 2. TSP 重排
-        pop_tsp = {dd: two_opt(list(data.days_orig.get(dd, [])), D, 20) for dd in dates}
-        population.append({'tours': pop_tsp, 'obj': evaluate(pop_tsp)})
-
-        # 3. 随机扰动解
-        for _ in range(min(5, pop_size // 6)):
-            t = deep_copy_tours(data.days_orig)
-            dds = list(dates)
-            for _ in range(rng.randint(3, 10)):
-                d1, d2 = rng.sample(dds, 2)
-                if len(t.get(d1, [])) > 3 and t.get(d2) is not None:
-                    c = rng.choice(t[d1])
-                    t[d1].remove(c)
-                    if len(t[d1]) >= 2:
-                        t[d1] = two_opt(t[d1], D, 6)
-                    t[d2].append(c)
-                    t[d2] = two_opt(t[d2], D, 6)
-            population.append({'tours': t, 'obj': evaluate(t)})
-
-        # 4. 2-opt 变异解
-        for _ in range(min(5, pop_size // 6)):
-            t = deep_copy_tours(data.days_orig)
-            dd = rng.choice(dates)
-            if len(t.get(dd, [])) > 3:
-                t[dd] = two_opt(t[dd], D, 15)
-            population.append({'tours': t, 'obj': evaluate(t)})
-
-        # 补足种群
-        while len(population) < pop_size:
-            base = rng.choice(population)
-            t = deep_copy_tours(base['tours'])
-            dds = list(dates)
-            for _ in range(rng.randint(1, 5)):
-                d1, d2 = rng.sample(dds, 2)
-                if len(t.get(d1, [])) > 3 and t.get(d2) is not None:
-                    c = rng.choice(t[d1])
-                    t[d1].remove(c)
-                    if len(t[d1]) >= 2:
-                        t[d1] = two_opt(t[d1], D, 5)
+        def perturb(tours, n_moves):
+            t = dc(tours)
+            if len(dates) < 2:
+                return t
+            for _ in range(n_moves):
+                d1, d2 = rng.sample(dates, 2)
+                t1 = t.get(d1, [])
+                if len(t1) <= 3:
+                    continue
+                c = rng.choice(t1)
+                t[d1] = [x for x in t1 if x != c]
+                if len(t[d1]) >= 2:
+                    t[d1] = two_opt(t[d1], D, 5)
+                if t.get(d2) is not None:
                     t[d2].append(c)
                     t[d2] = two_opt(t[d2], D, 5)
+            return t
+
+        # 锚点解单独保全 (不随进化截断丢失), 最终并入前沿
+        anchors = [{'tours': dc(t), 'obj': evaluate(dc(t)), 'seed_label': lb}
+                   for lb, t in (extra_seeds or {}).items()]
+
+        # ===== 初始化种群 (以 v3/基准出发, 邻域扰动) =====
+        base_t = dc(ref)
+        population = [{'tours': base_t, 'obj': evaluate(base_t)}]
+        pop_tsp = {dd: two_opt(list(base_t.get(dd, [])), D, 20) for dd in dates}
+        population.append({'tours': pop_tsp, 'obj': evaluate(pop_tsp)})
+        while len(population) < pop_size:
+            t = perturb(base_t, rng.randint(1, 6))
             population.append({'tours': t, 'obj': evaluate(t)})
 
         # ===== NSGA-II 主循环 =====
@@ -190,35 +179,17 @@ class MOALNSv4(Algorithm):
 
         while time.time() < deadline:
             generation += 1
-            # 非支配排序
-            fronts = non_dominated_sort(population)
-            # 环境选择
-            new_pop = []
-            for front in fronts:
-                if len(new_pop) + len(front) <= pop_size:
-                    new_pop.extend([population[i] for i in front])
-                else:
-                    cd = crowding_distance(population, front)
-                    sorted_front = sorted(front, key=lambda i: cd[i], reverse=True)
-                    new_pop.extend([population[i] for i in sorted_front[:pop_size - len(new_pop)]])
-                    break
-            population = new_pop[:pop_size]
+            population = _truncate(population, pop_size)
+            fronts0 = set(non_dominated_sort(population)[0]) if population else set()
 
-            # 生成子代 (ALNS 算子)
             offspring = []
-            num_offspring = max(2, pop_size // 3)
-            for _ in range(num_offspring):
-                if time.time() >= deadline:
+            for _ in range(max(2, pop_size // 3)):
+                if time.time() >= deadline or len(dates) < 2:
                     break
-                # 锦标赛选择 parent
-                candidates = rng.sample(range(len(population)), min(3, len(population)))
-                parent = min(candidates, key=lambda i: (
-                    0 if i in (fronts[0] if fronts else []) else 1,
-                    -len(population[i].get('tours', {}))
-                ))
-                tours = deep_copy_tours(population[parent]['tours'])
+                cands = rng.sample(range(len(population)), min(3, len(population)))
+                parent = min(cands, key=lambda i: (0 if i in fronts0 else 1, i))
+                tours = dc(population[parent]['tours'])
 
-                # 选择算子
                 total_w = sum(w.values())
                 r = rng.random() * total_w
                 op = ops[0]
@@ -228,10 +199,8 @@ class MOALNSv4(Algorithm):
                         op = o
                         break
 
-                dds = list(dates)
-
                 if op in ('worst_move', 'random_move'):
-                    d1 = rng.choice(dds)
+                    d1 = rng.choice(dates)
                     t1 = tours.get(d1, [])
                     if len(t1) > 3:
                         if op == 'worst_move':
@@ -240,128 +209,81 @@ class MOALNSv4(Algorithm):
                                 c = rng.choice(t1)
                         else:
                             c = rng.choice(t1)
-                        candidates_d2 = [d2 for d2 in dds if d2 != d1 and c not in tours.get(d2, [])]
-                        if candidates_d2:
-                            d2 = rng.choice(candidates_d2)
-                            t1_new = [x for x in t1 if x != c]
-                            if len(t1_new) >= 2:
-                                t1_new = two_opt(t1_new, D, 6)
-                                t2_new, _ = best_insert(tours[d2], c, D)
-                                t2_new = two_opt(t2_new, D, 6)
-                                tours[d1] = t1_new
-                                tours[d2] = t2_new
+                        cd2 = [d2 for d2 in dates if d2 != d1 and c not in tours.get(d2, [])]
+                        if cd2:
+                            d2 = rng.choice(cd2)
+                            t1n = [x for x in t1 if x != c]
+                            if len(t1n) >= 2:
+                                t2n, _ = best_insert(tours[d2], c, D)
+                                tours[d1] = two_opt(t1n, D, 6)
+                                tours[d2] = two_opt(t2n, D, 6)
                 elif op == 'swap':
-                    d1, d2 = rng.sample(dds, 2)
+                    d1, d2 = rng.sample(dates, 2)
                     t1, t2 = tours.get(d1, []), tours.get(d2, [])
                     if len(t1) > 2 and len(t2) > 2:
                         c1, c2 = rng.choice(t1), rng.choice(t2)
                         if c1 not in t2 and c2 not in t1:
-                            t1_new = [c2 if x == c1 else x for x in t1]
-                            t2_new = [c1 if x == c2 else x for x in t2]
-                            tours[d1] = two_opt(t1_new, D, 6)
-                            tours[d2] = two_opt(t2_new, D, 6)
+                            tours[d1] = two_opt([c2 if x == c1 else x for x in t1], D, 6)
+                            tours[d2] = two_opt([c1 if x == c2 else x for x in t2], D, 6)
                 elif op == 'oropt':
-                    dd = rng.choice(dds)
+                    dd = rng.choice(dates)
                     t = tours.get(dd, [])
                     if len(t) > 3:
-                        t_new = two_opt(t, D, 8)
-                        if day_km(t_new, D) < day_km(t, D) - 1e-9:
-                            tours[dd] = t_new
+                        tn = two_opt(t, D, 8)
+                        if day_km(tn, D) < day_km(t, D) - 1e-9:
+                            tours[dd] = tn
 
-                obj = evaluate(tours)
-                offspring.append({'tours': tours, 'obj': obj})
+                offspring.append({'tours': tours, 'obj': evaluate(tours)})
 
-            # 合并父子代
             population.extend(offspring)
 
-            # 截断至 pop_size (环境选择)
-            fronts = non_dominated_sort(population)
-            new_pop = []
-            for front in fronts:
-                if len(new_pop) + len(front) <= pop_size:
-                    new_pop.extend([population[i] for i in front])
-                else:
-                    cd = crowding_distance(population, front)
-                    sorted_front = sorted(front, key=lambda i: cd[i], reverse=True)
-                    new_pop.extend([population[i] for i in sorted_front[:pop_size - len(new_pop)]])
-                    break
-            population = new_pop[:pop_size]
+        # ===== 最终前沿: 进化解 + 锚点解合并后支配排序 =====
+        cand = population + [copy.deepcopy(a) for a in anchors]
+        fronts = non_dominated_sort(cand)
+        pareto_pop = sorted([cand[i] for i in fronts[0]], key=lambda p: p['obj'][0])
 
-        # ===== 提取帕累托前沿 =====
-        fronts = non_dominated_sort(population)
-        pareto_pop = [population[i] for i in fronts[0]]
-
-        # 按里程排序
-        pareto_pop.sort(key=lambda p: p['obj'][0])
-
-        # 去重（按目标向量去重）
         seen = set()
-        unique_pareto = []
+        uniq = []
         for p in pareto_pop:
             key = tuple(round(v, 4) for v in p['obj'])
             if key not in seen:
                 seen.add(key)
-                unique_pareto.append(p)
+                uniq.append(p)
 
-        # ===== 自动命名方案 =====
-        ideal = [min(p['obj'][i] for p in unique_pareto) for i in range(4)]
-        ranges = [max(p['obj'][i] for p in unique_pareto) - ideal[i] for i in range(4)]
+        # ===== 自动命名 (激进/膝点/均衡/保守) =====
+        ideal = [min(p['obj'][i] for p in uniq) for i in range(NUM_OBJ)]
+        ranges = [max(p['obj'][i] for p in uniq) - ideal[i] for i in range(NUM_OBJ)]
 
         def dist_to_ideal(p):
-            return math.sqrt(sum(
-                ((p['obj'][i] - ideal[i]) / max(ranges[i], 1e-9)) ** 2
-                for i in range(4)
-            ))
+            return math.sqrt(sum(((p['obj'][i] - ideal[i]) / max(ranges[i], 1e-9)) ** 2
+                                 for i in range(NUM_OBJ)))
 
-        # 激进型: f1 最小
-        aggressive = unique_pareto[0]
-        # 保守型: f2 最小
-        conservative = min(unique_pareto, key=lambda p: p['obj'][1])
-        # 均衡型: f3 最小
-        balanced = min(unique_pareto, key=lambda p: p['obj'][2])
-        # 推荐型: 距理想点最近（膝点）
-        knee = min(unique_pareto, key=dist_to_ideal)
-
-        presets = {
-            'aggressive': {'tours': aggressive['tours'], 'obj': aggressive['obj']},
-            'recommended': {'tours': knee['tours'], 'obj': knee['obj']},
-            'balanced': {'tours': balanced['tours'], 'obj': balanced['obj']},
-            'conservative': {'tours': conservative['tours'], 'obj': conservative['obj']},
-        }
+        aggressive = uniq[0]                                            # min km
+        conservative = min(uniq, key=lambda p: (p['obj'][1], p['obj'][0]))  # min changed
+        balanced = min(uniq, key=lambda p: p['obj'][2])                # min cv
+        knee = min(uniq, key=dist_to_ideal)                           # closest to ideal
+        presets = {'aggressive': aggressive, 'recommended': knee,
+                   'balanced': balanced, 'conservative': conservative}
 
         # ===== 构建输出 =====
-        inc_dm = _dates_map(data.days_orig)
         all_pareto = []
-        for i, p in enumerate(unique_pareto):
+        for i, p in enumerate(uniq):
             dm = _dates_map(p['tours'])
-            changes = []
-            for s in sorted(set(list(dm.keys()) + list(inc_dm.keys()))):
-                if dm.get(s, set()) != inc_dm.get(s, set()):
-                    code = data.codes[s] if s < len(data.codes) else str(s)
-                    changes.append({
-                        'store': code,
-                        'orig': sorted(str(d) for d in inc_dm.get(s, set())),
-                        'new': sorted(str(d) for d in dm.get(s, set()))
-                    })
-            all_pareto.append({
-                'id': i,
-                'km': round(p['obj'][0], 2),
-                'changed': p['obj'][1],
-                'cv': round(p['obj'][2], 4),
-                'cross_ratio': round(p['obj'][3], 4),
-                'changes': changes
-            })
+            changes = [{'store': data.codes[s] if s < len(data.codes) else str(s),
+                        'orig': sorted(str(d) for d in ref_dm.get(s, set())),
+                        'new': sorted(str(d) for d in dm.get(s, set()))}
+                       for s in sorted(set(list(dm.keys()) + list(ref_dm.keys())))
+                       if dm.get(s, set()) != ref_dm.get(s, set())]
+            all_pareto.append({'id': i, 'km': round(p['obj'][0], 2),
+                               'changed': p['obj'][1], 'cv': round(p['obj'][2], 4),
+                               'changes': changes})
 
         named = {}
         for name, p in presets.items():
-            dm = _dates_map(p['tours'])
-            changed = sum(1 for s in set(list(dm.keys()) + list(inc_dm.keys()))
-                          if dm.get(s, set()) != inc_dm.get(s, set()))
             named[name] = {
                 'km': round(p['obj'][0], 2),
                 'changed': p['obj'][1],
                 'cv': round(p['obj'][2], 4),
-                'cross_ratio': round(p['obj'][3], 4),
                 'days': {str(dd): [data.codes[s] if s < len(data.codes) else str(s) for s in seq]
                          for dd, seq in p['tours'].items()},
                 'freq_ok': check_freq(p['tours'], data.codes, data.freq)
@@ -369,18 +291,17 @@ class MOALNSv4(Algorithm):
 
         return AlgoResult(
             name=self.name,
-            days=pareto_pop[0]['tours'],
-            km=pareto_pop[0]['obj'][0],
+            days=uniq[0]['tours'],
+            km=uniq[0]['obj'][0],
             metadata={
                 'pareto_front': all_pareto,
                 'presets': named,
                 'generations': generation,
-                'pop_size': len(population),
-                'front_size': len(unique_pareto),
+                'front_size': len(uniq),
                 'preset_names': {k: {'km': v['km'], 'changed': v['changed'],
-                                     'cv': v['cv'], 'cross': v['cross_ratio'],
-                                     'freq_ok': v['freq_ok']}
+                                     'cv': v['cv'], 'freq_ok': v['freq_ok']}
                                  for k, v in named.items()},
                 'total_stores': len(data.codes),
+                'base_is_v3': bool(base),
             }
         )

@@ -56,7 +56,7 @@
     "sec": 930.3
   },
   {
-    "line": "06",
+    "line": 6,
     "rep_name": "梁炯棠",
     "days": 23,
     "total_visits": 928,
@@ -70,7 +70,7 @@
     "sec": 323.7
   },
   {
-    "line": "07",
+    "line": 7,
     "rep_name": "赵成毅",
     "days": 21,
     "total_visits": 663,
@@ -84,7 +84,7 @@
     "sec": 325.3
   },
   {
-    "line": "08",
+    "line": 8,
     "rep_name": "邝豪杰",
     "days": 23,
     "total_visits": 1040,
@@ -96,5 +96,47 @@
     "saved_km": 327.6,
     "saved_pct": 39.6,
     "sec": 282.4
+  },
+  {
+    "line": 9,
+    "rep_name": "梁健满",
+    "days": 23,
+    "total_visits": 950,
+    "in_plan_visits": 686,
+    "adhoc_visits": 264,
+    "adhoc_pct": 27.8,
+    "actual_km": 1234.7,
+    "agent_km": 592.2,
+    "saved_km": 642.5,
+    "saved_pct": 52.0,
+    "sec": 335.2
+  },
+  {
+    "line": 10,
+    "rep_name": "黄志成",
+    "days": 23,
+    "total_visits": 1098,
+    "in_plan_visits": 684,
+    "adhoc_visits": 414,
+    "adhoc_pct": 37.7,
+    "actual_km": 927.3,
+    "agent_km": 390.7,
+    "saved_km": 536.5,
+    "saved_pct": 57.9,
+    "sec": 145.3
+  },
+  {
+    "line": 11,
+    "rep_name": "苏泳江",
+    "days": 23,
+    "total_visits": 405,
+    "in_plan_visits": 405,
+    "adhoc_visits": 0,
+    "adhoc_pct": 0.0,
+    "actual_km": 721.9,
+    "agent_km": 553.7,
+    "saved_km": 168.2,
+    "saved_pct": 23.3,
+    "sec": 354.1
   }
 ]

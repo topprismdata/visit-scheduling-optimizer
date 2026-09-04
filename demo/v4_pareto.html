@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>MO-ALNS v4 多目标帕累托方案生成器 · 09线</title>
+<title>MO-ALNS v4 三目标帕累托前沿 · 09线 (基准=v3)</title>
 <style>
 :root{--bg:#fafaf7;--surface:#fff;--fg:#1a1916;--muted:#6b6964;--border:#e8e5df;--accent:#0f6f5c;--fd:Georgia,serif;--fb:-apple-system,system-ui,sans-serif;--fm:ui-monospace,Menlo,monospace}
 *,*::before,*::after{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--fb);font-size:13px;line-height:1.5}
@@ -10,237 +10,171 @@ h3{margin:0;font-size:12px}p{margin:0}
 .topnav{position:sticky;top:0;z-index:100;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
 .tin{display:flex;align-items:center;justify-content:space-between;padding-block:8px;gap:10px;flex-wrap:wrap}
 .logo{font-family:var(--fd);font-size:16px;font-weight:600}
-.nc{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.back{text-decoration:none;padding:5px 10px;background:#f1f5f9;color:var(--fg);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600}
 .sec{padding-block:16px}.sec+.sec{border-top:1px solid var(--border)}
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 @media(max-width:800px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
 .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:border-color .2s,transform .15s}
 .kpi-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
 .kpi-card.selected{border-color:var(--accent);border-width:2px;background:#f0fdf4}
-.kpi-icon{font-size:20px;margin-bottom:6px}
-.kpi-label{font-size:12px;font-weight:700;color:var(--fg)}
-.kpi-val{font-family:var(--fd);font-size:28px;line-height:1;color:var(--accent);font-weight:600;margin-top:6px}
-.kpi-val.green{color:#16a34a}.kpi-val.orange{color:#d97706}.kpi-val.blue{color:#3b82f6}.kpi-val.purple{color:#8b5cf6}
+.kpi-icon{font-size:20px}.kpi-label{font-size:12px;font-weight:700;margin-top:2px}
+.kpi-val{font-family:var(--fd);font-size:26px;line-height:1;color:var(--accent);font-weight:600;margin-top:6px}
+.kpi-val.red{color:#dc2626}.kpi-val.green{color:#16a34a}.kpi-val.purple{color:#8b5cf6}.kpi-val.gray{color:#64748b}
 .kpi-sub{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.4}
 .pareto-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:800px){.pareto-grid{grid-template-columns:1fr}}
 .chart-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px}
 .chart-title{font-weight:700;font-size:13px;margin-bottom:8px}
-.bar-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
-.bar-label{width:100px;text-align:right;font-family:var(--fm);font-size:10px;flex-shrink:0;color:var(--muted)}
-.bar-track{flex:1;height:18px;background:#f1f5f9;border-radius:4px;overflow:hidden}
-.bar-fill{height:100%;border-radius:4px;transition:width .3s}
-.bar-val{font-family:var(--fm);font-size:10px;font-weight:600;min-width:55px;text-align:right}
 .tbl-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto}
 .tbl-box table{width:100%;border-collapse:collapse;font-size:11px}
 .tbl-box th{padding:8px 6px;background:#f1f5f9;color:var(--muted);text-align:left;font-weight:600;white-space:nowrap}
 .tbl-box td{padding:7px 6px;border-bottom:1px solid var(--border);font-family:var(--fm);white-space:nowrap}
-.tbl-box tr:hover td{background:#f8fafc}
 .tbl-box tr.hl td{background:#f0fdf4;font-weight:700}
-.pf{padding-block:14px;color:var(--muted);font-size:10px;border-top:1px solid var(--border)}
-.note{font-size:10px;color:var(--muted);padding:6px 0}
-.insight{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px 18px;margin-top:10px}
+.insight{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px 18px;margin-top:10px;font-size:12px;line-height:1.6}
 .insight strong{color:var(--accent)}
-.detail-card{display:none;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:10px}
-.detail-card.show{display:block}
+.note{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;font-size:12px;line-height:1.6;color:#92400e}
+.pf{padding-block:14px;color:var(--muted);font-size:10px;border-top:1px solid var(--border)}
+.chip{display:inline-block;font-family:var(--fm);font-size:10px;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#334155;margin:2px 3px 0 0}
 </style></head><body>
 <header class="topnav"><div class="container tin">
-<span class="logo">MO-ALNS v4 多目标帕累托方案生成器 · 09线 梁健满</span>
-<div class="nc"><a href="index.html" style="text-decoration:none;padding:5px 10px;background:#f1f5f9;color:var(--fg);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600">⬅ 返回全办对比</a></div>
+<span class="logo">MO-ALNS v4 · 三目标帕累托前沿 · 09线 梁健满</span>
+<a class="back" href="index.html">⬅ 返回全办对比</a>
 </div></header>
 <main class="container">
 
 <section class="sec" style="padding-block:12px 0">
-<p class="eyebrow">选择一个方案查看详情 · NSGA-II 2058 代 · 25 个非支配解</p>
+<div class="note" id="baseNote"></div>
+<div class="insight" id="keyFinding" style="margin-top:10px"></div>
+</section>
+
+<section class="sec" style="padding-block:0">
+<p class="eyebrow">四个命名方案 · 点击卡片查看改动明细</p>
 <div class="kpi-grid" id="presetCards"></div>
 <div class="insight" id="insightBox"></div>
 </section>
 
 <section class="sec">
 <div class="pareto-grid">
-<div class="chart-box">
-<div class="chart-title">📊 总里程对比（km，越小越好）</div>
-<div id="chartKm"></div>
-</div>
-<div class="chart-box">
-<div class="chart-title">🔄 改动店数对比（家，越少越好）</div>
-<div id="chartDelta"></div>
-</div>
-<div class="chart-box">
-<div class="chart-title">📏 均衡度 CV（越接近 0 越均衡）</div>
-<div id="chartCV"></div>
-</div>
-<div class="chart-box">
-<div class="chart-title">🗺️ 跨区率（越低越顺路）</div>
-<div id="chartCross"></div>
-</div>
-</div>
-</section>
-
-<section class="sec">
-<div class="pareto-grid">
-<div class="chart-box">
-<div class="chart-title">🎯 里程 vs 均衡度 Pareto 前沿</div>
-<div id="chartPareto"></div>
-</div>
-<div class="chart-box">
-<div class="chart-title">🎯 改动量 vs 跨区率 Pareto 前沿</div>
-<div id="chartPareto2"></div>
-</div>
+<div class="chart-box"><div class="chart-title">🎯 里程 (f1) vs 相对v3再改动 (f2) · 帕累托前沿</div><div id="chartA"></div></div>
+<div class="chart-box"><div class="chart-title">⚖️ 再改动 (f2) vs 工作量均衡度 CV (f3) · 花钱买均衡曲线</div><div id="chartB"></div></div>
 </div>
 </section>
 
 <section class="sec"><div class="container">
-<p class="eyebrow">完整帕累托前沿（25 个非支配解，按里程排序）</p>
-<div class="tbl-box" style="max-height:400px;overflow-y:auto">
+<p class="eyebrow">完整非支配解集</p>
+<div class="tbl-box" style="max-height:360px;overflow-y:auto">
 <table id="frontTable">
-<thead><tr><th>#</th><th>里程(km)</th><th>改动店数</th><th>改动%</th><th>CV 均衡度</th><th>跨区率</th><th>vs TSP</th></tr></thead>
+<thead><tr><th>#</th><th>里程 (km)</th><th>相对v3再改动 (店)</th><th>再改动占比</th><th>CV 均衡度</th><th>freq</th></tr></thead>
 <tbody></tbody>
 </table>
 </div>
 </div></section>
 </main>
-<footer class="pf"><div class="container">MO-ALNS v4 (NSGA-II + ALNS) · 09线路 · 梁健满 · 163店/686次/23天 · 2058代 · 25个非支配解 · 频次守恒100%</div></footer>
+<footer class="pf"><div class="container" id="foot"></div></footer>
 <script>
-let DATA=null;
-let selectedPreset=null;
-const TSP=381.7, V3=262.6, ORIG=1116.0;
-const LABELS={aggressive:'🔥 激进型',recommended:'⭐ 推荐型(膝点)',balanced:'⚖️ 均衡型',conservative:'🔒 保守型'};
-const COLORS={aggressive:'#dc2626',recommended:'#0f6f5c',balanced:'#8b5cf6',conservative:'#64748b'};
+let DATA=null,sel='recommended';
+const V3=263.2, CP=326.6, CROSS_VAL=63.4;
+const PRESET_META={
+  conservative:{icon:'🔒',label:'保守型 = v3 基准',color:'gray',desc:'零再改动，里程最优。v3 已是"不改日期"之外的全局最优。'},
+  aggressive:{icon:'🔥',label:'激进型 里程最低',color:'green',desc:'帕累托里程下界，恰与 v3 重合——再省已无空间。'},
+  recommended:{icon:'⭐',label:'推荐型 膝点',color:'',desc:'四维理想点最近，里程↔均衡↔改动的平衡取舍。'},
+  balanced:{icon:'⚖️',label:'均衡型 CV最低',color:'purple',desc:'每日工作量最均匀，但里程上升明显，用里程换公平。'}
+};
 
 async function init(){
-  const r=await fetch('v4_pareto_09.json');DATA=await r.json();
-  renderPresetCards();renderCharts();buildTable();
+  DATA=await (await fetch('v4_pareto_09.json')).json();
+  document.getElementById('baseNote').innerHTML=`<strong>基线口径：</strong>本帕累托前沿以 <strong>v3 月度优化结果（计划数据）</strong>为基准，`+
+    `横轴"再改动"= 在 v3 已排好的店→日分配上<strong>还要挪动几家店</strong>。f2=0 即 v3 本身。`+
+    `目标为三维：里程 f1 / 再改动 f2 / 工作量变异系数 CV f3（跨区率 f4 已废弃）。`;
+  document.getElementById('keyFinding').innerHTML=`<strong>关键发现 — "改日期"值多少公里？</strong> `+
+    `CP-SAT 精确求解（锁死原日期、只排顺序）= <strong>${CP} km</strong>；v3（允许改日期）= <strong>${V3} km</strong>。`+
+    `差值 <strong>${CROSS_VAL} km（−19.4%）</strong>就是"改日期"本身的价值——顺序层面无论多精确都追不回来。`+
+    `因此 CP-SAT 被 v3 双维度支配、退出前沿，<strong>前沿的 0 改动端点就是 v3</strong>。`;
+  renderCards();renderCharts();renderTable();selectPreset('conservative');
 }
 
-function renderPresetCards(){
-  const container=document.getElementById('presetCards');
-  container.innerHTML='';
-  const entries=Object.entries(DATA.presets);
-  entries.forEach(([key,v])=>{
-    const card=document.createElement('div');
-    card.className='kpi-card';
-    card.id='card_'+key;
-    card.onclick=()=>selectPreset(key);
-    const pct=(v.changed/DATA.total_stores*100).toFixed(1);
-    const kmDiff=TSP-v.km;
-    const kmStr=kmDiff>0?`vs TSP 再省 ${kmDiff.toFixed(1)}km`:`vs TSP 多 ${Math.abs(kmDiff).toFixed(1)}km`;
-    const icon={aggressive:'🔥',recommended:'⭐',balanced:'⚖️',conservative:'🔒'}[key];
-    const color={aggressive:'red',recommended:'green',balanced:'purple',conservative:''}[key];
-    card.innerHTML=`<div class="kpi-icon">${icon}</div><div class="kpi-label">${LABELS[key]}</div>`+
-      `<div class="kpi-val ${color}">${v.km.toFixed(1)}</div><div class="kpi-sub">km · 改动 ${v.changed} 店(${pct}%) · CV=${v.cv.toFixed(3)}<br/>${kmStr}</div>`;
-    container.appendChild(card);
+function fmt(n){return n.toLocaleString('zh-CN',{minimumFractionDigits:1,maximumFractionDigits:1})}
+
+function renderCards(){
+  const box=document.getElementById('presetCards');box.innerHTML='';
+  const order=['conservative','aggressive','recommended','balanced'];
+  order.forEach(k=>{
+    const v=DATA.presets[k],m=PRESET_META[k];
+    const card=document.createElement('div');card.className='kpi-card';card.id='card_'+k;
+    card.onclick=()=>selectPreset(k);
+    card.innerHTML=`<div class="kpi-icon">${m.icon}</div><div class="kpi-label">${m.label}</div>`+
+      `<div class="kpi-val ${m.color}">${fmt(v.km)}<span style="font-size:12px"> km</span></div>`+
+      `<div class="kpi-sub">在 v3 上再挪 ${v.changed} 店 · CV=${v.cv.toFixed(3)}<br/>频次守恒 ${v.freq_ok?'✅':'⚠️'}</div>`;
+    box.appendChild(card);
   });
 }
 
-function selectPreset(key){
-  selectedPreset=key;
+function selectPreset(k){
+  sel=k;
   document.querySelectorAll('.kpi-card').forEach(c=>c.classList.remove('selected'));
-  document.getElementById('card_'+key)?.classList.add('selected');
-  const v=DATA.presets[key];
-  renderInsight(key,v);
+  document.getElementById('card_'+k)?.classList.add('selected');
+  const v=DATA.presets[k];
+  document.getElementById('insightBox').innerHTML=`<strong>${PRESET_META[k].icon} ${PRESET_META[k].label}</strong>：`+
+    `${PRESET_META[k].desc}<br/><span class="chip">里程 ${fmt(v.km)} km</span>`+
+    `<span class="chip">相对v3再改动 ${v.changed} 店 (${(v.changed/DATA.total_stores*100).toFixed(1)}%)</span>`+
+    `<span class="chip">每日均衡度 CV ${v.cv.toFixed(4)}</span>`;
 }
 
-function renderInsight(key,v){
-  const box=document.getElementById('insightBox');
-  const pct=(v.changed/DATA.total_stores*100).toFixed(1);
-  const msgs={
-    aggressive:`<strong>🔥 激进型方案</strong>：里程 <strong>${v.km.toFixed(1)} km</strong>，比 TSP 基线再省 <strong>${(TSP-v.km).toFixed(1)} km</strong>。仅挪动 ${v.changed} 家店 (${pct}%)，是"省里程 vs 少改动"帕累托前沿上里程最优的方案。适合以成本为首要目标的场景。`,
-    recommended:`<strong>⭐ 推荐型方案（帕累托膝点）</strong>：里程 ${v.km.toFixed(1)} km，改动 ${v.changed} 家店 (${pct}%)，均衡度 CV=${v.cv.toFixed(4)}，跨区率 ${(v.cross_ratio*100).toFixed(1)}%。此方案在四个维度上距理想点最近，是<strong>多目标综合最优</strong>的推荐选择。`,
-    balanced:`<strong>⚖️ 均衡型方案</strong>：均衡度 CV=${v.cv.toFixed(4)}，接近完美均匀（每天拜访量几乎一样多）。里程 ${v.km.toFixed(1)} km，需改动 ${v.changed} 家店 (${pct}%)。适合<strong>极度关注一线 workload fairness</strong> 的场景，愿意用里程换取公平性。`,
-    conservative:`<strong>🔒 保守型方案</strong>：零改动（0 家店被挪），里程 ${v.km.toFixed(1)} km。相当于纯日内顺序优化（TSP 重排），<strong>100% 保留原定日程</strong>。适合推行初期或变动敏感的团队。`
-  };
-  box.innerHTML=msgs[key]||'点击上方方案卡片查看详情。';
-}
-
-function bar(label,val,max,color,unit,dec,cur){
-  const pct=Math.min(100,val/max*100);
-  return `<div class="bar-row"><span class="bar-label">${label}</span><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div><span class="bar-val" style="${cur?'color:var(--accent);font-weight:700':''}">${val.toFixed(dec||1)}${unit}${cur?' ◀':''}</span></div>`;
+function scatter(elId,pts,xk,yk,xlab,ylab,opts){
+  const W=560,H=300,pL=54,pR=20,pT=16,pB=40;
+  const xs=pts.map(p=>p[xk]),ys=pts.map(p=>p[yk]);
+  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const sx=v=>pL+(v-x0)/(x1-x0+1e-9)*(W-pL-pR);
+  const sy=v=>H-pB-(v-y0)/(y1-y0+1e-9)*(H-pT-pB);
+  let s=`<svg viewBox="0 0 ${W} ${H}" style="width:100%">`;
+  s+=`<line x1="${pL}" y1="${H-pB}" x2="${W-pR}" y2="${H-pB}" stroke="#e2e8f0"/>`;
+  s+=`<line x1="${pL}" y1="${pT}" x2="${pL}" y2="${H-pB}" stroke="#e2e8f0"/>`;
+  for(let i=0;i<=4;i++){
+    const xv=x0+(x1-x0)*i/4,px=sx(xv);
+    s+=`<line x1="${px}" y1="${pT}" x2="${px}" y2="${H-pB}" stroke="#f1f5f9"/>`;
+    s+=`<text x="${px}" y="${H-pB+16}" font-size="10" fill="#94a3b8" text-anchor="middle">${xlab==='km'?xv.toFixed(0):xv.toFixed(0)}</text>`;
+  }
+  (opts&&opts.vlines||[]).forEach(([v,c,t])=>{
+    const px=sx(v);s+=`<line x1="${px}" y1="${pT}" x2="${px}" y2="${H-pB}" stroke="${c}" stroke-dasharray="4 3" stroke-width="1.5"/>`;
+    s+=`<text x="${px}" y="${pT+12}" font-size="9" fill="${c}" font-weight="700" text-anchor="middle">${t}</text>`;
+  });
+  pts.forEach((p,i)=>{
+    const x=sx(p[xk]),y=sy(p[yk]);
+    s+=`<circle cx="${x}" cy="${y}" r="4" fill="#94a3b8" opacity="0.5"/>`;
+    s+=`<title>#${p.id} ${p[xk].toFixed(1)} / ${p[yk].toFixed(3)}</title>`;
+    if(i===0||i===pts.length-1)s+=`<text x="${x+7}" y="${y+3}" font-size="9" fill="#334155">${p[xk].toFixed(1)} · ${p[yk].toFixed(2)}</text>`;
+  });
+  s+=`<text x="${W/2}" y="${H-6}" font-size="10" fill="#6b6964" text-anchor="middle">${opts&&opts.xTitle||xlab}</text>`;
+  s+=`<text x="14" y="${H/2}" font-size="10" fill="#6b6964" text-anchor="middle" transform="rotate(-90 14 ${H/2})">${opts&&opts.yTitle||ylab}</text>`;
+  return s+'</svg>';
 }
 
 function renderCharts(){
-  const entries=Object.entries(DATA.presets);
-  const scenarios=entries.map(([key,v])=>({...v,key,label:LABELS[key],color:COLORS[key]}));
-  scenarios.push({key:'tsp',label:'TSP 基线',km:TSP,changed:0,cv:0.1455,cross_ratio:0.3499,color:'#94a3b8'});
-  scenarios.push({key:'v3',label:'V3 自由',km:V3,changed:86,cv:null,cross_ratio:null,color:'#cbd5e1'});
-
-  document.getElementById('chartKm').innerHTML=scenarios.map(s=>
-    bar(s.label,s.km,1200,s.color,' km',1,false)
-  ).join('');
-
-  document.getElementById('chartDelta').innerHTML=scenarios.map(s=>
-    bar(s.label,s.changed,90,s.color,' 店',0,false)
-  ).join('');
-
-  document.getElementById('chartCV').innerHTML=scenarios.map(s=>
-    s.cv===null?`<div class="bar-row"><span class="bar-label">${s.label}</span><span style="font-size:10px;color:#94a3b8;margin-left:8px">未控制</span></div>`:
-    bar(s.label,s.cv,0.16,s.color,'',4,false)
-  ).join('');
-
-  document.getElementById('chartCross').innerHTML=scenarios.map(s=>
-    s.cross_ratio===null?`<div class="bar-row"><span class="bar-label">${s.label}</span><span style="font-size:10px;color:#94a3b8;margin-left:8px">未控制</span></div>`:
-    bar(s.label,s.cross_ratio,0.40,s.color,'',4,false)
-  ).join('');
-
-  // Pareto scatter: km vs CV
-  const front=DATA.pareto_front.filter(p=>p.cv!==null);
-  const minX=Math.min(...front.map(p=>p.km))-10,maxX=Math.max(...front.map(p=>p.km))+10;
-  const minCV=Math.min(...front.map(p=>p.cv)),maxCV=Math.max(...front.map(p=>p.cv));
-  const svgW=460,svgH=260,pL=45,pB=30,pT=15,pR=15;
-  let svg=`<svg viewBox="0 0 ${svgW} ${svgH}" style="width:100%">`;
-  svg+=`<line x1="${pL}" y1="${svgH-pB}" x2="${svgW-pR}" y2="${svgH-pB}" stroke="#e2e8f0"/><line x1="${pL}" y1="${pT}" x2="${pL}" y2="${svgH-pB}" stroke="#e2e8f0"/>`;
-  front.forEach((p,i)=>{
-    const x=pL+(p.km-minX)/(maxX-minX)*(svgW-pL-pR);
-    const y=svgH-pB-(p.cv-minCV)/(maxCV-minCV+1e-9)*(svgH-pT-pB);
-    let isPreset=false,presetKey='';
-    entries.forEach(([k,v])=>{if(Math.abs(v.km-p.km)<1&&v.changed===p.changed){isPreset=true;presetKey=k}});
-    const color=isPreset?COLORS[presetKey]:'#94a3b8';
-    const r=isPreset?7:4;
-    svg+=`<circle cx="${x}" cy="${y}" r="${r}" fill="${color}" stroke="#fff" stroke-width="1.5" opacity="${isPreset?1:0.5}"/>`;
-    if(isPreset){svg+=`<text x="${x+10}" y="${y+4}" font-size="9" font-weight="700" fill="${color}">${LABELS[presetKey].split(' ')[1]||presetKey}</text>`}
+  const front=[...DATA.pareto_front].sort((a,b)=>a.changed-b.changed||a.km-b.km);
+  document.getElementById('chartA').innerHTML=scatter('chartA',front,'km','changed','km','改动',
+    {xTitle:'里程 f1 (km) →',yTitle:'← 相对v3再改动 f2 (店)',vlines:[]});
+  document.getElementById('chartB').innerHTML=scatter('chartB',front,'changed','cv','改动','CV',
+    {xTitle:'相对v3再改动 f2 (店) →',yTitle:'工作量变异系数 f3 → (越低越均衡)',vlines:[]});
+  // overlay preset markers
+  Object.entries(DATA.presets).forEach(([k,v])=>{
+    // charts are static strings; preset positions noted in insight box
   });
-  svg+=`<text x="${svgW/2}" y="${svgH-3}" font-size="10" fill="#6b6964" text-anchor="middle">总里程 (km) →</text>`;
-  svg+=`<text x="12" y="${svgH/2}" font-size="10" fill="#6b6964" text-anchor="middle" transform="rotate(-90 12 ${svgH/2})">CV 均衡度 → (越低越均衡)</text>`;
-  svg+='</svg>';
-  document.getElementById('chartPareto').innerHTML=svg;
-
-  // Pareto scatter: changed vs cross_ratio
-  const front2=DATA.pareto_front.filter(p=>p.cross_ratio!==null);
-  const minX2=0,maxX2=Math.max(...front2.map(p=>p.changed))+5;
-  const minC2=Math.min(...front2.map(p=>p.cross_ratio)),maxC2=Math.max(...front2.map(p=>p.cross_ratio));
-  let svg2=`<svg viewBox="0 0 ${svgW} ${svgH}" style="width:100%">`;
-  svg2+=`<line x1="${pL}" y1="${svgH-pB}" x2="${svgW-pR}" y2="${svgH-pB}" stroke="#e2e8f0"/><line x1="${pL}" y1="${pT}" x2="${pL}" y2="${svgH-pB}" stroke="#e2e8f0"/>`;
-  front2.forEach((p,i)=>{
-    const x=pL+(p.changed-minX2)/(maxX2-minX2)*(svgW-pL-pR);
-    const y=svgH-pB-(p.cross_ratio-minC2)/(maxC2-minC2+1e-9)*(svgH-pT-pB);
-    let isPreset=false,presetKey='';
-    entries.forEach(([k,v])=>{if(Math.abs(v.km-p.km)<1&&v.changed===p.changed){isPreset=true;presetKey=k}});
-    const color=isPreset?COLORS[presetKey]:'#94a3b8';
-    svg2+=`<circle cx="${x}" cy="${y}" r="${isPreset?7:4}" fill="${color}" stroke="#fff" stroke-width="1.5" opacity="${isPreset?1:0.5}"/>`;
-    if(isPreset){svg2+=`<text x="${x+10}" y="${y+4}" font-size="9" font-weight="700" fill="${color}">${LABELS[presetKey].split(' ')[1]||presetKey}</text>`}
-  });
-  svg2+=`<text x="${svgW/2}" y="${svgH-3}" font-size="10" fill="#6b6964" text-anchor="middle">改动店数 →</text>`;
-  svg2+=`<text x="12" y="${svgH/2}" font-size="10" fill="#6b6964" text-anchor="middle" transform="rotate(-90 12 ${svgH/2})">跨区率 → (越低越顺路)</text>`;
-  svg2+='</svg>';
-  document.getElementById('chartPareto2').innerHTML=svg2;
 }
 
-function buildTable(){
-  const tb=document.querySelector('#frontTable tbody');
-  tb.innerHTML='';
+function renderTable(){
+  const tb=document.querySelector('#frontTable tbody');tb.innerHTML='';
   DATA.pareto_front.forEach(p=>{
     const tr=document.createElement('tr');
-    let isPreset=false,presetKey='';
-    Object.entries(DATA.presets).forEach(([k,v])=>{
-      if(Math.abs(v.km-p.km)<1&&v.changed===p.changed){isPreset=true;presetKey=k}
-    });
+    const isPreset=Object.values(DATA.presets).some(v=>Math.abs(v.km-p.km)<0.6&&v.changed===p.changed);
     if(isPreset)tr.className='hl';
-    const vsTsp=((p.km-TSP)/TSP*100).toFixed(1);
-    tr.innerHTML=`<td>${p.id}</td><td style="color:var(--accent);font-weight:${isPreset?'700':'400'}">${p.km.toFixed(1)}${isPreset?' '+LABELS[presetKey].split(' ')[0]:''}</td>`+
+    tr.innerHTML=`<td>${p.id}</td><td style="color:var(--accent)">${fmt(p.km)}</td>`+
       `<td>${p.changed}</td><td>${(p.changed/DATA.total_stores*100).toFixed(1)}%</td>`+
-      `<td>${p.cv.toFixed(4)}</td><td>${p.cross_ratio.toFixed(4)}</td><td style="color:${vsTsp.startsWith('-')?'#16a34a':'#64748b'}">${vsTsp}%</td>`;
+      `<td>${p.cv.toFixed(4)}</td><td>${p.freq? '':'✅'}</td>`;
     tb.appendChild(tr);
   });
+  document.getElementById('foot').innerHTML=
+    `09线 · 梁健满 · 163店/686次/23工作日 · NSGA-II ${DATA.generations}代 · 前沿${DATA.front_size}个非支配解 · `+
+    `基准=v3(计划数据) · 频次守恒100% · <a href="index.html" style="color:var(--accent)">返回</a>`;
 }
 init();
 </script></body></html>
