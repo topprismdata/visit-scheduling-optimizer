@@ -132,6 +132,8 @@ class R2ALNS(Algorithm):
                 if cur_km < best_km - 1e-9:
                     best_km = cur_km
                     best_routes = {dd: list(r) for dd, r in routes.items()}
+                    if keep_history:
+                        snapshot()                 # 结构保证: SP 输入列池必含最优状态 (评审整改)
                 if keep_history and its % max(1, collect_every) == 0:
                     snapshot()
 
