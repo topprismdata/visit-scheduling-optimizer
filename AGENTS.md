@@ -8,7 +8,7 @@
 - **Layer 1 规划唯一数据源**: `/Users/ghb/Downloads/进离店内销售的SRP-7月拜访计划.xlsx`
 - **Layer 2 实测数据源**（用户 2026-09-03 授权）: `/Users/ghb/Downloads/进离店报表导出 (4).xlsx` —— 实际打卡流水，仅用于"实际 vs Agent"对比，不反哺规划口径
 - **距离口径**: OSM 骑行路网距离（FOSSGIS routed-bike/table）。
-  ⚠ **已知违例**：`run_all_reps_actual_vs_agent.py` 在 FOSSGIS 429 限流时回退 `1.41×Haversine 校准矩阵` 并持久化缓存，实测约半数日级矩阵受污染（124/250，检测法：值是否恒为 3 位小数规则网格）。**对外交付前必须重刷回退缓存**：删除对应 `.npy` 重跑即可（脚本缓存命中优先）。**当前唯一已重核干净的线路：09（1,234.7→592.2 km 已入台账）；02~08/10/11 仍含部分回退，重刷待 FOSSGIS 配额恢复后执行**。详见 `docs/PERFORMANCE_BENCHMARK.md` §9
+  ⚠ **已知违例**：`run_all_reps_actual_vs_agent.py` 在 FOSSGIS 429 限流时回退 `1.41×Haversine 校准矩阵` 并持久化缓存，实测约半数日级矩阵受污染（124/250，检测法：值是否恒为 3 位小数规则网格）。**对外交付前必须重刷回退缓存**：删除对应 `.npy` 重跑即可（脚本缓存命中优先）。**✅ 已于 2026-09-05 全量重刷完成**（133 个回退矩阵全部替换为实测，旧矩阵备份于 `data/cache/fallback_backup_20260905/`；工具 `refetch_fallback_matrices.py`）。全办实测口径终账：13,417.7 → 5,632.0 km（−58.0%）。详见 `docs/PERFORMANCE_BENCHMARK.md` §9
 - 路网矩阵缓存：Layer 2 日级 `data/cache/dist_{line}_{date}_{n}.npy`；Layer 1 月度 `output/road_dist_{line}.npy`
 
 ## 业务概念

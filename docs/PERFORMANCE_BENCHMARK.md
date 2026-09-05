@@ -211,7 +211,8 @@ cd /Users/ghb/Documents/Codex/2026-08-04/wo-xi/visit-scheduling-optimizer
 
 **影响**：回退口径系统性**低估**实际路网约 30~35%（广州城区骑行绕行系数常高于 1.41），受污染线路的 `actual_km` 与 `agent_km` 双双偏低。09 线曾因此入账 805.9 km，干净矩阵正确值为 1,234.7 km。
 
-**现状与处置**：
-- 09 线已用干净日级矩阵（`build_all_days_comparison` 无前缀缓存，25/25 实测道路）重核入账：**1,234.7 → 592.2 km（−52.0%）**，全办合计同步修正为 **8,052.5 → 4,010.5 km（−50.2%）**；
-- 02~08 / 10 / 11 仍含部分回退矩阵，**对外交付前必须重刷**：删除对应 `dist_*.npy` 后重跑 `run_all_reps_actual_vs_agent.py`（加礼貌限流或错峰执行）；
+**现状与处置（2026-09-05 已闭环）**：
+- 133 个回退矩阵已全部重刷为 OSRM 实测（`refetch_fallback_matrices.py --phase refetch`，礼貌限流 1.5s/请求 + 429 退避），旧矩阵备份于 `data/cache/fallback_backup_20260905/`；
+- 全办台账重算（`--phase ledger`）：**13,417.7 → 5,632.0 km（−58.0%）**（回退口径曾低估人类里程约 40%）；
+- 10 天审计表同步重算（`output/manual_10_days_audit_road.json`）；
 - 权威总表：`COMPARISON_REPORT_ACTUAL_VS_AGENT.md` §2；规则见 `AGENTS.md` 数据源一节。
