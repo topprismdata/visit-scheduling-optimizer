@@ -38,7 +38,7 @@ $$\text{Baseline}_{\text{TSP}}(l) = \sum_{t \in T} \text{ExactOpenTSP}(S_t^{\tex
 ## 2. Goals & Non-Goals
 
 ### 2.1 Goals
-- **G1 里程削减（相对基线 A，R2′ 语义内）**：全办走廊 + R2′ 双约束下再降 ≥2%（09 线试点已达 −3.5%；全线实测见 `docs/benchmarks/TWO_STAGE_BENCHMARK_REPORT.md` 五节，基线 A = 4,144.3 km）。
+- **G1 里程削减（相对基线 A，R2′ 语义内）**：全办走廊 + R2′ 双约束下再降 ≥10%（**十线实测达成 −12.69%：4,144.3 → 3,618.5 km，净省 525.8 km/月**，见 `docs/benchmarks/TWO_STAGE_BENCHMARK_REPORT.md` §五′，基线 A = 4,144.3 km）。
 - **G2 双向作业走廊**：每日门店数满足 $K_{\min}(l) \le |S_t(l)| \le K_{\max}(l)$（源自各业代原计划当日店数的历史包络）。
 - **G3 周期履约语义**：见 §3.2 —— 频次守恒 + 星期几一致 R2′（整店可换星期几、全月一致）+ 月内均布性观测。
 - **G4 可验证性**：所有性能与质量数字必须标注证据类型（实测样本 / 外推目标 / 池内证书），杜绝把受限资源上的观测外推为无界保证。
@@ -156,8 +156,8 @@ $$\mathcal{R}_t = \{ r \subseteq N : K_{\min} \le |r| \le K_{\max},\ c_r = \text
 **NN+2opt 定位修正**：其角色是毫秒级在途启发式，**不承诺** "≤5% 事后最优"（实测偏差上界 48.4%）；现场质量目标由走廊插单器保证（§8 Tier-1）。
 
 ### 7.3 Layer 1 与全办总账
-以 `output/rerun_corridor_09.json` 与 `output/cpsat_plan_baselines.json` 为准（新走廊约束代码下重跑；数字以本次重跑落盘后更新到 `docs/benchmarks/TWO_STAGE_BENCHMARK_REPORT.md`）。
-参考锚点（已实测）：基线 A 全办 = **4,144.3 km**（09 线 326.6 km）。
+主线十线终账以 `output/sp_r2_ledger_all.json`（R2′ 原生列池 + SP(r2_prime)，2026-09-05 双机收口）+ `output/cpsat_plan_baselines.json` 为准。
+参考锚点（已实测）：基线 A 全办 = **4,144.3 km**（09 线 326.6 km）；R2′ 终解全办 = **3,618.5 km（−12.69%）**，10/10 线零分裂、零越界、结构保证成立。
 
 ---
 
