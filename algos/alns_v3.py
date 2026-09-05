@@ -133,17 +133,19 @@ class ALNSv3(Algorithm):
             # repair: regret-2 over days
             ok = True
             for node in rem:
+                # 走廊守卫: 欠载日优先补足, 确保不低于 min_daily; 其次在 < max_daily 中挑选
+                deficits = [dd for dd in dates if len(trial[dd]) < min_daily and node not in trial[dd]]
+                target_days = deficits if deficits else [dd for dd in dates if node not in trial[dd] and len(trial[dd]) < max_daily]
                 cands = []
-                for dd in dates:
-                    if node in trial[dd]: continue
-                    if len(trial[dd]) < 1 or len(trial[dd]) >= max_daily: continue
+                for dd in target_days:
                     _, dl = best_insert(trial[dd], node, D); cands.append((dl, dd))
                 if not cands: ok = False; break
                 cands.sort()
                 bdl, bdd = cands[0]
                 newt, _ = best_insert(trial[bdd], node, D)
                 trial[bdd] = two_opt(newt, D, 6)
-            if not ok: continue
+            if not ok or any(len(trial[dd]) < min_daily or len(trial[dd]) > max_daily for dd in dates):
+                continue
             new_obj = total_km(trial, D)
             diff = new_obj - cur
             if diff < 0 or rng.random() < math.exp(-diff/max(1e-9,T)):

@@ -136,12 +136,10 @@ def _sa_improve(tours, D, dates, rng, deadline, zone_of=None, hot=1.0, max_daily
         trial[dd1] = nt1
         ok = True
         for node in rem:
+            deficits = [dd for dd in dates if min_daily and len(trial[dd]) < min_daily and node not in trial[dd]]
+            target_days = deficits if deficits else [dd for dd in dates if node not in trial[dd] and (not max_daily or len(trial[dd]) < max_daily)]
             cands = []
-            for dd in dates:
-                if node in trial[dd]:
-                    continue
-                if len(trial[dd]) < 1 or (max_daily and len(trial[dd]) >= max_daily):
-                    continue
+            for dd in target_days:
                 _, dl = best_insert(trial[dd], node, D)
                 cands.append((dl, dd))
             if not cands:
@@ -151,7 +149,7 @@ def _sa_improve(tours, D, dates, rng, deadline, zone_of=None, hot=1.0, max_daily
             bdl, bdd = cands[0]
             newt, _ = best_insert(trial[bdd], node, D)
             trial[bdd] = two_opt(newt, D, 6)
-        if not ok:
+        if not ok or any((min_daily and len(trial[dd]) < min_daily) or (max_daily and len(trial[dd]) > max_daily) for dd in dates):
             continue
         new_obj = total_km(trial, D)
         diff = new_obj - cur
