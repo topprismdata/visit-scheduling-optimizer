@@ -60,19 +60,21 @@ def worst_edge(tour, D, zone_of=None, cross_pref=False):
 class ALNSv3(Algorithm):
     name = "alns_v3"
 
-    def solve(self, data, D, time_budget=300, zone_of=None, seed=42):
+    def solve(self, data, D, time_budget=300, zone_of=None, seed=42, weekday_lock=False):
         rng = random.Random(seed)
         dates = data.dates
         min_daily = getattr(data, 'min_daily_capacity', 0) or min(len(v) for v in data.days_orig.values())
         max_daily = getattr(data, 'max_daily_capacity', 0) or max(len(v) for v in data.days_orig.values())
-        # ---- 起点: 每天 nn2opt + 一轮贪心跨日 (带双向走廊约束 min_daily <= len <= max_daily) ----
+        # ---- 起点: 每天 nn2opt + 一轮贪心跨日 (带双向走廊约束; weekday_lock=仅同星期几槽位互挪) ----
+        wd_slots = {}
+        for dd in dates: wd_slots.setdefault(dd.weekday(), []).append(dd)
         tours = {dd: _nn2opt_open(list(data.days_orig[dd]), D) for dd in dates}
         t0 = time.time(); warm = time_budget * 0.12
         for _ in range(30):
             imp = False
             if time.time() - t0 > warm: break
             for dd1 in dates:
-                for dd2 in dates:
+                for dd2 in (wd_slots[dd1.weekday()] if weekday_lock else dates):
                     if dd1 == dd2: continue
                     s1, s2 = tours[dd1], tours[dd2]
                     if len(s1) <= min_daily or len(s2) >= max_daily: continue
@@ -114,7 +116,8 @@ class ALNSv3(Algorithm):
             elif el < 0.66: T = T1 + (T2-T1)*((el-0.33)/0.33)
             else: T = T2 + (T3-T2)*((el-0.66)/0.34)
             op = pick()
-            dd1 = rng.choice(dates); t1 = tours[dd1]
+            dd1 = rng.choice(dates) if not weekday_lock else rng.choice([dd for dd in dates if len(wd_slots[dd.weekday()]) > 1])
+            t1 = tours[dd1]
             if len(t1) <= min_daily: continue
             # destroy: tour-informed
             if op == 'worst':
@@ -134,8 +137,10 @@ class ALNSv3(Algorithm):
             ok = True
             for node in rem:
                 # 走廊守卫: 欠载日优先补足, 确保不低于 min_daily; 其次在 < max_daily 中挑选
-                deficits = [dd for dd in dates if len(trial[dd]) < min_daily and node not in trial[dd]]
-                target_days = deficits if deficits else [dd for dd in dates if node not in trial[dd] and len(trial[dd]) < max_daily]
+                # 走廊守卫: 欠载日优先补足; weekday_lock 时目标日与 dd1 同星期几 (R2' 合法列)
+                tgt_pool = wd_slots[dd1.weekday()] if weekday_lock else dates
+                deficits = [dd for dd in tgt_pool if len(trial[dd]) < min_daily and node not in trial[dd]]
+                target_days = deficits if deficits else [dd for dd in tgt_pool if node not in trial[dd] and len(trial[dd]) < max_daily]
                 cands = []
                 for dd in target_days:
                     _, dl = best_insert(trial[dd], node, D); cands.append((dl, dd))
