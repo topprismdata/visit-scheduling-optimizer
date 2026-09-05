@@ -13,7 +13,7 @@
 >    - **Layer 2 单日排线**：约束规划全局精确求解器（CP-SAT Exact）在业务物理极限（$n \le 37$ 店）内 **20ms ~ 1.7s 100% 签发全局数学最优证明（OPTIMAL）**；
 > 2. **多目标帕累托稳定器（MO-ALNS）**：以历史计划为锚点，在总里程、计划改动量（稳定性）与工作量均衡度之间求解帕累托前沿；
 > 3. **Agent 动态实时调度副驾**：针对现场走访中高达 27.4% 的突发临时插单，基于沿街走廊一维投影与顺路拼接算法，单次决策 **75–330 微秒**，全办实测砍掉 **58.0%（−7,785.7 km）** 的无效折返！
-> 4. **核心架构与基准设计文档**：见 [`docs/SYSTEM_DESIGN_DOC_VISIT_SCHEDULING_OPTIMIZER.md`](docs/SYSTEM_DESIGN_DOC_VISIT_SCHEDULING_OPTIMIZER.md) 与 [`docs/TWO_STAGE_BENCHMARK_REPORT.md`](docs/TWO_STAGE_BENCHMARK_REPORT.md)。
+> 4. **核心架构与基准设计文档**：见 [`docs/design/SYSTEM_DESIGN_DOC.md`](docs/design/SYSTEM_DESIGN_DOC.md) 与 [`docs/benchmarks/TWO_STAGE_BENCHMARK_REPORT.md`](docs/benchmarks/TWO_STAGE_BENCHMARK_REPORT.md)。
 **A data-calibrated decision engine for recurring field-sales visit
 planning.**
 
@@ -233,7 +233,7 @@ demos, and downstream product claims.
   - **花瓣微偏移算法 (Spider-Jitter)**：彻底解决同一市场/大楼内连续打卡导致的序号重叠遮挡问题；
   - **23 工作日全量下钻**：支持点选全月任意一天并查看 Agent 自然语言副驾调度指引。
 - **计划优化主大盘**：`http://localhost:8899/index.html`
-- **详细技术文档**：参见 `docs/AGENTIC_DYNAMIC_DISPATCH_GUIDE.md`。
+- **详细技术文档**：参见 [`docs/guides/AGENTIC_DISPATCH_GUIDE.md`](docs/guides/AGENTIC_DISPATCH_GUIDE.md)。
 ------------------------------------------------------------------------
 
 
@@ -262,16 +262,16 @@ demos, and downstream product claims.
 交互页面：`http://localhost:8899/v4_pareto.html`
 
 ### 6. 项目文档索引
-
-| 文档 | 内容与定位 |
-|---|---|
-| [`docs/SYSTEM_DESIGN_DOC_VISIT_SCHEDULING_OPTIMIZER.md`](docs/SYSTEM_DESIGN_DOC_VISIT_SCHEDULING_OPTIMIZER.md) | **系统架构设计主文档（Google 设计规范）**：背景、目标/非目标、数学模型、架构分解、权衡分析与生产指南 |
-| [`docs/TWO_STAGE_BENCHMARK_REPORT.md`](docs/TWO_STAGE_BENCHMARK_REPORT.md) | **两阶段运筹全景帕累托基准报告**：单日 TSP 对决矩阵 + 月度排历矩阵 + 反馈消融矩阵 + 全办总账 |
-| [`docs/SP_MATHEURISTIC_DESIGN.md`](docs/SP_MATHEURISTIC_DESIGN.md) | 集合划分与对偶闭环列生成设计（基于 [META] 2025 与 [ESF] 2020 论文） |
-| [`docs/ALGORITHM_GUIDE.md`](docs/ALGORITHM_GUIDE.md) | 算法机制指南（规范命名映射 + 20+ 篇文献 DOI 认证 + 消融附录） |
-| [`docs/V4_DESIGN_V2_MULTIOBJECTIVE.md`](docs/V4_DESIGN_V2_MULTIOBJECTIVE.md) | 多目标帕累托稳定器设计（里程 ↔ 扰动 ↔ 均衡） |
-| [`docs/AGENTIC_DYNAMIC_DISPATCH_GUIDE.md`](docs/AGENTIC_DYNAMIC_DISPATCH_GUIDE.md) | Layer 2 现场动态调度副驾技术专著 |
-| [`docs/MANUAL_10_DAYS_AUDIT_REPORT.md`](docs/MANUAL_10_DAYS_AUDIT_REPORT.md) | 10 天人工白盒抽查审计报告（用于客户答辩） |
+| 文档 | 类别 | 内容与定位 |
+|---|---|---|
+| [`docs/design/SYSTEM_DESIGN_DOC.md`](docs/design/SYSTEM_DESIGN_DOC.md) | **架构主文档** | **Google 级系统设计主规范**：背景、目标/非目标、数学模型、架构分解、权衡分析与生产指南 |
+| [`docs/benchmarks/TWO_STAGE_BENCHMARK_REPORT.md`](docs/benchmarks/TWO_STAGE_BENCHMARK_REPORT.md) | **基准总账** | **两阶段运筹全景帕累托基准报告**：单日 TSP 对决矩阵 + 月度排历矩阵 + 反馈消融矩阵 + 全办总账 |
+| [`docs/design/SP_MATHEURISTIC_DESIGN.md`](docs/design/SP_MATHEURISTIC_DESIGN.md) | **核心设计** | 对偶闭环列生成与集合划分设计（基于 [META] 2025 与 [ESF] 2020 顶刊） |
+| [`docs/guides/ALGORITHM_GUIDE.md`](docs/guides/ALGORITHM_GUIDE.md) | **技术指南** | 算法机制指南（规范命名映射 + 20+ 篇顶刊文献 DOI 认证 + 附录） |
+| [`docs/design/V4_PARETO_STABILIZER_DESIGN.md`](docs/design/V4_PARETO_STABILIZER_DESIGN.md) | **核心设计** | 多目标帕累托稳定器设计（里程 ↔ 扰动 ↔ 均衡） |
+| [`docs/guides/AGENTIC_DISPATCH_GUIDE.md`](docs/guides/AGENTIC_DISPATCH_GUIDE.md) | **专著指南** | Layer 2 现场动态调度副驾技术专著 |
+| [`docs/benchmarks/MANUAL_10_DAYS_AUDIT.md`](docs/benchmarks/MANUAL_10_DAYS_AUDIT.md) | **审计凭据** | 10 天人工白盒抽查审计报告（时间戳与地址级客户答辩） |
+| [`docs/README.md`](docs/README.md) | **导航中心** | Google 级文档目录导航地图与评审人定向阅读路径 |
 
 ---
 
@@ -331,9 +331,9 @@ The synthetic example contains no real customer data.
 
   `examples/`                         synthetic reproducible examples
 
-  `docs/algorithm.md`                 mathematical and algorithmic detail
+  `docs/archive/research_drafts/algorithm.md`   mathematical detail (historical)
 
-  `docs/paper_draft.md`               methodology-oriented working paper
+  `docs/archive/research_drafts/paper_draft.md` working paper draft (historical)
   -----------------------------------------------------------------------
 
 ------------------------------------------------------------------------
@@ -413,7 +413,7 @@ topprism:
 ## Citation
 
 If you use the methodology in academic work, see the citation
-information in the repository and `docs/paper_draft.md`.
+information in the repository and `docs/archive/research_drafts/paper_draft.md`.
 
 ## License
 

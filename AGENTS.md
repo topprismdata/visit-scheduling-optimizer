@@ -113,3 +113,28 @@ $$K_{\min}(l) \le |S_t(l)| \le K_{\max}(l) \quad \forall t \in T$$
 4. **命名规范铁律**：严禁在对外报告、代码类名与业务交流中使用 V1/V3/V4 等无含义代号，必须使用标准机制名称。
 5. **对账与复现纪律**：所有汇报里程与耗时数字必须取自 `output/bench_*.csv` 或 `output/sp_all_lines_summary.json`，严禁引用未跑出凭证的旧数据。
 6. **历史资产保护**：`algos/pvrp_cg/` 为早期基线目录，永久**冻结零改动**。
+
+---
+
+## 六、项目文档结构规范（Google 级标准体系）
+
+本项目文档严格按照**受众与目标职责**四层解耦，根目录杜绝堆积杂文：
+
+```
+docs/
+├── README.md                      # [导航中心] 全局文档导航地图与评审人定向阅读指引
+├── design/                        # [架构蓝图] Google 级系统设计主文档与核心算法 RFC
+│   ├── SYSTEM_DESIGN_DOC.md       # ★ 系统架构设计主规范 (Master Spec)
+│   ├── SP_MATHEURISTIC_DESIGN.md  # 集合划分与对偶闭环列生成设计
+│   └── V4_PARETO_STABILIZER_DESIGN.md # 多目标帕累托稳定器设计
+├── benchmarks/                    # [实证总账] 评测基准与实证报告
+│   ├── TWO_STAGE_BENCHMARK_REPORT.md  # ★ 两阶段全景帕累托基准报告 (单日+月度+消融+总账)
+│   ├── PERFORMANCE_BENCHMARK.md       # 延迟与响应时间 SLA 生产标定
+│   ├── ACTUAL_VS_AGENT_REPORT.md      # Layer 2 现场实际打卡 vs Agent 插单实测报告
+│   └── MANUAL_10_DAYS_AUDIT.md        # 10 天人工白盒打卡抽查审计报告
+├── guides/                        # [技术专著] 操作手册与算法指南
+│   ├── ALGORITHM_GUIDE.md             # 算法机制技术指南 (20+ 篇顶刊 DOI 认证)
+│   └── AGENTIC_DISPATCH_GUIDE.md      # Layer 2 现场动态调度副驾技术专著
+└── archive/                       # [历史封存] 早期阶段设计、演化草案与废弃方案归档
+```
+所有新建设计文档必须遵循 `docs/design/SYSTEM_DESIGN_DOC.md` 的 Google 级标准，包含 Goals/Non-Goals、Invariants、Alternatives Considered 等核心章节。
