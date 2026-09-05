@@ -40,11 +40,35 @@ def fetch_matrix(codes: list[str], lon: list[float], lat: list[float]) -> np.nda
     return D
 
 
-def load_cached(line_id: str) -> np.ndarray | None:
-    """Load cached road matrix for line_id, or None."""
+def load_cached(line_id: str, expected_codes: list[str] | None = None) -> np.ndarray | None:
+    """Load cached road matrix for line_id.
+    
+    若传入 expected_codes, 严格校验 sidecar road_codes_{line_id}.json 中的门店编码序与矩阵尺寸,
+    防止因输入顺序变更导致错误的矩阵索引对齐 (Review P1-4 修复).
+    """
+    mat_path = f"output/road_dist_{line_id}.npy"
+    meta_path = f"output/road_codes_{line_id}.json"
+    if not os.path.exists(mat_path):
+        return None
     try:
-        return np.load(f"output/road_dist_{line_id}.npy")
-    except FileNotFoundError:
+        D = np.load(mat_path)
+        if expected_codes is not None:
+            n_exp = len(expected_codes)
+            if D.shape != (n_exp, n_exp):
+                print(f"  [WARN] 缓存矩阵尺寸 {D.shape} 与期望店数 ({n_exp}, {n_exp}) 不符, 缓存失效", flush=True)
+                return None
+            if os.path.exists(meta_path):
+                meta = json.load(open(meta_path))
+                cached_codes = meta.get("codes", [])
+                if cached_codes != list(expected_codes):
+                    print(f"  [WARN] 缓存门店编码顺序与期望输入不一致, 缓存失效 (防止距离对齐错乱)", flush=True)
+                    return None
+            else:
+                print(f"  [WARN] 缺少编码序元数据 {meta_path}, 为保证绝对正确性视同失效", flush=True)
+                return None
+        return D
+    except Exception as e:
+        print(f"  [WARN] 读取缓存失败 ({e}), 重新获取", flush=True)
         return None
 
 

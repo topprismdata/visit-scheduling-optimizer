@@ -132,21 +132,22 @@ def column_generate(dates, k_c, pool, D, max_iter=12, verbose=False,
     pool = list(pool)
     converged = False
     iters = 0
-    lb = None
+    rmp_lp = None
     stall = 0
     for it in range(max_iter):
         iters = it + 1
-        lb_new, duals = sp_solve_lp(dates, k_c, pool)
-        if lb_new is None:
+        rmp_lp_new, duals = sp_solve_lp(dates, k_c, pool)
+        if rmp_lp_new is None:
             break
-        improved = (lb is None) or (lb_new > lb + 1e-3)
-        lb = max(lb, lb_new) if lb is not None else lb_new
+        # 最小化问题: 回灌负约简成本列后, 主问题松弛解 rmp_lp 应当下降 (成本降低)
+        improved = (rmp_lp is None) or (rmp_lp - rmp_lp_new > 1e-3)
+        rmp_lp = min(rmp_lp, rmp_lp_new) if rmp_lp is not None else rmp_lp_new
         new_cols = price_columns(dates, k_c, duals, D, top_m=top_m, col_iter=col_iter, max_daily=max_daily, min_daily=min_daily)
         before = len(pool)
         pool = dedupe_pool(pool + new_cols, max_daily=max_daily, min_daily=min_daily)
         added = len(pool) - before
         if verbose:
-            log_cg(f"  CG iter {it+1}: lb={lb:.2f} 新列 {added} (定价候选 {len(new_cols)})")
+            log_cg(f"  CG iter {it+1}: rmp_lp={rmp_lp:.2f} 新列 {added} (定价候选 {len(new_cols)})")
         if not improved:
             stall += 1
         else:
@@ -154,8 +155,7 @@ def column_generate(dates, k_c, pool, D, max_iter=12, verbose=False,
         if added == 0 or stall >= 3:
             converged = True
             break
-    return lb, pool, iters, converged
-
+    return rmp_lp, pool, iters, converged
 
 def sp_solve_ip(dates, k_c, pool, timeout_s=120):
     """SP 整数精确解 (CP-SAT). 返回 (km, {date: route}) 或 (None, None)."""
@@ -212,9 +212,8 @@ class SPMatheuristic(Algorithm):
         t0 = time.time()
 
         # 2. 真列生成: LP -> 对偶定价 (带容量截断) -> 负约简成本列回灌 -> 收敛
-        lb, pool, cg_iters, converged = column_generate(
+        rmp_lp, pool, cg_iters, converged = column_generate(
             dates, k_c, pool, D, max_iter=15, verbose=True, top_m=top_m, col_iter=col_iter, max_daily=max_daily, min_daily=min_daily)
-
         best_km, best_days = sp_solve_ip(dates, k_c, pool,
                                          timeout_s=max(10, (t0 + time_budget - time.time()) * 0.5))
         if best_km is None:
@@ -239,15 +238,18 @@ class SPMatheuristic(Algorithm):
                 best_km, best_days = km2, days2
             history.append((best_km, f"sp-round{r+1}"))
 
-        lb2, _ = sp_solve_lp(dates, k_c, pool)
-        if lb2 is not None and lb is not None:
-            lb = min(lb, lb2)
+        rmp_lp2, _ = sp_solve_lp(dates, k_c, pool)
+        if rmp_lp2 is not None and rmp_lp is not None:
+            rmp_lp = min(rmp_lp, rmp_lp2)
             
         cap_ok = check_capacity(best_days, max_daily, min_daily)
+        pool_gap = round((best_km - rmp_lp) / best_km * 100, 2) if rmp_lp else None
         return AlgoResult(name=self.name, days=best_days, km=best_km,
                           capacity_ok=cap_ok,
-                          metadata={"lb": lb, "pool": len(pool),
+                          metadata={"rmp_lp": rmp_lp, "lb": rmp_lp,  # 受限路线池 LP 松弛值 (非无条件全局下界)
+                                    "pool": len(pool),
                                     "min_daily": min_daily, "max_daily": max_daily, "capacity_ok": cap_ok,
-                                    "gap_pct": round((best_km - lb) / best_km * 100, 2) if lb else None,
+                                    "pool_gap_pct": pool_gap, "gap_pct": pool_gap,  # 受限池内整型差距
+                                    "is_global_certified": False,  # 启发式定价无法保证全局无遗漏负列
                                     "cg_iters": cg_iters, "cg_converged": converged,
                                     "history": history})

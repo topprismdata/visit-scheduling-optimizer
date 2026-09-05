@@ -1,215 +1,180 @@
 # System Design Document: FMCG Periodic Visit Scheduling Optimization Engine
 
-> **Document Status**: Approved & Implemented (`已定稿 / 已实现`)  
+> **Document Status**: Review Remediation v3.1（评审整改版 · 2026-09-05）  
 > **Authors**: OR / Algorithm Engineering Team  
-> **Last Updated**: 2026-09-05  
-> **Document Standard**: Aligned with Google Software Engineering Design Doc Guidelines (Swe-Book Ch. 10 / Industrial Empathy)  
-> **Target Audience**: Systems Engineers, OR Scientists, Field Sales Operations Management, Technical Stakeholders
+> **Document Standard**: Aligned with Google Engineering Documentation Guidelines (Swe-Book Ch. 10)  
+> **Review Note**: 本版逐条落实 2026-09-05 外部评审 7 项意见（P1-1~P1-4, P2-5~P2-7），关键口径变更：① 认证表述降级为"受限池内差距"；② 基线统一为"**原计划分配 + CP-SAT 排序**"；③ 缓存契约升级为强校验；④ 周期语义与验收器统一。
 
 ---
 
 ## 1. Context & Background
 
-### 1.1 Business Context
-Fast-Moving Consumer Goods (FMCG) enterprise sales operations deploy territory sales representatives (SRs) who visit hundreds of retail stores across recurring monthly cycles. Currently, monthly schedules and daily visiting sequences are either hand-crafted or produced by static ERP/CRM rule engines (e.g., Salesforce SRP).
+### 1.1 业务背景
+快消企业外勤销售代表 (SR) 按月周期拜访数百家零售终端。当前计划由 SRP 规则引擎生成。对广州海珠荔湾片区 10 条线路的分析发现：
 
-Analysis of 9,760 real-world execution events across 10 representative sales lines in the Guangzhou urban area revealed severe structural deficiencies:
-1. **Chaotic Visiting Sequences**: Sales reps spend 50%~75% of their daily riding distance on back-and-forth detours, street crossings, and zigzagging paths.
-2. **Workload Volatility**: Without strict physical capacity planning, manual or naive heuristics often produce volatile daily schedules (e.g., piling 90 stores onto one day while leaving another with 4 stores).
-3. **Huge Mileage Waste**: The 10 sales representatives collectively logged **16,857.0 km** of riding in the baseline plan across 23 working days.
+1. **日内顺序混乱**：业代骑行中大量折返、跨街横跳；
+2. **排期刚性低效**：门店→日分配基于人工习惯，未做全局跨日优化；
+3. **现场扰动巨大**：实际打卡中 27.4% 为突发临时加店，业代凭记忆消化，产生额外折返。
 
-### 1.2 System Mission
-Deliver an automated, mathematically rigorous, two-stage periodic vehicle routing optimization engine that dramatically reduces travel mileage while strictly respecting frontline operational constraints and employee physical capacities.
+### 1.2 基线口径声明（重要，评审 P2-6）
+
+SRP 计划表"拜访顺序"列为客户编码流水序（打印序），**不是任何人实际骑行的里程**，不具有业务比较意义。本项目全部降幅的唯一合法基线为：
+
+$$\text{Baseline}_{\text{TSP}}(l) = \sum_{t \in T} \text{ExactOpenTSP}(S_t^{\text{orig}}(l), D)$$
+
+即**保持原计划门店→日分配不变，仅将每日顺序求解到 CP-SAT 数学最优**后的路网里程。降幅分解一律按三档报告：
+
+| 对照档 | 含义 |
+|---|---|
+| A. 原分配 + CP-SAT 排序 | **唯一基线**（日内优化的天花板） |
+| B. 优化日历 + 走廊约束 + 日内最优排序 | Layer 1 全月排历的净贡献 |
+| C. 现场实际执行 + Agent 走廊插单 | Layer 2 现场护航收益（打卡数据口径，独立报告） |
+
+### 1.3 系统使命
+交付一个数学严谨的两阶段周期拜访优化引擎：在**严格尊重每位业代自身作业走廊与周期履约语义**的前提下大幅削减骑行里程，并对每一分改进给出可复现实证。
 
 ---
 
 ## 2. Goals & Non-Goals
 
 ### 2.1 Goals
-- **G1: Drastic Mileage Reduction**: Cut collective territory monthly riding distance by >70% against the raw SRP plan on real OpenStreetMap cycling networks.
-- **G2: Strict Physical Operational Corridor**: Every single optimized working day for every representative $l$ must strictly satisfy:
-  $$K_{\min}(l) \le |S_t(l)| \le K_{\max}(l) \quad \forall t \in T$$
-  preventing both employee burnout ($> K_{\max}$) and resource under-utilization ($< K_{\min}$).
-- **G3: Mathematical Optimality Certification**: For every line, provide a certified mathematical lower bound via Linear Programming relaxation and report the exact duality gap ($\text{Gap} \le 2\%$).
-- **G4: Multi-Tier Latency SLAs**:
-  - *In-transit real-time dispatch*: $\le 50\text{ ms}$
-  - *Interactive dispatcher re-planning*: $\le 60\text{ s}$
-  - *Overnight batch optimization*: $\le 5\text{ min/line}$
+- **G1 里程削减（相对基线 A）**：全办跨日优化在走廊约束下再降 ≥5%（实测见 §7，基线 A = 4,144.3 km）。
+- **G2 双向作业走廊**：每日门店数满足 $K_{\min}(l) \le |S_t(l)| \le K_{\max}(l)$（源自各业代原计划当日店数的历史包络）。
+- **G3 周期履约语义**：见 §3.2 —— 频次守恒 + 星期几锁定（当前数据事实）+ 月内均布性显式度量。
+- **G4 可验证性**：所有性能与质量数字必须标注证据类型（实测样本 / 外推目标 / 池内证书），杜绝把受限资源上的观测外推为无界保证。
+- **G5 时延分层**：在途毫秒档 / 交互分钟档 / 夜间批处理档（见 §8，均为实测样本 + 明确外推条件）。
 
 ### 2.2 Non-Goals
-- **NG1: Modifying Representative Territories**: Cross-representative customer re-assignment is out of scope; each sales line is optimized strictly independently to preserve established customer relationships.
-- **NG2: Real-time Traffic Jam Prediction**: Dynamic vehicular congestion modeling is excluded; urban cycling network impedance is stable and pre-calibrated via OSM.
-- **NG3: Service Duration Prediction**: Store dwell times are not altered; the optimization strictly minimizes transit/travel distance and balances store count workloads.
+- **NG1 不宣称全局最优认证**：启发式定价（pricing）不能证明"合法路线空间中不存在更好的列"。本系统只签发**受限主问题 (RMP) 的 LP 值与池内差距**；全局下界认证（完整 ESPPRC 定价 / branch-and-price）不在当前范围。
+- **NG2 跨业代联合优化**：线路独立求解（客户关系稳定性优先）。
+- **NG3 服务时长/营业时间/全天工时硬校验**：当前数据不含可靠工时标定；$[K_{\min},K_{\max}]$ 是**店数口径的负荷代理变量**，不等同于工时可行性证明（见 §3.3）。
+- **NG4 动态交通与实时路况**。
 
 ---
 
-## 3. Requirements & Constraints (Invariants)
+## 3. Business Semantics & Invariants（第一层：业务语义）
 
-### 3.1 Functional Invariants (P0 Hard Constraints)
-1. **Customer Visit Frequency Conservation (`count_ok = True`)**:
-   Each customer $c \in N$ must be visited exactly $f_c$ times over the 23-working-day planning horizon:
-   $$\sum_{t=1}^{T} \mathbb{I}(c \in S_t) = f_c \quad \forall c \in N$$
-2. **Bi-Directional Workload Operational Corridor (`capacity_ok = True`)**:
-   For each sales representative $l$, daily store count must never exceed their historical maximum nor fall below their historical minimum:
-   $$K_{\min}(l) \le |S_t(l)| \le K_{\max}(l) \quad \forall t \in \{1 \dots 23\}$$
-   *Violation of either boundary constitutes an immediate rejection of the schedule.*
-3. **Open-Chain Hamiltonian Path**:
-   Daily routes are open chains without mandatory depot returns (representatives start from their first customer and end at their last).
+### 3.1 领域实体
+销售代表 $l$（专属线路）· 门店 $c$（编码、坐标、所属片区）· 工作日 $t$（23 个法定工作日，周六日剔除）· 原计划 $P^{\text{orig}}$（门店→日分配 + 打印序）。
 
-### 3.2 Non-Functional Requirements
-- **Determinism**: Identical inputs and seeds must yield identical solutions.
-- **Data Integrity**: 100% of distances must be measured on real OSM bicycle road networks (zero Euclidean or Haversine shortcuts).
-- **Self-Containment**: Autonomous operation without external network dependencies during offline solving.
+### 3.2 周期履约规则（评审 P1-2：与实现的唯一契约）
 
----
+| # | 规则 | 数据事实 | 模型/验收落点 |
+|---|---|---|---|
+| R1 | **月总次数守恒**：每店拜访次数 = 计划行数 $f_c$ | 100% 跨周成立 | 主问题等式覆盖约束；验收器 `count_ok` |
+| R2 | **星期几锁定**：每店固定在一个星期几拜访 | 09 线 163/163 店、全部线路 100% 跨周不变（SRP 系统字段"拜访类型:固定日拜访计划"） | **当前主契约**：同星期几内跨周移动（等价于基线 A 的自由度扩展）；跨星期几移动仅作为实验口径单独报告，不混入主线 |
+| R3 | **月内均布性**：同店两次拜访间隔尽量均匀（如 f=4 → 周间隔≈1） | 原计划自然满足（固定星期几 ⇒ 间隔恒 7 天） | 由 R2 隐式保证；度量指标 `interval_spread` 纳入验收器输出，供跨星期几实验口径时监控 |
+| R4 | **双向作业走廊**：$K_{\min}(l) \le |S_t(l)| \le K_{\max}(l)$ | 原计划日店数包络（如 09 线 [23,35]） | 列空间定义内生约束（§4.3）；验收器 `capacity_ok` + 同日去重 |
 
-## 4. System Architecture & Detailed Design
+> 全线路走廊实测值（由 `LineData.min/max_daily_capacity` 自动导出）：
+> 02:[33,36] 03:[17,34] 04:[33,37] 05:[28,35] 06:[23,35] 07:[22,30] 08:[25,34] 09:[23,35] 10:[25,33] 11:[15,21]
 
-The system implements a classic **Two-Stage Decomposition** that completely decouples macro calendar scheduling from micro intra-day path routing.
-
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        INPUT: SRP Baseline Plan & Road Matrix                          │
-└───────────────────────────────────────────┬────────────────────────────────────────────┘
-                                            ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ Layer 1: Calendar Planning (全月排日历 / 跨日分配)                                      │
-│                                                                                        │
-│   ┌────────────────────────────────┐         ┌─────────────────────────────────────┐   │
-│   │ Column Generation Engine       │ ◄───────┤ Dual Feedback Pricing Oracle        │   │
-│   │ (SP + CG with [K_min, K_max])  │         │ (Reduced Cost: c_r - Σ u_c - w_d <0)│   │
-│   └───────────────┬────────────────┘         └─────────────────────────────────────┘   │
-│                   │                                                                    │
-│                   ▼                                                                    │
-│   ┌────────────────────────────────┐         ┌─────────────────────────────────────┐   │
-│   │ Multi-Algorithm Column Pool    │ ◄───────┤ Feedback ALNS & Feedback HGS        │   │
-│   │ (Legal Routes satisfying cap)  │         │ (Tour-Carrying Local Search)        │   │
-│   └───────────────┬────────────────┘         └─────────────────────────────────────┘   │
-│                   │                                                                    │
-│                   ▼                                                                    │
-│   ┌────────────────────────────────┐                                                   │
-│   │ Integer Set Partitioning (IP)  │ ────► Certified Optimal Calendar Solution S_t     │
-│   │ (CP-SAT Solver + LP Bound)     │       (100% capacity_ok, 100% count_ok)           │
-│   └────────────────────────────────┘                                                   │
-└───────────────────────────────────────────┬────────────────────────────────────────────┘
-                                            │ Selected Store Sets {S_1, S_2, ... S_23}
-                                            ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ Layer 2: Intra-Day Routing (单日排顺序 / 路径排序)                                     │
-│                                                                                        │
-│   For each day t:                                                                      │
-│   ┌────────────────────────────────────────────────────────────────────────────────┐   │
-│   │ CP-SAT Global Exact Circuit Solver (AddCircuit + Dummy Depot)                  │   │
-│   │   - Problem: Open-Path ATSP over S_t on OSM Matrix D                           │   │
-│   │   - Performance: Solves |S_t| <= 37 to 100% OPTIMAL in 20 ms ~ 1.7 s           │   │
-│   └────────────────────────────────────────────────────────────────────────────────┘   │
-└───────────────────────────────────────────┬────────────────────────────────────────────┘
-                                            ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        OUTPUT: Verified Production Schedules                           │
-│           (100% Corridor Compliant, Mathematically Certified Minimal Mileage)           │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-```
-
-### 4.1 Layer 2 Design: Intra-Day TSP Route Solver
-- **Mathematical Formulation**: Open Traveling Salesperson Problem on an asymmetric road matrix $D$.
-- **Model**: Formulated as an Asymmetric TSP (ATSP) with a dummy depot vertex $m = |S_t|$. Arcs $(i, m)$ and $(m, i)$ carry zero cost (or uniform constant), while $(i, j)$ carries $D_{ij}$. Circuit constraint `AddCircuit(arcs)` enforces a single subtour covering all vertices.
-- **Engine Selection**: **CP-SAT Global Exact Solver** is the sole engine.
-  - Empirical finding: On all real business days ($n \le 37$), CP-SAT proves global mathematical optimality in **$\le 1.77\text{ seconds}$** (median $< 50\text{ ms}$). Heuristic approximations (e.g., LKH-3) are unnecessary and underperform due to non-Euclidean road asymmetry.
-
-### 4.2 Layer 1 Design: Monthly Calendar Planner
-- **Mathematical Formulation**: Set Partitioning over column space $\mathcal{R}_t$:
-  $$\min \sum_{t \in T} \sum_{r \in \mathcal{R}_t} c_r \cdot x_{rt}$$
-  $$\text{s.t.} \quad \sum_{r \in \mathcal{R}_t} x_{rt} = 1 \quad \forall t \in T \quad (\text{Single route per working day})$$
-  $$\sum_{t \in T} \sum_{r \in \mathcal{R}_t : c \in r} x_{rt} = f_c \quad \forall c \in N \quad (\text{Exact frequency conservation})$$
-  $$x_{rt} \in \{0, 1\} \quad \forall t \in T, r \in \mathcal{R}_t$$
-- **Column Legality Definition**:
-  $$\mathcal{R}_t = \left\{ r \subseteq N : K_{\min} \le |r| \le K_{\max}, \quad c_r = \text{ExactTSP}(r, D) \right\}$$
-  Any candidate route violating the corridor is structurally excluded from the column pool.
-- **Dual-Feedback Closed-Loop Column Generation (CG)**:
-  1. Solve LP relaxation of the master problem via Google OR-Tools GLOP.
-  2. Extract dual multipliers: $u_c$ for customer coverage constraints, $w_t$ for daily assignment constraints.
-  3. **Pricing Subproblem**: For each day $t$, generate candidate routes maximizing net marginal profit $u_c - \Delta \text{km}$ while respecting $|r| \le K_{\max}$. If reduced cost $c_r - \sum_{c \in r} u_c - w_t < 0$, column $r$ is injected into the pool.
-  4. Iterate until the LP lower bound stabilizes (plateau convergence).
-  5. Solve integer master problem using CP-SAT, yielding the final schedule and certified gap.
+### 3.3 走廊的语义边界（诚实声明）
+$[K_{\min}, K_{\max}]$ 是**门店数口径的负荷包络**，用于防止"爆表日"与"闲置日"。它不等价于工时校验：服务时长、营业时间、全天骑行时长（受当日空间分布影响）当前未纳入硬约束。若未来引入工时数据，走廊将升级为 $[\text{load}_{\min}, \text{load}_{\max}]$ 的工时口径（见 §10 后续演进）。
 
 ---
 
-## 5. Standard Algorithm Nomenclature
+## 4. Mathematical Model（第二层：数学建模）
 
-All algorithms are standardized with mechanism-first nomenclature:
+### 4.1 Layer 1 — 周期性排历主问题（集合划分）
+$$\min \sum_{t \in T} \sum_{r \in \mathcal{R}_t} c_r x_{rt}$$
+$$\text{s.t. } \sum_{r \in \mathcal{R}_t} x_{rt} = 1 \;\; \forall t \quad\qquad (1)\ \text{每日恰选一条合法路线列}$$
+$$\sum_{t}\sum_{r \ni c} x_{rt} = f_c \;\; \forall c \quad\qquad (2)\ \text{月频次精确覆盖}$$
+$$x_{rt} \in \{0,1\} \quad\qquad\qquad\qquad\quad\;\; (3)$$
 
-```
-├── Layer 1: Calendar Planning
-│   ├── Cold-Evaluation ALNS (冷评估大邻域搜索, formerly ALNS v1)      [Baseline Reference]
-│   ├── Tour-Carrying Feedback ALNS (路径反馈大邻域搜索, formerly ALNS v3)  [Workhorse Generator]
-│   ├── Tour-Feedback Hybrid Genetic (路径反馈混合遗传, formerly HGS)      [Diversity Generator]
-│   ├── Dual-Feedback Closed-Loop CG (对偶闭环列生成, formerly SP+CG)       [Final Optimizer & Certificate]
-│   └── Multi-Objective Pareto Stabilizer (多目标帕累托稳定器, formerly v4) [Trade-off Tuner]
-│
-└── Layer 2: Single-Day Routing
-    ├── CP-SAT Global Exact Circuit Solver (约束规划全局精确求解器)          [Production Master Engine]
-    ├── Nearest Neighbor with 2-opt (最近邻局部搜索)                        [In-Transit Real-Time]
-    └── Lin-Kernighan-Helsgaun 5-opt (变深度局部搜索, LKH-3)               [Large-Scale Fallback]
-```
+### 4.2 星期几锁定的实现方式（R2 契约）
+锁定不在主问题中加约束，而是**由列空间定义内生实现**：基线 A 与所有池内列均保持每店的原星期几；跨星期几移动的版本仅在实验开关 `allow_weekday_move=True` 下评估并单独报告，两种口径的结果**禁止混合**。
+
+### 4.3 合法列空间定义（走廊内生）
+$$\mathcal{R}_t = \{ r \subseteq N : K_{\min} \le |r| \le K_{\max},\ c_r = \text{TSP}(r, D),\ r \text{ 无重复店} \}$$
+
+所有生成器（ALNS/HGS/定价启发式）产出的列必须通过 `dedupe_pool(min_daily, max_daily)` 门禁；违反走廊的列在池构建与定价扩张两处同时截断。
+
+### 4.4 Layer 2 — 单日开环路径
+给定 $S_t$：$\min \sum D_{\pi_i,\pi_{i+1}}$ over Hamiltonian paths（无仓库回环），CP-SAT `AddCircuit` + dummy depot 建模。
+
+### 4.5 列生成的经济学与能力边界（评审 P1-1）
+- LP 松弛 $\to$ 对偶 $u_c$（店覆盖的影子价格）、$w_t$（每日选择的价格）；
+- 定价：构造 $c_r - \sum_{c\in r}u_c - w_t < 0$ 的新列（贪心 + 对偶降序剪枝 + 走廊截断）；
+- **能力边界声明**：本实现为**启发式定价**。"LP 值停滞 + 定价无新增列"仅说明*在当前定价搜索能力范围内未找到改进列*，**不能**证明全局列空间中不存在负约简成本列。因此：
+  - 报告指标命名：`rmp_lp`（受限主问题 LP 值）、`pool_gap_pct`（整数解与 RMP-LP 的差距）；
+  - **禁止**将其作为完整排历问题的全局下界或"全局最优认证"输出；元数据强制携带 `is_global_certified=False`；
+  - 全局认证路径（未实施）：ESPPRC 精确定价 + branch-and-price（见 §10）。
 
 ---
 
-## 6. Alternatives Considered & Technical Trade-Offs
+## 5. System Architecture（三层单向依赖）
 
-| Alternative | Rationale for Rejection / Deprecation | Selected Replacement |
+```
+┌── 1. 业务语义层 data/loader.py · core/base.py (LineData + min/max_daily_capacity)
+│       └─ 零求解器依赖（已依赖审计：无 ortools/lkh import）
+├── 2. 数学建模层 core/metric.py (day_km/check_freq/check_capacity)
+│       core/constraint.py · core/route_pool.py · core/base.py (Algorithm/AlgoResult)
+└── 3. 求解模型层 algos/*  —— 多求解器并存：
+        Layer1: 冷评估ALNS(基线) | 路径反馈ALNS(主力列生成) | 路径反馈HGS(多样性列)
+                | 一次性静态SP(对照) | 对偶闭环列生成SP+CG(终解器) | 多目标帕累托稳定器
+        Layer2: CP-SAT精确(主线唯一) | NN+2opt(在途) | LKH-3(大规模备用)
+```
+
+**可行性统一门禁（评审 P1-3）**：`algos/mo_alns_v4.py::_feasible()` 对**每日店数上下界 + 同日去重**做联合校验；帕累托前沿在**先过滤不合规候选、后做非支配排序**的流水线中生成——上游合规解不会被下游优化重新破坏；若锚点/基准本身违规则显式报错而非静默产出。
+
+**TSP 引擎求解凭证契约（评审 P2-5）**：`_exact_open_tsp_status()` 返回 `(route, status, elapsed_ms)`，status ∈ {OPTIMAL, FEASIBLE, HEURISTIC_FALLBACK, TRIVIAL}；向后兼容包装 `_exact_open_tsp()` 保留。任何对外引用"最优"字样的路径必须读取 status。
+
+---
+
+## 6. Cache Contract & Data Integrity（评审 P1-4）
+
+### 6.1 缓存身份定义
+距离矩阵缓存不再以 `line_id` 单键索引。`load_cached(line_id, expected_codes)` 强制校验：
+1. **矩阵尺寸** == `len(expected_codes)`；
+2. **有序门店编码序列** == sidecar `output/road_codes_{line_id}.json` 中记录的 codes；
+3. 元数据缺失 ⇒ 视同失效（fail-closed）。
+
+任一不符 → 返回 `None` 触发重取，**杜绝 A→B 距离被当作 C→D 使用的静默错配**。
+
+### 6.2 版本绑定（部分实施）
+- 已实施：codes 序 + 尺寸校验（如上）。
+- 未实施（列入 §10）：坐标/路网版本戳写入 sidecar；历史路线池绑定矩阵版本，版本变更自动重计价。
+
+---
+
+## 7. Verification & Evidence Discipline
+
+### 7.1 证据分级标记制度
+所有报告数字必须标注：`[实测样本]`（给出样本范围/重复次数）· `[外推目标]`（说明外推假设）· `[池内证书]`（RMP-LP 差距，非全局认证）。
+
+### 7.2 Layer 2 实测（[实测样本]：09 线 4 个真实点集 n=15/23/29/35，单次）
+| 引擎 | 里程区间 vs CP-SAT 锚点 | 耗时 |
 |---|---|---|
-| **Monolithic Single-Stage MIP** | Attempting to solve all 686 visits across 23 days simultaneously in a single MIP model produces millions of arc variables and sub-tour elimination constraints. Infeasible within realistic time limits ($> 10\text{ hours}$ without convergence). | **Two-Stage Decomposition** (Layer 1 Set Partitioning + Layer 2 CP-SAT TSP) solves in under 3 minutes with proven optimality. |
-| **LKH-3 for Intra-Day TSP** | LKH relies on $\alpha$-nearness 1-tree relaxation under the assumption of symmetric, Euclidean metric space. In urban cycling road networks with one-way streets, detours, and barriers, LKH produces solutions 12%~35% worse than CP-SAT while requiring subprocess file I/O. | **CP-SAT Exact Circuit Solver** solves directly on asymmetric distance matrices, proving global optimality in $< 1.8\text{ s}$. |
-| **Unconstrained ALNS (No $K_{\min}/K_{\max}$)** | Unconstrained search clusters up to 90 stores onto single days while leaving other days with 4 stores. Mathematically shorter by ~20 km, but **operationally impossible** for frontline reps. | **Bi-Directional Corridor $[K_{\min}, K_{\max}]$** enforces strict operational feasibility. |
-| **Static One-Shot Set Partitioning** | Solving an integer program once over an arbitrary heuristic pool without pricing feedback plateaus early (gap > 7%), missing cross-solution column recombinations. | **Dual-Feedback Closed-Loop Column Generation** dynamically discovers negative reduced-cost columns, reducing gaps to $\le 1.15\%$. |
+| CP-SAT | 基准 (status=OPTIMAL) | 22 ms ~ **1.06 s**（n=35 单次实测） |
+| LKH-3 | +12.6% ~ +35.1% | 32 ms ~ 20 s |
+| NN+2opt | **+2.5% ~ +48.4%** | 0.1 ~ 2.3 ms |
+
+**明确限制**：样本仅 09 线 4 点集；"全线路全日型 ≤1.7s"是**待复测假设**，非结论。生产目标 SLA 见 §8，全线路延迟分布复测列入 §10-1。
+**NN+2opt 定位修正**：其角色是毫秒级在途启发式，**不承诺** "≤5% 事后最优"（实测偏差上界 48.4%）；现场质量目标由走廊插单器保证（§8 Tier-1）。
+
+### 7.3 Layer 1 与全办总账
+以 `output/rerun_corridor_09.json` 与 `output/cpsat_plan_baselines.json` 为准（新走廊约束代码下重跑；数字以本次重跑落盘后更新到 `docs/benchmarks/TWO_STAGE_BENCHMARK_REPORT.md`）。
+参考锚点（已实测）：基线 A 全办 = **4,144.3 km**（09 线 326.6 km）。
 
 ---
 
-## 7. Verification & Benchmark Evidence
+## 8. Production Tiers（目标 SLA 与证据分离）
 
-### 7.1 Layer 2 Single-Day TSP Engine Benchmark (09 Line Data)
-All instances benchmarked against the mathematical global optimum (CP-SAT 120s):
-
-| Scale | Metric | NN + 2-opt | LKH-3 (ATSP) | CP-SAT Global Exact |
-|:---:|---|:---:|:---:|:---:|
-| **$n=15$** (Light) | Distance / Gap<br/>Runtime / Status | 11.32 km (+2.5%)<br/>0.2 ms (Heuristic) | 13.09 km (+18.4%)<br/>349 ms (Heuristic) | **11.05 km (0.0% Gap)**<br/>**21.8 ms (OPTIMAL Proven)** |
-| **$n=23$** (Typical) | Distance / Gap<br/>Runtime / Status | 19.39 km (+48.4%)<br/>0.5 ms (Heuristic) | 14.72 km (+12.6%)<br/>5.03 s (Heuristic) | **13.07 km (0.0% Gap)**<br/>**37.3 ms (OPTIMAL Proven)** |
-| **$n=29$** (Heavy) | Distance / Gap<br/>Runtime / Status | 14.36 km (+18.4%)<br/>1.4 ms (Heuristic) | 16.37 km (+35.1%)<br/>5.02 s (Heuristic) | **12.12 km (0.0% Gap)**<br/>**78.6 ms (OPTIMAL Proven)** |
-| **$n=35$** (Peak $K_{\max}$) | Distance / Gap<br/>Runtime / Status | 15.87 km (+8.8%)<br/>2.3 ms (Heuristic) | 19.32 km (+32.5%)<br/>5.07 s (Heuristic) | **14.58 km (0.0% Gap)**<br/>**1.77 s (OPTIMAL Proven)** |
-
-### 7.2 Layer 1 Calendar Planning Ablation: Value of Feedback Coupling
-Evaluating the independent contribution of TSP feedback within the $[23, 35]$ corridor on Line 09:
-
-| Algorithm Family | Budget | Without Feedback (One-Shot / Blind) | With TSP Feedback Coupling | **Net Feedback Benefit** |
-|---|:---:|:---:|:---:|:---:|
-| **ALNS Family** | 60s | Cold-Evaluation: 365.0 km (3,480 iters) | Tour-Carrying: **275.7 km** (24,790 iters) | **−89.2 km (−24.5%)**, 7.1× throughput |
-| **ALNS Family** | 300s | Cold-Evaluation: 365.0 km (59,822 iters) | Tour-Carrying: **272.9 km** (210,706 iters) | **−92.1 km (−25.2%)**, breaks 365km plateau |
-| **HGS Family** | 60s | Blind-GA: 376.8 km (1,691 gens) | Tour-Feedback HGS: **277.2 km** (19 gens) | **−99.6 km (−26.4%)** |
-| **HGS Family** | 300s | Blind-GA: 375.2 km (8,410 gens) | Tour-Feedback HGS: **268.5 km** (104 gens) | **−106.7 km (−28.4%)** |
-| **SP / CG Family** | 60s | Static SP: 321.8 km (Gap 7.39%) | Dual-Feedback CG: **271.3 km** (Gap 0.51%) | **−50.5 km (−15.7%)**, gap tightened |
-| **SP / CG Family** | 300s | Static SP: 321.8 km (Gap 7.39%) | Dual-Feedback CG: **271.1 km** (Gap 1.15%) | **−50.7 km (−15.8%)**, certified LP bound |
-
-### 7.3 Full-Office 10-Representative Verified Production Ledger
-Enforcing individual operational corridors $[K_{\min}(l), K_{\max}(l)]$ across all 10 lines:
-
-$$\text{Baseline: } 16,857.0\text{ km} \quad \longrightarrow \quad \text{Optimized: } \mathbf{3,865.6\text{ km}} \quad \left( \mathbf{-77.1\%}, \text{ Net Saving: } 12,991.4\text{ km} \right)$$
-$$\text{Corridor Compliance: } \mathbf{100\%} \quad (0\text{ violations across all } 230\text{ rep-days}) \quad \Big| \quad \text{Mean Certified Gap: } \mathbf{0.20\%}$$
-
----
-
-## 8. Operational Tiers & Production Playbook
-
-| Production Scenario | Target Engine | Latency SLA | Certified Gap | Operational Target |
+| Tier | 场景 | 引擎 | SLA（目标） | 证据状态 |
 |---|---|---|---|---|
-| **Tier 1: Mobile In-Transit Dispatch** | `Nearest Neighbor with 2-opt` + Corridor Projection | $\le 50\text{ ms}$ | Heuristic (< 5% vs CP-SAT) | Dynamic insertion of ad-hoc visits while preserving past check-ins. |
-| **Tier 2: Interactive Dispatch Console** | `Dual-Feedback CG` (Quick Mode, 4 CG iterations) | $\le 60\text{ s}$ | $\le 1.2\%$ | Territory dispatcher adjusting monthly schedules with instant visual verification. |
-| **Tier 3: Monthly Batch Optimization** | `Dual-Feedback CG` + Full Pool Recombination | $\le 3\text{ min/line}$ | $\le 0.5\%$ | Automated end-of-month batch generating production schedules for the next cycle. |
+| T1 | 手机在途临时插单 | 前缀冻结 + 走廊通行弧投影 + 接缝 2-opt | 75~330 μs（[实测样本] 09 线 7/1，K≤13） | 已实测 |
+| T2 | 调度台交互重排 | 路径反馈 ALNS 短预算档 | 30~60 s/线（[实测]） | 已实测 |
+| T3 | 夜间月度批处理 | 列生成终解 + 日内 CP-SAT 复核 | ≤3 min/线（[实测样本] 09/部分线）· 全线复测中 | 部分实测 |
 
 ---
 
-## 9. Security, Privacy & Data Governance
+## 9. Alternatives Considered（保留 v3.0 全部内容）
+（单阶段大 MIP · LKH 主引擎 · 无走廊自由聚类 · 静态 SP —— 论证不变；补充：**全局 branch-and-price 认证**：因 163 店规模下 ESPPRC 定价的工程成本，列为后续演进而非当前设计。）
 
-- **Customer PII**: Raw customer phone numbers, personal contacts, and financial records are strictly excluded from the routing engine; only synthetic customer IDs (`客户编码`) and geographic coordinates (`经度`, `纬度`) are ingested.
-- **Cache Isolation**: Distance matrices are hashed by line ID, coordinate set, and date stamp, preventing cross-tenant matrix contamination.
-- **Audit Trails**: Every production schedule export includes full execution telemetry: solver status, runtime, iteration counts, and certified LP bounds.
+## 10. Roadmap（评审整改产生的明确待办）
+1. **全线路 Layer 2 延迟分布复测**：10 线 × 全日型 × ≥5 重复，产出 P50/P95/max 与 status 占比（替换 §7.2 的单点外推）。
+2. **周期语义实验口径**：在 `allow_weekday_move` 开关下量化"跨星期几移动"的额外里程收益与间隔均布性代价，单独成文，不与主线混合。
+3. **工时口径走廊**：接入服务时长标定后，把 §3.3 的店数代理升级为工时硬校验。
+4. **矩阵版本戳**：坐标 hash + 路网版本写入 sidecar；路线池按版本失效重计价。
+5. **全局认证路径评估**：对 ≤50 店子问题用完整定价验证启发式列生成的实际漏列率。

@@ -13,7 +13,7 @@
 """
 import time, math, random, copy
 from core.base import Algorithm, AlgoResult
-from core.metric import day_km, total_km, check_freq
+from core.metric import day_km, total_km, check_freq, check_capacity
 from algos.registry import register
 from algos.alns_v3 import two_opt, best_insert, worst_edge
 
@@ -38,6 +38,17 @@ def _cv(tours):
     var = sum((c - mean) ** 2 for c in counts) / len(counts)
     return math.sqrt(var) / mean
 
+
+def _feasible(tours, min_daily, max_daily):
+    """可行性门禁 (评审 P1-3): 每日店数在 [min_daily, max_daily] 内且无同日重复店."""
+    for seq in tours.values():
+        if len(set(seq)) != len(seq):
+            return False
+        if min_daily > 0 and len(seq) < min_daily:
+            return False
+        if max_daily > 0 and len(seq) > max_daily:
+            return False
+    return True
 
 def dominates(a, b):
     """a dominates b if a <= b in all objectives and < in at least one."""
@@ -128,6 +139,8 @@ class MOALNSv4(Algorithm):
         """
         rng = random.Random(seed)
         dates = list(data.dates)
+        min_daily = getattr(data, 'min_daily_capacity', 0) or (min(len(v) for v in data.days_orig.values()) if data.days_orig else 0)
+        max_daily = getattr(data, 'max_daily_capacity', 0) or (max(len(v) for v in data.days_orig.values()) if data.days_orig else 0)
         ref = base if base else data.days_orig
         ref_dm = _dates_map(ref)
         deadline = time.time() + time_budget
@@ -148,15 +161,18 @@ class MOALNSv4(Algorithm):
             for _ in range(n_moves):
                 d1, d2 = rng.sample(dates, 2)
                 t1 = t.get(d1, [])
-                if len(t1) <= 3:
+                if len(t1) <= max(3, min_daily):
                     continue
-                c = rng.choice(t1)
+                cands = [c for c in t1 if any(d2b != d1 and c not in t.get(d2b, []) and len(t.get(d2b, [])) < max_daily for d2b in dates)]
+                if not cands:
+                    continue
+                c = rng.choice(cands)
+                tgt = [d2b for d2b in dates if d2b != d1 and c not in t.get(d2b, []) and len(t.get(d2b, [])) < max_daily]
+                d2 = rng.choice(tgt)
                 t[d1] = [x for x in t1 if x != c]
                 if len(t[d1]) >= 2:
                     t[d1] = two_opt(t[d1], D, 5)
-                if t.get(d2) is not None:
-                    t[d2].append(c)
-                    t[d2] = two_opt(t[d2], D, 5)
+                t[d2] = two_opt(t.get(d2, []) + [c], D, 5)
             return t
 
         # 锚点解单独保全 (不随进化截断丢失), 最终并入前沿
@@ -202,14 +218,15 @@ class MOALNSv4(Algorithm):
                 if op in ('worst_move', 'random_move'):
                     d1 = rng.choice(dates)
                     t1 = tours.get(d1, [])
-                    if len(t1) > 3:
+                    if len(t1) > max(3, min_daily):
                         if op == 'worst_move':
                             c = worst_edge(t1, D, zone_of, False)
                             if c is None or c not in t1:
                                 c = rng.choice(t1)
                         else:
                             c = rng.choice(t1)
-                        cd2 = [d2 for d2 in dates if d2 != d1 and c not in tours.get(d2, [])]
+                        cd2 = [d2 for d2 in dates if d2 != d1 and c not in tours.get(d2, [])
+                               and len(tours.get(d2, [])) < max_daily]
                         if cd2:
                             d2 = rng.choice(cd2)
                             t1n = [x for x in t1 if x != c]
@@ -233,15 +250,18 @@ class MOALNSv4(Algorithm):
                         if day_km(tn, D) < day_km(t, D) - 1e-9:
                             tours[dd] = tn
 
-                offspring.append({'tours': tours, 'obj': evaluate(tours)})
+                if _feasible(tours, min_daily, max_daily):
+                    offspring.append({'tours': tours, 'obj': evaluate(tours)})
 
             population.extend(offspring)
 
-        # ===== 最终前沿: 进化解 + 锚点解合并后支配排序 =====
-        cand = population + [copy.deepcopy(a) for a in anchors]
+        # ===== 最终前沿: 先过滤不合规解 (容量+同日去重), 再支配排序 (评审 P1-3) =====
+        cand = [p for p in population + [copy.deepcopy(a) for a in anchors]
+                if _feasible(p['tours'], min_daily, max_daily)]
         fronts = non_dominated_sort(cand)
-        pareto_pop = sorted([cand[i] for i in fronts[0]], key=lambda p: p['obj'][0])
-
+        pareto_pop = sorted([cand[i] for i in fronts[0]], key=lambda p: p['obj'][0]) if cand else []
+        if not pareto_pop:
+            raise ValueError("V4 无可行解: base/锚点本身违反容量走廊 [min,max]=%s, 请先以走廊约束版 v3/SP 产出合规基准" % [min_daily, max_daily])
         seen = set()
         uniq = []
         for p in pareto_pop:
@@ -286,6 +306,7 @@ class MOALNSv4(Algorithm):
                 'cv': round(p['obj'][2], 4),
                 'days': {str(dd): [data.codes[s] if s < len(data.codes) else str(s) for s in seq]
                          for dd, seq in p['tours'].items()},
+                'capacity_ok': _feasible(p['tours'], min_daily, max_daily),
                 'freq_ok': check_freq(p['tours'], data.codes, data.freq)
             }
 
@@ -293,15 +314,18 @@ class MOALNSv4(Algorithm):
             name=self.name,
             days=uniq[0]['tours'],
             km=uniq[0]['obj'][0],
+            capacity_ok=_feasible(uniq[0]['tours'], min_daily, max_daily),
             metadata={
                 'pareto_front': all_pareto,
                 'presets': named,
                 'generations': generation,
                 'front_size': len(uniq),
                 'preset_names': {k: {'km': v['km'], 'changed': v['changed'],
-                                     'cv': v['cv'], 'freq_ok': v['freq_ok']}
+                                     'cv': v['cv'], 'freq_ok': v['freq_ok'],
+                                     'capacity_ok': v['capacity_ok']}
                                  for k, v in named.items()},
                 'total_stores': len(data.codes),
                 'base_is_v3': bool(base),
+                'capacity_bounds': [min_daily, max_daily],
             }
         )

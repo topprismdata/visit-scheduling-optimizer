@@ -31,7 +31,7 @@
 
 1. **层①：日内顺序重排（TSP 层）**——给定某天必须拜访的门店集合，求最短骑行顺序。对应算法：NN+2-opt、CP-SAT 精确 TSP、LKH-3。（Clustered TSP 已实现评估→本场景否决，见 §5.7）
 2. **层②：跨日门店重分配（PVRP 层）**——在满足"每店频次 + 固定星期几"前提下，把门店在不同日期间重新组合。对应算法：ALNS。
-3. **组合层：路线池重组合与最优性证明**——把各算法产出的候选路线汇总为路线池，用集合划分模型选出全局最优组合，并给出 LP 下界差距。对应算法：Ensemble SP、SDR Exact。
+3. **组合层：路线池重组合与池内证书**——把各算法产出的候选路线汇总为路线池，用集合划分模型选出**池内整数最优组合**，并给出受限主问题 LP 值与池内差距（启发式定价下非全局认证，见附录 C）。对应算法：Ensemble SP、SDR Exact。
 
 ### 0.3 求解流水线（时间口径已按实测更新：深度审计自然结束 avg 4.1 / max 6.5 分钟每线，非旧口径 30 分钟）
 
@@ -42,7 +42,7 @@ flowchart LR
     B --> D[路线池 RoutePool<br/>收集全部算法产出]
     C --> D
     D --> E[Ensemble SP<br/>集合划分重组合<br/>290.3 km]
-    E --> F[SDR Exact<br/>LP 下界 + Gap 证书<br/>gap = 0.0]
+    E --> F[SDR Exact<br/>受限主问题 LP 值 + 池内 gap 证书<br/>非全局认证,见附录C]
 ```
 
 ### 0.4 算法一览（海珠荔湾09线实测；时间列 = 2026-09-04 性能核查 `PERFORMANCE_BENCHMARK.md`）
@@ -628,3 +628,13 @@ $$ \min_X \; J(X) = \sum_{t} C_t(X) + \lambda \cdot \Delta(X, X^0) $$
 - **10/10 线路 100% 满足各业代双向作业走廊**（0 处超载、0 处闲置，彻底杜绝单日 4 店或 90 店的畸形排期）；
 - 完整测试报告与单日/月度/消融三张帕累托矩阵见 [`docs/TWO_STAGE_BENCHMARK_REPORT.md`](TWO_STAGE_BENCHMARK_REPORT.md)；
 - 整体系统架构与权衡分析见 [`docs/SYSTEM_DESIGN_DOC_VISIT_SCHEDULING_OPTIMIZER.md`](SYSTEM_DESIGN_DOC_VISIT_SCHEDULING_OPTIMIZER.md)。
+
+
+---
+
+## 附录 C：评审整改口径警示（2026-09-05）
+
+1. **历史表格数字降级为留档**：本指南 §6/§7 与附录 B 中的里程、"认证 gap"、"−77.1%" 等数字来自旧版实现（未设走廊 + 旧定价方向），仅作演进留档，**不得对外引用**；最新数字以 `docs/benchmarks/TWO_STAGE_BENCHMARK_REPORT.md` 整改版为准。
+2. **基线口径统一**：比较基线一律为"**原计划分配 + CP-SAT 日内最优排序**"（09 线 326.6 km / 全办 4,144.3 km，`output/cpsat_plan_baselines.json`）；SRP 打印序里程（1,116 / 16,857 km）无业务意义，禁止作为降幅分母。
+3. **认证措辞**：只允许写"**受限池内差距 (pool_gap_pct)**"，禁止"全局最优认证 / 全局下界"（启发式定价能力边界，见 `docs/design/SP_MATHEURISTIC_DESIGN.md` §3 与 `SYSTEM_DESIGN_DOC.md` §4.5）。
+4. **周期语义**：星期几锁定为主线契约（R2），同星期几跨周移动是唯一合法自由度；跨星期几实验口径单独报告，禁止与主线混用。

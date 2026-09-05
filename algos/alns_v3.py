@@ -145,7 +145,7 @@ class ALNSv3(Algorithm):
                 newt, _ = best_insert(trial[bdd], node, D)
                 trial[bdd] = two_opt(newt, D, 6)
             if not ok or any(len(trial[dd]) < min_daily or len(trial[dd]) > max_daily for dd in dates):
-                continue
+                continue  # 评审 P1-3: destroy/repair 后任一日期越出走廊即整试验作废
             new_obj = total_km(trial, D)
             diff = new_obj - cur
             if diff < 0 or rng.random() < math.exp(-diff/max(1e-9,T)):
