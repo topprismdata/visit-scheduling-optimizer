@@ -7,11 +7,13 @@
 > **Language / 语言:** English primary · 中文概览如下。
 >
 > ### 中文概览
-> 面向快消行业周期性外勤拜访与实时动态插单的**智能体决策引擎 (Agentic Decision Engine)**：
-> 1. **静态月度规划**：在频次、工作日锁定、路线里程与每日工作量均衡约束下求解最优拜访计划；
-> 2. **MO-ALNS v4 三目标帕累托前沿**：以 v3 月度结果为基准，回答"愿意用多少里程换每天工作量均衡"，并量化"改日期"本身的价值（09 线 +63.4 km / 19.4%）；
-> 3. **Agent 动态实时调度副驾**：针对现场实际走访中高达 27.4%（全办）的突发临时插单需求，基于近 3 年学术顶刊（2024 Transportation Science 亚马逊冠军方案）的**沿街走廊一维投影与顺路拼接算法**，实测单次决策 **75–330 微秒**；全办 10 线 23 工作日总账（全矩阵道路实测口径）：人类实际 **13,417.7 km → Agent 5,632.0 km（−58.0%，净省 7,785.7 km）**！
-
+> 面向快消行业周期性外勤拜访与实时动态插单的**运筹优化决策引擎与智能体副驾**：
+> 1. **两阶段解耦优化（Google 级系统设计）**：
+>    - **Layer 1 全月排历**：对偶闭环列生成（Dual-Feedback Closed-Loop CG / SP+CG）在严格遵守每位业代各自独立的 $[K_{\min}, K_{\max}]$ 双向负荷作业走廊下求解，全办 10 位业代真实实测：**16,857.0 km → 3,865.6 km（−77.1%，净省 12,991.4 km，认证 Gap 平均 0.20%）**，100% 杜绝超载与闲置；
+>    - **Layer 2 单日排线**：约束规划全局精确求解器（CP-SAT Exact）在业务物理极限（$n \le 37$ 店）内 **20ms ~ 1.7s 100% 签发全局数学最优证明（OPTIMAL）**；
+> 2. **多目标帕累托稳定器（MO-ALNS）**：以历史计划为锚点，在总里程、计划改动量（稳定性）与工作量均衡度之间求解帕累托前沿；
+> 3. **Agent 动态实时调度副驾**：针对现场走访中高达 27.4% 的突发临时插单，基于沿街走廊一维投影与顺路拼接算法，单次决策 **75–330 微秒**，全办实测砍掉 **58.0%（−7,785.7 km）** 的无效折返！
+> 4. **核心架构与基准设计文档**：见 [`docs/SYSTEM_DESIGN_DOC_VISIT_SCHEDULING_OPTIMIZER.md`](docs/SYSTEM_DESIGN_DOC_VISIT_SCHEDULING_OPTIMIZER.md) 与 [`docs/TWO_STAGE_BENCHMARK_REPORT.md`](docs/TWO_STAGE_BENCHMARK_REPORT.md)。
 **A data-calibrated decision engine for recurring field-sales visit
 planning.**
 
@@ -261,16 +263,15 @@ demos, and downstream product claims.
 
 ### 6. 项目文档索引
 
-| 文档 | 内容 |
+| 文档 | 内容与定位 |
 |---|---|
-| `docs/COMPARISON_REPORT_TSP_V1_V3.md` | 月度日程优化：TSP vs ALNS v1 vs v3（以 TSP 为诚实基线） |
-| `docs/COMPARISON_REPORT_ACTUAL_VS_AGENT.md` | 实际走访 vs Agent 动态插单（全办 10 线，50.6% 提效） |
-| `docs/COMPARISON_REPORT_V4_PARETO.md` | MO-ALNS v4 三目标帕累托（基准=v3；"改日期=63.4km"定价 + 花钱买均衡曲线） |
-| `docs/MANUAL_10_DAYS_AUDIT_REPORT.md` | 10 天人工白盒抽查审计（可直接用于客户答辩） |
-| `docs/AGENTIC_DYNAMIC_DISPATCH_GUIDE.md` | Agentic 动态调度技术专著 |
-| `docs/ALGORITHM_GUIDE.md` | 全部 8+ 算法的技术指南（含 20 篇文献） |
-| `docs/V4_DESIGN_V2_MULTIOBJECTIVE.md` | V4 多目标重设计文档（NSGA-II + ALNS） |
-
+| [`docs/SYSTEM_DESIGN_DOC_VISIT_SCHEDULING_OPTIMIZER.md`](docs/SYSTEM_DESIGN_DOC_VISIT_SCHEDULING_OPTIMIZER.md) | **系统架构设计主文档（Google 设计规范）**：背景、目标/非目标、数学模型、架构分解、权衡分析与生产指南 |
+| [`docs/TWO_STAGE_BENCHMARK_REPORT.md`](docs/TWO_STAGE_BENCHMARK_REPORT.md) | **两阶段运筹全景帕累托基准报告**：单日 TSP 对决矩阵 + 月度排历矩阵 + 反馈消融矩阵 + 全办总账 |
+| [`docs/SP_MATHEURISTIC_DESIGN.md`](docs/SP_MATHEURISTIC_DESIGN.md) | 集合划分与对偶闭环列生成设计（基于 [META] 2025 与 [ESF] 2020 论文） |
+| [`docs/ALGORITHM_GUIDE.md`](docs/ALGORITHM_GUIDE.md) | 算法机制指南（规范命名映射 + 20+ 篇文献 DOI 认证 + 消融附录） |
+| [`docs/V4_DESIGN_V2_MULTIOBJECTIVE.md`](docs/V4_DESIGN_V2_MULTIOBJECTIVE.md) | 多目标帕累托稳定器设计（里程 ↔ 扰动 ↔ 均衡） |
+| [`docs/AGENTIC_DYNAMIC_DISPATCH_GUIDE.md`](docs/AGENTIC_DYNAMIC_DISPATCH_GUIDE.md) | Layer 2 现场动态调度副驾技术专著 |
+| [`docs/MANUAL_10_DAYS_AUDIT_REPORT.md`](docs/MANUAL_10_DAYS_AUDIT_REPORT.md) | 10 天人工白盒抽查审计报告（用于客户答辩） |
 
 ---
 
