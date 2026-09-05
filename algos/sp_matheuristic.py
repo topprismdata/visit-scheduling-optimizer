@@ -68,62 +68,84 @@ def sp_solve_lp(dates, k_c, pool, timeout_s=60):
     return solver.Objective().Value(), duals
 
 
-def price_columns(dates, k_c, duals, D, candidates_per_date=24):
-    """定价子问题 (启发式): 对偶 u_c 视为门店'奖品', 构造 约简成本<0 的新列.
-    约简成本 rc = km(r) - Σ_{c∈r} u_c - w_d  ([ESF] 式(8) 的集合划分版).
-    贪心: 按对偶密度起点, 迭代插入 argmax(u_c - Δkm), 边际≤0 停."""
+def price_columns(dates, k_c, duals, D, candidates_per_date=24, top_m=40, col_iter=60):
+    """定价子问题 (启发式, 性能优化版).
+    论文锚点: [ESF] §7.1 批量定价(col_iter) + 支配剪枝; 增量边算术 O(1) 插入增量.
+    rc = km(r) - Σ_{c∈r} u_c - w_d  ([ESF] 式(8) 的集合划分版)."""
     u = duals["store"]; w = duals["date"]
-    all_stores = sorted(k_c.keys(), key=lambda c: -u.get(c, 0.0))
-    out = []
+    all_stores = sorted(k_c.keys(), key=lambda c: -u.get(c, 0.0))[:top_m]
+    cands = []
     for dd in dates:
-        made = 0
+        w_d = w.get(dd, 0.0)
         for start_c in all_stores:
-            if made >= candidates_per_date:
-                break
+            if u.get(start_c, 0.0) <= 0:
+                break  # 对偶降序: 起点奖品非正, 后续更差
             route = [start_c]
-            prize = u.get(start_c, 0.0)
             in_day = {start_c}
+            prize = u.get(start_c, 0.0)
             while True:
-                best_c, best_margin = None, 1e-9
+                best_c, best_margin, best_pos, best_delta = None, 1e-9, None, None
                 for c in all_stores:
-                    if c in in_day or c not in u:
+                    if c in in_day:
                         continue
-                    t2 = route + [c]
-                    delta = day_km(t2, D) - day_km(route, D)
-                    margin = u.get(c, 0.0) - delta
+                    uc = u.get(c, 0.0)
+                    if uc <= best_margin:
+                        break  # 对偶降序, 剪枝 ([ESF] dominance)
+                    # O(1) 最优插入位: 开放链边算术
+                    bd, bp = float("inf"), 0
+                    prev = route[0]
+                    bd, bp = D[c][prev], 0
+                    for k in range(len(route) - 1):
+                        d = D[route[k]][c] + D[c][route[k+1]] - D[route[k]][route[k+1]]
+                        if d < bd:
+                            bd, bp = d, k + 1
+                    d_last = D[route[-1]][c]
+                    if d_last < bd:
+                        bd, bp = d_last, len(route)
+                    margin = uc - bd
                     if margin > best_margin:
-                        best_c, best_margin = c, margin
+                        best_c, best_margin, best_pos, best_delta = c, margin, bp, bd
                 if best_c is None:
                     break
-                route.append(best_c)
+                route.insert(best_pos, best_c)
                 in_day.add(best_c)
-            rc = day_km(route, D) - sum(u.get(c, 0.0) for c in route) - w.get(dd, 0.0)
+            rc = day_km(route, D) - sum(u.get(c, 0.0) for c in route) - w_d
             if rc < -1e-6 and len(route) >= 2:
-                out.append((dd, list(route), round(day_km(route, D), 3)))
-                made += 1
-    return out
+                cands.append((rc, dd, list(route), round(day_km(route, D), 3)))
+    # 批量上限: 每轮只回灌最负的 col_iter 条 ([ESF] col_iter)
+    cands.sort(key=lambda z: z[0])
+    return [(dd, route, km) for rc, dd, route, km in cands[:col_iter]]
+
+
 
 
 def column_generate(dates, k_c, pool, D, max_iter=12, tol=1e-4, verbose=False):
     """真列生成循环: LP -> 定价 -> 负约简成本列回灌 -> 迭代至收敛.
-    返回 (lp_lb, pool, iters, converged). 收敛时 lp_lb 即定价启发式意义下的
-    SP 松弛最优下界."""
+    终止: 对偶无新负列, 或 LP 下界连续 3 轮不动 ([ESF] 步骤7 gap 迭代同型).
+    返回 (lp_lb, pool, iters, converged)."""
     pool = list(pool)
     converged = False
     iters = 0
     lb = None
+    stall = 0
     for it in range(max_iter):
         iters = it + 1
-        lb, duals = sp_solve_lp(dates, k_c, pool)
-        if lb is None:
+        lb_new, duals = sp_solve_lp(dates, k_c, pool)
+        if lb_new is None:
             break
+        improved = (lb is None) or (lb_new > lb + 1e-3)
+        lb = max(lb, lb_new) if lb is not None else lb_new
         new_cols = price_columns(dates, k_c, duals, D)
         before = len(pool)
         pool = dedupe_pool(pool + new_cols)
         added = len(pool) - before
         if verbose:
-            log_cg(f"  CG iter {it+1}: lb={lb:.2f} 新列 {added} (负约简成本候选 {len(new_cols)})")
-        if added == 0:
+            log_cg(f"  CG iter {it+1}: lb={lb:.2f} 新列 {added} (定价候选 {len(new_cols)})")
+        if not improved:
+            stall += 1
+        else:
+            stall = 0
+        if added == 0 or stall >= 3:
             converged = True
             break
     return lb, pool, iters, converged
