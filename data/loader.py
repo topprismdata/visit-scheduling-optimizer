@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """Load SRP plan data, filter by line, return LineData."""
 import pandas as pd
-import warnings
+import os, warnings
 from core.base import LineData
 
-SRP_PATH = "/Users/ghb/Downloads/进离店内销售的SRP-7月拜访计划.xlsx"
+SRP_PATH = os.environ.get("SRP_PATH", "/Users/ghb/Downloads/进离店内销售的SRP-7月拜访计划.xlsx")
 ALL_LINE_IDS = ["02", "03", "04", "05", "06", "07", "08", "09", "10", "11"]
 
 
