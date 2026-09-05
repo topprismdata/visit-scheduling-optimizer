@@ -27,3 +27,14 @@ def check_freq(days: dict, codes: list[str], freq_orig: dict[str, int]) -> bool:
             key = codes[c]
             cnt[key] = cnt.get(key, 0) + 1
     return all(cnt.get(c, 0) == freq_orig.get(c, 0) for c in freq_orig)
+
+
+def check_capacity(days: dict, max_daily: int, min_daily: int = 0) -> bool:
+    """Verify all days fall within [min_daily, max_daily] operational corridor."""
+    for seq in days.values():
+        n = len(seq)
+        if max_daily > 0 and n > max_daily:
+            return False
+        if min_daily > 0 and n < min_daily:
+            return False
+    return True

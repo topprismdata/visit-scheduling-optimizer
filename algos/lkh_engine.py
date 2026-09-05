@@ -34,8 +34,11 @@ def lkh_open_path(stores, D, runs=10, max_trials=5000, cand=20, time_limit=240):
                 f.write(" ".join("%.3f" % v for v in row) + "\n")
             f.write("EOF\n")
         with open(par, "w") as f:
-            f.write(f"PROBLEM_FILE = {prob}\nTOUR_FILE = {out}\nRUNS = {runs}\nMAX_TRIALS = {max_trials}\nMAX_CANDIDATES = {cand}\nMOVE_TYPE = 5\nPATCHING_A = 2\nTIME_LIMIT = {time_limit}\n")
-        subprocess.run([LKH_BIN, par], capture_output=True, text=True, timeout=time_limit + 60)
+            f.write(f"PROBLEM_FILE = {prob}\nTOUR_FILE = {out}\nRUNS = {runs}\nMAX_TRIALS = {max_trials}\nMAX_CANDIDATES = {cand}\nMOVE_TYPE = 5\nPATCHING_A = 2\nTOTAL_TIME_LIMIT = {time_limit}\n")
+        try:
+            subprocess.run([LKH_BIN, par], capture_output=True, text=True, timeout=time_limit + 15)
+        except subprocess.TimeoutExpired:
+            pass
         tour = []
         if os.path.exists(out):
             with open(out) as f:

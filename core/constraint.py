@@ -38,7 +38,14 @@ class Constraints:
                     return False
         return True
 
-    def check_capacity_ok(self, days: dict) -> bool:
+    def check_capacity_ok(self, days: dict, max_daily: int | None = None, min_daily: int | None = None) -> bool:
+        """验证单日门店数落在 [min_daily, max_daily] 业务走廊内."""
+        for seq in days.values():
+            n = len(seq)
+            if max_daily is not None and max_daily > 0 and n > max_daily:
+                return False
+            if min_daily is not None and min_daily > 0 and n < min_daily:
+                return False
         if not self.capacity:
             return True
         for dd, seq in days.items():

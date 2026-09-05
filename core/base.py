@@ -18,8 +18,16 @@ class LineData:
     freq: dict[str, int]   # 每店月总次数 {编码: 次数}
     stores: int             # 店数
     visits: int             # 总拜访次数
+    min_daily_capacity: int = 0  # 单日门店数硬下限: min(|S_t^orig|) 防闲置/出工不出力
+    max_daily_capacity: int = 0  # 单日门店数硬上限: max(|S_t^orig|) 防过劳/物理不可行
 
-
+    def __post_init__(self):
+        if self.days_orig:
+            lens = [len(v) for v in self.days_orig.values()]
+            if self.min_daily_capacity <= 0:
+                self.min_daily_capacity = min(lens)
+            if self.max_daily_capacity <= 0:
+                self.max_daily_capacity = max(lens)
 @dataclass
 class AlgoResult:
     """One algorithm's output."""
@@ -28,6 +36,7 @@ class AlgoResult:
     km: float = 0.0                             # 总路网里程 (km)
     moves: int = 0                              # 跨日移动次数
     count_ok: bool = True                       # 每店总次数校验
+    capacity_ok: bool = True                    # 单日容量上限校验 (len <= max_daily_capacity)
     elapsed: float = 0.0                        # 耗时 (秒)
     metadata: dict = field(default_factory=dict)  # 算法特有信息
 

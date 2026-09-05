@@ -5,8 +5,8 @@ v3 把 TSP 当眼睛: 每天携带 tour, 增量 2-opt, tour-informed destroy,
 参考: Ropke&Pisinger 2006; Shaw 1998 related-removal; Pisinger&Ropke 2007.
 """
 import time, math, random
+from core.metric import day_km, total_km, check_capacity
 from core.base import Algorithm, AlgoResult
-from core.metric import day_km, total_km
 from algos.registry import register
 from algos.tsp_engine import _nn2opt_open
 
@@ -63,7 +63,9 @@ class ALNSv3(Algorithm):
     def solve(self, data, D, time_budget=300, zone_of=None, seed=42):
         rng = random.Random(seed)
         dates = data.dates
-        # ---- 起点: 每天 nn2opt + 一轮贪心跨日 (与 v1 热身一致, 公平对照) ----
+        min_daily = getattr(data, 'min_daily_capacity', 0) or min(len(v) for v in data.days_orig.values())
+        max_daily = getattr(data, 'max_daily_capacity', 0) or max(len(v) for v in data.days_orig.values())
+        # ---- 起点: 每天 nn2opt + 一轮贪心跨日 (带双向走廊约束 min_daily <= len <= max_daily) ----
         tours = {dd: _nn2opt_open(list(data.days_orig[dd]), D) for dd in dates}
         t0 = time.time(); warm = time_budget * 0.12
         for _ in range(30):
@@ -73,7 +75,7 @@ class ALNSv3(Algorithm):
                 for dd2 in dates:
                     if dd1 == dd2: continue
                     s1, s2 = tours[dd1], tours[dd2]
-                    if len(s1) <= 5: continue
+                    if len(s1) <= min_daily or len(s2) >= max_daily: continue
                     for c in list(s1):
                         if c in s2: continue
                         ns1 = [x for x in s1 if x != c]; ns2 = s2 + [c]
@@ -113,7 +115,7 @@ class ALNSv3(Algorithm):
             else: T = T2 + (T3-T2)*((el-0.66)/0.34)
             op = pick()
             dd1 = rng.choice(dates); t1 = tours[dd1]
-            if len(t1) <= 5: continue
+            if len(t1) <= min_daily: continue
             # destroy: tour-informed
             if op == 'worst':
                 v = worst_edge(t1, D, zone_of, False); rem = [v] if v is not None else []
@@ -134,7 +136,7 @@ class ALNSv3(Algorithm):
                 cands = []
                 for dd in dates:
                     if node in trial[dd]: continue
-                    if len(trial[dd]) < 1: continue
+                    if len(trial[dd]) < 1 or len(trial[dd]) >= max_daily: continue
                     _, dl = best_insert(trial[dd], node, D); cands.append((dl, dd))
                 if not cands: ok = False; break
                 cands.sort()
@@ -152,4 +154,6 @@ class ALNSv3(Algorithm):
             else:
                 w[op] = max(0.2, w[op]-0.01)
         final = {dd: two_opt(best_t[dd], D, 30) for dd in dates}
-        return AlgoResult(name=self.name, days=final, km=total_km(final, D), metadata={"iters": its})
+        cap_ok = check_capacity(final, max_daily, min_daily)
+        return AlgoResult(name=self.name, days=final, km=total_km(final, D),
+                          capacity_ok=cap_ok, metadata={"iters": its, "min_daily": min_daily, "max_daily": max_daily})

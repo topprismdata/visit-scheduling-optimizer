@@ -4,18 +4,14 @@
 参考: Vidal et al. 2012 (UHGS, PVRP 参考 SOTA); Ropke & Pisinger 2006.
 适配: 每日开放链(无仓库往返), 每店出现次数多集合守恒, 任意工作日可跨.
 
-架构 (2026-09-05 终版, 经五轮剖析迭代):
-- 种子: nn2opt + v3 式贪心热身 + 短 SA;
-- 交叉: 日级均匀重组 (day-assignment uniform crossover), 计数差异多退少补守恒;
-- 教育: v3 同款 SA (tour-carrying destroy + regret-2 + 退火) 短促深搜 —— 纯 Python
-  下自研 descent 邻域的速度/强度两端不讨好, SA 机器是本项目实测最强的深度引擎;
-- 进化: (mu+1), 偏置适应度(成本排名 + 多样性排名), 停滞注入扰动.
+业务约束:
+- 单日容量硬约束: 任何一天的门店数不得超过该业代原始计划峰值 (len(day) <= max_daily).
 """
 import time, math, random
 from copy import deepcopy
 import numpy as np
 from core.base import Algorithm, AlgoResult
-from core.metric import day_km, total_km
+from core.metric import day_km, total_km, check_capacity
 from algos.registry import register
 from algos.tsp_engine import _nn2opt_open
 from algos.alns_v3 import two_opt, best_insert, worst_edge
@@ -53,8 +49,8 @@ def _diversity(va, vb, n_stores):
     return sum(1 for c, s in va.items() if vb.get(c) != s) / n_stores
 
 
-def _greedy_warm(tours, D, dates, budget_s):
-    """v3 同款贪心跨日热身 (对照公平性)."""
+def _greedy_warm(tours, D, dates, budget_s, max_daily=None, min_daily=None):
+    """v3 同款贪心跨日热身 (带双向容量硬约束 min_daily <= len <= max_daily)."""
     t0 = time.time()
     for _ in range(30):
         imp = False
@@ -65,7 +61,7 @@ def _greedy_warm(tours, D, dates, budget_s):
                 if dd1 == dd2:
                     continue
                 s1, s2 = tours[dd1], tours[dd2]
-                if len(s1) <= 5:
+                if (min_daily and len(s1) <= min_daily) or (max_daily and len(s2) >= max_daily):
                     continue
                 for c in list(s1):
                     if c in s2:
@@ -90,10 +86,10 @@ def _greedy_warm(tours, D, dates, budget_s):
     return tours
 
 
-def _sa_improve(tours, D, dates, rng, deadline, zone_of=None, hot=1.0):
-    """v3 主循环同款 SA (tour-carrying destroy + regret-2 修复 + 三段退火). 就地改进."""
+def _sa_improve(tours, D, dates, rng, deadline, zone_of=None, hot=1.0, max_daily=None, min_daily=None):
+    """v3 主循环同款 SA (带双向走廊约束 min_daily <= len <= max_daily). 就地改进 tours."""
     cur = total_km(tours, D)
-    orig = tours  # 保存调用方字典引用: 循环内 tours 会被 trial 重绑定
+    orig = tours
     best = cur
     best_t = {dd: list(tours[dd]) for dd in dates}
     edges = sum(max(0, len(tours[dd])-1) for dd in dates) or 1
@@ -121,7 +117,7 @@ def _sa_improve(tours, D, dates, rng, deadline, zone_of=None, hot=1.0):
         op = pick()
         dd1 = rng.choice(dates)
         t1 = tours[dd1]
-        if len(t1) <= 5:
+        if (min_daily and len(t1) <= min_daily) or len(t1) <= 5:
             continue
         if op == 'worst':
             v = worst_edge(t1, D, zone_of, False); rem = [v] if v is not None else []
@@ -144,7 +140,7 @@ def _sa_improve(tours, D, dates, rng, deadline, zone_of=None, hot=1.0):
             for dd in dates:
                 if node in trial[dd]:
                     continue
-                if len(trial[dd]) < 1:
+                if len(trial[dd]) < 1 or (max_daily and len(trial[dd]) >= max_daily):
                     continue
                 _, dl = best_insert(trial[dd], node, D)
                 cands.append((dl, dd))
@@ -191,14 +187,17 @@ class _Ind:
         self.km = total_km(tours, D)
 
 
-def _perturb(src, D, dates, rng, k_moves=25):
+def _perturb(src, D, dates, rng, k_moves=25, max_daily=None, min_daily=None):
     ind = deepcopy(src)
     for _ in range(k_moves):
         dd1 = rng.choice(dates)
-        if len(ind[dd1]) <= 5:
+        if (min_daily and len(ind[dd1]) <= min_daily) or len(ind[dd1]) <= 5:
             continue
         c = rng.choice(ind[dd1])
-        dd2 = rng.choice([x for x in dates if c not in ind[x]] or [dd1])
+        valid_targets = [x for x in dates if c not in ind[x] and (not max_daily or len(ind[x]) < max_daily)]
+        if not valid_targets:
+            continue
+        dd2 = rng.choice(valid_targets)
         ind[dd1].remove(c)
         dl = _ins_deltas(ind[dd2], c, D)
         ind[dd2].insert(int(dl.argmin()), c)
@@ -215,16 +214,18 @@ class HGSPVRP(Algorithm):
         dates = list(data.dates)
         t0 = time.time(); deadline = t0 + time_budget
         n_stores = len({c for dd in dates for c in data.days_orig[dd]})
+        min_daily = getattr(data, 'min_daily_capacity', 0) or min(len(v) for v in data.days_orig.values())
+        max_daily = getattr(data, 'max_daily_capacity', 0) or max(len(v) for v in data.days_orig.values())
 
-        # ---- 种子: nn2opt + 贪心热身 + 短 SA ----
+        # ---- 种子: nn2opt + 贪心热身 + 短 SA (全带容量加限) ----
         base = {dd: _nn2opt_open(list(data.days_orig[dd]), D) for dd in dates}
-        base = _greedy_warm(base, D, dates, time_budget * 0.08)
+        base = _greedy_warm(base, D, dates, time_budget * 0.08, max_daily=max_daily, min_daily=min_daily)
         k_true = _counts(base, dates)
-        _sa_improve(base, D, dates, rng, t0 + time_budget * 0.18)
+        _sa_improve(base, D, dates, rng, t0 + time_budget * 0.18, max_daily=max_daily, min_daily=min_daily)
 
         pool = [_Ind(deepcopy(base), D, dates)]
         for _ in range(min(7, pop_size // 2)):
-            pool.append(_Ind(_perturb(base, D, dates, rng), D, dates))
+            pool.append(_Ind(_perturb(base, D, dates, rng, max_daily=max_daily, min_daily=min_daily), D, dates))
 
         best = min(pool, key=lambda p: p.km)
         best_km = best.km
@@ -276,17 +277,21 @@ class HGSPVRP(Algorithm):
             rng.shuffle(removed)
             for c in removed:
                 cands = [(dd, int(dls.argmin()), float(dls.min()))
-                         for dd in dates if c not in child[dd]
+                         for dd in dates if c not in child[dd] and (not max_daily or len(child[dd]) < max_daily)
                          for dls in (_ins_deltas(child[dd], c, D),)]
                 if not cands:
+                    # 备用: 无可用容量天时, 找店数最少的天插
+                    min_dd = min(dates, key=lambda dd: len(child[dd]))
+                    dls = _ins_deltas(child[min_dd], c, D)
+                    child[min_dd].insert(int(dls.argmin()), c)
                     continue
                 bdd, bpos, _ = min(cands, key=lambda z: z[2])
                 child[bdd].insert(bpos, c)
 
-            # ---- 教育: v3 SA 短促深搜 ----
+            # ---- 教育: v3 SA 短促深搜 (带双向容量硬约束) ----
             _sa_improve(child, D, dates, rng,
                         min(deadline, time.time() + max(1.5, (deadline - time.time()) * 0.12)),
-                        hot=0.15)
+                        hot=0.15, max_daily=max_daily, min_daily=min_daily)
             ind = _Ind(child, D, dates)
             pool.append(ind)
             pool = pool[:pop_size]
@@ -298,9 +303,11 @@ class HGSPVRP(Algorithm):
                 stall += 1
             if stall >= 40 and time.time() < deadline:
                 for i in range(len(pool) - max(1, pop_size // 3), len(pool)):
-                    pool[i] = _Ind(_perturb(best.tours, D, dates, rng), D, dates)
+                    pool[i] = _Ind(_perturb(best.tours, D, dates, rng, max_daily=max_daily, min_daily=min_daily), D, dates)
                 stall = 0
 
         final = {dd: two_opt(best.tours[dd], D, 30) for dd in dates}
+        cap_ok = check_capacity(final, max_daily, min_daily)
         return AlgoResult(name=self.name, days=final, km=total_km(final, D),
-                          metadata={"gens": gens, "budget": time_budget})
+                          capacity_ok=cap_ok,
+                          metadata={"gens": gens, "budget": time_budget, "min_daily": min_daily, "max_daily": max_daily})
