@@ -1,0 +1,222 @@
+{
+ "02": {
+  "line": "02",
+  "baseA": 263.3,
+  "r2alns_km": 259.0,
+  "sp_km": 259.0,
+  "delta_vs_baseA_pct": -1.63,
+  "structure_guarantee": true,
+  "cap_ok": true,
+  "r2_viol": 0,
+  "contract_viol": 0,
+  "mode": "contract",
+  "all_optimal": true,
+  "weekday_moved_stores": 29,
+  "day_range": [
+   34,
+   35
+  ],
+  "rmp_lp": 259.0170000000015,
+  "pool_gap_pct": -0.0,
+  "pool_cols": 115,
+  "sec": 176
+ },
+ "03": {
+  "line": "03",
+  "baseA": 220.8,
+  "r2alns_km": 163.6,
+  "sp_km": 163.6,
+  "delta_vs_baseA_pct": -25.92,
+  "structure_guarantee": true,
+  "cap_ok": true,
+  "r2_viol": 0,
+  "contract_viol": 0,
+  "mode": "contract",
+  "all_optimal": true,
+  "weekday_moved_stores": 106,
+  "day_range": [
+   18,
+   33
+  ],
+  "rmp_lp": 163.57300000000018,
+  "pool_gap_pct": -0.0,
+  "pool_cols": 115,
+  "sec": 153
+ },
+ "04": {
+  "line": "04",
+  "baseA": 261.8,
+  "r2alns_km": 227.3,
+  "sp_km": 227.3,
+  "delta_vs_baseA_pct": -13.18,
+  "structure_guarantee": true,
+  "cap_ok": true,
+  "r2_viol": 0,
+  "contract_viol": 0,
+  "mode": "contract",
+  "all_optimal": true,
+  "weekday_moved_stores": 31,
+  "day_range": [
+   33,
+   37
+  ],
+  "rmp_lp": 227.30100000000047,
+  "pool_gap_pct": -0.0,
+  "pool_cols": 115,
+  "sec": 175
+ },
+ "05": {
+  "line": "05",
+  "baseA": 388.8,
+  "r2alns_km": 284.7,
+  "sp_km": 284.7,
+  "delta_vs_baseA_pct": -26.76,
+  "structure_guarantee": true,
+  "cap_ok": true,
+  "r2_viol": 0,
+  "contract_viol": 0,
+  "mode": "contract",
+  "all_optimal": true,
+  "weekday_moved_stores": 109,
+  "day_range": [
+   29,
+   35
+  ],
+  "rmp_lp": 284.7400000000039,
+  "pool_gap_pct": -0.0,
+  "pool_cols": 115,
+  "sec": 198
+ },
+ "06": {
+  "line": "06",
+  "baseA": 157.9,
+  "r2alns_km": 117.1,
+  "sp_km": 117.1,
+  "delta_vs_baseA_pct": -25.81,
+  "structure_guarantee": true,
+  "cap_ok": true,
+  "r2_viol": 0,
+  "contract_viol": 0,
+  "mode": "contract",
+  "all_optimal": true,
+  "weekday_moved_stores": 116,
+  "day_range": [
+   23,
+   35
+  ],
+  "rmp_lp": 117.14400000000016,
+  "pool_gap_pct": -0.0,
+  "pool_cols": 115,
+  "sec": 187
+ },
+ "07": {
+  "line": "07",
+  "baseA": 371.8,
+  "r2alns_km": 346.3,
+  "sp_km": 346.3,
+  "delta_vs_baseA_pct": -6.86,
+  "structure_guarantee": true,
+  "cap_ok": true,
+  "r2_viol": 0,
+  "contract_viol": 0,
+  "mode": "contract",
+  "all_optimal": true,
+  "weekday_moved_stores": 89,
+  "day_range": [
+   24,
+   30
+  ],
+  "rmp_lp": 346.3090000000007,
+  "pool_gap_pct": -0.0,
+  "pool_cols": 106,
+  "sec": 161
+ },
+ "08": {
+  "line": "08",
+  "baseA": 807.0,
+  "r2alns_km": 620.6,
+  "sp_km": 620.6,
+  "delta_vs_baseA_pct": -23.1,
+  "structure_guarantee": true,
+  "cap_ok": true,
+  "r2_viol": 0,
+  "contract_viol": 0,
+  "mode": "contract",
+  "all_optimal": true,
+  "weekday_moved_stores": 52,
+  "day_range": [
+   25,
+   34
+  ],
+  "rmp_lp": 620.600000000002,
+  "pool_gap_pct": -0.0,
+  "pool_cols": 115,
+  "sec": 137
+ },
+ "09": {
+  "line": "09",
+  "baseA": 326.6,
+  "r2alns_km": 319.2,
+  "sp_km": 316.3,
+  "delta_vs_baseA_pct": -3.15,
+  "structure_guarantee": true,
+  "cap_ok": true,
+  "r2_viol": 0,
+  "contract_viol": 0,
+  "mode": "contract",
+  "all_optimal": true,
+  "weekday_moved_stores": 7,
+  "day_range": [
+   23,
+   35
+  ],
+  "rmp_lp": 316.27350000000104,
+  "pool_gap_pct": 0.01,
+  "pool_cols": 103,
+  "sec": 182
+ },
+ "10": {
+  "line": "10",
+  "baseA": 386.3,
+  "r2alns_km": 386.3,
+  "sp_km": 386.3,
+  "delta_vs_baseA_pct": 0.0,
+  "structure_guarantee": false,
+  "cap_ok": true,
+  "r2_viol": 0,
+  "contract_viol": 0,
+  "mode": "contract",
+  "all_optimal": true,
+  "weekday_moved_stores": 1,
+  "day_range": [
+   25,
+   33
+  ],
+  "rmp_lp": 386.31184615384603,
+  "pool_gap_pct": 0.0,
+  "pool_cols": 69,
+  "sec": 153
+ },
+ "11": {
+  "line": "11",
+  "baseA": 960.0,
+  "r2alns_km": 901.1,
+  "sp_km": 901.1,
+  "delta_vs_baseA_pct": -6.13,
+  "structure_guarantee": true,
+  "cap_ok": true,
+  "r2_viol": 0,
+  "contract_viol": 0,
+  "mode": "contract",
+  "all_optimal": true,
+  "weekday_moved_stores": 13,
+  "day_range": [
+   16,
+   21
+  ],
+  "rmp_lp": 901.1180000000073,
+  "pool_gap_pct": -0.0,
+  "pool_cols": 110,
+  "sec": 103
+ }
+}

@@ -1,0 +1,204 @@
+{
+ "lines": {
+  "02": {
+   "sp_km": 262.7,
+   "contract_viol": 0,
+   "viol_stores": [],
+   "viol_biweekly": 0,
+   "biweekly_total": 0,
+   "mode": "legacy-free"
+  },
+  "03": {
+   "sp_km": 173.2,
+   "contract_viol": 21,
+   "viol_stores": [
+    0,
+    3,
+    4,
+    5,
+    11,
+    14,
+    16,
+    17,
+    18,
+    20,
+    32,
+    33,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    54,
+    55
+   ],
+   "viol_biweekly": 0,
+   "biweekly_total": 0,
+   "mode": "legacy-free"
+  },
+  "04": {
+   "sp_km": 221.9,
+   "contract_viol": 5,
+   "viol_stores": [
+    27,
+    51,
+    52,
+    69,
+    173
+   ],
+   "viol_biweekly": 1,
+   "biweekly_total": 5,
+   "mode": "legacy-free"
+  },
+  "05": {
+   "sp_km": 357.9,
+   "contract_viol": 3,
+   "viol_stores": [
+    14,
+    25,
+    41
+   ],
+   "viol_biweekly": 0,
+   "biweekly_total": 0,
+   "mode": "legacy-free"
+  },
+  "06": {
+   "sp_km": 111.3,
+   "contract_viol": 12,
+   "viol_stores": [
+    16,
+    17,
+    18,
+    19,
+    38,
+    43,
+    47,
+    51,
+    52,
+    54,
+    55,
+    56
+   ],
+   "viol_biweekly": 0,
+   "biweekly_total": 0,
+   "mode": "legacy-free"
+  },
+  "07": {
+   "sp_km": 328.9,
+   "contract_viol": 10,
+   "viol_stores": [
+    17,
+    26,
+    126,
+    27,
+    33,
+    38,
+    41,
+    44,
+    51,
+    53
+   ],
+   "viol_biweekly": 1,
+   "biweekly_total": 1,
+   "mode": "legacy-free"
+  },
+  "08": {
+   "sp_km": 613.6,
+   "contract_viol": 48,
+   "viol_stores": [
+    160,
+    161,
+    162,
+    164,
+    165,
+    168,
+    169,
+    171,
+    172,
+    174,
+    175,
+    178,
+    180,
+    181,
+    183,
+    184,
+    8,
+    17,
+    21,
+    23,
+    25,
+    26,
+    29,
+    49,
+    50,
+    51,
+    53,
+    54,
+    79,
+    80,
+    83,
+    84,
+    85,
+    108,
+    132,
+    133,
+    138,
+    142,
+    147,
+    148,
+    150,
+    151,
+    153,
+    154,
+    155,
+    156,
+    157,
+    159
+   ],
+   "viol_biweekly": 46,
+   "biweekly_total": 92,
+   "mode": "legacy-free"
+  },
+  "09": {
+   "sp_km": 313.7,
+   "contract_viol": 2,
+   "viol_stores": [
+    10,
+    23
+   ],
+   "viol_biweekly": 2,
+   "biweekly_total": 26,
+   "mode": "legacy-free"
+  },
+  "10": {
+   "sp_km": 386.3,
+   "contract_viol": 0,
+   "viol_stores": [],
+   "viol_biweekly": 0,
+   "biweekly_total": 59,
+   "mode": "legacy-free"
+  },
+  "11": {
+   "sp_km": 833.2,
+   "contract_viol": 10,
+   "viol_stores": [
+    0,
+    1,
+    11,
+    15,
+    16,
+    25,
+    31,
+    38,
+    70,
+    71
+   ],
+   "viol_biweekly": 3,
+   "biweekly_total": 4,
+   "mode": "legacy-free"
+  }
+ },
+ "total_contract_viol": 111
+}

@@ -1,0 +1,22 @@
+{
+ "line": "03",
+ "baseA": 220.8,
+ "r2alns_km": 173.2,
+ "sp_km": 173.2,
+ "delta_vs_baseA_pct": -21.57,
+ "structure_guarantee": true,
+ "cap_ok": true,
+ "r2_viol": 0,
+ "contract_viol": 21,
+ "mode": "legacy-free",
+ "all_optimal": true,
+ "weekday_moved_stores": 48,
+ "day_range": [
+  18,
+  29
+ ],
+ "rmp_lp": 173.1650000000001,
+ "pool_gap_pct": -0.0,
+ "pool_cols": 115,
+ "sec": 260
+}
