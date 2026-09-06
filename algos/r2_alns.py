@@ -25,7 +25,7 @@ from algos.sp_matheuristic import check_r2prime, _wd
 class R2ALNS(Algorithm):
     name = "r2_alns"
 
-    def solve(self, data, D, time_budget=300, seed=42, collect_every=25, keep_history=True):
+    def solve(self, data, D, time_budget=300, seed=42, collect_every=25, keep_history=True, init_days=None):
         rng = random.Random(seed)
         D = np.asarray(D)
         dates = list(data.dates)
@@ -36,7 +36,8 @@ class R2ALNS(Algorithm):
 
         sched = {}                       # store -> set(dates)
         day_members = defaultdict(set)   # date -> stores
-        for dd, seq in data.days_orig.items():
+        _src = init_days if init_days else data.days_orig
+        for dd, seq in _src.items():
             for c in seq:
                 sched.setdefault(c, set()).add(dd)
                 day_members[dd].add(c)
