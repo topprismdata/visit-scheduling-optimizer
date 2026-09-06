@@ -16,7 +16,6 @@
 2. 合同-相位本体原语 (定稿) — 精确语义, 验收闸 check_contract 的依据.
 """
 import itertools
-import math
 from collections import defaultdict
 
 
