@@ -1,6 +1,6 @@
 # 列生成终解器设计（SP + 对偶闭环列生成）
 
-> **状态**：评审整改版 v3.1 · 2026-09-05（落实外部评审 P1-1 / P2-6 / P2-7）  
+> **状态**：评审整改版 v3.2 · 2026-09-06（落实外部评审 P1-1 / P2-6 / P2-7；补充矩阵 v2 证书字段）
 > **论文依据**：Villegas et al. 2025 *OR Perspectives* 15:100357（下称 **[META]**，SP/SC 后优化元分析）；Paradiso et al. 2020 *Operations Research* 68(1):180–198（下称 **[ESF]**，多程 VRPTW 精确求解框架 ESF）  
 > **代码**：`algos/sp_matheuristic.py`（`SPMatheuristic`）· 实验台架 `run_sp_experiment.py`  
 > **上游总设计**：`docs/design/SYSTEM_DESIGN_DOC.md` §4
@@ -23,7 +23,7 @@ Phase 1  列生成循环 column_generate():
                                      rmp_lp 连续 3 轮无下降或新增列为 0 即停机
 Phase 2  RMP 整数精确解 (CP-SAT AddExactlyOne + 等式覆盖) → best_km
 Phase 3  迭代精化 ([META] Alg.2): 冷 SA 打磨整数解(走廊门禁内) → 其路线回灌列池 → 重解 IP
-输出     best_km, rmp_lp, pool_gap_pct, is_global_certified=False
+输出     best_km, rmp_lp, pool_gap_pct, is_global_certified=False；矩阵 v2 另存选中日程、精确重算里程与 Contract-SP 求解状态/界
 ```
 
 ## 2. 数学模型（[META] 式 (1)–(3) + 本问题业务约束）
@@ -45,7 +45,7 @@ $$\min \sum_{r} c_r x_r \quad \text{s.t.}\quad \sum_{r \in R_d} x_r = 1\ \forall
 | `pool_gap_pct` | 整数解与 RMP-LP 的**池内差距** | 全局最优性 Gap / 认证 |
 | 收敛信号 | "该定价器当前找不到更好的列" | "不存在更好的列" |
 
-（SCIP 官方对 heuristic pricer 与 exact pricer 的区分与此一致。）因此元数据强制携带 `is_global_certified=False`，所有下游报告只允许写"受限池内差距"。全局认证路径（branch-and-price）登记于总设计 §10-5。
+（SCIP 官方对 heuristic pricer 与 exact pricer 的区分与此一致。）因此元数据强制携带 `is_global_certified=False`，SP 及其矩阵输出只允许写“受限池内差距”；实验性全局认证路径已独立实现于 `algos/branch_and_price.py`，其状态与证书条件见 `docs/design/BRANCH_AND_PRICE_DESIGN.md`。
 
 ## 4. 结构保证（[META] 实证性质）
 
@@ -87,3 +87,15 @@ $$\min \sum_{r} c_r x_r \quad \text{s.t.}\quad \sum_{r \in R_d} x_r = 1\ \forall
 | [ESF] 受限主 + gap 收紧 | rmp_lp 轨迹 + 收敛停机 | `column_generate()` |
 
 **关联文档**：总设计 `docs/design/SYSTEM_DESIGN_DOC.md` · 基准报告 `docs/benchmarks/TWO_STAGE_BENCHMARK_REPORT.md` · 算法指南附录 `docs/guides/ALGORITHM_GUIDE.md`
+
+## 9. 矩阵输出与预算审计（2026-09-06）
+
+`experiments/run_contract_matrix.py` 的 cell 输出已升为 `contract_matrix_cell/v2`：
+
+- `sp_km` 是 Contract-SP 选中日程按实际路线重新计算的里程；`sp_km_recomputed` 是同一数值的显式复核字段。
+- `sp_km_pool` 保留求解器使用的池列成本和（列成本按 0.001 km 缩放）；列成本四舍五入时，它可能与精确重算值相差 0.001 km。
+- `selected_schedule` 按日期持久化最终选中的路线，不能只靠总里程或中间列池复原。
+- `contract_sp` 同时记录业务包装状态 `status` 与 CP-SAT 原始 `solver_status`、`optimality_proven`、`objective_value_milli`、`best_bound_milli` 及求解器池规模。
+- R2ALNS 的确定性预算优先看 `--r2-iterations`；`--alloc-budget` 仅作为未显式指定时的兼容换算 `max(1, alloc_budget × 600)`。`--r2-wall-time` 是可选提前停止上限，不改变已配置的迭代上限语义。
+
+因此矩阵中的最终接受标准仍是 Contract-SP 的可行解；CP-SAT 对受限池的最优性证书不等于完整 PVRP 的全局证书。

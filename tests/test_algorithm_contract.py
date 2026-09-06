@@ -110,3 +110,79 @@ def test_r2alns_same_seed_reproducible_and_gated():
     viol = check_contract(r1.days, ct, dates)
     assert viol == [], f"合同违例 {len(viol)}: {viol[:10]}"
     assert r1.metadata["contract_ok"] is True
+
+
+def test_r2alns_explicit_iteration_budget_is_recorded():
+    from data.loader import load_plan, load_line
+    from algos.r2_alns import R2ALNS
+
+    d = load_line(load_plan(), "09")
+    D = np.load("output/road_dist_09.npy")
+    result = R2ALNS().solve(
+        d, D, time_budget=300, iteration_budget=7, seed=42,
+    )
+
+    assert result.metadata["iteration_budget"] == 7
+    assert result.metadata["iters"] == 7
+    assert result.metadata["wall_time_budget_sec"] is None
+
+
+def test_r2alns_wall_clock_cap_stops_before_iteration_budget():
+    from data.loader import load_plan, load_line
+    from algos.r2_alns import R2ALNS
+
+    d = load_line(load_plan(), "09")
+    D = np.load("output/road_dist_09.npy")
+    result = R2ALNS().solve(
+        d, D, time_budget=300, iteration_budget=9, wall_time_budget=0.0, seed=42,
+    )
+
+    assert result.metadata["iteration_budget"] == 9
+    assert result.metadata["iters"] == 0
+    assert result.metadata["wall_time_budget_sec"] == 0.0
+
+
+def test_r2alns_can_emit_calendar_only_columns():
+    from data.loader import load_plan, load_line
+    from algos.r2_alns import R2ALNS
+
+    d = load_line(load_plan(), "09")
+    D = np.load("output/road_dist_09.npy")
+    result = R2ALNS().solve(
+        d, D, time_budget=300, iteration_budget=0, final_reroute=False, seed=42,
+    )
+
+    assert result.metadata["final_reroute"] is False
+    assert set(result.metadata["reroute_statuses"].values()) == {"SKIPPED"}
+    assert len(result.metadata["_columns"]) == len(dates := d.dates)
+def test_contract_matrix_persists_selected_schedule_and_sp_certificate(tmp_path, monkeypatch):
+    import argparse
+    import json
+
+    import experiments.run_contract_matrix as matrix
+
+    monkeypatch.setattr(matrix, "MATRIX_DIR", tmp_path)
+    args = argparse.Namespace(
+        alloc_budget=1.0,
+        sp_timeout=60.0,
+        cp_timeout=30.0,
+        lkh_timeout=5.0,
+        seed=42,
+        seeds="42",
+        r2_iterations=7,
+        r2_wall_time=None,
+    )
+    plan = matrix.load_plan()
+    data = matrix.load_line(plan, "09")
+    result = matrix.run_cell(
+        "09", "r2_alns", "nn2opt", args, plan,
+    )
+
+    assert result["sp_km"] == result["sp_km_recomputed"]
+    assert set(result["selected_schedule"]) == {str(dd) for dd in data.dates}
+    assert result["contract_sp"]["solver_status"] == "OPTIMAL"
+    assert result["contract_sp"]["optimality_proven"] is True
+    assert result["budgets"]["r2_iteration_budget"] == 7
+    assert result["allocation"]["per_seed"][0]["iteration_budget"] == 7
+    stored = json.loads((tmp_path / "r2_alns" / "nn2opt" / "09.json").read_text())
+    assert stored["selected_schedule"] == result["selected_schedule"]

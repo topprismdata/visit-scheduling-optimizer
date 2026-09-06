@@ -133,7 +133,24 @@ def test_ip_optimum_equals_bruteforce_semantic_opt():
     km_legacy, _ = sp_solve_ip(DATES, k_c, _pool(), timeout_s=30)
     assert km_legacy == pytest.approx(_brute_force(False), abs=1e-6)
     assert km < km_legacy, "两模型恰在槽位计数处分叉: 合同模式允许 W 店换绑星期几 (5 槽全访)"
+def test_ip_diagnostics_expose_solver_certificate():
+    from visitmodel.sp.formulation import sp_solve_ip
 
+    ct = _contracts()
+    k_c = {0: 4, 1: 2, 2: 3}
+    km, days, diagnostics = sp_solve_ip(
+        DATES, k_c, _pool(), timeout_s=30, contract=ct,
+        return_diagnostics=True,
+    )
+
+    assert days
+    assert diagnostics["solver_status"] == "OPTIMAL"
+    assert diagnostics["optimality_proven"] is True
+    assert diagnostics["objective_value_milli"] == pytest.approx(km * 1000)
+    assert diagnostics["best_bound_milli"] == pytest.approx(
+        diagnostics["objective_value_milli"]
+    )
+    assert diagnostics["pool_size"] > 0
 
 def test_lp_le_ip_on_synthetic():
     from algos.sp_matheuristic import sp_solve_lp, sp_solve_ip

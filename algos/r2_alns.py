@@ -15,7 +15,7 @@
 
 输出: 终局最优状态的 23 条日列 (状态门控精确重排, 全部 R2'-合法) → 供 SP(r2_prime) 重组.
 """
-import random, itertools
+import random, itertools, time
 from collections import defaultdict
 import numpy as np
 from core.base import Algorithm, AlgoResult
@@ -51,7 +51,9 @@ def move_candidates(c, sched_dates, wd_g, contracts, combo_mode, rng):
 class R2ALNS(Algorithm):
     name = "r2_alns"
 
-    def solve(self, data, D, time_budget=300, seed=42, collect_every=25, keep_history=True, init_days=None, combo_mode="contract"):
+    def solve(self, data, D, time_budget=300, seed=42, collect_every=25,
+              keep_history=True, init_days=None, combo_mode="contract",
+              iteration_budget=None, wall_time_budget=None, final_reroute=True):
         rng = random.Random(seed)
         D = np.asarray(D)
         dates = list(data.dates)
@@ -139,12 +141,25 @@ class R2ALNS(Algorithm):
         best_routes = {dd: sorted(day_members[dd]) for dd in dates}
         columns = []                      # 终局列池: [(date, route, km)]
         its = accepted = 0
-        # 确定性迭代预算: 迭代数只由 seed 决定, 与 wall-clock 无关 (同种子逐位复现红线;
-        # wall-clock 循环实测不可复现: 60s 两跑 382 vs 391 iters → km 差 5.4)。
-        # 估计器单次迭代 ~0.5ms (无求解器调用), 系数 600: time_budget 视为搜索强度旋钮。
-        its_budget = max(1, int(time_budget * 600))
+        # 搜索由显式迭代预算驱动；time_budget 仅保留为旧 API 的迭代预算换算。
+        if iteration_budget is None:
+            its_budget = max(1, int(time_budget * 600))
+        else:
+            its_budget = int(iteration_budget)
+            if its_budget < 0:
+                raise ValueError("iteration_budget must be non-negative")
+        if wall_time_budget is not None:
+            wall_time_budget = float(wall_time_budget)
+            if wall_time_budget < 0:
+                raise ValueError("wall_time_budget must be non-negative")
+            wall_deadline = time.perf_counter() + wall_time_budget
+        else:
+            wall_deadline = None
+        search_t0 = time.perf_counter()
         stores = sorted(sched)
-        while its < its_budget:
+        while its < its_budget and (
+            wall_deadline is None or time.perf_counter() < wall_deadline
+        ):
             its += 1
             c = rng.choice(stores)
             old_dates = sorted(sched[c], key=str)
@@ -188,24 +203,33 @@ class R2ALNS(Algorithm):
                 if cur_km < best_km - 1e-9:
                     best_km = cur_km
                     best_routes = {dd: sorted(day_members[dd]) for dd in dates}
+        # 终局状态门控精确重排: 只接受 PROVEN OPTIMAL 的路线 (最优成本唯一 → km 确定).
+        # 日历生成模式可跳过此步骤, 让下游算法按自己的 TSP 口径重排。
+        if final_reroute:
+            reroute_statuses = {}
+            for dd in dates:
+                r_opt, st, _ms = _exact_open_tsp_status(list(best_routes[dd]), D, 30)
+                reroute_statuses[str(dd)] = st
+                if st == "OPTIMAL":
+                    best_routes[dd] = r_opt
+        else:
+            reroute_statuses = {str(dd): "SKIPPED" for dd in dates}
 
-        # 终局状态门控精确重排: 只接受 PROVEN OPTIMAL 的路线 (最优成本唯一 → km 确定);
-        # 未证明的日保留规范序 (同样确定)。8-worker 实测 09 全部 23 日 limit10/30 均证 OPTIMAL。
-        reroute_statuses = {}
-        for dd in dates:
-            r_opt, st, _ms = _exact_open_tsp_status(list(best_routes[dd]), D, 30)
-            reroute_statuses[str(dd)] = st
-            if st == "OPTIMAL":
-                best_routes[dd] = r_opt
-        columns = [(dd, list(best_routes[dd]), round(day_km(best_routes[dd], D), 3))
+        # Private columns retain full precision for downstream LP bounds.
+        columns = [(dd, list(best_routes[dd]), day_km(best_routes[dd], D))
                    for dd in dates]
         days = best_routes
         return AlgoResult(
             name=self.name, days=days, km=round(total_km(days, D), 3),
             capacity_ok=check_capacity(days, max_cap, min_cap),
-            metadata={"iters": its, "accepted": accepted,
+            metadata={"iters": its, "iteration_budget": its_budget,
+                      "accepted": accepted,
+                      "legacy_time_budget_sec": float(time_budget),
+                      "wall_time_budget_sec": wall_time_budget,
+                      "search_elapsed_sec": round(time.perf_counter() - search_t0, 6),
                       "r2_ok": len(check_r2prime(days)) == 0,
                       "contract_ok": len(check_contract(days, contracts, dates)) == 0,
                       "reroute_statuses": reroute_statuses,
                       "all_optimal": all(s == "OPTIMAL" for s in reroute_statuses.values()),
+                      "final_reroute": bool(final_reroute),
                       "columns": len(columns), "_columns": columns})
