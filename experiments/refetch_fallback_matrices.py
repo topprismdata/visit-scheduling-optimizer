@@ -8,7 +8,7 @@ Phase 1 (--phase refetch):
 
 Phase 2 (--phase ledger):
   纯 CPU, 零网络: 用干净矩阵重算全办台账
-  -> output/all_reps_actual_vs_agent_road.csv + demo/all_reps_summary_road.json
+  -> output/all_reps_actual_vs_agent_road.csv + output/all_reps_summary_road.json
   (验证 09 线应复现 ~1234.7 -> 592.2, 即干净基线一致性检查)
 """
 import sys, os, json, time, math, ssl, shutil, urllib.request
@@ -180,6 +180,6 @@ elif PHASE == 'ledger':
         print(f"线 {lid} ({rep_name}): {row['actual_km']} -> {row['agent_km']} (-{row['saved_pct']}%)", flush=True)
     pd.DataFrame(rep_rows).to_csv('output/all_reps_actual_vs_agent_road.csv', index=False)
     json.dump(rep_rows, open('output/all_reps_actual_vs_agent_road.json', 'w'), ensure_ascii=False, indent=2)
-    json.dump(all_reps_detail, open('demo/all_reps_summary_road.json', 'w'), ensure_ascii=False, indent=2)
+    json.dump(all_reps_detail, open('output/all_reps_summary_road.json', 'w'), ensure_ascii=False, indent=2)
     tot_a = round(sum(r['actual_km'] for r in rep_rows), 1); tot_g = round(sum(r['agent_km'] for r in rep_rows), 1)
     print(f"\n=== 全办(实测口径): {tot_a} -> {tot_g} (-{round((tot_a-tot_g)/tot_a*100,1)}%) ===", flush=True)

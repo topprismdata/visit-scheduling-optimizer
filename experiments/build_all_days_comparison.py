@@ -2,7 +2,7 @@
 """全月 27 天实际走访 vs Agent 动态插单全量对比与真实道路连线几何提取.
 
 输出:
-- demo/all_days_data.json: 包含 27 天每一天的完整门店元数据、三方对比指标、
+- output/all_days_data.json: 包含 27 天每一天的完整门店元数据、三方对比指标、
   自然语言指引、以及真实道路折线几何 (实际轨迹 road geometry vs Agent 路线 road geometry).
 """
 import sys, os, json, time, math, ssl, urllib.request
@@ -243,7 +243,7 @@ full_output = {
     'days': days_dict
 }
 
-out_path = '/Users/ghb/Documents/Codex/2026-08-04/wo-xi/visit-scheduling-optimizer/demo/all_days_data.json'
+out_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'output', 'all_days_data.json')
 with open(out_path, 'w', encoding='utf-8') as f:
     json.dump(full_output, f, ensure_ascii=False)
 

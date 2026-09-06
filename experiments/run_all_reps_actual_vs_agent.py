@@ -5,7 +5,7 @@
 - 严格剔除周六周日 (weekday < 5 仅跑 23 个法定工作日)
 - 覆盖全部 10 条线路: 海珠荔湾02 ~ 11
 - 逐日计算: 人类实际打卡里程 vs Agent 动态走廊顺路插单里程
-- 输出增量台账: output/all_reps_actual_vs_agent.csv 和 demo/all_reps_summary.json
+- 输出增量台账: output/all_reps_actual_vs_agent.csv 和 output/all_reps_summary.json
 """
 import sys, os, json, time, math, ssl, urllib.request, traceback
 warnings_filter = True
@@ -53,7 +53,7 @@ def save():
     df = pd.DataFrame(rep_rows)
     df.to_csv('output/all_reps_actual_vs_agent.csv', index=False)
     json.dump(rep_rows, open('output/all_reps_actual_vs_agent.json', 'w'), ensure_ascii=False, indent=2)
-    json.dump(all_reps_detail, open('demo/all_reps_summary.json', 'w'), ensure_ascii=False, indent=2)
+    json.dump(all_reps_detail, open('output/all_reps_summary.json', 'w'), ensure_ascii=False, indent=2)
 
 def safe_fetch_json(url, max_retries=2):
     for attempt in range(max_retries):

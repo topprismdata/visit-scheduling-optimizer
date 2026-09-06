@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Runner: 多算法流水线. 路线生成 → 池 → SP 重组合 → 精确闭锁.
-python runner.py --mode fast|standard|deep|all
-python runner.py --algos baseline,nn2opt --lines 09
+python experiments/runner.py --mode fast|standard|deep|all
+python experiments/runner.py --algos baseline,nn2opt --lines 09
 """
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
