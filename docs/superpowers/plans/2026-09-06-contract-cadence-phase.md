@@ -874,6 +874,26 @@ Expected: 10 核约 2.5~3.5 小时后 `contract10.log` 出十行 `线XX: ... 违
 
 ---
 
+### Task 7.5【抽离冲刺】三层独立仓库落地（用户裁定 2026-09-06：先做 IR/语义，三层全抽离）
+
+**蓝图**（已冻结，详见各仓库 docs）：
+
+| 仓库 | 层 | 职责 | 首批实现种子（母项目） |
+|---|---|---|---|
+| `/Users/ghb/VisitIR` | 语义 | 计划规范形：Calendar/Contract/Obligation/例外账/History（v0.1 九件） | `core/contract.py`（Task 1 已绿） |
+| `/Users/ghb/VisitModel` | 数学 | 义务降级 + SP 公式 + TSP 公式 + 定价定义 | `sp_matheuristic` 模型段 / `tsp_engine` 公式（Task 2 产出） |
+| `/Users/ghb/OptiCore` | 引擎 | ALNS/HGS 骨架、列生成编排、精确驱动、NN+2opt、注册/种子契约（零领域语义） | `alns_v3`/`hgs_pvrp` 骨架 / `column_generate` 编排（Task 3 产出） |
+
+**时机裁定**：Task 2/3/4 先在主线落地（产出即方言内容）→ Phase B/C 在主线跑完（跨机复现资产不动）→ 本冲刺做物理抽离 + 主线留 shim → 全量回归 + 09 线对账（SP 值逐位一致）才收口。
+
+- [ ] **Step 7.5.1** VisitIR 迁入语义核心（contract.py + plan_ir，归属注释），主线 `core/contract.py` 改薄 shim → `visit-ir` 依赖（editable install，M2/M1 Max 双机）
+- [ ] **Step 7.5.2** VisitModel 迁入 SP/TSP 公式与义务降级（含测试三件套）
+- [ ] **Step 7.5.3** OptiCore 迁入引擎骨架（Legality/Delta/Move 接口 + 不变量测试）
+- [ ] **Step 7.5.4** 主线 shim 回归 + 09 线对账（合同账 SP 值逐位一致）+ 三仓库 CI 冒烟
+- [ ] **Step 7.5.5** 三仓库 README/宪法交叉引用 + 提交
+
+**抽离就绪红线**（Task 2/3 编码即遵守，审查代理核验）：数学层不 import 引擎；引擎不出现 contract/phase/obligation 词汇；随机性只走种子通道。
+
 ## Self-Review（写完自查）
 
 1. **覆盖**：解耦=Task 0；语义=Task 1；数学=Task 2；算法=Task 3；闸与实验=Task 4~6；文档=Task 7。REPLAN Phase A↔Task 0~4、B↔Task 5、C↔Task 6、D↔Task 7。
