@@ -30,8 +30,8 @@
 拜访计划优化被分解为两个相互嵌套的子问题：
 
 1. **层①：日内顺序重排（TSP 层）**——给定某天必须拜访的门店集合，求最短骑行顺序。对应算法：NN+2-opt、CP-SAT 精确 TSP、LKH-3。（Clustered TSP 已实现评估→本场景否决，见 §5.7）
-2. **层②：跨日门店重分配（PVRP 层）**——在满足"每店频次 + 固定星期几"前提下，把门店在不同日期间重新组合。对应算法：ALNS。
-3. **组合层：路线池重组合与池内证书**——把各算法产出的候选路线汇总为路线池，用集合划分模型选出**池内整数最优组合**，并给出受限主问题 LP 值与池内差距（启发式定价下非全局认证，见附录 C）。对应算法：Ensemble SP、SDR Exact。
+2. **层②：跨日门店重分配（PVRP 层）**——在满足“每店频次 + 固定星期几”前提下，把门店在不同日期间重新组合。对应算法：通用 ALNS 与合同原生 R2′-ALNS。
+3. **组合层：路线池重组合与池内证书**——把各算法产出的候选路线汇总为路线池，用集合划分模型选出**池内整数最优组合**，并给出受限主问题 LP 值与池内差距（启发式定价下非全局认证，见附录 C）。对应算法：Ensemble SP、B&P + R2′ hybrid、SDR Exact。
 
 ### 0.3 求解流水线（时间口径已按实测更新：深度审计自然结束 avg 4.1 / max 6.5 分钟每线，非旧口径 30 分钟）
 
@@ -632,12 +632,14 @@ $$ \min_X \; J(X) = \sum_{t} C_t(X) + \lambda \cdot \Delta(X, X^0) $$
 
 ---
 
-## 附录 C：评审整改口径警示（2026-09-05）
+## 附录 C：评审整改口径警示（2026-09-06）
 
 1. **历史表格数字降级为留档**：本指南 §6/§7 与附录 B 中的里程、"认证 gap"、"−77.1%" 等数字来自旧版实现（未设走廊 + 旧定价方向），仅作演进留档，**不得对外引用**；最新数字以 `docs/benchmarks/TWO_STAGE_BENCHMARK_REPORT.md` 整改版为准。
 2. **基线口径统一**：比较基线一律为"**原计划分配 + CP-SAT 日内最优排序**"（09 线 326.6 km / 全办 4,144.3 km，`output/cpsat_plan_baselines.json`）；SRP 打印序里程（1,116 / 16,857 km）无业务意义，禁止作为降幅分母。
 3. **认证措辞**：只允许写"**受限池内差距 (pool_gap_pct)**"，禁止"全局最优认证 / 全局下界"（启发式定价能力边界，见 `docs/design/SP_MATHEURISTIC_DESIGN.md` §3 与 `SYSTEM_DESIGN_DOC.md` §4.5）。
 4. **周期语义**：主线契约为 **R2′（星期几一致）**——门店可整店换星期几（如周一→周二），但换后全月一致，禁止同店跨星期几分裂；合法自由度 = 整店换星期几 + 同星期几槽位轮换（`r2_alns` + `SP(r2_prime)`）。旧"完全锁死原星期几"与"任意跨日移动"两种口径都**不是**主线契约；跨星期几分裂实验单独报告，禁止与主线混用。终账见 `docs/benchmarks/TWO_STAGE_BENCHMARK_REPORT.md` §五′（全办 −12.69%）。
+5. **矩阵输出与预算审计**：`contract_matrix_cell/v2` 持久化 `selected_schedule`；`sp_km`/`sp_km_recomputed` 使用选中路线的精确重算，`sp_km_pool` 单独表示四舍五入池列成本和。`contract_sp` 必须同时保留包装状态、原始求解状态、最优性标志与 objective/best-bound。R2ALNS 用 `--r2-iterations` 固定迭代上限，`--r2-wall-time` 只作可选提前停止；B&P 只有完整定价和节点证书条件满足才可写 `PROVEN_OPTIMAL`，否则为 `BOUND_HEURISTIC` 或 `TIME_LIMIT`。`bp` 质量验收另看 `beats_baseline`：它必须基于 `sp_km_recomputed < baseline_a_km`、合同零违例和容量通过；混合 B&P 的 R2′ warm-start 收益不得冒充纯 B&P 证明。
+
 ---
 
 ## 附录 D：拜访语义三次修正与合同-相位本体（2026-09-06）
@@ -655,3 +657,22 @@ $$ \min_X \; J(X) = \sum_{t} C_t(X) + \lambda \cdot \Delta(X, X^0) $$
 - **VisitIR 独立立项**（`/Users/ghb/VisitIR`）：v0.1 九件核心（Header/MasterData/WorkCalendar/ContractBook/ObligationSet/PlanState/ExceptionSet/Provenance/History），八条裁决见 `docs/DESIGN_DECISIONS_v0.1.md`；关键两条：ObligationIR 强制降级边界 + Command/Decision/Event 三分（LLM 提案命令，IR 裁决事实）；
 - **VisitModel / OptiCore 立项**：数学建模层与通用求解引擎各自独立，依赖方向 Model→IR、Engine 零领域依赖；
 - **W53 边界假设**：ISO 周 mod 2 在 53 周年（2026）边界 parity 断裂；单月 scope 内与连续周锚点数值等价，跨月使用前必须做锚点实验。
+
+## 附录 E：场景 → 算法选择决策表（2026-09-06 定稿）
+
+依据：同机（Apple M2）4×3 矩阵 10 线全量实测（`output/contract_matrix_4x3/`）与同等预算终账（`docs/design/BRANCH_AND_PRICE_DESIGN.md` §7）。
+
+| 场景 | 选择 | 关键配置 | 实测依据 |
+|---|---|---|---|
+| 月度全量规划（标准档） | `r2_alns + cpsat` → Contract-SP | 4 seed × 360K 迭代并集 | −13.03%（4,144→3,604 km/月），格内 IP 全 `OPTIMAL/proven` |
+| 快速档 | 同上 1 seed | seed 123，~2.5 min/线 | −10.71%；seed 并值再补 ~2.3 pp |
+| 需要下界/合规证书 | `bp + cpsat`（与主力格同预算） | 同 4 seed × 360K | 与 r2 格 10/10 逐线相等（池超集保证不劣），附节点 LP 下界与审计计数 |
+| 当天临时插单 | 走廊投影工具 | 前缀冻结 | 75–330 μs，禁止全月重排 |
+| 月度微调（改 1~16 店） | V4 Pareto 稳定器 | 预算=给定 | 5–10s 预算 ≈ 30s 档质量 |
+
+**三条铁律**：
+1. 单日 TSP 必须用 CP-SAT 精确档（n≤35 实测全 OPTIMAL）——同日历换 nn2opt/lkh3 全线 +11~16%，吞掉全部日历收益；
+2. 日历引擎只有 R2′ 系有效：alns_v3/hgs_pvrp/sp_cg 在 cpsat 口径下全部 ≈ 基线，收益全部来自"整店换星期几"的 R2′ 自由度；
+3. Contract-SP 是唯一终闸：`beats_baseline`（`sp_km_recomputed < baseline` + 合同 0 违例 + 容量过闸）是唯一对外质量标志。
+
+**边界触发**：单日 >35 店 → CP-SAT 状态门控标注、LKH-3 兜底；要全局证明 → 需 ESPPRC 级精确定价（路线图，现状 `PROVEN_OPTIMAL` 仅微型实例）；月份滚动 → 按矩阵版本戳失效重算。

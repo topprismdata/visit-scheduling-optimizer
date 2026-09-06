@@ -1,6 +1,6 @@
 # System Design Document: FMCG Periodic Visit Scheduling Optimization Engine
 
-> **Document Status**: Review Remediation v3.1（评审整改版 · 2026-09-05）  
+> **Document Status**: Review Remediation v3.2（评审整改版 · 2026-09-06）
 > **Authors**: OR / Algorithm Engineering Team  
 > **Document Standard**: Aligned with Google Engineering Documentation Guidelines (Swe-Book Ch. 10)  
 > **Review Note**: 本版逐条落实 2026-09-05 外部评审 7 项意见（P1-1~P1-4, P2-5~P2-7），关键口径变更：① 认证表述降级为"受限池内差距"；② 基线统一为"**原计划分配 + CP-SAT 排序**"；③ 缓存契约升级为强校验；④ 周期语义与验收器统一。
@@ -45,7 +45,7 @@ $$\text{Baseline}_{\text{TSP}}(l) = \sum_{t \in T} \text{ExactOpenTSP}(S_t^{\tex
 - **G5 时延分层**：在途毫秒档 / 交互分钟档 / 夜间批处理档（见 §8，均为实测样本 + 明确外推条件）。
 
 ### 2.2 Non-Goals
-- **NG1 不宣称全局最优认证**：启发式定价（pricing）不能证明"合法路线空间中不存在更好的列"。本系统只签发**受限主问题 (RMP) 的 LP 值与池内差距**；全局下界认证（完整 ESPPRC 定价 / branch-and-price）不在当前范围。
+- **NG1 不宣称默认主线全局最优认证**：启发式定价（pricing）不能证明“合法路线空间中不存在更好的列”。主线 SP 只签发**受限主问题 (RMP) 的 LP 值与池内差距**；实验性 B&P 仅对满足完整节点 LP 与精确定价证书条件的小规模实例签发 `PROVEN_OPTIMAL`，不改变主线输出口径。
 - **NG2 跨业代联合优化**：线路独立求解（客户关系稳定性优先）。
 - **NG3 服务时长/营业时间/全天工时硬校验**：当前数据不含可靠工时标定；$[K_{\min},K_{\max}]$ 是**店数口径的负荷代理变量**，不等同于工时可行性证明（见 §3.3）。
 - **NG4 动态交通与实时路况**。
@@ -103,7 +103,7 @@ $$\mathcal{R}_t = \{ r \subseteq N : K_{\min} \le |r| \le K_{\max},\ c_r = \text
 - **能力边界声明**：本实现为**启发式定价**。"LP 值停滞 + 定价无新增列"仅说明*在当前定价搜索能力范围内未找到改进列*，**不能**证明全局列空间中不存在负约简成本列。因此：
   - 报告指标命名：`rmp_lp`（受限主问题 LP 值）、`pool_gap_pct`（整数解与 RMP-LP 的差距）；
   - **禁止**将其作为完整排历问题的全局下界或"全局最优认证"输出；元数据强制携带 `is_global_certified=False`；
-  - 全局认证路径（未实施）：ESPPRC 精确定价 + branch-and-price（见 §10）。
+  - 全局认证路径（实验性已实现）：`algos/branch_and_price.py` 在分支树各节点解 LP，并用完整候选集的 CP-SAT 精确定价；仅在树耗尽、节点 LP 全部 OPTIMAL、定价逐日 OPTIMAL 且无停滞/非收敛计数时标 `PROVEN_OPTIMAL`，否则标 `BOUND_HEURISTIC` 或 `TIME_LIMIT`（见 B&P 设计文档）。
 
 ---
 
@@ -116,7 +116,7 @@ $$\mathcal{R}_t = \{ r \subseteq N : K_{\min} \le |r| \le K_{\max},\ c_r = \text
 │       core/constraint.py · core/route_pool.py · core/base.py (Algorithm/AlgoResult)
 └── 3. 求解模型层 algos/*  —— 多求解器并存：
         Layer1: 冷评估ALNS(基线) | 路径反馈ALNS(主力列生成) | 路径反馈HGS(多样性列)
-                | 一次性静态SP(对照) | 对偶闭环列生成SP+CG(终解器) | 多目标帕累托稳定器
+                | 一次性静态SP(对照) | 对偶闭环列生成SP+CG(终解器) | 多目标帕累托稳定器 | Branch-and-Price（小规模实验性认证）
         Layer2: CP-SAT精确(主线唯一) | NN+2opt(在途) | LKH-3(大规模备用)
 ```
 
@@ -145,7 +145,7 @@ $$\mathcal{R}_t = \{ r \subseteq N : K_{\min} \le |r| \le K_{\max},\ c_r = \text
 ## 7. Verification & Evidence Discipline
 
 ### 7.1 证据分级标记制度
-所有报告数字必须标注：`[实测样本]`（给出样本范围/重复次数）· `[外推目标]`（说明外推假设）· `[池内证书]`（RMP-LP 差距，非全局认证）。
+所有报告数字必须标注：`[实测样本]`（给出样本范围/重复次数）· `[外推目标]`（说明外推假设）· `[池内证书]`（RMP-LP 差距，非全局认证）· `[分支证书]`（仅记录 B&P 的状态与完整证书条件，不把启发式/受限池结果升级为全局结论）。
 
 ### 7.2 Layer 2 实测（[实测样本]：09 线 4 个真实点集 n=15/23/29/35，单次）
 | 引擎 | 里程区间 vs CP-SAT 锚点 | 耗时 |
@@ -174,11 +174,11 @@ $$\mathcal{R}_t = \{ r \subseteq N : K_{\min} \le |r| \le K_{\max},\ c_r = \text
 ---
 
 ## 9. Alternatives Considered（保留 v3.0 全部内容）
-（单阶段大 MIP · LKH 主引擎 · 无走廊自由聚类 · 静态 SP —— 论证不变；补充：**全局 branch-and-price 认证**：因 163 店规模下 ESPPRC 定价的工程成本，列为后续演进而非当前设计。）
+（单阶段大 MIP · LKH 主引擎 · 无走廊自由聚类 · 静态 SP —— 论证不变；补充：B&P 已实现为小规模实验性全局认证路径。163 店主线仍使用启发式定价；ESPPRC/更大规模完整定价的工程化仍属后续演进。）
 
 ## 10. Roadmap（评审整改产生的明确待办）
 1. **全线路 Layer 2 延迟分布复测**：10 线 × 全日型 × ≥5 重复，产出 P50/P95/max 与 status 占比（替换 §7.2 的单点外推）。
 2. **周期语义实验口径**：在 `allow_weekday_move` 开关下量化"跨星期几移动"的额外里程收益与间隔均布性代价，单独成文，不与主线混合。
 3. **工时口径走廊**：接入服务时长标定后，把 §3.3 的店数代理升级为工时硬校验。
 4. **矩阵版本戳**：坐标 hash + 路网版本写入 sidecar；路线池按版本失效重计价。
-5. **全局认证路径评估**：对 ≤50 店子问题用完整定价验证启发式列生成的实际漏列率。
+5. **B&P 与完整定价评估（2026-09-06 已完成首轮）**：同等预算（4 seed × 360K 迭代）下 `bp+cpsat` 与 `r2_alns+cpsat` 10 线逐线相等（合计 −13.03%，`beats_baseline` 9/10）；真实线路 `bp_nodes=0`（根 LP 即达暖启动值），`PROVEN_OPTIMAL` 仅微型实例可签——扩大生产适用范围的先决条件是 ESPPRC 级精确定价，继续留在路线图。终账见 `docs/design/BRANCH_AND_PRICE_DESIGN.md` §7。
