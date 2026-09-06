@@ -53,7 +53,7 @@ if '--merge' in sys.argv:
     merge()
     raise SystemExit
 
-LINES = sys.argv[1:] or ALL
+LINES = [a for a in sys.argv[1:] if not a.startswith('--')] or ALL   # 过滤模式开关, 防止 --legacy-free 被当成线路号
 pv = load_plan()
 
 for lid in LINES:
@@ -106,8 +106,9 @@ for lid in LINES:
                'rmp_lp': rs.metadata.get('rmp_lp'), 'pool_gap_pct': rs.metadata.get('pool_gap_pct'),
                'pool_cols': len(legal), 'sec': round(time.time() - t0)}
         # 落盘天数 (规范 day-set: 每日排序成员 — 路线次序平局抖动, 永不比较)
+        days_f = f'output/sp_days_contract_{lid}.json' if not LEGACY_FREE else f'output/sp_days_free_{lid}.json'
         json.dump({str(dd): sorted(seq) for dd, seq in rs.days.items()},
-                  open(f'output/sp_r2_days_{lid}.json', 'w'), ensure_ascii=False)
+                  open(days_f, 'w'), ensure_ascii=False)
     else:
         rec = {'line': lid, 'baseA': baseA, 'sp_km': None, 'r2alns_km': round(best.km, 1),
                'pool_cols': len(legal), 'sec': round(time.time() - t0)}
