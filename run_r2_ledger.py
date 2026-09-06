@@ -21,18 +21,22 @@ from algos.tsp_engine import _exact_open_tsp
 from algos.sp_matheuristic import SPMatheuristic, dedupe_pool, check_r2prime, _wd
 
 ALL = ['02', '03', '04', '05', '06', '07', '08', '09', '10', '11']
+LEGACY_FREE = '--legacy-free' in sys.argv      # 旧口径确定性重建 (Phase B 审计专用)
+from core.contract import contract_of, check_contract
 BASE = json.load(open('output/cpsat_plan_baselines.json'))
 
 
 def merge():
+    # 正式账只出自合同模式: 合并目标随模式切换 (free 模式合并旧名文件仅供审计对照)
+    pref = 'sp_r2_ledger' if LEGACY_FREE else 'sp_contract_ledger'
     out = {}
-    for f in sorted(glob.glob('output/sp_r2_ledger_??.json')):
-        lid = os.path.basename(f)[len('sp_r2_ledger_'):-len('.json')]
+    for f in sorted(glob.glob(f'output/{pref}_??.json')):
+        lid = os.path.basename(f)[len(pref) + 1:-len('.json')]
         try:
             out[lid] = json.load(open(f))
         except Exception:
             pass
-    json.dump(out, open('output/sp_r2_ledger_all.json', 'w'), ensure_ascii=False, indent=1)
+    json.dump(out, open(f'output/{pref}_all.json', 'w'), ensure_ascii=False, indent=1)
     done = sorted(k for k, v in out.items() if v.get('sp_km') is not None)
     tb = sum(out[l]['baseA'] for l in done); ts = sum(out[l]['sp_km'] for l in done)
     print(f"合并 {len(done)}/10 线: {done}")
@@ -41,8 +45,7 @@ def merge():
         for l in done:
             v = out[l]
             print(f"  线{l}: {v['baseA']} -> {v['sp_km']} ({v['delta_vs_baseA_pct']}%) "
-                  f"分裂{v['r2_viol']} 换店{v['weekday_moved_stores']} 单日{v['day_range']} "
-                  f"cap_ok={v['cap_ok']} 结构保证={'✓' if v['sp_km'] <= v['baseA'] + 1e-6 else '✗✗'}")
+                  f"cap_ok={v['cap_ok']} 违约={v.get('contract_viol')} 结构保证={'✓' if v['sp_km'] <= v['baseA'] + 1e-6 else '✗✗'}")
     return out
 
 
@@ -54,7 +57,7 @@ LINES = sys.argv[1:] or ALL
 pv = load_plan()
 
 for lid in LINES:
-    out_f = f'output/sp_r2_ledger_{lid}.json'
+    out_f = f'output/sp_contract_ledger_{lid}.json' if not LEGACY_FREE else f'output/sp_r2_ledger_{lid}.json'
     t0 = time.time()
     d = load_line(pv, lid); D = np.load(f'output/road_dist_{lid}.npy')
     dates = list(d.dates); mn, mx = d.min_daily_capacity, d.max_daily_capacity
@@ -70,13 +73,18 @@ for lid in LINES:
     # R2'-ALNS 4 seeds 历史列池
     best = None
     for seed in (42, 7, 123, 2026):
-        r = R2ALNS().solve(d, D, time_budget=150, seed=seed)
+        r = R2ALNS().solve(d, D, time_budget=150, seed=seed, combo_mode=("free" if LEGACY_FREE else "contract"))
         pool += r.metadata['_columns']
         if best is None or r.km < best.km: best = r
     legal = dedupe_pool(pool, top_k=8, max_daily=mx, min_daily=mn)
 
+    contracts = contract_of(d.days_orig, dates)
     try:
-        rs = SPMatheuristic().solve(d, D, time_budget=300, pool=legal, rounds=1, sa_burst=10.0, r2_prime=True)
+        if LEGACY_FREE:
+            rs = SPMatheuristic().solve(d, D, time_budget=300, pool=legal, rounds=1, sa_burst=10.0, r2_prime=True)
+        else:
+            rs = SPMatheuristic().solve(d, D, time_budget=300, pool=legal, rounds=1, sa_burst=10.0,
+                                        r2_prime=True, contract=contracts)
     except Exception as e:
         print(f"线{lid}: SP 异常 {e}", flush=True); rs = None
     baseA = BASE[lid]
@@ -87,13 +95,19 @@ for lid in LINES:
         for dd, seq in rs.days.items():
             for c in seq: cur_wd.setdefault(c, _wd(dd))
         moved = sum(1 for c, w in orig_wd.items() if cur_wd.get(c) != w)
+        cviol = check_contract(rs.days, contracts, dates)
         rec = {'line': lid, 'baseA': baseA, 'r2alns_km': round(best.km, 1), 'sp_km': round(rs.km, 1),
                'delta_vs_baseA_pct': round((rs.km - baseA) / baseA * 100, 2),
                'structure_guarantee': bool(rs.km <= baseA + 1e-6),
                'cap_ok': bool(rs.capacity_ok), 'r2_viol': len(viol),
+               'contract_viol': len(cviol), 'mode': 'legacy-free' if LEGACY_FREE else 'contract',
+               'all_optimal': bool(best.metadata.get('all_optimal')),
                'weekday_moved_stores': moved, 'day_range': [min(lens), max(lens)],
                'rmp_lp': rs.metadata.get('rmp_lp'), 'pool_gap_pct': rs.metadata.get('pool_gap_pct'),
                'pool_cols': len(legal), 'sec': round(time.time() - t0)}
+        # 落盘天数 (规范 day-set: 每日排序成员 — 路线次序平局抖动, 永不比较)
+        json.dump({str(dd): sorted(seq) for dd, seq in rs.days.items()},
+                  open(f'output/sp_r2_days_{lid}.json', 'w'), ensure_ascii=False)
     else:
         rec = {'line': lid, 'baseA': baseA, 'sp_km': None, 'r2alns_km': round(best.km, 1),
                'pool_cols': len(legal), 'sec': round(time.time() - t0)}
