@@ -4,7 +4,7 @@
 固定 seed 同时对比 seed 变化, 区分时间预算与实际结束时间.
 """
 import sys, json, time, os, csv, platform, math, random
-sys.path.insert(0, '.')
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from data.loader import load_plan, load_line, ALL_LINE_IDS
 from data.road import load_cached
 from core.metric import day_km, total_km, check_freq

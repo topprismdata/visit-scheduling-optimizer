@@ -13,8 +13,8 @@
   - n=35: 07-06 完整周一 (业务峰值满载日, K_max)
 """
 import sys, os, time, json
-sys.path.insert(0, ".")
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
 from data.loader import load_plan, load_line
 from core.metric import day_km

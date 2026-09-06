@@ -12,7 +12,7 @@ Phase 2 (--phase ledger):
   (验证 09 线应复现 ~1234.7 -> 592.2, 即干净基线一致性检查)
 """
 import sys, os, json, time, math, ssl, shutil, urllib.request
-sys.path.insert(0, ".")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
 import pandas as pd
 from core.metric import day_km

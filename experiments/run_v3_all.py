@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """10 线反馈耦合 ALNS v3 全量跑, 对比 v1 ledger 基线 (同 300s 预算).
 每线逐日优化 → 记录 v3 里程; 增量保存; 逐线容错."""
-import sys, json, time, warnings, traceback
+import sys, json, time, warnings, traceback, os
 warnings.filterwarnings("ignore")
-sys.path.insert(0, ".")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pandas as pd
 from data.loader import load_plan, load_line, ALL_LINE_IDS
 from data.road import load_cached

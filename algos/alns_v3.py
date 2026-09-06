@@ -164,3 +164,6 @@ class ALNSv3(Algorithm):
         cap_ok = check_capacity(final, max_daily, min_daily)
         return AlgoResult(name=self.name, days=final, km=total_km(final, D),
                           capacity_ok=cap_ok, metadata={"iters": its, "min_daily": min_daily, "max_daily": max_daily})
+
+# --- 公开 API (Hyrum's law fix) ---
+__all__ = ["ALNSv3", "two_opt", "best_insert", "worst_edge"]

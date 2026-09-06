@@ -311,3 +311,8 @@ class SPMatheuristic(Algorithm):
                                     "is_global_certified": False,
                                     "cg_iters": cg_iters, "cg_converged": converged,
                                     "history": history})
+
+# --- 公开 API (Hyrum's law fix): 下划线旧名保留一版过渡 ---
+__all__ = ["SPMatheuristic", "dedupe_pool", "column_generate", "sp_solve_ip",
+           "sp_solve_lp", "check_r2prime", "wd"]
+wd = _wd

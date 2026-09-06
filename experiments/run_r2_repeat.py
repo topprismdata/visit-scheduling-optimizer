@@ -7,7 +7,7 @@
 用法: python run_r2_repeat.py <lines...>
 """
 import sys, os, time, json
-sys.path.insert(0, ".")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
 from data.loader import load_plan, load_line
 from core.metric import day_km, check_capacity

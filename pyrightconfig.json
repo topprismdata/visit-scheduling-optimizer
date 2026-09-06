@@ -1,5 +1,5 @@
 {
-  "extraPaths": ["src"],
+  "extraPaths": [],
   "executionRoot": ".",
   "reportMissingImports": "warning"
 }

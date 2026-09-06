@@ -7,8 +7,8 @@
   python run_sp_experiment.py --line 09 --phase sp            # SP+CG + 报告
 """
 import sys, os, time, json, csv, datetime, glob, random
-sys.path.insert(0, ".")
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
 from data.loader import load_plan, load_line
 from core.metric import day_km, total_km

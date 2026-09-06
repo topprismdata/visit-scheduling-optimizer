@@ -1,6 +1,6 @@
 
-import sys, json, time
-sys.path.insert(0, '.')
+import sys, json, time, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from data.loader import load_plan, load_line
 from data.road import load_cached
 from algos.alns_v3 import ALNSv3, two_opt

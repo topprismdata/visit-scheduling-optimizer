@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """SP+CG 全办推广汇总: 汇集各线 SP 结果 vs 池内 v3 基线, 严格核验原计划双向走廊 [K_min, K_max] 合规性."""
 import sys, os, json, csv
-sys.path.insert(0, ".")
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from data.loader import load_plan, load_line
 
 pv = load_plan()

@@ -14,8 +14,8 @@
 """
 import sys, os, time, json, random, math
 from copy import deepcopy
-sys.path.insert(0, ".")
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
 from data.loader import load_plan, load_line
 from core.base import Algorithm, AlgoResult

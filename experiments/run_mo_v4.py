@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """MO-ALNS v4 09线: 以 v3 为基准, 注入 CP-SAT 0改动锚点, 三目标帕累托."""
-import sys, json, time
-sys.path.insert(0, '.')
+import sys, json, time, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from data.loader import load_plan, load_line
 from data.road import load_cached
 from core.zone_graph import assign_zones_only

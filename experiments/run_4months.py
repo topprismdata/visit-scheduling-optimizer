@@ -2,7 +2,7 @@
 """4 个月统一优化: 10线 × 88工作日 × (baseline/nn2opt/greedy_crossday). 逐线容错."""
 import pandas as pd, json, time, os, sys, traceback, warnings
 warnings.filterwarnings("ignore")
-sys.path.insert(0, ".")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.base import LineData
 from core.metric import day_km, total_km, check_freq
 from algos.tsp_engine import _nn2opt_open

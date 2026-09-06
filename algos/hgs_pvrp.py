@@ -309,3 +309,14 @@ class HGSPVRP(Algorithm):
         return AlgoResult(name=self.name, days=final, km=total_km(final, D),
                           capacity_ok=cap_ok,
                           metadata={"gens": gens, "budget": time_budget, "min_daily": min_daily, "max_daily": max_daily})
+
+# --- 公开 API (Hyrum's law fix): 实验脚本实际引用的符号转正; 下划线旧名保留一版过渡 ---
+__all__ = ["HGSPVRP", "sa_improve", "greedy_warm", "diversity", "counts",
+           "Ind", "ins_deltas", "removal_delta"]
+sa_improve = _sa_improve
+greedy_warm = _greedy_warm
+diversity = _diversity
+counts = _counts
+Ind = _Ind
+ins_deltas = _ins_deltas
+removal_delta = _removal_delta

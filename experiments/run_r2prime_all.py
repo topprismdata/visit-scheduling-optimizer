@@ -2,7 +2,7 @@
 """全办 R2' 终账: 每线 = weekday_lock 列生成 + 基线池列(含天然合法的原序/cpsat列) + SP(R2') 终解.
 用法: python run_r2prime_all.py 02 03 04   (增量落盘 output/sp_r2prime_all.json, 可断点)"""
 import sys, os, time, json, datetime as dt
-sys.path.insert(0, ".")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
 from data.loader import load_plan, load_line
 from core.metric import day_km

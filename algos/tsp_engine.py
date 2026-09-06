@@ -90,3 +90,8 @@ class NN2OptEngine(TSPEngine):
 
 ENGINES = {"nn2opt": NN2OptEngine, "cpsat": ExactTSPEngine}
 def get_engine(name="cpsat", **kw): return ENGINES[name](**kw)
+
+# --- 公开 API (Hyrum's law fix): 统一走公开名; 下划线旧名保留一版过渡 ---
+__all__ = ["exact_open_tsp", "nn2opt_open"]
+exact_open_tsp = _exact_open_tsp
+nn2opt_open = _nn2opt_open

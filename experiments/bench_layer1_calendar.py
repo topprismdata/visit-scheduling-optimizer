@@ -7,8 +7,8 @@
   - 统计指标: 全月里程 km, 节省率, 单日店数范围 [min, max], 变异系数 CV, 认证 Gap, capacity_ok
 """
 import sys, os, time, json
-sys.path.insert(0, ".")
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
 from data.loader import load_plan, load_line
 from core.metric import day_km, total_km, check_capacity

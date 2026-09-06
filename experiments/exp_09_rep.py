@@ -3,7 +3,7 @@
 输出 output/exp09_tracks_rep<N>.json; 汇总: python exp_09_rep.py --merge"""
 import sys, os, time, json
 from collections import Counter
-sys.path.insert(0, ".")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
 from data.loader import load_plan, load_line
 from core.metric import day_km, check_capacity

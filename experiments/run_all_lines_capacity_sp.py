@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """全办 10 位业代容量加限 SP+CG 全量重算 (每人严格遵守各自独立的单日上限 K_max)."""
 import sys, os, time, json, csv, glob
-sys.path.insert(0, ".")
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
 from data.loader import load_plan, load_line
 from core.metric import day_km, total_km, check_capacity
