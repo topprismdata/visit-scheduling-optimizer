@@ -3,57 +3,15 @@
 v3 把 TSP 当眼睛: 每天携带 tour, 增量 2-opt, tour-informed destroy,
    regret 插入修复, 模拟退火接受.
 参考: Ropke&Pisinger 2006; Shaw 1998 related-removal; Pisinger&Ropke 2007.
-"""
+
+外迁注 (extraction sprint): 纯几何启发 two_opt/best_insert/worst_edge 已迁至
+opticore.heuristics; 本模块 re-export 保持旧路径 (Hyrum's law)."""
 import time, math, random
 from core.metric import day_km, total_km, check_capacity
 from core.base import Algorithm, AlgoResult
 from algos.registry import register
 from algos.tsp_engine import _nn2opt_open
-
-
-def best_insert(tour, node, D):
-    """node 插入 tour 最优位置 -> (新tour, delta). 增量 O(n), 不重建."""
-    n = len(tour)
-    if n == 0: return [node], 0.0
-    best = float('inf'); pos = n
-    # 端点插入
-    d0 = D[node][tour[0]]
-    if d0 < best: best = d0; pos = 0
-    dl = D[tour[-1]][node]
-    if dl < best: best = dl; pos = n
-    for k in range(n - 1):
-        delta = D[tour[k]][node] + D[node][tour[k+1]] - D[tour[k]][tour[k+1]]
-        if delta < best: best = delta; pos = k + 1
-    return tour[:pos] + [node] + tour[pos:], best
-
-
-def two_opt(tour, D, max_pass=20):
-    """开放路径 2-opt, 有限轮. 返回改进后 tour."""
-    seq = list(tour); n = len(seq)
-    if n <= 3: return seq
-    improved = True; p = 0
-    while improved and p < max_pass:
-        improved = False; p += 1
-        for a in range(1, n - 1):
-            for b in range(a + 1, n):
-                before = D[seq[a-1]][seq[a]] + (D[seq[b]][seq[b+1]] if b < n-1 else 0.0)
-                after  = D[seq[a-1]][seq[b]] + (D[seq[a]][seq[b+1]] if b < n-1 else 0.0)
-                if after < before - 1e-9:
-                    seq[a:b+1] = seq[a:b+1][::-1]; improved = True
-    return seq
-
-
-def worst_edge(tour, D, zone_of=None, cross_pref=False):
-    """当前 tour 里最"该拆"的边: 距离最大; cross_pref 时跨区边加权. 返回端点b."""
-    if len(tour) < 2: return None
-    best_s = -1; vb = None
-    for k in range(len(tour)-1):
-        a, b = tour[k], tour[k+1]
-        d = D[a][b]
-        if cross_pref and zone_of is not None and zone_of.get(a) == zone_of.get(b):
-            d *= 0.25
-        if d > best_s: best_s = d; vb = b
-    return vb
+from opticore.heuristics import two_opt, best_insert, worst_edge  # noqa: F401 — 兼容 re-export
 
 
 @register

@@ -16,28 +16,25 @@
   (z[c,w]∈{0,1}, Σ_w z=1, 列绑定 x_i → z[c,wd(d)]);
 - 认证口径 (评审 P1-1): 启发式定价 ⇒ 只输出受限主问题 rmp_lp 与池内差距
   pool_gap_pct, is_global_certified 恒 False.
+
+外迁注 (extraction sprint): 公式构建器 _wd/weekday_dates/_z_open/_contract_pool_filter/
+_fw_table/sp_solve_lp/sp_solve_ip → visitmodel.sp.formulation, price_columns →
+visitmodel.sp.pricing; 本模块经 re-export 保持旧 import 路径 (Hyrum's law).
 """
-import time, random, datetime as _dt
+
+import time, random
 from collections import Counter
 from core.base import Algorithm, AlgoResult
-from core.metric import day_km, total_km, check_capacity
+from core.metric import day_km, check_capacity
 from core.contract import legal_date_map, check_contract
 from algos.registry import register
+from visitmodel.sp.formulation import (_wd, weekday_dates, _z_open, _contract_pool_filter,
+                                       _fw_table, sp_solve_lp, sp_solve_ip)
+from visitmodel.sp.pricing import price_columns
 
 
 def log_cg(msg):
     print(msg, flush=True)
-
-
-def _wd(date):
-    return date.weekday() if hasattr(date, "weekday") else _dt.date.fromisoformat(str(date)).weekday()
-
-
-def weekday_dates(dates):
-    g = {}
-    for dd in dates:
-        g.setdefault(_wd(dd), []).append(dd)
-    return g
 
 
 def check_r2prime(days):
@@ -74,139 +71,6 @@ def dedupe_pool(pool, top_k=6, max_daily=None, min_daily=None):
     return out
 
 
-def _z_open(k_c, wd_groups):
-    """R2' 可行星期几集: 仅槽位数 ≥ f_c 的 w 对店 c 开放 (频次-槽位预剪枝)."""
-    return {c: [w for w, ds in wd_groups.items() if f <= len(ds)] for c, f in k_c.items()}
-
-
-def _contract_pool_filter(pool, legal):
-    """合同池过滤: 剔除任何 (店,日期) 非法成员关系的列. 返回 (pool, n_dropped)."""
-    out, drop = [], 0
-    for date, route, km in pool:
-        if any(c in legal and date not in legal[c] for c in route):
-            drop += 1
-            continue
-        out.append((date, route, km))
-    return out, drop
-
-
-def _fw_table(contracts, wd_groups):
-    """派生频次表 {c: {w: f(c,w)}}: f = |合同槽位集| (周访=k_w, 双周=相位计数)."""
-    from core.contract import contract_slot_dates
-    return {c: {w: len(contract_slot_dates(k, p, ds)) for w, ds in wd_groups.items()}
-            for c, (k, p) in contracts.items()}
-
-
-def sp_solve_lp(dates, k_c, pool, timeout_s=60, r2_prime=False, contract=None):
-    """受限主问题 LP 值 (GLOP). 返回 (rmp_lp, duals) 或 (None, None).
-    contract 非 None: 合同模式 — 池预过滤 + 覆盖 RHS 线性化 (sum x == sum f·z, 取代 ==k),
-    z 开放全部星期几; store 对偶 = 该店合同覆盖约束的影子价格."""
-    from ortools.linear_solver import pywraplp
-    solver = pywraplp.Solver.CreateSolver("GLOP")
-    if solver is None:
-        return None, None
-    if contract is not None:
-        pool, _ = _contract_pool_filter(pool, legal_date_map(contract, dates))
-    x = {i: solver.NumVar(0, 1, f"x{i}") for i in range(len(pool))}
-    cons_date, cons_store = {}, {}
-    for dd in dates:
-        cols = [i for i, (date, _, _) in enumerate(pool) if date == dd]
-        if not cols:
-            return None, None
-        cons_date[dd] = solver.Add(sum(x[i] for i in cols) == 1)
-    for c, k in k_c.items():
-        if contract is not None:
-            continue          # 合同模式: 覆盖等式在 z 线性化段统一施加
-        cols = [i for i, (_, route, _) in enumerate(pool) if c in route]
-        if cols:
-            cons_store[c] = solver.Add(sum(x[i] for i in cols) == k)
-    z = {}
-    if r2_prime or contract is not None:
-        wd_g = weekday_dates(dates)
-        fw = _fw_table(contract, wd_g) if contract is not None else None
-        for c in k_c:
-            # contract+r2_prime 组合: 合同分支优先; z 绑定仍强制单一星期几, 相位合法性由池过滤保证
-            ws = list(wd_g) if contract is not None else \
-                [w for w, ds in wd_g.items() if k_c[c] <= len(ds)]
-            if not ws:
-                return None, None
-            zc = {w: solver.NumVar(0, 1, f"z_{c}_{w}") for w in ws}
-            solver.Add(sum(zc.values()) == 1)
-            z[c] = zc
-            if contract is not None:
-                cols = [i for i, (_, route, _) in enumerate(pool) if c in route]
-                if not cols:
-                    # 合同义务在池过滤后零合法列 = 不可行 (过滤可饿死店), 不是可跳过的约束
-                    return None, None
-                # 对偶语义: 该店合同覆盖的影子价格
-                cons_store[c] = solver.Add(
-                    sum(x[i] for i in cols) == sum(fw[c][w] * zc[w] for w in ws))
-        for i, (date, route, _) in enumerate(pool):
-            w = _wd(date)
-            for c in set(route):
-                if c in z and w in z[c]:
-                    solver.Add(x[i] - z[c][w] <= 0)
-    solver.Minimize(sum(pool[i][2] * x[i] for i in x))
-    solver.SetTimeLimit(int(timeout_s * 1000))
-    st = solver.Solve()
-    if st not in (pywraplp.Solver.OPTIMAL, pywraplp.Solver.FEASIBLE):
-        return None, None
-    duals = {"store": {c: cons_store[c].DualValue() for c in cons_store},
-             "date": {dd: cons_date[dd].DualValue() for dd in cons_date}}
-    return solver.Objective().Value(), duals
-
-
-def price_columns(dates, k_c, duals, D, candidates_per_date=24, top_m=40, col_iter=60,
-                  max_daily=None, min_daily=None, legal=None):
-    """定价子问题 (启发式, [ESF] §7.1 批量定价 + 支配剪枝 + 走廊硬截断).
-    rc = km(r) - Σ u_c - w_d. 能力边界: 只报告"发现"的负列, 不证明不存在其他负列."""
-    u = duals["store"]; w = duals["date"]
-    all_stores = sorted(k_c.keys(), key=lambda c: -u.get(c, 0.0))[:top_m]
-    cands = []
-    for dd in dates:
-        w_d = w.get(dd, 0.0)
-        for start_c in all_stores:
-            if legal is not None and dd not in legal.get(start_c, ()):
-                continue
-            if u.get(start_c, 0.0) <= 0:
-                break
-            route = [start_c]
-            in_day = {start_c}
-            while True:
-                if max_daily is not None and len(route) >= max_daily:
-                    break
-                best_c, best_margin, best_pos = None, 1e-9, None
-                for c in all_stores:
-                    if c in in_day:
-                        continue
-                    if legal is not None and dd not in legal.get(c, ()):
-                        continue
-                    uc = u.get(c, 0.0)
-                    if uc <= best_margin:
-                        break
-                    bd, bp = D[c][route[0]], 0
-                    for k in range(len(route) - 1):
-                        dlt = D[route[k]][c] + D[c][route[k+1]] - D[route[k]][route[k+1]]
-                        if dlt < bd:
-                            bd, bp = dlt, k + 1
-                    d_last = D[route[-1]][c]
-                    if d_last < bd:
-                        bd, bp = d_last, len(route)
-                    margin = uc - bd
-                    if margin > best_margin:
-                        best_c, best_margin, best_pos = c, margin, bp
-                if best_c is None:
-                    break
-                route.insert(best_pos, best_c)
-                in_day.add(best_c)
-            rc = day_km(route, D) - sum(u.get(c, 0.0) for c in route) - w_d
-            lo = max(2, min_daily or 2)
-            if rc < -1e-6 and len(route) >= lo:
-                cands.append((rc, dd, list(route), round(day_km(route, D), 3)))
-    cands.sort(key=lambda z0: z0[0])
-    return [(dd, route, km) for rc, dd, route, km in cands[:col_iter]]
-
-
 def column_generate(dates, k_c, pool, D, max_iter=12, verbose=False,
                     top_m=40, col_iter=60, max_daily=None, min_daily=None, r2_prime=False,
                     contract=None):
@@ -238,71 +102,6 @@ def column_generate(dates, k_c, pool, D, max_iter=12, verbose=False,
             converged = True
             break
     return rmp_lp, pool, iters, converged
-
-
-def sp_solve_ip(dates, k_c, pool, timeout_s=120, r2_prime=False, contract=None):
-    """SP 整数精确解 (CP-SAT). r2_prime=True 时施加每店单一星期几硬约束.
-    contract 非 None: 合同模式 — 池预过滤 + 覆盖 RHS 线性化 (sum x == sum f·z, 取代 ==k),
-    z 开放全部星期几 (线性化自剪枝)."""
-    from ortools.sat.python import cp_model
-    if contract is not None:
-        pool, _ = _contract_pool_filter(pool, legal_date_map(contract, dates))
-    m = cp_model.CpModel()
-    xv = {}
-    for idx, (date, route, km) in enumerate(pool):
-        xv[idx] = m.NewBoolVar(f"x{idx}")
-    for dd in dates:
-        cols = [i for i, (date, _, _) in enumerate(pool) if date == dd]
-        if not cols:
-            return None, None
-        m.AddExactlyOne([xv[i] for i in cols])
-    for c, k in k_c.items():
-        if contract is not None:
-            continue          # 合同模式: 覆盖等式在 z 线性化段统一施加
-        cols = [i for i, (_, route, _) in enumerate(pool) if c in route]
-        if cols:
-            m.Add(sum(xv[i] for i in cols) == k)
-    z = {}
-    if r2_prime or contract is not None:
-        wd_g = weekday_dates(dates)
-        fw = _fw_table(contract, wd_g) if contract is not None else None
-        for c in k_c:
-            # contract+r2_prime 组合: 合同分支优先; z 绑定仍强制单一星期几, 相位合法性由池过滤保证
-            ws = list(wd_g) if contract is not None else \
-                [w for w, ds in wd_g.items() if k_c[c] <= len(ds)]
-            if not ws:
-                return None, None
-            zc = {w: m.NewBoolVar(f"z_{c}_{w}") for w in ws}
-            m.AddExactlyOne(list(zc.values()))
-            z[c] = zc
-            if contract is not None:
-                cols = [i for i, (_, route, _) in enumerate(pool) if c in route]
-                if not cols:
-                    # 合同义务在池过滤后零合法列 = 不可行 (过滤可饿死店), 不是可跳过的约束
-                    return None, None
-                # 合同覆盖线性化: 覆盖数 == 所选星期几的合同槽位数 f(c,w)
-                m.Add(sum(xv[i] for i in cols) == sum(fw[c][w] * zc[w] for w in ws))
-        for i, (date, route, _) in enumerate(pool):
-            w = _wd(date)
-            for c in set(route):
-                if c in z and w in z[c]:
-                    m.Add(xv[i] <= z[c][w])
-    m.Minimize(sum(int(round(pool[i][2] * 1000)) * xv[i] for i in xv))
-    solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = timeout_s
-    solver.parameters.num_search_workers = 8
-    st = solver.Solve(m)
-    if st not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
-        return None, None
-    sel = {dd: None for dd in dates}
-    for i, (date, route, km) in enumerate(pool):
-        if solver.Value(xv[i]):
-            cur = sel[date]
-            if cur is None or km < cur[1]:
-                sel[date] = (list(route), km)
-    if any(v is None for v in sel.values()):
-        return None, None
-    return sum(v[1] for v in sel.values()), {dd: v[0] for dd, v in sel.items()}
 
 
 @register
@@ -380,5 +179,6 @@ class SPMatheuristic(Algorithm):
 
 # --- 公开 API (Hyrum's law fix): 下划线旧名保留一版过渡 ---
 __all__ = ["SPMatheuristic", "dedupe_pool", "column_generate", "sp_solve_ip",
-           "sp_solve_lp", "check_r2prime", "wd"]
+           "sp_solve_lp", "price_columns", "check_r2prime", "weekday_dates",
+           "_fw_table", "_contract_pool_filter", "_z_open", "_wd", "wd"]
 wd = _wd
