@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Run the 3x3 calendar/TSP matrix with Contract-SP as the hard gate.
+"""Run the calendar/TSP matrix with Contract-SP as the hard gate.
 
-Calendar modes are the three modes used by the benchmark report:
-  - alns_v3: path-feedback ALNS candidate schedule;
-  - hgs_pvrp: path-feedback HGS candidate schedule;
-  - sp_cg: contract-native column-generation candidate pool.
+Calendar modes:
+  - alns_v3: path-feedback ALNS candidate schedules;
+  - hgs_pvrp: path-feedback HGS candidate schedules;
+  - sp_cg: contract-native column-generation candidate pool;
+  - bp: contract-native branch-and-price candidate pool;
+  - r2_alns: contract-native R2' multi-seed candidate columns.
 
 TSP modes are:
   - nn2opt: NN + 2-opt;
@@ -12,11 +14,10 @@ TSP modes are:
   - cpsat: CP-SAT exact open path.
 
 Every cell is solved by the same Contract-SP integer master
-(`r2_prime=True`, `contract=contracts`).  The calendar generators are
-candidate-column sources; Contract-SP is the only accepted final decision.
-The ALNS/HGS implementations still use their historical NN+2-opt internal
-scoring.  The selected TSP mode controls all columns handed to Contract-SP,
-and that boundary is recorded explicitly in the output.
+(r2_prime=True, contract=contracts). Calendar generators provide candidate
+columns; Contract-SP is the only accepted final decision. Seeded modes use
+the union of per-seed columns; deterministic modes run once. The selected TSP
+mode controls all columns handed to Contract-SP.
 
 Usage:
   .venv/bin/python experiments/run_contract_matrix.py --lines 09
