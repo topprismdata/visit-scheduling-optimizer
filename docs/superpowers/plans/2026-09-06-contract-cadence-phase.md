@@ -853,6 +853,7 @@ sshpass -p 1234 scp -o StrictHostKeyChecking=no core/metric.py core/base.py core
 
 - [ ] **Step 6.2** nohup 启动十线合同账（macOS 下 nohup+disown 可存活 ssh 断开）：
 
+
 ```bash
 sshpass -p 1234 ssh mac@192.168.31.16 \
   "cd ~/bench09 && nohup python3 run_r2_ledger.py 02 03 04 05 06 07 08 09 10 11 > contract10.log 2>&1 & disown; exit" < /dev/null
@@ -880,3 +881,23 @@ Expected: 10 核约 2.5~3.5 小时后 `contract10.log` 出十行 `线XX: ... 违
 3. **占位符**：无；所有代码完整；命令带期望输出/容差。
 4. **类型一致性**：`contract_of → {c:(κ,φ)}` 贯穿 `contract_slot_dates(kappa,phi,wd_dates)`、`legal_date_map(contracts,dates)`、`check_contract(days,contracts,dates)`、SP `contract=/legal=`、`move_candidates(c,sched_dates,wd_g,contracts,combo_mode,rng)`。
 5. **防再错锚点**：f=3 真身、ISO mod 2/mod 4、1,524 精确重构全部固化为断言；legacy/free 双口径隔离防审计污染。
+
+---
+## ChatGPT 独立交叉审核采纳项（2026-09-06，经控制器交叉验证后落进任务）
+
+> 全文见 ChatGPT 会话"独立评审工作"。评级：本体 A−（跨年相位漏洞）/ 测试架构 B+ / 解耦 B / ±0.5km 审计 C。以下逐条经控制器验证后采纳或说明不采纳理由。
+
+| # | 审核意见 | 验证结论 | 采纳落点 |
+|---|---|---|---|
+| 1 | **ISO 周 mod 2 在 53 周年断裂**（2026-W53→2027-W01 两个连续奇周，双周店会 7 天连访） | **成立**。ISO 周序号每年重置，53 周年边界 parity 不交替；7 月单月数据无法区分"ISO 周 mod 2"与"连续全局周 mod 2"（观测等价）。当前优化范围为单月（7 月），两假设数值效果为零，但必须显式记录假设 | Task 1 增边界假设文档断言 + 有界日历穷举测试（2025~2029 全月），并把"跨年锚点（W53→W01）"列入 REPLAN 拍板清单（需 12 月 SRP 数据或厂商确认） |
+| 2 | 1524 店零例外是强证据但非本体证明（观测等价风险） | 成立，与附录 C"重构相等"标准同向但更进一步 | 已由 Task 1 精确重构 + 假设文档化覆盖；跨月数据到手后补跨月重构测试 |
+| 3 | 数学层加 **pricing 等价 oracle**（随机 dual 下 pricing 最优列 == 全枚举最优列） | 成立，廉价高价值 | Task 2 增 Step 2.6 |
+| 4 | 数学层加 **CG→IP 反例搜寻**（随机小实例找 IP(RMP_CG) > IP(FullMaster)） | 方向对但**非阻塞**：项目从未声明全局最优（is_global_certified=False、只报池内差距），反例不会推翻已发声明；量化有价值 | 列入 Task 6 后 backlog，不阻塞主线 |
+| 5 | Layer2 加 **n≤10 置换暴力 oracle**（CP-SAT == brute force；非对称/零距离/重复坐标）+ status/objective/best_bound/gap 日志 | 成立；status 凭证契约已有（评审 P2-5），补暴力 oracle | Task 3 增 Step 3.6 |
+| 6 | 算法层加**增量值==全量重算**不变量测试（delta 漂移比种子漂移更危险） | **成立且直中要害**：r2_alns 主循环 `cur_km += delta` 每 20 迭代才校准一次，正是此风险形态 | Task 3 增 Step 3.7 不变量断言 |
+| 7 | 解耦"物理搬迁"缺行为冻结；archive/ 不得在包发现路径 | 部分成立：archive/ 不在 sys.path、pytest 显式指定 tests/（Task 0 已满足大半）；补 pytest testpaths 显式配置 + 公开别名弃用表 | Task 0 尾随补丁（T0-FollowUp） |
+| 8 | ±0.5km 单一容差不合理 → 三层审计 | **采纳**：A 解恒等（先比 day-assignment 完全一致）→ B 距离按报告精度（±0.05km）→ C 污染归因（冻结一切只切 phase 开关，量 ΔD 与 wrong_phase_visits/受益店数） | Task 5/6 验收标准改写 |
+| 9 | 月中新开/关闭店语义（effective_from/to） | 成立但目前数据无此类店（全月活跃由重构证明）；属业务语义缺口非本期范围 | REPLAN 拍板清单 + 语义层 Non-Goal 文档化 |
+| 10 | weekday 本体地位（合同承诺 vs 优化变量）应明确定义，k4↔k5 禁换是"修补派生现象" | 半采纳：R2′（换星期几但全月一致）是 2026-09-05 用户业务澄清，非推断；k4↔k5 禁换确属派生修补，本就是拍板点② | 不改主线；REPLAN 拍板点②保持待用户裁决 |
+
+**执行顺序裁定**：采纳项 1/3/5/6/7/8 进入对应 Task 的验收标准；4/9/10 进 backlog 或拍板清单；**十线重跑不提前也不推迟**——ChatGPT 建议的"先做 W53 相位实验"需 2026 年 12 月 SRP 数据（尚不存在），单月 scope 下两锚点数值等价，不构成阻塞。
