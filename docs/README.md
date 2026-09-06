@@ -15,9 +15,14 @@ docs/
 │
 ├── design/                        # [System Design & RFCs] 架构蓝图与核心算法设计
 │   ├── SYSTEM_DESIGN_DOC.md       # ★ Google 级系统设计主文档 (Master Architecture Spec)
+│   ├── CONTRACT_CADENCE_MODEL.md  # ★ 拜访合同-节拍-相位本体 (2026-09-06 数据考古定稿)
+│   ├── REPLAN_2026-09-06.md       # ★ 合同本体重设计划 + 仓库增量解耦决定
 │   ├── SP_MATHEURISTIC_DESIGN.md  # 对偶闭环列生成与集合划分设计 (基于 [META] 2025 & [ESF] 2020)
 │   ├── V4_PARETO_STABILIZER_DESIGN.md # 多目标帕累托稳定器设计 (里程 ↔ 扰动改动量 ↔ 均衡度)
 │   └── ARCHITECTURE_OVERVIEW.md   # 早期系统物理架构概览
+
+├── superpowers/plans/             # [Implementation Plans] 战术实施计划 (bite-sized TDD 任务)
+│   └── 2026-09-06-contract-cadence-phase.md # ★ 合同本体落地: 解耦+三层独立测试+审计+重跑
 │
 ├── benchmarks/                    # [Benchmarks & Empirical Evidence] 评测基准与实证总账
 │   ├── TWO_STAGE_BENCHMARK_REPORT.md  # ★ 两阶段运筹全景帕累托基准报告 (单日+月度+消融+全办总账)
