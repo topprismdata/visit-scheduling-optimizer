@@ -2,6 +2,7 @@
 """Road distance matrix: fetch from OSM FOSSGIS or load from cache."""
 import numpy as np
 import json
+import os
 import time
 import urllib.request
 
