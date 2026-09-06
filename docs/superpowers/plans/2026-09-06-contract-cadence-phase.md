@@ -836,11 +836,30 @@ git commit -m "feat: contract gate; ledger days dump + audit fields + legacy-fre
 
 ---
 
-### Task 6: Phase C —— 合同口径十线重跑（Windows 主力）
+### Task 6: Phase C —— 合同口径重跑（09 已冒烟 → 十线）
 
-- [ ] **Step 6.1** 同步 `core/ algos/ run_r2_ledger.py` 到 `ghb@192.168.31.188:C:/Users/ghb/bench09/`（sshpass；遇限流 `sleep 30`）
-- [ ] **Step 6.2** schtasks 模式跑 `run_r2_ledger.py 02..11`（`cmd /c ... ^> contract10.log`；禁裸 `start /b`）
-- [ ] **Step 6.3** 回收合并 `output/sp_contract_ledger_all.json`；打印：合同口径 vs 基线 A 降幅、vs 旧松弛 3,618.5 的相位代价、十线 contract_viol 全 0
+> **机器变更（2026-09-06 用户通知）**：Windows 服务器（ghb@192.168.31.188）已停用；十线重跑改在 **M1 Max（mac@192.168.31.16，10 核 64G）**执行，本机 M2 只做开发与快验证。M1 Max 已有 09 线消融工作区，跨机种子复现历史 4/5（仅 s11 例外）。
+
+- [ ] **Step 6.1** 同步 `core/ algos/ run_r2_ledger.py` 到 M1 Max 工作区：
+
+```bash
+cd /Users/ghb/Documents/Codex/2026-08-04/wo-xi/visit-scheduling-optimizer
+sshpass -p 1234 ssh -o StrictHostKeyChecking=no mac@192.168.31.16 "mkdir -p ~/bench09" < /dev/null
+sshpass -p 1234 scp -o StrictHostKeyChecking=no core/metric.py core/base.py core/contract.py \
+  algos/r2_alns.py algos/sp_matheuristic.py run_r2_ledger.py \
+  mac@192.168.31.16:~/bench09/ < /dev/null
+```
+（M1 Max 侧需同版本 ortools/numpy/pandas；若缺：`ssh ... "python3 -m pip install --user ortools numpy pandas openpyxl"`）
+
+- [ ] **Step 6.2** nohup 启动十线合同账（macOS 下 nohup+disown 可存活 ssh 断开）：
+
+```bash
+sshpass -p 1234 ssh mac@192.168.31.16 \
+  "cd ~/bench09 && nohup python3 run_r2_ledger.py 02 03 04 05 06 07 08 09 10 11 > contract10.log 2>&1 & disown; exit" < /dev/null
+```
+Expected: 10 核约 2.5~3.5 小时后 `contract10.log` 出十行 `线XX: ... 违R2'=0`；逐线回收 `sp_contract_ledger_{lid}.json` 与 `sp_r2_days_{lid}.json`
+
+- [ ] **Step 6.3** 回收合并对照（同原计划：合并 `output/sp_contract_ledger_all.json`，打印合同口径 vs 基线 A 降幅、vs 旧松弛 3,618.5 的相位代价、十线 contract_viol 全 0）
 - [ ] **Step 6.4** commit `"bench: contract-mode 10-line final account"`
 
 ---
