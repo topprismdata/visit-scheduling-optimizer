@@ -3,6 +3,8 @@
 python runner.py --mode fast|standard|deep|all
 python runner.py --algos baseline,nn2opt --lines 09
 """
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pandas as pd, json, time, os, sys
 from data.loader import load_plan, load_line, ALL_LINE_IDS
 from data.road import load_cached, save_cached, fetch_matrix
