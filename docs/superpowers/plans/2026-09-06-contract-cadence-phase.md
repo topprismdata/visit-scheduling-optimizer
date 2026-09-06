@@ -828,15 +828,21 @@ git commit -m "feat: contract gate; ledger days dump + audit fields + legacy-fre
 
 ---
 
-### Task 5: Phase B —— 旧账相位污染审计
+### Task 5: Phase B —— 相位污染审计（2026-09-06 审查后重述：放弃"复现旧账"，改为双审计）
 
-- [ ] **Step 5.1** `nohup python3 run_r2_ledger.py 02 03 04 05 06 07 08 09 10 11 --legacy-free > output/legacy_free_rerun.log 2>&1 &`（约 2.5 h；各线 sp_km 须与备份旧账一致，容差 ±0.5 km）
-- [ ] **Step 5.2** 汇总 `output/contract_audit_r2_ledger.json`（十线 `contract_viol` + 总数 / 187 双周店）；结论三分支：0 → 旧账转正；≤20 → 记录收拢成本；>20 → Task 6 为正式账
-- [ ] **Step 5.3** `git add` 审计产物 + commit `"bench: phase-B contract violation census"`
+> **重述依据（Task 3 审查）**：旧账解与列池从未持久化（仅 09 有幸存全解工件 `output/sp_r2prime_09.json`），且旧代码为 wall-clock 非确定口径——"复现旧账/旧账解级审计"不可执行。幸存工件审计已由审查完成：**sp_r2prime_09 零合同违约、零节奏违约（干净）**。
+
+- [ ] **Step 5.1 审计 A（幸存工件）**：已完成——sp_r2prime_09（km 326.612）0 违例，结论记录入审计账
+- [ ] **Step 5.2 审计 B（污染类普查）**：`nohup python3 run_r2_ledger.py 02 03 04 05 06 07 08 09 10 11 --legacy-free > output/legacy_free_rerun.log 2>&1 &`（确定性 free 模式重建"同类放松解"，非复现旧账；09 单线预演已测：km 315.606@20s，4 店相位违约、0 节奏违约——正是旧污染签名，落在历史 315.0~315.7 带内）
+- [ ] **Step 5.3 汇总** `output/contract_audit_r2_ledger.json`：十线 contract_viol（节奏合法/相位违约签名）+ 总数 / 187 双周店；**解恒等比对必须用规范化 day-set（每日排序后成员集），禁止原始 days JSON 相等**（路线次序有平局抖动，12/23 天会合法重排）
+- [ ] **Step 5.4 收紧机会成本口径**：ΔD = D(合同) − D(放松)，预期 ≈ 3.4%~5.0%（09 实测：ALNS 档 11 km/3.4%，旧账 SP 档 16.2 km/5.0%）；free 模式严格 audit-only，禁止进正式账
+- [ ] **Step 5.5** `git add` 审计产物 + commit `"bench: phase-B pollution-class census (surviving artifact clean; free-mode census)"`
 
 ---
 
 ### Task 6: Phase C —— 合同口径重跑（09 已冒烟 → 十线）
+
+> **Phase C 预期（Task 3 审查实测校准）**：合同合法空间确实存在优于基线的解（seed 1/2/3 在 6k 迭代即找到 321.0/322.8/325.9，−0.7~−5.6 km），生产档（90k 迭代/种子 × 4 种子 + SP 重组/CG）09 线预期 **km ∈ [318, 325]（−0.5%~−2.5% vs 基线 326.6）**；"贴近基线"只是 never-leave-init 种子的地板情形。**旧放松口径 310.4 不可比**（相位非法）。收紧机会成本 ≈ 3.4%~5.0%。观察点：SP+CG 重组是主要改进通道（搜索用 NN+2opt 代理排序，+16.85% vs 精确，可能错排好 day-set）；若重组无增益 → 加种子（确定性，~80s/个），**禁止**复活历史快照池（快照路线平局抖动，仅 day-set 稳定）。
 
 > **机器变更（2026-09-06 用户通知）**：Windows 服务器（ghb@192.168.31.188）已停用；十线重跑改在 **M1 Max（mac@192.168.31.16，10 核 64G）**执行，本机 M2 只做开发与快验证。M1 Max 已有 09 线消融工作区，跨机种子复现历史 4/5（仅 s11 例外）。
 
