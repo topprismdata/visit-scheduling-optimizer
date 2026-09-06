@@ -144,6 +144,17 @@ def test_lp_le_ip_on_synthetic():
     assert lp is not None and lp <= ip + 1e-6
 
 
+def test_starved_store_zero_legal_columns_is_infeasible():
+    """合同模式: 池过滤后零合法列的义务店 = 不可行 (返回 None), 而非静默未服务解.
+    复现审查用例: 剥除店1全部列后, 修复前返回缺店1的解且 check_contract=[1]."""
+    from algos.sp_matheuristic import sp_solve_ip, sp_solve_lp
+    ct = _contracts()
+    k_c = {0: 4, 1: 2, 2: 3}
+    pool = [col for col in _pool() if 1 not in col[1]]   # 池过滤可饿死原池中的店
+    assert sp_solve_ip(DATES, k_c, pool, timeout_s=30, contract=ct) == (None, None)
+    assert sp_solve_lp(DATES, k_c, pool, timeout_s=30, contract=ct) == (None, None)
+
+
 def test_pricing_legal_and_rc_exact_under_random_duals():
     """ChatGPT 共研采纳项: 定价合法性 + rc 精确性 oracle (随机 dual 20 轮).
     ≤2 店路线时贪心插入即精确, rc 必须等于两序全枚举最优."""

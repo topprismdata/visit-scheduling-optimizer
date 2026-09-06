@@ -21,7 +21,7 @@ import time, random, datetime as _dt
 from collections import Counter
 from core.base import Algorithm, AlgoResult
 from core.metric import day_km, total_km, check_capacity
-from core.contract import legal_date_map
+from core.contract import legal_date_map, check_contract
 from algos.registry import register
 
 
@@ -125,6 +125,7 @@ def sp_solve_lp(dates, k_c, pool, timeout_s=60, r2_prime=False, contract=None):
         wd_g = weekday_dates(dates)
         fw = _fw_table(contract, wd_g) if contract is not None else None
         for c in k_c:
+            # contract+r2_prime 组合: 合同分支优先; z 绑定仍强制单一星期几, 相位合法性由池过滤保证
             ws = list(wd_g) if contract is not None else \
                 [w for w, ds in wd_g.items() if k_c[c] <= len(ds)]
             if not ws:
@@ -134,10 +135,12 @@ def sp_solve_lp(dates, k_c, pool, timeout_s=60, r2_prime=False, contract=None):
             z[c] = zc
             if contract is not None:
                 cols = [i for i, (_, route, _) in enumerate(pool) if c in route]
-                if cols:
-                    # 对偶语义: 该店合同覆盖的影子价格
-                    cons_store[c] = solver.Add(
-                        sum(x[i] for i in cols) == sum(fw[c][w] * zc[w] for w in ws))
+                if not cols:
+                    # 合同义务在池过滤后零合法列 = 不可行 (过滤可饿死店), 不是可跳过的约束
+                    return None, None
+                # 对偶语义: 该店合同覆盖的影子价格
+                cons_store[c] = solver.Add(
+                    sum(x[i] for i in cols) == sum(fw[c][w] * zc[w] for w in ws))
         for i, (date, route, _) in enumerate(pool):
             w = _wd(date)
             for c in set(route):
@@ -223,7 +226,8 @@ def column_generate(dates, k_c, pool, D, max_iter=12, verbose=False,
         rmp_lp = min(rmp_lp, rmp_lp_new) if rmp_lp is not None else rmp_lp_new
         new_cols = price_columns(dates, k_c, duals, D, top_m=top_m, col_iter=col_iter,
                                  max_daily=max_daily, min_daily=min_daily,
-                                 legal=(legal_date_map(contract, dates) if contract else None))
+                                 legal=(legal_date_map(contract, dates)
+                                        if contract is not None else None))
         before = len(pool)
         pool = dedupe_pool(pool + new_cols, max_daily=max_daily, min_daily=min_daily)
         added = len(pool) - before
@@ -263,6 +267,7 @@ def sp_solve_ip(dates, k_c, pool, timeout_s=120, r2_prime=False, contract=None):
         wd_g = weekday_dates(dates)
         fw = _fw_table(contract, wd_g) if contract is not None else None
         for c in k_c:
+            # contract+r2_prime 组合: 合同分支优先; z 绑定仍强制单一星期几, 相位合法性由池过滤保证
             ws = list(wd_g) if contract is not None else \
                 [w for w, ds in wd_g.items() if k_c[c] <= len(ds)]
             if not ws:
@@ -272,9 +277,11 @@ def sp_solve_ip(dates, k_c, pool, timeout_s=120, r2_prime=False, contract=None):
             z[c] = zc
             if contract is not None:
                 cols = [i for i, (_, route, _) in enumerate(pool) if c in route]
-                if cols:
-                    # 合同覆盖线性化: 覆盖数 == 所选星期几的合同槽位数 f(c,w)
-                    m.Add(sum(xv[i] for i in cols) == sum(fw[c][w] * zc[w] for w in ws))
+                if not cols:
+                    # 合同义务在池过滤后零合法列 = 不可行 (过滤可饿死店), 不是可跳过的约束
+                    return None, None
+                # 合同覆盖线性化: 覆盖数 == 所选星期几的合同槽位数 f(c,w)
+                m.Add(sum(xv[i] for i in cols) == sum(fw[c][w] * zc[w] for w in ws))
         for i, (date, route, _) in enumerate(pool):
             w = _wd(date)
             for c in set(route):
@@ -357,6 +364,7 @@ class SPMatheuristic(Algorithm):
 
         cap_ok = check_capacity(best_days, max_daily, min_daily)
         r2_ok = (not r2_prime) or (len(check_r2prime(best_days)) == 0)
+        contract_ok = (contract is None) or (len(check_contract(best_days, contract, dates)) == 0)
         pool_gap = round((best_km - rmp_lp) / best_km * 100, 2) if rmp_lp else None
         return AlgoResult(name=self.name, days=best_days, km=best_km,
                           capacity_ok=cap_ok,
@@ -364,6 +372,7 @@ class SPMatheuristic(Algorithm):
                                     "pool": len(pool),
                                     "min_daily": min_daily, "max_daily": max_daily,
                                     "r2_prime": r2_prime, "capacity_ok": cap_ok, "r2prime_ok": r2_ok,
+                                    "contract_ok": contract_ok,
                                     "pool_gap_pct": pool_gap, "gap_pct": pool_gap,
                                     "is_global_certified": False,
                                     "cg_iters": cg_iters, "cg_converged": converged,
