@@ -21,6 +21,7 @@ import time, random, datetime as _dt
 from collections import Counter
 from core.base import Algorithm, AlgoResult
 from core.metric import day_km, total_km, check_capacity
+from core.contract import legal_date_map
 from algos.registry import register
 
 
@@ -78,12 +79,34 @@ def _z_open(k_c, wd_groups):
     return {c: [w for w, ds in wd_groups.items() if f <= len(ds)] for c, f in k_c.items()}
 
 
-def sp_solve_lp(dates, k_c, pool, timeout_s=60, r2_prime=False):
-    """受限主问题 LP 值 (GLOP). 返回 (rmp_lp, duals) 或 (None, None)."""
+def _contract_pool_filter(pool, legal):
+    """合同池过滤: 剔除任何 (店,日期) 非法成员关系的列. 返回 (pool, n_dropped)."""
+    out, drop = [], 0
+    for date, route, km in pool:
+        if any(c in legal and date not in legal[c] for c in route):
+            drop += 1
+            continue
+        out.append((date, route, km))
+    return out, drop
+
+
+def _fw_table(contracts, wd_groups):
+    """派生频次表 {c: {w: f(c,w)}}: f = |合同槽位集| (周访=k_w, 双周=相位计数)."""
+    from core.contract import contract_slot_dates
+    return {c: {w: len(contract_slot_dates(k, p, ds)) for w, ds in wd_groups.items()}
+            for c, (k, p) in contracts.items()}
+
+
+def sp_solve_lp(dates, k_c, pool, timeout_s=60, r2_prime=False, contract=None):
+    """受限主问题 LP 值 (GLOP). 返回 (rmp_lp, duals) 或 (None, None).
+    contract 非 None: 合同模式 — 池预过滤 + 覆盖 RHS 线性化 (sum x == sum f·z, 取代 ==k),
+    z 开放全部星期几; store 对偶 = 该店合同覆盖约束的影子价格."""
     from ortools.linear_solver import pywraplp
     solver = pywraplp.Solver.CreateSolver("GLOP")
     if solver is None:
         return None, None
+    if contract is not None:
+        pool, _ = _contract_pool_filter(pool, legal_date_map(contract, dates))
     x = {i: solver.NumVar(0, 1, f"x{i}") for i in range(len(pool))}
     cons_date, cons_store = {}, {}
     for dd in dates:
@@ -92,17 +115,29 @@ def sp_solve_lp(dates, k_c, pool, timeout_s=60, r2_prime=False):
             return None, None
         cons_date[dd] = solver.Add(sum(x[i] for i in cols) == 1)
     for c, k in k_c.items():
+        if contract is not None:
+            continue          # 合同模式: 覆盖等式在 z 线性化段统一施加
         cols = [i for i, (_, route, _) in enumerate(pool) if c in route]
         if cols:
             cons_store[c] = solver.Add(sum(x[i] for i in cols) == k)
     z = {}
-    if r2_prime:
-        for c, ws in _z_open(k_c, weekday_dates(dates)).items():
+    if r2_prime or contract is not None:
+        wd_g = weekday_dates(dates)
+        fw = _fw_table(contract, wd_g) if contract is not None else None
+        for c in k_c:
+            ws = list(wd_g) if contract is not None else \
+                [w for w, ds in wd_g.items() if k_c[c] <= len(ds)]
             if not ws:
                 return None, None
             zc = {w: solver.NumVar(0, 1, f"z_{c}_{w}") for w in ws}
             solver.Add(sum(zc.values()) == 1)
             z[c] = zc
+            if contract is not None:
+                cols = [i for i, (_, route, _) in enumerate(pool) if c in route]
+                if cols:
+                    # 对偶语义: 该店合同覆盖的影子价格
+                    cons_store[c] = solver.Add(
+                        sum(x[i] for i in cols) == sum(fw[c][w] * zc[w] for w in ws))
         for i, (date, route, _) in enumerate(pool):
             w = _wd(date)
             for c in set(route):
@@ -119,7 +154,7 @@ def sp_solve_lp(dates, k_c, pool, timeout_s=60, r2_prime=False):
 
 
 def price_columns(dates, k_c, duals, D, candidates_per_date=24, top_m=40, col_iter=60,
-                  max_daily=None, min_daily=None):
+                  max_daily=None, min_daily=None, legal=None):
     """定价子问题 (启发式, [ESF] §7.1 批量定价 + 支配剪枝 + 走廊硬截断).
     rc = km(r) - Σ u_c - w_d. 能力边界: 只报告"发现"的负列, 不证明不存在其他负列."""
     u = duals["store"]; w = duals["date"]
@@ -128,6 +163,8 @@ def price_columns(dates, k_c, duals, D, candidates_per_date=24, top_m=40, col_it
     for dd in dates:
         w_d = w.get(dd, 0.0)
         for start_c in all_stores:
+            if legal is not None and dd not in legal.get(start_c, ()):
+                continue
             if u.get(start_c, 0.0) <= 0:
                 break
             route = [start_c]
@@ -138,6 +175,8 @@ def price_columns(dates, k_c, duals, D, candidates_per_date=24, top_m=40, col_it
                 best_c, best_margin, best_pos = None, 1e-9, None
                 for c in all_stores:
                     if c in in_day:
+                        continue
+                    if legal is not None and dd not in legal.get(c, ()):
                         continue
                     uc = u.get(c, 0.0)
                     if uc <= best_margin:
@@ -166,7 +205,8 @@ def price_columns(dates, k_c, duals, D, candidates_per_date=24, top_m=40, col_it
 
 
 def column_generate(dates, k_c, pool, D, max_iter=12, verbose=False,
-                    top_m=40, col_iter=60, max_daily=None, min_daily=None, r2_prime=False):
+                    top_m=40, col_iter=60, max_daily=None, min_daily=None, r2_prime=False,
+                    contract=None):
     """列生成循环: LP -> 定价 -> 负约简成本列回灌 -> 收敛.
     收敛判据 (评审 P1-1 修正): 最小化问题加列后 rmp_lp 单调【下降】; 连续 3 轮无下降或无新列即停."""
     pool = list(pool)
@@ -176,13 +216,14 @@ def column_generate(dates, k_c, pool, D, max_iter=12, verbose=False,
     stall = 0
     for it in range(max_iter):
         iters = it + 1
-        rmp_lp_new, duals = sp_solve_lp(dates, k_c, pool, r2_prime=r2_prime)
+        rmp_lp_new, duals = sp_solve_lp(dates, k_c, pool, r2_prime=r2_prime, contract=contract)
         if rmp_lp_new is None:
             break
         improved = (rmp_lp is None) or (rmp_lp - rmp_lp_new > 1e-3)
         rmp_lp = min(rmp_lp, rmp_lp_new) if rmp_lp is not None else rmp_lp_new
         new_cols = price_columns(dates, k_c, duals, D, top_m=top_m, col_iter=col_iter,
-                                 max_daily=max_daily, min_daily=min_daily)
+                                 max_daily=max_daily, min_daily=min_daily,
+                                 legal=(legal_date_map(contract, dates) if contract else None))
         before = len(pool)
         pool = dedupe_pool(pool + new_cols, max_daily=max_daily, min_daily=min_daily)
         added = len(pool) - before
@@ -195,9 +236,13 @@ def column_generate(dates, k_c, pool, D, max_iter=12, verbose=False,
     return rmp_lp, pool, iters, converged
 
 
-def sp_solve_ip(dates, k_c, pool, timeout_s=120, r2_prime=False):
-    """SP 整数精确解 (CP-SAT). r2_prime=True 时施加每店单一星期几硬约束."""
+def sp_solve_ip(dates, k_c, pool, timeout_s=120, r2_prime=False, contract=None):
+    """SP 整数精确解 (CP-SAT). r2_prime=True 时施加每店单一星期几硬约束.
+    contract 非 None: 合同模式 — 池预过滤 + 覆盖 RHS 线性化 (sum x == sum f·z, 取代 ==k),
+    z 开放全部星期几 (线性化自剪枝)."""
     from ortools.sat.python import cp_model
+    if contract is not None:
+        pool, _ = _contract_pool_filter(pool, legal_date_map(contract, dates))
     m = cp_model.CpModel()
     xv = {}
     for idx, (date, route, km) in enumerate(pool):
@@ -208,17 +253,28 @@ def sp_solve_ip(dates, k_c, pool, timeout_s=120, r2_prime=False):
             return None, None
         m.AddExactlyOne([xv[i] for i in cols])
     for c, k in k_c.items():
+        if contract is not None:
+            continue          # 合同模式: 覆盖等式在 z 线性化段统一施加
         cols = [i for i, (_, route, _) in enumerate(pool) if c in route]
         if cols:
             m.Add(sum(xv[i] for i in cols) == k)
-    if r2_prime:
-        z = {}
-        for c, ws in _z_open(k_c, weekday_dates(dates)).items():
+    z = {}
+    if r2_prime or contract is not None:
+        wd_g = weekday_dates(dates)
+        fw = _fw_table(contract, wd_g) if contract is not None else None
+        for c in k_c:
+            ws = list(wd_g) if contract is not None else \
+                [w for w, ds in wd_g.items() if k_c[c] <= len(ds)]
             if not ws:
                 return None, None
             zc = {w: m.NewBoolVar(f"z_{c}_{w}") for w in ws}
             m.AddExactlyOne(list(zc.values()))
             z[c] = zc
+            if contract is not None:
+                cols = [i for i, (_, route, _) in enumerate(pool) if c in route]
+                if cols:
+                    # 合同覆盖线性化: 覆盖数 == 所选星期几的合同槽位数 f(c,w)
+                    m.Add(sum(xv[i] for i in cols) == sum(fw[c][w] * zc[w] for w in ws))
         for i, (date, route, _) in enumerate(pool):
             w = _wd(date)
             for c in set(route):
@@ -248,7 +304,8 @@ class SPMatheuristic(Algorithm):
     name = "sp_matheuristic"
 
     def solve(self, data, D, time_budget=120, pool=None, rounds=2, sa_burst=6.0,
-              top_m=40, col_iter=60, max_daily=None, min_daily=None, r2_prime=False):
+              top_m=40, col_iter=60, max_daily=None, min_daily=None, r2_prime=False,
+              contract=None):
         assert pool, "SPMatheuristic 需要外部路线池"
         import numpy as np
         D = np.asarray(D)
@@ -263,11 +320,11 @@ class SPMatheuristic(Algorithm):
 
         rmp_lp, pool, cg_iters, converged = column_generate(
             dates, k_c, pool, D, max_iter=15, verbose=True, top_m=top_m, col_iter=col_iter,
-            max_daily=max_daily, min_daily=min_daily, r2_prime=r2_prime)
+            max_daily=max_daily, min_daily=min_daily, r2_prime=r2_prime, contract=contract)
 
         best_km, best_days = sp_solve_ip(dates, k_c, pool,
                                          timeout_s=max(10, (t0 + time_budget - time.time()) * 0.5),
-                                         r2_prime=r2_prime)
+                                         r2_prime=r2_prime, contract=contract)
         if best_km is None:
             return AlgoResult(name=self.name, days={}, km=float("inf"), capacity_ok=False,
                               metadata={"error": "SP infeasible (走廊/R2' 下无可行组合)",
@@ -289,12 +346,12 @@ class SPMatheuristic(Algorithm):
                 pool = dedupe_pool(pool, max_daily=max_daily, min_daily=min_daily)
                 km2, days2 = sp_solve_ip(dates, k_c, pool,
                                          timeout_s=max(10, (t0 + time_budget - time.time())),
-                                         r2_prime=r2_prime)
+                                         r2_prime=r2_prime, contract=contract)
                 if km2 is not None and km2 < best_km - 1e-9:
                     best_km, best_days = km2, days2
             history.append((best_km, f"sp-round{r+1}"))
 
-        rmp_lp2, _ = sp_solve_lp(dates, k_c, pool, r2_prime=r2_prime)
+        rmp_lp2, _ = sp_solve_lp(dates, k_c, pool, r2_prime=r2_prime, contract=contract)
         if rmp_lp2 is not None and rmp_lp is not None:
             rmp_lp = min(rmp_lp, rmp_lp2)
 
