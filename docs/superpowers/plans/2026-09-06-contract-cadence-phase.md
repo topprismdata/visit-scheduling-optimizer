@@ -28,8 +28,8 @@
 | `algos/__init__.py` 等公开 API | Modify | 解耦 | `__all__` 声明；实验脚本仅可 import 公开符号（消除 Hyrum's Law 违例） |
 | `core/contract.py` | Create | 语义 | 合同-相位本体：`phase_of` / `contract_of` / `contract_slot_dates` / `legal_date_map` / `check_contract`（+ 迁入 rhythm 松弛快筛） |
 | `tests/test_semantic_contract.py` | Create | 语义 | 本体=数据：合成单元 + 15 行结构穷举 + 反例拒绝 + 1,524 店精确重构 + 服务周交叉验证 |
-| `algos/sp_matheuristic.py` | Modify | 数学 | `_fw_table` / `_contract_pool_filter`；LP/IP `contract` 参数（池过滤 + 覆盖 RHS z 线性化）；定价 `legal` 剪枝 |
-| `tests/test_mathmodel_sp_contract.py` | Create | 数学 | 模型=语义：部件单元 + RHS 可行模式穷举 + 3^9 暴力枚举等价 + LP≤IP + 09 线结构保证 |
+| `core/plan_ir.py` → **独立项目 `/Users/ghb/VisitIR`** | Create（用户裁定 2026-09-06：先做 IR，独立立项） | 语义 | **计划规范形 (Plan IR)**：WorkCalendar / ContractBook / VisitPlan 双视图、四闸边界判定、`plan_ir/v1` 版本化序列化、类型化例外账（LLM 适配层扩展点）。设计文档：`/Users/ghb/VisitIR/docs/{RESEARCH_IR_SURVEY,DESIGN_STRAWMAN}.md`（GPT 共研中） |
+| `tests/test_plan_ir.py` → VisitIR | Create | 语义 | 投影一致性 + fail-closed 构造 + JSON 往返/版本拒绝 + 旧 JSON 兼容 + 例外账语义 |
 | `algos/r2_alns.py` | Modify | 算法 | `move_candidates` 纯函数（contract/free 双模式）+ solve 接线 + `contract_ok` 元数据 |
 | `tests/test_algorithm_contract.py` | Create | 算法 | 候选逻辑确定性 + free 模式缺陷存在性 + 同种子复现 + 09 线端到端三闸 |
 | `core/base.py` | Modify（1 行） | 验收 | `AlgoResult.contract_ok` |
