@@ -37,6 +37,7 @@ class AlgoResult:
     moves: int = 0                              # 跨日移动次数
     count_ok: bool = True                       # 每店总次数校验
     capacity_ok: bool = True                    # 单日容量上限校验 (len <= max_daily_capacity)
+    contract_ok: bool = True                  # 合同-相位守恒校验 (第五闸, 2026-09-06)
     elapsed: float = 0.0                        # 耗时 (秒)
     metadata: dict = field(default_factory=dict)  # 算法特有信息
 

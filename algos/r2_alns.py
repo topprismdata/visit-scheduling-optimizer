@@ -191,8 +191,10 @@ class R2ALNS(Algorithm):
 
         # 终局状态门控精确重排: 只接受 PROVEN OPTIMAL 的路线 (最优成本唯一 → km 确定);
         # 未证明的日保留规范序 (同样确定)。8-worker 实测 09 全部 23 日 limit10/30 均证 OPTIMAL。
+        reroute_statuses = {}
         for dd in dates:
             r_opt, st, _ms = _exact_open_tsp_status(list(best_routes[dd]), D, 30)
+            reroute_statuses[str(dd)] = st
             if st == "OPTIMAL":
                 best_routes[dd] = r_opt
         columns = [(dd, list(best_routes[dd]), round(day_km(best_routes[dd], D), 3))
@@ -204,4 +206,6 @@ class R2ALNS(Algorithm):
             metadata={"iters": its, "accepted": accepted,
                       "r2_ok": len(check_r2prime(days)) == 0,
                       "contract_ok": len(check_contract(days, contracts, dates)) == 0,
+                      "reroute_statuses": reroute_statuses,
+                      "all_optimal": all(s == "OPTIMAL" for s in reroute_statuses.values()),
                       "columns": len(columns), "_columns": columns})
