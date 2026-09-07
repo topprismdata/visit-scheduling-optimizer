@@ -1,6 +1,6 @@
 # base（构造式基准：原分配 + 精确日内排序）
 
-> 类别：构造式 | 实现：`experiments/run_contract_matrix.py::base_schedule` | 矩阵身份：参照系（km 画像分母）
+> 类别：构造式 | 实现：`experiments/run_contract_matrix.py::base_schedule` | 研究矩阵角色：**对比基准**——其他引擎的公里数都以它为分母
 
 ## 它解决什么
 
