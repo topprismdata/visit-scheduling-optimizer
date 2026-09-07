@@ -3,8 +3,10 @@
 
 与 SPMatheuristic (CG 收敛后池上一次性 IP = restrict-and-price) 的本质区别:
 B&P 在分支树上搜索, 每个节点用列生成求解 LP 松弛; 分支变量 y_cd 的 0/1 性由
-x 积分性蕴含 (Ryan-Foster 风格的店-日指派分支), 节点 LP 值是其子树在已探索
-列空间上的真下界.
+x 积分性蕴含（店-日指派分支，customer–date assignment branching；非经典 Ryan–Foster
+配对分支）. 节点 LP 值的语义: 仅当该节点经精确定价证明不存在负 rc 列后, 才是子树的
+有效下界 (node_valid_lb); 启发式定价停住时的值只是受限主问题 LP 值 (rmp_lp_value),
+不得用于剪枝或证书 (2026-09-07 评审修正).
 
 主问题 (节点, 合同模式, 对偶语义同 visitmodel.sp.formulation.sp_solve_lp):
     min Σ c_r x_r

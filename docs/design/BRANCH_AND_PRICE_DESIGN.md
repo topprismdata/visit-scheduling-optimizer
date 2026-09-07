@@ -27,7 +27,9 @@ x_r \le z_{c,w(d)}\ \forall r\ni c$$
 
 z 只是覆盖 RHS 线性化装置（合同模式同 formulation），**不参与分支**。
 
-## 3. 分支规则（[BARN] §Abstract/§3、[LUB] §5.2、[RF]）
+## 3. 分支规则：店-日指派分支（[BARN] §Abstract/§3、[LUB] §5.2 谱系；本项目定制规则）
+
+> **命名勘误（2026-09-07 外部评审）**：早期文档称本规则为"Ryan-Foster 式"——不准确。经典 [RF] 是**店对配对分支**（"两店必须在同一条路线 / 不得在同一条路线"）；本项目的 y_cd forced/forbidden 是**店-日指派分支**（customer–date assignment branching），二者机制不同。y_cd 是本项目定制规则，引用 [RF] 仅作分支定价分支技术的谱系参照。
 
 - **分支变量**：$y_{cd}=\sum_{r\in R_d\ni c} x_r$（店-日指派）。分数 $y_{cd}\in(0,1)$ → **forced(c,d)=1 | forbidden(c,d)=0**。
 - **有效性**（[LUB] §5.2：禁止直接分支主问题变量 x；须落原空间决策且定价可承载）：分数 x 必给出分数 y（列含 ≥2 店）；y 全整 ⇒ x 全整。定价子问题天然承载：forbidden → 构造时跳过；forced → 起点强制 + 对偶 λ_cd 进 rc。
