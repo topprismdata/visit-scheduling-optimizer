@@ -288,6 +288,9 @@ def main():
         print(f"=== A 矩阵: 线 {line_id} ===", flush=True)
         data = load_line(plan, line_id)
         D = np.load(ROOT / "output" / f"road_dist_{line_id}.npy")
+        # numpy 标量索引极慢 (360K 迭代 × 每轮 ~400 次 D[c][j]):
+        # 转纯 Python 嵌套列表后标量访问快 10-100×, 结果不变
+        D = [[float(v) for v in row] for row in D]
         dates = list(data.dates)
         contracts = contract_of(data.days_orig, dates)
         k_c = dict(Counter(c for dd in dates for c in data.days_orig[dd]))
