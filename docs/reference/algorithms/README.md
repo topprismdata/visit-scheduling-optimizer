@@ -24,11 +24,38 @@
 
 ## 全局事实速记（写代码前必读）
 
-1. **SP 是终点站**：所有算法的本质都是"给 Contract-SP 供候选列"，最终解由 `sp_solve_ip`（r2_prime+contract）统一选出。算法不决策。
+1. **SP（集合划分，Set Partitioning）是终点站**：SP 是一种整数规划模型——从候选路线池里，每个工作日恰好选一条路线、每家店被访次数等于合同频次。所有算法的本质都是"给 Contract-SP 供候选列"，最终解由 `sp_solve_ip`（r2_prime+contract）统一选出。算法不决策。
 2. **独立性是来源隔离**：引擎之间不允许隐式共享运行产物（日历/列/对偶/incumbent）；共享的是公共数学工具、估计器与原始数据。
 3. **双尺子**：元启发式量 km 画像；bp 量证书画像（gap/证完率）。不同类别不同尺。
 4. **确定性红线**（元启发式引擎：r2_alns/v3/v4）：搜索期零求解器调用（seeded RNG）；终局精排只接受 PROVEN OPTIMAL 的重排。例外：bp 的树内 CP-SAT 定价、矩阵 runner 的终局重排是算法/协议内禀行为，受状态字段诚实记录约束而非此红线。
 5. **诚实口径**：km 分 raw/rounded、pool/recomputed；状态三档 PROVEN_OPTIMAL / BOUND_HEURISTIC / TIME_LIMIT；三闸（count/capacity/contract）由调用方独立复验。
+
+## 缩写与术语速查（新人必读）
+
+| 缩写 | 全称 / 含义 |
+|---|---|
+| SP | 集合划分（Set Partitioning）：整数规划模型，从候选路线池中"每个工作日恰选一条路线 + 每店次数=合同频次"。全系统的最终决策点 |
+| CG | 列生成（Column Generation）：反复用 LP 对偶发现"值得加入的列"并回灌的技术 |
+| LP / IP | 线性规划 / 整数规划（连续松弛 vs 0/1 整数解） |
+| RMP | 受限主问题（Restricted Master Problem）：只含当前已生成列的 SP（LP 或 IP） |
+| rc | 约简成本（Reduced Cost，检验数）：定价子问题的目标，rc<0 表示该列值得加入当前池 |
+| B&P / bp | 分支定价（Branch-and-Price）：分支树 × 每节点列生成的精确求解框架 |
+| ALNS | 自适应大邻域搜索（Adaptive Large Neighborhood Search）：destroy–repair 邻域搜索 |
+| HGS / UHGS | （统一）混合遗传搜索（Hybrid Genetic Search）：种群+局部搜索混合体制 |
+| SLS | 随机局部搜索（Stochastic Local Search） |
+| SA | 模拟退火（Simulated Annealing）：以概率接受劣解的接受准则 |
+| VRP / PVRP | 车辆路径问题 / 周期性车辆路径问题（Periodic VRP：多日、每店有拜访频次合同） |
+| TSP / ATSP | 旅行商问题 / 非对称旅行商问题（本项目指"单日开放路径排序"：不回起点） |
+| R2′ | 本项目自定义契约（非文献缩写）：门店可整月换星期几，但换后全月一致；禁止同店跨星期几分裂 |
+| CP-SAT | Google OR-Tools 的约束规划求解器（本系统的日内精确 TSP 引擎） |
+| GLOP | Google OR-Tools 的线性规划求解器（供对偶与下界） |
+| LKH-3 | Helsgaun 的 Lin-Kernighan 大规模 TSP 启发式求解器（外部二进制） |
+| ESPPRC | 带资源约束的基本最短路问题（Elementary Shortest Path Problem with Resource Constraints）：精确定价子问题的标准形态，bp 的路线图目标 |
+| ESF | Paradiso et al. 2020 论文在本项目的引用代号（精确定价能力边界） |
+| LB / UB / gap | 下界 / 上界 / 最优性间隙：`gap = 100×(UB−LB)/|UB|`，衡量"当前解离已知下界还有多远" |
+| 走廊 | 每日门店数的硬区间 `[min_daily, max_daily]`（由原计划派生的负荷代理约束） |
+| incumbent | 当前最好解（搜索过程中保留的最优可行解，用作剪枝基准与输出候选） |
+| 三闸 | 频次（count）、容量（capacity）、合同（contract）三项由调用方独立复验的验收闸 |
 
 > **覆盖注记**：旧代基线与杂项算法（`algos/impl.py`：baseline / nn2opt / greedy_crossday / cpsat_route / alns / ensemble_sp）未单独立档——研究矩阵不使用，接手时以文件头注与 `ALGORITHM_GUIDE.md` 附录 C 的历史口径警示为准。
 
