@@ -627,7 +627,8 @@ class BranchAndPrice:
                 self.converge_attempts += 1
                 if self._exact_all_proven:
                     self.converge_proven += 1
-                return lp
+                    lp["pricing_proven"] = True   # 完整精确定价证明无负 rc 列 → LP 值为子树有效下界
+                return lp                          # 未证明时 lp 无 pricing_proven: 值仅作观测, 不可剪枝
             if self.add_columns(cols) == 0:
                 self.pricing_stalled += 1
                 return lp
@@ -706,17 +707,21 @@ class BranchAndPrice:
             lp = self._solve_node_cg(node)
             if lp is None:
                 continue
+            proven = lp.get("pricing_proven", False)
             if self.root_lb is None:
-                self.root_lb = lp["obj"]
-            if self.incumbent is not None and lp["obj"] >= self.incumbent[0] - 1e-6:
-                continue                            # 界剪枝 (只找严格更优)
+                if proven:
+                    self.root_lb = lp["obj"]     # 仅精确定价证明后的 LP 值才可作下界记录
+            if self.incumbent is not None and proven and \
+                    lp["obj"] >= self.incumbent[0] - 1e-6:
+                continue                            # 界剪枝: 仅精确定价证明后的下界可安全剪
             key = self._branch_key(lp)
             if key is None:                         # y 全整 ⇒ x 全整 → incumbent
                 self._extract_incumbent(lp)
                 continue
             if self.incumbent is None:              # 尚无 incumbent: 下潜制造
                 self._dive(node, lp)
-                if self.incumbent is not None and lp["obj"] >= self.incumbent[0] - 1e-6:
+                if self.incumbent is not None and proven and \
+                        lp["obj"] >= self.incumbent[0] - 1e-6:
                     continue                        # 下潜后本子树已无改进空间
             self.nodes_explored += 1
             c, dd = key

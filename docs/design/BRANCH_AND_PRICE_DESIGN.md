@@ -14,7 +14,7 @@
 | 分支 | 无 | y_cd（店-日指派）二分，本项目定制规则（非经典 Ryan–Foster 配对分支，见 §3 勘误） |
 | 列生成 | 根部一次 | 每节点收敛一次 |
 | 收敛语义 | "当前定价器找不到更好的列"（启发式） | 全树耗尽，且每个节点 LP 为 OPTIMAL、列生成未截断/停滞、完整候选集精确定价逐日 OPTIMAL → **PROVEN_OPTIMAL** |
-| 解 | 池上 IP（CP-SAT 证书） | 整分节点抽取 + LP 下潜 + 原计划保底 |
+> **下界语义注（2026-09-07 评审）**：节点 LP 值成为子树有效下界（`node_valid_lb`）的前提，是该节点经精确定价**证明无负 rc 列**；启发式定价停住时的值只是 `rmp_lp_value`（观测值），不得用于剪枝或证书。测试 `test_unproven_pricing_does_not_issue_lower_bound` 钉死该语义。
 
 ## 2. 数学模型（节点 LP，合同模式，对偶语义同 `visitmodel.sp.formulation`）
 

@@ -189,3 +189,19 @@ def test_proof_status_downgrades_when_node_lp_was_not_optimal():
     eng.lp_nonoptimal_nodes = 1
 
     assert eng._tree_status() == "BOUND_HEURISTIC"
+
+
+def test_unproven_pricing_does_not_issue_lower_bound():
+    """启发式定价未证明无负 rc 列时: root_lb 不签发（None），RMP 值不得冒充下界；incumbent 仍保底返回."""
+    data = _mini_line()
+    D = _dist(data)
+    dates = list(data.dates)
+    contracts = contract_of(data.days_orig, dates)
+    k_c = Counter(c for dd in dates for c in data.days_orig[dd])
+    eng = BranchAndPrice(dates, k_c, D, contracts, data.days_orig,
+                         data.min_daily_capacity, data.max_daily_capacity,
+                         time_budget=30, exact_pricing=False)
+    out = eng.solve()
+    assert out["status"] in ("BOUND_HEURISTIC", "TIME_LIMIT")
+    assert out["root_lb"] is None          # 未证明 → 不签发下界（rmp_lp_value 只作观测）
+    assert out["incumbent_days"] is not None
