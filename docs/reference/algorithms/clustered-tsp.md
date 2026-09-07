@@ -1,4 +1,4 @@
-# Clustered TSP（已评估 → 本场景否决）
+# 聚类旅行商问题（Clustered TSP，已评估 → 本场景否决）
 
 > 类别：构造式（约束 TSP 变体） | 实现：`algos/clustered_tsp.py` | 状态：**否决留档**（方法论完整，业务场景不适配）
 

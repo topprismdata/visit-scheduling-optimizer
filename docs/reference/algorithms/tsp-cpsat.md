@@ -1,4 +1,4 @@
-# CP-SAT 开链精确 TSP（cpsat）
+# 开链精确旅行商问题（TSP，cpsat——CP-SAT 约束规划求解器）
 
 > 类别：精确（约束规划） | 实现：`VisitModel/src/visitmodel/tsp/open_chain.py`（`_exact_open_tsp_status` / `ExactTSPEngine`） | 矩阵身份：质量锚（n≤35 实测全 OPTIMAL）
 

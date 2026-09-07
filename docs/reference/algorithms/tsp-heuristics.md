@@ -1,4 +1,4 @@
-# TSP 启发式（NN + 2-opt，含多起点采样）
+# 旅行商问题（TSP，Traveling Salesman Problem）启发式：最近邻（NN，Nearest Neighbor）+ 2-opt，含多起点采样
 
 > 类别：启发式 | 实现：`OptiCore/src/opticore/heuristics.py`（`nn2opt_open / two_opt`），母仓经 `algos/tsp_engine.py` re-export | 矩阵身份：速度剖面基线档
 

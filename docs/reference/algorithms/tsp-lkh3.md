@@ -1,4 +1,4 @@
-# LKH-3 开放路径（lkh3）
+# LKH-3 开放路径求解（lkh3）
 
 > 类别：启发式（大规模Lin-Kernighan） | 实现：`algos/lkh_engine.py`（外部二进制封装） | 矩阵身份：大规模备用档
 
@@ -7,9 +7,9 @@
 大规模 TSP 的工业级启发式：Lin-Kernighan 变邻域搜索 + 5-move + patching。本系统的定位是 **lkh3 备用档**——cpsat 在大 n 下证不出最优时的兜底（研究矩阵速度剖面的规模档）。
 
 ## 机制（正确的用法，来自 LKH-3 文档）
-
 ```
-ATSP + EXPLICIT FULL_MATRIX：LKH 对 TSP 只读下三角 → 必须用 ATSP 类型
+ATSP（非对称旅行商问题，Asymmetric TSP）+ EXPLICIT FULL_MATRIX：
+LKH 对 TSP 只读下三角 → 必须用 ATSP 类型
 开放路径：加 dummy 节点，边权 = 大常数 C = 10×max(D)
           解闭圈后从 dummy 处剥离 → 得开放路径
 参数：RUNS=10, MAX_TRIALS=5000, MAX_CANDIDATES=20, MOVE_TYPE=5, PATCHING_A=2

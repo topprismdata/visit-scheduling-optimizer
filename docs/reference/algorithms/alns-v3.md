@@ -1,6 +1,6 @@
 # ALNS v3（反馈耦合自适应大邻域搜索）
 
-> 类别：元启发式（ALNS 族） | 实现：`algos/alns_v3.py` | 矩阵身份：独立机制行（实测 ≈ 基线，作对照与多样性保留）
+> 类别：元启发式——自适应大邻域搜索（ALNS，Adaptive Large Neighborhood Search）族 | 实现：`algos/alns_v3.py` | 矩阵身份：独立机制行（实测 ≈ 基线，作对照与多样性保留）
 
 ## 它解决什么
 
@@ -15,8 +15,7 @@
 
 ```
 暖身：每日 nn2opt + ≤30 轮贪心跨日（双向走廊约束；12% 预算）
-温度：以平均边长为基的分段降温 T0→T1→T2→T3（Kirkpatrick 式 SA）
-主循环（自适应 ALNS）：
+温度：以平均边长为基的分段降温 T0→T1→T2→T3（Kirkpatrick 式模拟退火，SA：Simulated Annealing）
   算子池 ['worst', 'cross', 'segment', 'random']
     worst:    移除"最差边"关联店（Shaw 式 related removal 变体）
     cross:    跨日移动

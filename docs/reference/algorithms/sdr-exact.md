@@ -1,6 +1,6 @@
-# SDR Exact（多起点采样 + SP + LP 下界，旧代）
+# SDR Exact（多起点顺序采样 + 集合划分 + 线性规划下界，旧代）
 
-> 类别：构造式 + LP（上一代组合层算法） | 实现：`algos/sdr_exact.py` | 矩阵身份：已退役，思想降级保留
+> 类别：构造式 + 线性规划（LP，Linear Programming）（上一代组合层算法） | 实现：`algos/sdr_exact.py` | 矩阵身份：已退役，思想降级保留
 
 ## 它解决什么（历史定位）
 
@@ -9,7 +9,7 @@
 ```
 阶段1 _gen_pool: 原计划 + NN2opt + 多起点随机 NN2opt + 2opt 扰动 → RoutePool(每日期 ≥K 条)
 阶段2 _sp_solve: CP-SAT SP（每日期选 1 条；每店覆盖 = freq；无合同/R2′ 闸）
-阶段3 _lp_lb:    GLOP LP 松弛 → LB → gap
+阶段3 _lp_lb:    GLOP 线性规划（LP，Linear Programming）松弛 → 下界（LB）→ gap
 ```
 
 ## 为什么降级（v3 协议裁定）

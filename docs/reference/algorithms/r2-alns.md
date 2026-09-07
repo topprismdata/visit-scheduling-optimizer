@@ -1,6 +1,7 @@
 # R2′-ALNS（合同同构局部搜索）
 
-> 类别：元启发式 → 随机局部搜索（SLS） | 实现：`algos/r2_alns.py` | 矩阵身份：km 画像主力
+> 类别：元启发式 → 随机局部搜索（SLS，Stochastic Local Search） | 实现：`algos/r2_alns.py` | 矩阵身份：km 画像主力
+> 概念前置：R2′ 契约见 [../concepts/r2-prime-contract.md](../concepts/r2-prime-contract.md)
 
 ## 它解决什么
 
