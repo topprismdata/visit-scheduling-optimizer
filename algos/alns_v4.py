@@ -21,6 +21,7 @@
 import time, math, random
 from core.base import Algorithm, AlgoResult
 from core.metric import day_km, total_km, check_freq
+from core.contract import contract_of, legal_date_map, check_contract
 from algos.registry import register
 from algos.alns_v3 import two_opt, best_insert, worst_edge
 
@@ -101,6 +102,10 @@ class ALNSv4(Algorithm):
         wd_map = {}
         for dd in dates:
             wd_map.setdefault(get_wd(dd), []).append(dd)
+        # 合同合法域 (P0-3, 2026-09-07): 跨日移动只允许落到该店的合同合法日期上
+        # —— same_weekday_only 只保星期几, 不保双周相位; 合法域才同时保住两者
+        contracts = contract_of(data.days_orig, dates)
+        legal = legal_date_map(contracts, dates)
 
         # 模拟退火参数设置
         t0 = time.time()
@@ -165,7 +170,7 @@ class ALNSv4(Algorithm):
 
                 wday = get_wd(dd1)
                 candidates = [d for d in (wd_map[wday] if same_weekday_only else dates)
-                              if d != dd1 and c not in tours[d]]
+                              if d != dd1 and c not in tours[d] and d in legal.get(c, ())]
                 if not candidates:
                     continue
 
@@ -237,15 +242,16 @@ class ALNSv4(Algorithm):
                 t1 = tours[dd1]
                 if len(t1) <= 3:
                     continue
+                c1 = rng.choice(t1)          # 先选店, 再按该店合法域筛目标日 (P0-3)
                 wday = get_wd(dd1)
-                candidates = [d for d in (wd_map[wday] if same_weekday_only else dates) if d != dd1 and len(tours[d]) >= 2]
+                candidates = [d for d in (wd_map[wday] if same_weekday_only else dates)
+                              if d != dd1 and len(tours[d]) >= 2 and d in legal.get(c1, ())]
                 if not candidates:
                     continue
                 dd2 = rng.choice(candidates)
                 t2 = tours[dd2]
 
-                c1 = rng.choice(t1)
-                valid_c2 = [x for x in t2 if x not in t1 and c1 not in t2]
+                valid_c2 = [x for x in t2 if x not in t1 and c1 not in t2 and dd1 in legal.get(x, ())]
                 if not valid_c2:
                     continue
                 c2 = rng.choice(valid_c2)
@@ -328,10 +334,12 @@ class ALNSv4(Algorithm):
             n_ds = sorted([d.isoformat() if hasattr(d, "isoformat") else str(d) for d in final_dates.get(s, set())])
             changes.append({"store": code, "inc_dates": i_ds, "new_dates": n_ds})
 
+        contract_viol = check_contract(final_tours, contracts, dates)
         return AlgoResult(
             name=self.name,
             days=final_tours,
             km=final_km,
+            contract_ok=not contract_viol,
             metadata={
                 "changes": changes,
                 "delta": len(final_moved),
@@ -347,5 +355,6 @@ class ALNSv4(Algorithm):
                 "daily_counts": daily_counts,
                 "its": its,
                 "best_J": round(best_J, 2),
+                "contract_violations": len(contract_viol),
             }
         )
