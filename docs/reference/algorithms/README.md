@@ -27,8 +27,10 @@
 1. **SP 是终点站**：所有算法的本质都是"给 Contract-SP 供候选列"，最终解由 `sp_solve_ip`（r2_prime+contract）统一选出。算法不决策。
 2. **独立性是来源隔离**：引擎之间不允许隐式共享运行产物（日历/列/对偶/incumbent）；共享的是公共数学工具、估计器与原始数据。
 3. **双尺子**：元启发式量 km 画像；bp 量证书画像（gap/证完率）。不同类别不同尺。
-4. **确定性红线**：搜索期零求解器调用（seeded RNG）；终局精排只接受 PROVEN OPTIMAL 的重排。
+4. **确定性红线**（元启发式引擎：r2_alns/v3/v4）：搜索期零求解器调用（seeded RNG）；终局精排只接受 PROVEN OPTIMAL 的重排。例外：bp 的树内 CP-SAT 定价、矩阵 runner 的终局重排是算法/协议内禀行为，受状态字段诚实记录约束而非此红线。
 5. **诚实口径**：km 分 raw/rounded、pool/recomputed；状态三档 PROVEN_OPTIMAL / BOUND_HEURISTIC / TIME_LIMIT；三闸（count/capacity/contract）由调用方独立复验。
+
+> **覆盖注记**：旧代基线与杂项算法（`algos/impl.py`：baseline / nn2opt / greedy_crossday / cpsat_route / alns / ensemble_sp）未单独立档——研究矩阵不使用，接手时以文件头注与 `ALGORITHM_GUIDE.md` 附录 C 的历史口径警示为准。
 
 ## 引用论文总表（按主题）
 
@@ -45,12 +47,9 @@
 - Paradiso, R. et al. (2020). Operations Research 68(1).（精确定价能力边界，[ESF]）
 
 ### 周期性 VRP 与一致性
-- Christofides, N., Beasley, J. E. (1981). *The periodic routing problem*. Networks 11(2).
 - Cordeau, J.-F., Gendreau, M., Laporte, G. (1997). *A tabu search heuristic for periodic and multi-depot vehicle routing problems*. Networks 30(2).
-- Rothenbächer, A. K., Drexl, M., Irnich, S. (2019). *Branch-and-price-and-cut for the periodic vehicle routing problem with flexible schedule structures*. Transportation Science 53(5).
-- Groër, C., Golden, B., Wasil, E. (2009). *The consistent vehicle routing problem*. Transportation Science.
-
-### 元启发式
+- Christofides, N., Beasley, J. E. (1981). *The periodic routing problem*. Networks 11.
+- Groër, C., Golden, B., Wasil, E. (2009). *The consistent vehicle routing problem*. Manufacturing & Service Operations Management 11(4).
 - Ropke, S., Pisinger, D. (2006). *An adaptive large neighborhood search heuristic for the pickup and delivery problem with time windows*. Transportation Science 40(4):455–472.
 - Pisinger, D., Ropke, S. (2010). *A general heuristic for vehicle routing problems*. Computers & Operations Research 37(3):516–534.
 - Shaw, P. (1998). *Using constraint programming and local search methods to solve vehicle routing problems*. CP'98, LNCS 1520.

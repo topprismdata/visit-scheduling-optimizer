@@ -12,7 +12,7 @@
 rc(r@d) = km(r) − Σ_{c∈r}(μ_c) − π_d      （合同模式：μ_c 已含合同覆盖影子价；R2′ z 绑定不进定价）
 ```
 
-- `price_columns`：top-m 对偶引导贪心插入产列（启发式定价）；批量 ≤60 列/轮。
+- `price_columns`：对偶引导贪心插入产列（启发式定价，[ESF] §7.1 批量定价 + 支配剪枝）。参数：每日期候选 `candidates_per_date=24`、对偶截断 `top_m=40`、定价内部迭代 `col_iter=60`——`col_iter` 是定价器内部迭代数，不是每轮回灌列数。
 - 能力边界（SCIP heuristic/exact pricer 口径）：启发式定价下 CG 收敛只意味着"当前定价器找不到负列"，**不是**"不存在更好的列"——`is_global_certified` 恒 False。
 
 ## 输入 / 输出

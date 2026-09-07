@@ -54,5 +54,5 @@ SP+CG（上一节）收敛后只解决"当前池里选最优"；bp 在**分支�
 
 ## 相关文件与测试
 
-- `algos/branch_and_price.py`（820 行）；`tests/test_branch_and_price.py`（PROVEN 路径、pool-IP 不变量、合同/走廊有效性、热启动字段）
+- `algos/branch_and_price.py`（823 行）；`tests/test_branch_and_price.py`（PROVEN 路径、pool-IP 不变量、合同/走廊有效性、热启动字段）
 - 实验接线：`experiments/run_contract_matrix.py` bp 模式（`initial_days`+`initial_pool`）
