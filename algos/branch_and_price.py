@@ -8,15 +8,19 @@ x 积分性蕴含（店-日指派分支，customer–date assignment branching�
 有效下界 (node_valid_lb); 启发式定价停住时的值只是受限主问题 LP 值 (rmp_lp_value),
 不得用于剪枝或证书 (2026-09-07 评审修正).
 
-主问题 (节点, 合同模式, 对偶语义同 visitmodel.sp.formulation.sp_solve_lp):
+主问题 (节点, v2 链接形态: 固定 (店,日期) 行空间, 对偶语义同
+visitmodel.sp.formulation.sp_solve_lp_v2):
     min Σ c_r x_r
-    s.t. Σ_{r∈R_d} x_r = 1                ∀d            (对偶 π_d)
-         Σ_w z_cw = 1                      ∀c
-         Σ_{r∋c} x_r = Σ_w f_cw·z_cw       ∀c            (对偶 μ_c)
-         Σ_{r∈R_d∋c} x_r = 1               ∀(c,d)∈forced (对偶 λ_cd)
-         x_r ≤ z_{c,w(d)}                  ∀r∋c
-         x ∈ [0,1], z ∈ [0,1]
-z 只是覆盖 RHS 线性化装置 (合同模式, 与 formulation 同款), 不参与分支.
+    s.t. Σ_{r∈R_d} x_r = 1                 ∀d            (对偶 π_d)
+         y_cd − Σ_{r∈R_d∋c} x_r = 0        ∀(c,d)        (对偶 β_cd, 链接行)
+         y_cd ≤ z_{c,wd(d)}                 ∀(c,d)        (星期几绑定)
+         Σ_d y_cd = Σ_w f_cw·z_cw           ∀c            (合同频次, 经 y 计数)
+         Σ_w z_cw = 1                        ∀c            (R2′ 唯一星期几)
+         forced: y_cd ∈ [1,1]; forbidden: y_cd ∈ [0,0]; 非法 (c,d): UB=0
+z 只定义于正频次星期域 W⁺ (f_cw > 0), 不参与分支; 合法域由 y 上界内生化,
+不再依赖逐列 x ≤ z 绑定行 → 行空间固定, 回归标准 fixed-row CG。
+
+定价 (代数闭环): rc(r@d) = km(r) − π_d + Σ_{c∈r} β_cd, 即 reward_cd = −β_cd。
 
 分支规则: y_cd = Σ_{r∈R_d∋c} x_r ∈ (0,1) 分数 → forced(c,d)=1 | forbidden(c,d)=0.
 分数 x 必给出分数 y (列含 ≥2 店); y 全整 ⇒ x 全整 → incumbent. 分支变量
@@ -91,6 +95,8 @@ class BranchAndPrice:
         self.wd_groups = weekday_dates(self.dates)
         self.legal = legal_date_map(contracts, self.dates)   # {c: set(date)}
         self.fw = _fw_table(contracts, self.wd_groups)       # {c: {w: f}}
+        self.w_plus = {c: sorted(w for w, f in self.fw[c].items() if f > 0)
+                       for c in self.k_c}            # 正频次星期域 (v2)
         self.pool = []            # [(date, route, km_internal)] 树内共享, 节点按分支过滤
         self.pool_keys = set()
         self.incumbent = None     # (km_internal, {date: route})
@@ -341,10 +347,12 @@ class BranchAndPrice:
                     self.incumbent = (km_total, routes)
 
         # Pseudo-dual perturbations add route-level diversity that swaps may miss.
+        # v2 链接对偶语义: 扰动撒在 (店,日期) 链接对偶 β 上 (合法域内).
         for _round in range(2):
-            u = {c: rng.uniform(0.0, 2.0) for c in self.k_c}
-            duals = {"store": u, "date": {dd: 0.0 for dd in self.dates},
-                     "forced": {}}
+            pert = {(c, dd): rng.uniform(0.5, 2.0)
+                    for c in self.k_c for dd in self.dates
+                    if dd in self.legal.get(c, ()) and rng.random() < 0.3}
+            duals = {"date": {dd: 0.0 for dd in self.dates}, "link": pert}
             cols = self._price_heuristic(_BPNode(), duals)
             by_date = {}
             for r in cols:
@@ -353,45 +361,51 @@ class BranchAndPrice:
                 self.warm_start_columns += self.add_columns(lst[:2])
         self.initial_pool_count = len(self.pool)
 
-    # ---------------- 节点 LP (GLOP, 对偶语义同 formulation.sp_solve_lp) ----------------
+    # ---------------- 节点 LP (GLOP, v2 链接形态, 对偶语义同 formulation.sp_solve_lp_v2) ----------------
     def _solve_node_lp(self, node: _BPNode):
+        """v2 链接形态节点 LP: 固定 (店,日期) 行空间; forced/forbidden 由 y 界承担."""
         from ortools.linear_solver import pywraplp
         pool = self._node_pool(node)
         solver = pywraplp.Solver.CreateSolver("GLOP")
         if solver is None:
             return None
         x = {i: solver.NumVar(0, 1, f"x{i}") for i in range(len(pool))}
-        by_date = {}
-        for i, (dd, _, _) in enumerate(pool):
-            by_date.setdefault(dd, []).append(i)
+        y = {}
+        for c in self.k_c:
+            for dd in self.dates:
+                lb, ub = 0, 1
+                if dd not in self.legal.get(c, ()):
+                    ub = 0                      # 合同非法日期: 合法域内生化
+                if (c, dd) in node.forced:
+                    lb, ub = 1, 1               # 分支 forced → y 界
+                elif (c, dd) in node.forbidden:
+                    ub = 0                      # 分支 forbidden → y 界
+                y[(c, dd)] = solver.NumVar(lb, ub, f"y_{c}_{dd}")
+        z = {c: {w: solver.NumVar(0, 1, f"z_{c}_{w}")
+                 for w in self.w_plus[c]} for c in self.k_c}
         cons_date = {}
         for dd in self.dates:
-            if not by_date.get(dd):
-                return None                      # 该日期零合法列 (受限池) — 启发式剪枝
-            cons_date[dd] = solver.Add(sum(x[i] for i in by_date[dd]) == 1)
-        z, cons_store = {}, {}
-        for c in self.k_c:
-            cols_c = [i for i, (_, route, _) in enumerate(pool) if c in route]
-            if not cols_c:
-                return None                      # 该店零合法列 (受限池) — 启发式剪枝
-            ws = [w for w in self.wd_groups if self.fw[c].get(w, 0) > 0]
-            if not ws:
-                return None                      # 全星期几无合同槽位 = 店不可服务
-            # z 只开放有槽位的星期几: 防 f=0 隐藏整店 (check_contract 会判空集违例)
-            z[c] = {w: solver.NumVar(0, 1, f"z_{c}_{w}") for w in ws}
-            solver.Add(sum(z[c].values()) == 1)
-            cons_store[c] = solver.Add(
-                sum(x[i] for i in cols_c) == sum(self.fw[c][w] * z[c][w] for w in ws))
-        cons_forced = {}
-        for (c, dd) in node.forced:
-            cols = [i for i, (d2, route, _) in enumerate(pool) if d2 == dd and c in route]
+            cols = [i for i, (d2, _, _) in enumerate(pool) if d2 == dd]
             if not cols:
-                return None
-            cons_forced[(c, dd)] = solver.Add(sum(x[i] for i in cols) == 1)
+                return None                      # 该日期零候选列 (受限池) — 启发式剪枝
+            cons_date[dd] = solver.Add(sum(x[i] for i in cols) == 1)
+        cons_link = {}
+        members = {}
         for i, (dd, route, _) in enumerate(pool):
-            w = _wd(dd)
             for c in set(route):
-                solver.Add(x[i] - z[c][w] <= 0)
+                members.setdefault((c, dd), []).append(i)
+        for c in self.k_c:
+            for dd in self.dates:
+                cons_link[(c, dd)] = solver.Add(
+                    y[(c, dd)] - sum(x[i] for i in members.get((c, dd), [])) == 0)
+        for c in self.k_c:
+            for dd in self.dates:
+                w = _wd(dd)
+                if w in z[c]:
+                    solver.Add(y[(c, dd)] <= z[c][w])
+            solver.Add(sum(y[(c, dd)] for dd in self.dates)
+                       == sum(self.fw[c][w] * z[c][w] for w in self.w_plus[c]))
+            solver.Add(sum(z[c].values()) == 1)
         solver.Minimize(sum(pool[i][2] * x[i] for i in x))
         solver.SetTimeLimit(30_000)
         st = solver.Solve()
@@ -399,24 +413,21 @@ class BranchAndPrice:
             self.lp_nonoptimal_nodes += 1
         if st not in (pywraplp.Solver.OPTIMAL, pywraplp.Solver.FEASIBLE):
             return None
-        duals = {
-            "date": {dd: cons_date[dd].DualValue() for dd in self.dates},
-            "store": {c: cons_store[c].DualValue() for c in self.k_c},
-            "forced": {k: cons.DualValue() for k, cons in cons_forced.items()},
-        }
+        duals = {"date": {dd: cons_date[dd].DualValue() for dd in self.dates},
+                 "link": {k: cons_link[k].DualValue() for k in cons_link}}
         return {"obj": solver.Objective().Value(),
                 "x": {i: x[i].SolutionValue() for i in x},
                 "pool": pool, "duals": duals}
 
     # ---------------- 定价: 启发式 ----------------
     def _price_heuristic(self, node: _BPNode, duals):
-        u0, wd_dual, lam = duals["store"], duals["date"], duals["forced"]
+        link_dual, wd_dual = duals["link"], duals["date"]
         forced_by_date = {}
         for (c, dd) in node.forced:
             forced_by_date.setdefault(dd, []).append(c)
         out = []                                  # (rc, dd, route, km)
         for dd in self.dates:
-            u = {c: u0.get(c, 0.0) + lam.get((c, dd), 0.0) for c in self.k_c}
+            u = {c: -link_dual.get((c, dd), 0.0) for c in self.k_c}
             order = [c for c in self.k_c
                      if dd in self.legal.get(c, ()) and (c, dd) not in node.forbidden]
             order.sort(key=lambda c: -u[c])
@@ -472,7 +483,7 @@ class BranchAndPrice:
     # ---------------- 定价: CP-SAT 精确兜底 ----------------
     def _price_exact(self, node: _BPNode, duals):
         from ortools.sat.python import cp_model
-        u0, wd_dual, lam = duals["store"], duals["date"], duals["forced"]
+        link_dual, wd_dual = duals["link"], duals["date"]
         forced_by_date = {}
         for (c, dd) in node.forced:
             forced_by_date.setdefault(dd, []).append(c)
@@ -484,7 +495,7 @@ class BranchAndPrice:
                 self._exact_all_proven = False    # 预算内未证完 → 诚实降级
                 break
             wdd = wd_dual.get(dd, 0.0)
-            u = {c: u0.get(c, 0.0) + lam.get((c, dd), 0.0) for c in self.k_c}
+            u = {c: -link_dual.get((c, dd), 0.0) for c in self.k_c}
             eligible = [c for c in self.k_c
                         if dd in self.legal.get(c, ()) and (c, dd) not in node.forbidden]
             eligible.sort(key=lambda c: -u[c])
