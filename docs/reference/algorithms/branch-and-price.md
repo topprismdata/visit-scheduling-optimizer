@@ -4,14 +4,15 @@
 
 ## 它解决什么
 
-SP+CG（上一节）收敛后只解决"当前池里选最优"；bp 在**分支树上**搜索：每个树节点用列生成求解 LP 松弛，分数解按 Ryan-Foster 规则分支，直到树耗尽——理论上可签发**全局最优证书**。它与其他引擎不同类：价值在**界与证书**，不在 km 改写。
+SP+CG（上一节）收敛后只解决"当前池里选最优"；bp 在**分支树上**搜索：每个树节点用列生成（CG）求解 LP 松弛，分数解按**店-日指派分支**（customer–date assignment branching，本项目定制规则——注意这不是经典 Ryan–Foster 的"同路线/不同路线"配对分支）决定 forced/forbidden，直到树耗尽——理论上可签发**全局最优证书**。它与其他引擎不同类：价值在**界与证书**，不在 km 改写。
 
 > 详细设计（数学模型/状态语义/工程不变量/同等预算终账）：`docs/design/BRANCH_AND_PRICE_DESIGN.md`——本文只给接手者速览。
 
 ## 数学模型
 
-- 主问题（节点级）：min Σ c_r x_r，s.t. 日期覆盖（对偶 π_d）、Σ_w z_cw=1、合同覆盖 = Σ f·z（对偶 μ_c）、forced 行 Σ_{r∈R_d∋c} x_r = 1（对偶 λ_cd）、x ≤ z 绑定。节点求解用线性规划（LP，Linear Programming）松弛，其最优值是子树的真下界。
-- **分支变量 y_cd = Σ_{r∈R_d∋c} x_r ∈ (0,1)** → forced(c,d)=1 | forbidden(c,d)=0。分数 x 必给出分数 y；y 全整 ⇒ x 全整 → incumbent（当前最好解）。z 的整分性由 x≤z 绑定蕴含，不分支。
+- 主问题（节点级）：min Σ c_r x_r，s.t. 日期覆盖（对偶 π_d）、Σ_w z_cw=1、合同覆盖 = Σ f·z（对偶 μ_c）、forced 行 Σ_{r∈R_d∋c} x_r = 1（对偶 λ_cd）、x ≤ z 绑定。节点求解用线性规划（LP，Linear Programming）松弛。
+- **下界语义（2026-09-07 评审修正，重要）**：只有该节点经精确定价**证明不存在负 rc 列**后，该 LP 值才是此子树的有效下界（`node_valid_lb`）；启发式定价停住时的值只是 `rmp_lp_value`——受限列空间的 LP 最优，**不保证不高于完整主问题 LP，不得用于剪枝或证书**。
+- **分支变量**：店-日指派 y_cd = Σ_{r∈R_d∋c} x_r ∈ (0,1) → forced(c,d)=1 | forbidden(c,d)=0。分数 x 必给出分数 y；y 全整 ⇒ x 全整 → incumbent（当前最好解）。z 的整分性由 x≤z 绑定蕴含，不分支。
 
 ## 定价三路（oracle = 框架的命门）
 
@@ -44,7 +45,7 @@ SP+CG（上一节）收敛后只解决"当前池里选最优"；bp 在**分支�
 ## 引用论文
 
 - Barnhart et al. (1998)：B&P 框架奠基本文。
-- Ryan & Foster (1981)：集合划分分支规则（y_cd 的出处）。
+- Ryan & Foster (1981)：经典配对分支规则（together/separate）出处——**本项目 y_cd 是店-日指派分支，非 Ryan–Foster**，引用仅作分支定价分支技术的谱系参照。
 - Lübbecke & Desrosiers (2005)：列生成综述。
 - Feillet et al. (2004)：ESPPRC（精确定价 oracle 的目标形态）。
 - Paradiso et al. (2020)（[ESF]）：精确定价能力边界。
@@ -53,5 +54,3 @@ SP+CG（上一节）收敛后只解决"当前池里选最优"；bp 在**分支�
 - `algos/branch_and_price.py`（823 行）；`tests/test_branch_and_price.py`（PROVEN 路径、pool-IP 不变量、合同/走廊有效性、热启动字段）
 - 概念前置：列生成技术见 [../concepts/column-generation.md](../concepts/column-generation.md)；SP 终闸见 [../concepts/set-partitioning-final-gate.md](../concepts/set-partitioning-final-gate.md)
 
-- `algos/branch_and_price.py`（823 行）；`tests/test_branch_and_price.py`（PROVEN 路径、pool-IP 不变量、合同/走廊有效性、热启动字段）
-- 实验接线：`experiments/run_contract_matrix.py` bp 模式（`initial_days`+`initial_pool`）

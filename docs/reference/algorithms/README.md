@@ -21,9 +21,8 @@
 | [alns-v3.md](alns-v3.md) | ALNS v3（反馈耦合自适应大邻域搜索） | 元启发式 | 日历+顺序 |
 | [hgs-pvrp.md](hgs-pvrp.md) | HGS-PVRP（混合遗传搜索） | 元启发式（种群） | 日历+顺序 |
 | [sp-cg.md](sp-cg.md) | 列生成算法行（对偶驱动供列） | 线性规划（LP）框架 | 组合层 |
-| [branch-and-price.md](branch-and-price.md) | 分支定价（Branch-and-Price） | 精确框架（未完成态） | 组合层 |
+| [alns-v4-pareto.md](alns-v4-pareto.md) | ALNS v4（稳定性权衡精修器；⚠ 双周相位缺陷修复排期中） | 元启发式（增量重优化） | 微调层 |
 | [sdr-exact.md](sdr-exact.md) | SDR Exact（多起点采样+集合划分+线性规划下界） | 构造式+线性规划（LP） | 组合层（旧代） |
-| [alns-v4-pareto.md](alns-v4-pareto.md) | ALNS v4（稳定化/帕累托精修器） | 元启发式（增量重优化） | 微调层 |
 | [tsp-heuristics.md](tsp-heuristics.md) | 最近邻（NN）+2-opt、多起点采样 | 启发式 | 顺序层 |
 | [tsp-cpsat.md](tsp-cpsat.md) | CP-SAT 开链精确旅行商（TSP） | 精确（约束规划） | 顺序层 |
 | [tsp-lkh3.md](tsp-lkh3.md) | LKH-3 开放路径 | 启发式（大规模） | 顺序层 |

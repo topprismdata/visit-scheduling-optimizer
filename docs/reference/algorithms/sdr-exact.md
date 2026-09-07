@@ -9,7 +9,7 @@
 ```
 阶段1 _gen_pool: 原计划 + NN2opt + 多起点随机 NN2opt + 2opt 扰动 → RoutePool(每日期 ≥K 条)
 阶段2 _sp_solve: CP-SAT SP（每日期选 1 条；每店覆盖 = freq；无合同/R2′ 闸）
-阶段3 _lp_lb:    GLOP 线性规划（LP，Linear Programming）松弛 → 下界（LB）→ gap
+阶段3 _lp_lb:    GLOP 线性规划（LP）松弛 → **池 LP 值 → 池内 gap（pool_gap_pct）**——不是全局下界（LB 术语收口，2026-09-07）
 ```
 
 ## 为什么降级（v3 协议裁定）
