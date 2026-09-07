@@ -11,7 +11,7 @@
 | 维度 | SPMatheuristic（restrict-and-price） | BranchAndPrice（本模块） |
 |---|---|---|
 | LP 角色 | 一次性 RMP 下界 + 对偶来源 | **每个分支节点**的子树下界 |
-| 分支 | 无 | y_cd（店-日指派）二分，Ryan-Foster 式 |
+| 分支 | 无 | y_cd（店-日指派）二分，本项目定制规则（非经典 Ryan–Foster 配对分支，见 §3 勘误） |
 | 列生成 | 根部一次 | 每节点收敛一次 |
 | 收敛语义 | "当前定价器找不到更好的列"（启发式） | 全树耗尽，且每个节点 LP 为 OPTIMAL、列生成未截断/停滞、完整候选集精确定价逐日 OPTIMAL → **PROVEN_OPTIMAL** |
 | 解 | 池上 IP（CP-SAT 证书） | 整分节点抽取 + LP 下潜 + 原计划保底 |
