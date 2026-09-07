@@ -181,4 +181,4 @@ $$\mathcal{R}_t = \{ r \subseteq N : K_{\min} \le |r| \le K_{\max},\ c_r = \text
 2. **周期语义实验口径**：在 `allow_weekday_move` 开关下量化"跨星期几移动"的额外里程收益与间隔均布性代价，单独成文，不与主线混合。
 3. **工时口径走廊**：接入服务时长标定后，把 §3.3 的店数代理升级为工时硬校验。
 4. **矩阵版本戳**：坐标 hash + 路网版本写入 sidecar；路线池按版本失效重计价。
-5. **B&P 与完整定价评估（2026-09-06 已完成首轮）**：同等预算（4 seed × 360K 迭代）下 `bp+cpsat` 与 `r2_alns+cpsat` 10 线逐线相等（合计 −13.03%，`beats_baseline` 9/10）；真实线路 `bp_nodes=0`（根 LP 即达暖启动值），`PROVEN_OPTIMAL` 仅微型实例可签——扩大生产适用范围的先决条件是 ESPPRC 级精确定价，继续留在路线图。终账见 `docs/design/BRANCH_AND_PRICE_DESIGN.md` §7。
+5. **B&P 与完整定价评估（2026-09-06 已完成首轮）**：同等预算（4 seed × 360K 迭代）下 `bp+cpsat` 与 `r2_alns+cpsat` 10 线逐线相等（合计 −13.03%，`beats_baseline` 9/10）；真实线路 `bp_nodes=0`（根 LP 即达暖启动值），`PROVEN_OPTIMAL` 仅微型实例可签——扩大生产适用范围的先决条件是 ESPPRC 级精确定价，继续留在路线图。终账见 `docs/design/BRANCH_AND_PRICE_DESIGN_v1.0.1.md` §7。

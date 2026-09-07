@@ -2,7 +2,7 @@
 
 > **用途**：新接手项目的工程师/AI 从这里进入。每个在用算法一份说明文档：定位、输入输出、机制、复杂度、已知陷阱、引用论文。
 > **阅读顺序建议**：先读 [概念文档](../concepts/)（集合划分 / 列生成 / R2′ 契约），再读本文，最后按接手模块挑算法文档。
-> **协议背景**：算法研究对比协议见 `docs/design/MATRIX_PROTOCOL_V3_DESIGN.md`（v0.3）；生产选型快筛见 `contract_matrix_cell/v2`。
+> **协议背景**：算法研究对比协议见 `docs/design/MATRIX_PROTOCOL_V3_DESIGN_v0.3.md`（v0.3）；生产选型快筛见 `contract_matrix_cell/v2`。
 
 ## 概念文档（横切知识，所有算法文档都引用，先读）
 

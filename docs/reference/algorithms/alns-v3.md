@@ -1,51 +1,419 @@
-# ALNS v3（反馈耦合自适应大邻域搜索）
+# ALNS v3：反馈耦合自适应大邻域搜索候选日历生成器
 
-> 类别：元启发式——自适应大邻域搜索（ALNS，Adaptive Large Neighborhood Search）族 | 实现：`algos/alns_v3.py` | 矩阵身份：独立机制行（实测 ≈ 基线，作对照与多样性保留）
+> 类别：元启发式候选生成器（Algorithm Layer）  
+> 实现：`algos/alns_v3.py`  
+> 机制定位：Layer1 候选日历生产者  
+> 输出：供 Contract-SP 终闸选择的候选计划
 
-## 它解决什么
+------------------------------------------------------------------------
 
-与 R2 同岗位的 Layer1 候选日历生产者，但走**通用 ALNS 路线**：destroy–repair 多算子 + 自适应权重 + 模拟退火分段降温，同时**携带每日 tour**（"把 TSP 当眼睛"：增量 2-opt、tour-informed destroy、regret 插入），而不是每次候选用 TSP 重新当秤（那是 v1，已淘汰）。
+# 0. 30 秒理解
 
-## 输入 / 输出
+ALNS v3 解决的问题：
 
-- 输入：`LineData`、`D`、`time_budget`、`seed`、`weekday_lock`（仅同星期几槽位互挪的旧口径开关）。
-- 输出：`AlgoResult(days=每日完整有序路线, km, capacity_ok, metadata{iters})`。
+> 在合同约束之外，探索不同的跨日拜访日历组合，并生成高质量候选方案。
 
-## 机制
+它不是最终决策器。
 
+系统中的位置：
+
+``` mermaid
+flowchart LR
+    IR["VisitIR Contract"]
+    ALNS["ALNS v3"]
+    Pool["Column / Calendar Pool"]
+    SP["Contract-SP Final Gate"]
+    OUT["Final Calendar"]
+
+    IR --> ALNS
+    ALNS --> Pool
+    Pool --> SP
+    SP --> OUT
 ```
-暖身：每日 nn2opt + ≤30 轮贪心跨日（双向走廊约束；12% 预算）
-温度：以平均边长为基的分段降温 T0→T1→T2→T3（Kirkpatrick 式模拟退火，SA：Simulated Annealing）
-  算子池 ['worst', 'cross', 'segment', 'random']
-    worst:    移除"最差边"关联店（Shaw 式 related removal 变体）
-    cross:    跨日移动
-    segment:  段迁移
-    random:   随机移除
-  repair = best_insert（regret/最佳插入）
-  权重自适应：成功 +score，失败权重衰减 ≥0.2
-终局：对 best 逐日 two_opt(30 轮) 收尾
+
+核心原则：
+
+> ALNS 负责探索；Contract-SP 负责最终组合和合法性证明。
+
+------------------------------------------------------------------------
+
+# 1. 它解决什么问题
+
+ALNS v3 是 Layer1 候选日历生产者。
+
+它采用：
+
+- destroy-repair 搜索；
+- 自适应算子权重；
+- 模拟退火接受机制；
+- tour-aware 搜索。
+
+与早期方式不同：
+
+> TSP 不作为每轮搜索的裁判，而作为局部搜索信息来源。
+
+也就是：
+
+    搜索负责发现结构
+
+    TSP负责提供路线信息
+
+------------------------------------------------------------------------
+
+# 2. 与其他算法的位置
+
+``` mermaid
+flowchart TB
+
+    Producers["Candidate Producers"]
+
+    R2["R2′-ALNS"]
+    A3["ALNS v3"]
+    HGS["HGS-PVRP"]
+
+    Pool["Candidate Pool"]
+
+    SP["Contract-SP"]
+
+    R2 --> Pool
+    A3 --> Pool
+    HGS --> Pool
+
+    Pool --> SP
 ```
 
-- 纯几何件（`two_opt / best_insert / worst_edge`）已下沉 `opticore.heuristics`，本模块 re-export 兼容。
+三者目标相同：
 
-## 复杂度与预算
+生成候选。
 
-- 墙钟驱动（time_budget，秒），非显式迭代预算——**与 R2 的预算协议不同**，研究矩阵中按"机制剖面"记录自身 iters。
-- 无显式合同枚举：`weekday_lock=False` 时移动可能产生合同/R2′ 违例 → 靠下游过滤，这是它在干净对照中 ≈ 基线的机制解释。
+但机制不同：
 
-## 已知边界与陷阱
+| 算法     | 特点                |
+|----------|---------------------|
+| R2′-ALNS | 合同星期一致搜索    |
+| ALNS v3  | 通用 destroy-repair |
+| HGS-PVRP | 群体搜索            |
 
-1. 产出不保证 R2′/合同合法——必须过 Contract-SP 终闸 + `check_contract`；v3 矩阵口径下"合法质量"以终闸结果为准。
-2. 8-worker CP-SAT 等求解器不可进搜索期（确定性红线）。
-3. 与 hgs_pvrp 共享 SA 骨架与算子件，属同族机制（对照实验中用于归因"为什么同族 ≈ 基线"）。
+------------------------------------------------------------------------
 
-## 引用论文
+# 3. 输入输出
 
-- Ropke & Pisinger (2006)：ALNS 原始框架。
-- Shaw (1998)：related removal（worst 算子思想）。
-- Pisinger & Ropke (2010)：ALNS 统一框架与 PVRP 应用。
-- Kirkpatrick et al. (1983)：SA 接受准则与分段降温。
+## 输入
 
-## 相关文件与测试
+- `LineData`
+- 日期集合 `D`
+- `time_budget`
+- `seed`
+- `weekday_lock`
 
-- `algos/alns_v3.py`；`OptiCore/src/opticore/heuristics.py`（two_opt/best_insert/worst_edge 真身）
+其中：
+
+`weekday_lock`
+
+只是旧口径兼容开关。
+
+它不是完整 R2′ 契约。
+
+------------------------------------------------------------------------
+
+## 输出
+
+:
+
+    AlgoResult
+    (
+     days,
+     km,
+     capacity_ok,
+     metadata
+    )
+
+包含：
+
+- 每日完整有序路线；
+- 总距离；
+- 容量状态；
+- 迭代信息。
+
+------------------------------------------------------------------------
+
+# 4. 核心机制
+
+## 4.1 初始化
+
+暖身：
+
+    daily nn2opt
+
+    +
+
+    ≤30轮跨日贪心调整
+
+预算：
+
+    12%
+
+------------------------------------------------------------------------
+
+## 4.2 Destroy 算子池
+
+当前：
+
+    worst
+    cross
+    segment
+    random
+
+------------------------------------------------------------------------
+
+### worst
+
+移除：
+
+> 当前代价贡献最大的相关门店。
+
+思想来源：
+
+Shaw related removal。
+
+------------------------------------------------------------------------
+
+### cross
+
+跨日期移动。
+
+探索：
+
+    Day A
+        ↓
+    Day B
+
+------------------------------------------------------------------------
+
+### segment
+
+连续片段迁移。
+
+用于保持局部结构。
+
+------------------------------------------------------------------------
+
+### random
+
+随机破坏。
+
+保持搜索多样性。
+
+------------------------------------------------------------------------
+
+# 5. Repair
+
+采用：
+
+    best_insert
+
+寻找：
+
+> 插入代价最低的位置。
+
+属于经典 ALNS repair 思路。
+
+------------------------------------------------------------------------
+
+# 6. 自适应权重与模拟退火
+
+ALNS v3 使用：
+
+## 算子权重
+
+成功：
+
+    +score
+
+失败：
+
+    衰减
+
+最低：
+
+    ≥0.2
+
+------------------------------------------------------------------------
+
+## SA 接受
+
+温度：
+
+    T0 → T1 → T2 → T3
+
+根据平均边长初始化。
+
+目的：
+
+避免：
+
+    早熟收敛
+
+------------------------------------------------------------------------
+
+# 7. TSP 在 ALNS 中的角色
+
+这是 ALNS v3 与旧版本的重要区别。
+
+旧方式：
+
+    每次候选
+        ↓
+    TSP重新排序
+        ↓
+    评价
+
+问题：
+
+搜索成本高。
+
+当前：
+
+    维护 tour
+
+    +
+    增量 two_opt
+
+    +
+    tour-informed destroy
+
+因此：
+
+TSP 是：
+
+> 搜索的眼睛。
+
+不是：
+
+> 每次搜索的裁判。
+
+------------------------------------------------------------------------
+
+# 8. 终局优化
+
+best solution:
+
+执行：
+
+    daily two_opt
+
+    30轮
+
+作为最终 route polish。
+
+------------------------------------------------------------------------
+
+# 9. 复杂度与预算
+
+当前：
+
+    time_budget 驱动
+
+不是固定 iteration。
+
+因此：
+
+不同运行记录：
+
+    mechanism profile
+
+    +
+    iters
+
+而不是直接比较 iteration 数。
+
+------------------------------------------------------------------------
+
+# 10. 重要边界
+
+## 10.1 ALNS 不保证合同合法
+
+ALNS v3 可能产生：
+
+- 合同违例；
+- R2′违例。
+
+正确流程：
+
+    ALNS
+
+    ↓
+
+    Contract-SP
+
+    ↓
+
+    check_contract
+
+------------------------------------------------------------------------
+
+## 10.2 搜索期禁止不可确定组件
+
+例如：
+
+    多 worker CP-SAT
+
+可能破坏：
+
+- 可复现性；
+- 归因实验。
+
+------------------------------------------------------------------------
+
+## 10.3 与 HGS 的关系
+
+二者共享：
+
+- SA 骨架；
+- 算子组件。
+
+属于同族机制。
+
+实验中：
+
+需要避免把共享组件收益错误归因给单一算法。
+
+------------------------------------------------------------------------
+
+# 11. 评价 ALNS v3 的正确方式
+
+不是问：
+
+> ALNS 是否直接输出最终计划？
+
+而是：
+
+> ALNS 是否能提供有价值、多样化、可被 Contract-SP 利用的候选空间？
+
+指标：
+
+- candidate quality；
+- diversity；
+- pool contribution；
+- final SP improvement。
+
+------------------------------------------------------------------------
+
+# References
+
+- Ropke & Pisinger (2006), An Adaptive Large Neighborhood Search
+  Heuristic for the Pickup and Delivery Problem
+- Shaw (1998), Using Constraint Programming and Local Search Methods to
+  Solve Vehicle Routing Problems
+- Pisinger & Ropke (2010), Large Neighborhood Search
+- Kirkpatrick et al. (1983), Optimization by Simulated Annealing
+
+------------------------------------------------------------------------
+
+# Related Files
+
+- `algos/alns_v3.py`
+- `OptiCore/src/opticore/heuristics.py`
+- `Contract-SP Final Gate`
+- `Column Generation`
+- `TSP-CP-SAT`

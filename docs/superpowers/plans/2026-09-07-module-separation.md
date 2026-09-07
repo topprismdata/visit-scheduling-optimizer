@@ -4,7 +4,7 @@
 
 **Goal:** 把 VisitIR / VisitModel / OptiCore 三模块从母仓彻底剥离收口（删 shim、估计器下沉、legacy 清场、版本钉住），同批落地四项母仓快赢（reroute 剪枝 / 审计字段 / 预算强制 / B&P 根节点降级观测）。
 
-**Architecture:** 母仓只留编排与组合算法；通用估计器下沉 OptiCore 新模块 `estimators`；语义核心经 `visit_ir.contract` 直连（无 shim）；三仓 tag + `requirements-lock.txt` 钉住；测试套件恢复全绿合并闸。设计全文见 `docs/design/MODULE_SEPARATION_DESIGN.md`。
+**Architecture:** 母仓只留编排与组合算法；通用估计器下沉 OptiCore 新模块 `estimators`；语义核心经 `visit_ir.contract` 直连（无 shim）；三仓 tag + `requirements-lock.txt` 钉住；测试套件恢复全绿合并闸。设计全文见 `docs/design/MODULE_SEPARATION_DESIGN_v0.1.md`。
 
 **Tech Stack:** Python 3.10 · numpy · ortools（GLOP/CP-SAT）· pytest · 四个本地 git 仓（母仓 + `/Users/ghb/{VisitIR,VisitModel,OptiCore}`）
 
@@ -780,7 +780,7 @@ git commit -m "fix(bp): degrade-not-drop unconverged root CG, record observabili
 ### Task 11: 终验与文档收口
 
 **Files:**
-- Modify: `docs/design/MODULE_SEPARATION_DESIGN.md`（状态 草稿→已定稿）、`docs/design/SYSTEM_DESIGN_DOC.md` §9（补一句"三仓锁定见 requirements-lock"）
+- Modify: `docs/design/MODULE_SEPARATION_DESIGN_v0.1.md`（状态 草稿→已定稿）、`docs/design/SYSTEM_DESIGN_DOC.md` §9（补一句"三仓锁定见 requirements-lock"）
 
 - [ ] **Step 1: 全闸验证**
 
@@ -805,7 +805,7 @@ Expected: 命令输出 `bp+nn2opt line=09 ... contract_viol=0`；jq 退出码 0�
 
 - [ ] **Step 3: 文档两处改状态 + Commit**
 
-`MODULE_SEPARATION_DESIGN.md` 首行状态改 `已定稿 · 2026-09-07`；`SYSTEM_DESIGN_DOC.md` §9 括注补 `三仓以 requirements-lock.txt 钉住（见 docs/design/MODULE_SEPARATION_DESIGN.md）`。
+`MODULE_SEPARATION_DESIGN_v0.1.md` 首行状态改 `已定稿 · 2026-09-07`；`SYSTEM_DESIGN_DOC.md` §9 括注补 `三仓以 requirements-lock.txt 钉住（见 docs/design/MODULE_SEPARATION_DESIGN_v0.1.md）`。
 
 ```bash
 git add docs/ && git commit -m "docs: finalize module separation design, link lock mechanism"

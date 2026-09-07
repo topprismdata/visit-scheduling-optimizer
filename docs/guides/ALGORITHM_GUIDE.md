@@ -660,7 +660,7 @@ $$ \min_X \; J(X) = \sum_{t} C_t(X) + \lambda \cdot \Delta(X, X^0) $$
 
 ## 附录 E：场景 → 算法选择决策表（2026-09-06 定稿）
 
-依据：同机（Apple M2）4×3 矩阵 10 线全量实测（`output/contract_matrix_4x3/`）与同等预算终账（`docs/design/BRANCH_AND_PRICE_DESIGN.md` §7）。
+依据：同机（Apple M2）4×3 矩阵 10 线全量实测（`output/contract_matrix_4x3/`）与同等预算终账（`docs/design/BRANCH_AND_PRICE_DESIGN_v1.0.1.md` §7）。
 
 | 场景 | 选择 | 关键配置 | 实测依据 |
 |---|---|---|---|

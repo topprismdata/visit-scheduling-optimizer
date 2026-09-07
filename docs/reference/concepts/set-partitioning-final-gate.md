@@ -1,54 +1,362 @@
-# 概念：集合划分与 Contract-SP 终闸（Set Partitioning & Final Gate）
+# Set Partitioning：从候选路线到最终拜访计划
 
-> 类别：横切概念——**所有算法文档都引用本页**。实现：`VisitModel/src/visitmodel/sp/formulation.py`（`sp_solve_lp` / `sp_solve_ip`）
+> Contract-SP Final Gate 的概念、由来、数学模型与系统角色
 
-## 一句话
+## 0. 核心认知
 
-集合划分（SP，Set Partitioning）是**计划期（月度）日历体系内唯一拥有决策权的终点站**：它不生产任何东西——池里有什么候选路线（列），它才能从中挑出最终拜访计划。所有日历/组合层"算法"的本质都是给 SP 供列。范围限定：顺序层 TSP 与在途插单工具在其各自范围内做局部决策，不做跨日合同决策。
+本项目中：
 
-## 数学模型
+- R2′-ALNS、ALNS、HGS-PVRP、CG Pricing 等算法负责产生候选拜访路线；
+- Set Partitioning 负责从候选路线中选择最终组合；
+- Validator 负责独立验证业务契约。
 
+核心原则：
+
+> 候选生成与最终组合决策分离。
+
+``` mermaid
+flowchart LR
+    A["Route Producers"]
+    P["Column Pool"]
+    S["Contract-SP Final Gate"]
+    O["Final Calendar"]
+
+    A --> P
+    P --> S
+    S --> O
 ```
-min  Σ_r km_r · x_r
-s.t. Σ_{r∈R_d} x_r = 1                    ∀ 工作日 d      （每个工作日恰好选一条候选路线）
-     Σ_{r∋c} x_r = Σ_w f_cw · z_cw        ∀ 店 c          （合同覆盖：每店被访次数 = 合同频次）
-     Σ_w z_cw = 1                          ∀ c            （R2′：整店唯一星期几，z 是选择器）
-     x_r ≤ z_{c, wd(r)}                    ∀ 列 r、∀ c∈r   （列绑定星期几：用了周一的列，z 才能选周一）
-     x ∈ {0,1}, z ∈ [0,1]
+
+------------------------------------------------------------------------
+
+# 1. 为什么需要 Set Partitioning
+
+销售拜访计划不是寻找一条最短路线，而是在大量候选方案中选择一个整体可行组合。
+
+需要同时满足：
+
+- 工作日安排；
+- 门店合同频次；
+- 双周 phase；
+- R2′ 星期几一致；
+- 工作量约束。
+
+因此：
+
+## 候选如何产生？
+
+由各种搜索算法完成。
+
+## 候选如何组合？
+
+由 Set Partitioning 完成。
+
+------------------------------------------------------------------------
+
+# 2. 什么是 Column
+
+Column 是一个完整候选日计划：
+
+    (date, route, cost)
+
+例如：
+
+    日期：
+    2026-09-08
+
+    路线：
+    A → F → C → H
+
+    成本：
+    13.7 km
+
+Column 有两个身份：
+
+## 集合身份
+
+决定：
+
+- 覆盖哪些门店；
+- 属于哪个日期；
+- 在数学矩阵中的系数。
+
+## 路线身份
+
+决定：
+
+- 访问顺序；
+- 距离成本。
+
+因此：
+
+> SP 不生成路线，只选择路线。
+
+------------------------------------------------------------------------
+
+# 3. Set Covering / Packing / Partitioning
+
+## Set Covering
+
+至少覆盖一次：
+
+    Ax >= 1
+
+## Set Packing
+
+最多覆盖一次：
+
+    Ax <= 1
+
+## Set Partitioning
+
+恰好覆盖：
+
+    Ax = 1
+
+车辆路径、排班等问题大量使用 route-based set partitioning。
+
+------------------------------------------------------------------------
+
+# 4. 从标准 SP 到 Contract-SP
+
+标准 SP：
+
+    对象
+     ↓
+    集合选择
+     ↓
+    恰好覆盖
+
+本项目扩展：
+
+    Standard SP
+          ↓
+    Date SP
+          ↓
+    Periodic SP
+          ↓
+    Contract-SP
+          ↓
+    R2′ Contract-SP
+
+Contract-SP 是本项目命名。
+
+从运筹优化角度：
+
+> route-based set partitioning master with business side constraints。
+
+------------------------------------------------------------------------
+
+# 5. Contract-SP 数学模型
+
+目标：
+
+\[ \_r c_r x_r \]
+
+其中：
+
+- x_r：是否选择路线 column；
+- c_r：路线成本。
+
+## 每个工作日选择一条路线
+
+\[ \_{rR_d}x_r=1 \]
+
+## 合同覆盖
+
+\[ *{rc}x_r=*w f*{cw}z*{cw} \]
+
+## R2′ 星期选择
+
+\[ *w z*{cw}=1 \]
+
+变量：
+
+\[ x_r{0,1} \]
+
+\[ 0z\_{cw} \]
+
+------------------------------------------------------------------------
+
+# 6. 为什么叫 Final Gate
+
+Contract-SP 是最终组合闸门。
+
+``` mermaid
+flowchart TB
+    P["Candidate Columns"]
+    A["Column Admission"]
+    M["Contract-SP"]
+    V["Independent Validation"]
+    O["Final Plan"]
+
+    P --> A
+    A --> M
+    M --> V
+    V --> O
 ```
 
-- **一列（column）= `(date, route, km)`**：某日期的一条完整候选路线。
-- **z 是覆盖线性化装置**（不参与分支）：x 整分后 z 可由覆盖行解出。
-- **走廊**：`min_daily ≤ |route| ≤ max_daily`——店数口径的负荷代理（非工时证明），在池过滤与定价两处生效。
+注意：
 
-## 终闸语义（为什么叫"终闸"）
+这些约束属于同一个优化模型，不是流水线逐个执行。
 
-1. **算法不决策**：任何引擎（r2/alns/hgs/bp…）的产出只是候选列；最终日历由 `sp_solve_ip`（CP-SAT 整数求解，`r2_prime=True` + `contract` 硬约束）统一选出。
-2. **独立复验**：选中日历必须过三闸——频次（`check_freq`）、容量（`check_capacity`）、合同（`check_contract`）——由调用方复验，算法自报不算数。
-3. **诚实口径**：供列是启发式 ⇒ 只输出受限主问题（RMP，Restricted Master Problem）的 LP 值与池内差距 `pool_gap_pct`，`is_global_certified` 恒 False。SP 池内最优 ≠ 全局日历最优。
+------------------------------------------------------------------------
 
-> **⚠ 已知表述缺口（2026-09-07 外部评审，P0 待 VisitModel vNext 重构）**：上式的 `x_r ≤ z_{c,wd(r)}` 是**列特定行**——新增一条候选列会同时新增若干绑定行，行空间不固定，因此现行"LP → 按对偶定价"不是标准的固定行空间列生成；且定价 rc 公式未计入绑定行对偶，二者不闭合。重构方向：引入固定 (店,日期) 空间的链接变量 y_cd = Σ x_r，把合同/R2′ 约束全部放进固定行空间。重构完成前，本页描述的"CG 收敛/下界"语义按下方诚实口径打折理解。
+# 7. Optimizer 与 Validator 分离
 
-## 机制要点（血泪账，全部有测试钉住）
+Solver 返回：
 
-1. **z 定义域只开 f_cw>0 的星期几**：否则覆盖等式可经 f=0 的 z 隐藏整店——LP"可行"而 `check_contract` 判空集违例。
-2. **池过滤后零合法列的义务店 = 不可行**（返回 None），不是可跳过的约束——修复前曾静默缺店。
-3. **对偶语义**（π_d 日期行 / μ_c 店覆盖行 / λ_cd forced 行）与列生成定价、B&P 节点 LP 全线同构——见概念文档 [column-generation.md](column-generation.md)。
-4. **整数目标（毫单位）与距离重算分开记录**，禁止跨口径拼 gap。
+    FEASIBLE
+    OPTIMAL
 
-## 复杂度
+不代表业务已经验证。
 
-- 整数求解（CP-SAT）：10 条真实线 67~1449 列池全部亚秒级 OPTIMAL（0.018–0.229s）。
-- LP 松弛（GLOP）：供对偶用，30s 上限。
+最终必须重新执行：
 
-## 引用论文
+- check_freq；
+- check_capacity；
+- check_contract。
 
-- Balinski & Quandt (1964)：SP 用于配送问题的开山建模。
-- Barnhart et al. (1998)：SP 作为受限主问题的标准范式（分支定价）。
-- Pessoa et al. (2020)：当代精确 VRP 求解器架构（本系统"完整版"参照系）。
+原则：
 
-## 相关文件与测试
+> Optimizer 负责求解，Validator 负责证明业务契约。
 
-- `VisitModel/src/visitmodel/sp/formulation.py`、`visitmodel/sp/pricing.py`
-- `tests/test_mathmodel_sp_contract.py`（"零合法列=不可行"反例、合同池过滤）
-- 设计：`docs/design/SP_MATHEURISTIC_DESIGN.md`
+------------------------------------------------------------------------
+
+# 8. LP、IP、RMP 与 Column Generation
+
+## IP
+
+用于获得最终执行计划。
+
+## LP Relaxation
+
+用于：
+
+- dual price；
+- pricing；
+- bound analysis。
+
+## RMP
+
+Restricted Master Problem：
+
+当前 column pool 对应的受限主问题。
+
+## Column Generation
+
+流程：
+
+    Solve RMP
+        ↓
+    Read Dual
+        ↓
+    Pricing
+        ↓
+    New Columns
+        ↓
+    RMP
+
+------------------------------------------------------------------------
+
+# 9. 最优性证书层级
+
+必须区分：
+
+    RMP LP Optimal
+        ↓
+    当前 pool LP 最优
+
+    Pool IP Optimal
+        ↓
+    当前 pool 整数最优
+
+    Exact Pricing 完成
+        ↓
+    完整 master LP 最优
+
+    Branch-and-Price 完成
+        ↓
+    Global PROVEN_OPTIMAL
+
+因此：
+
+    pool optimum ≠ global optimum
+
+------------------------------------------------------------------------
+
+# 10. Engineering Invariants
+
+## z domain
+
+只允许真实合同槽位。
+
+## 零合法列
+
+义务店没有合法 column：
+
+    INFEASIBLE
+
+不能静默跳过。
+
+## 成本口径
+
+必须区分：
+
+- semantic cost；
+- raw km；
+- solver integer cost。
+
+禁止混合计算 gap。
+
+------------------------------------------------------------------------
+
+# Appendix A：当前 formulation 技术债
+
+当前：
+
+\[ x_r z\_{c,wd(r)} \]
+
+属于 column-dependent rows。
+
+这不是普通 fixed-row Column Generation。
+
+理论上存在两条路线：
+
+1.  Fixed-row reformulation；
+2.  Column-and-row generation。
+
+项目 vNext 选择：
+
+\[ y\_{cd}=\_{rR_d:cr}x_r \]
+
+将合同和 R2′ 语义放入固定 row space。
+
+------------------------------------------------------------------------
+
+# Appendix B：系统位置
+
+    Route Producers
+           |
+           v
+    Column Pool
+           |
+           v
+    Contract-SP
+           |
+           v
+    Monthly Calendar
+           |
+           v
+    Independent Validation
+
+------------------------------------------------------------------------
+
+# References
+
+- Dantzig & Wolfe (1960), Decomposition Principle for Linear Programs
+- Balinski & Quandt (1964), On an Integer Program for a Delivery Problem
+- Ribeiro & Soumis (1994), Set Partitioning with Side Constraints
+- Barnhart et al. (1998), Branch-and-Price
+- Lübbecke & Desrosiers (2005), Selected Topics in Column Generation
+- Pessoa et al. (2020), Generic Exact Solver for VRP
+- Muter, Birbil & Bülbül (2013), Simultaneous Column-and-Row Generation

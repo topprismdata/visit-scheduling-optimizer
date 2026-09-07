@@ -45,7 +45,7 @@ $$\min \sum_{r} c_r x_r \quad \text{s.t.}\quad \sum_{r \in R_d} x_r = 1\ \forall
 | `pool_gap_pct` | 整数解与 RMP-LP 的**池内差距** | 全局最优性 Gap / 认证 |
 | 收敛信号 | "该定价器当前找不到更好的列" | "不存在更好的列" |
 
-（SCIP 官方对 heuristic pricer 与 exact pricer 的区分与此一致。）因此元数据强制携带 `is_global_certified=False`，SP 及其矩阵输出只允许写“受限池内差距”；实验性全局认证路径已独立实现于 `algos/branch_and_price.py`，其状态与证书条件见 `docs/design/BRANCH_AND_PRICE_DESIGN.md`。
+（SCIP 官方对 heuristic pricer 与 exact pricer 的区分与此一致。）因此元数据强制携带 `is_global_certified=False`，SP 及其矩阵输出只允许写“受限池内差距”；实验性全局认证路径已独立实现于 `algos/branch_and_price.py`，其状态与证书条件见 `docs/design/BRANCH_AND_PRICE_DESIGN_v1.0.1.md`。
 
 ## 4. 结构保证（[META] 实证性质）
 

@@ -1,56 +1,472 @@
-# 分支定价（B&P / bp，Branch-and-Price）
+# Branch-and-Price：从列生成到全局最优证书
 
-> 类别：精确框架（当前实现为未完成态：定价子问题仍是启发式） | 实现：`algos/branch_and_price.py` | 研究矩阵考核维度：**数学证明能力**——能证明“离最优还差多少”、多大比例的搜索证明完成
+> 类别：精确优化框架（Exact Optimization Framework）  
+> 实现：`algos/branch_and_price.py`  
+> 系统定位：证明层（Certificate Layer）  
+> 核心职责：回答“当前方案距离数学最优还有多少，以及是否可以证明最优”
 
-## 它解决什么
+------------------------------------------------------------------------
 
-SP+CG（上一节）收敛后只解决"当前池里选最优"；bp 在**分支树上**搜索：每个树节点用列生成（CG）求解 LP 松弛，分数解按**店-日指派分支**（customer–date assignment branching，本项目定制规则——注意这不是经典 Ryan–Foster 的"同路线/不同路线"配对分支）决定 forced/forbidden，直到树耗尽——理论上可签发**全局最优证书**。它与其他引擎不同类：价值在**界与证书**，不在 km 改写。
+# 0. 30 秒理解
 
-> 详细设计（数学模型/状态语义/工程不变量/同等预算终账）：`docs/design/BRANCH_AND_PRICE_DESIGN.md`——本文只给接手者速览。
+Branch-and-Price（B&P）解决的问题：
 
-## 数学模型
+> 当 Set Partitioning + Column Generation 只能证明当前 column pool
+> 最优时，如何进一步获得整数问题的全局最优证书。
 
-- 主问题（节点级）：min Σ c_r x_r，s.t. 日期覆盖（对偶 π_d）、Σ_w z_cw=1、合同覆盖 = Σ f·z（对偶 μ_c）、forced 行 Σ_{r∈R_d∋c} x_r = 1（对偶 λ_cd）、x ≤ z 绑定。节点求解用线性规划（LP，Linear Programming）松弛。
-- **下界语义（2026-09-07 评审修正，重要）**：只有该节点经精确定价**证明不存在负 rc 列**后，该 LP 值才是此子树的有效下界（`node_valid_lb`）；启发式定价停住时的值只是 `rmp_lp_value`——受限列空间的 LP 最优，**不保证不高于完整主问题 LP，不得用于剪枝或证书**。
-- **分支变量**：店-日指派 y_cd = Σ_{r∈R_d∋c} x_r ∈ (0,1) → forced(c,d)=1 | forbidden(c,d)=0。分数 x 必给出分数 y；y 全整 ⇒ x 全整 → incumbent（当前最好解）。z 的整分性由 x≤z 绑定蕴含，不分支。
+整体关系：
 
-## 定价三路（oracle = 框架的命门）
+``` mermaid
+flowchart LR
 
-1. **启发式**：top-m 对偶奖励贪心插入（走廊/合法域/forbidden 硬剪；批量 ≤60 列/轮）。
-2. **精确兜底**：CP-SAT 奖收集开链（AddCircuit + dummy depot + 自环可选）；**完整候选集**（证明"无负列"必须全枚举，不得截断）；仅全日期 OPTIMAL 才计入 `converge_proven`。
-3. **可行性恢复**：forced/未覆盖店在受限池缺列时距离贪心补列（rc 可为正）——对偶定价只产负 rc 列。
+SP["Contract-SP<br/>Master"]
+CG["Column Generation<br/>扩展变量"]
+BP["Branch-and-Price<br/>整数证明"]
 
-## 状态诚实性
-| status | 条件 |
-|---|---|
-| `PROVEN_OPTIMAL` | 树耗尽 + `converge_attempts == converge_proven > 0` + 所有节点 LP OPTIMAL + 列生成无上限/停滞 + 精确定价逐日 OPTIMAL（审计计数全零） |
-| `BOUND_HEURISTIC` | 树耗尽但至少一项证书不完整（已探索信息，非全局证书） |
-| `TIME_LIMIT` | 预算/节点上限截断 |
+SP --> CG
+CG --> BP
+```
 
-实测：微型实例（4 店 4 日）PROVEN_OPTIMAL 秒级、pool-IP 不变量成立；真实线路（163-190 店）`exact_tl=1s` 证不完 → BOUND_HEURISTIC、`bp_nodes=0`（根 LP 即达暖启动值）。**精确定价 oracle 升级（基本最短路问题 ESPPRC，Elementary Shortest Path Problem with Resource Constraints）是 bp 身份成立的生命线。**
+一句话：
 
-## 工程不变量（测试钉住）
+> CG 负责扩大搜索空间；Branch 负责处理整数性；两者结合产生全局证明。
 
-1. 池按 `(date, 店集)` frozenset 去重——同店集不同顺序会让 LP 在其上劈裂 x=0.5/0.5，节点空转。
-2. z 定义域只开 f_cw>0 的星期几（防 f=0 隐藏整店）。
-3. incumbent 只在 y 全整时逐日 argmax 抽取。
-4. 原计划保底：`contract_of` 反推原计划必合法 → 任何情况不返回空解。
-5. 分支传播预剪枝：forced 单星期几 + 频次上限；forbidden 后每店剩余合法日期须够某 f>0 星期几。
-6. **树内成本 raw 浮点**（v1.0.1 修复：取整列使节点 LP 界偏离真值、污染剪枝与证书）。
+------------------------------------------------------------------------
 
-## 热启动接口（独立性注意）
+# 1. 它在系统中的位置
 
-`initial_days` / `initial_pool` 可注入外部列（生产 hybrid：R2′ 供列）。**研究矩阵中 bp_solo 禁止接收 R2 产物**（§禁止隐藏组合）——自足模式用自身 `_calendar_search/_randomized_schedule` 热启动。
+``` mermaid
+flowchart TB
 
-## 引用论文
+IR["VisitIR Contract"]
 
-- Barnhart et al. (1998)：B&P 框架奠基本文。
-- Ryan & Foster (1981)：经典配对分支规则（together/separate）出处——**本项目 y_cd 是店-日指派分支，非 Ryan–Foster**，引用仅作分支定价分支技术的谱系参照。
-- Lübbecke & Desrosiers (2005)：列生成综述。
-- Feillet et al. (2004)：ESPPRC（精确定价 oracle 的目标形态）。
-- Paradiso et al. (2020)（[ESF]）：精确定价能力边界。
-- Rothenbächer, Drexl, Irnich (2019)：PVRP 柔性日程 B&P&C（同问题类的精确先行者）。
+Producer["Candidate Producers"]
 
-- `algos/branch_and_price.py`（823 行）；`tests/test_branch_and_price.py`（PROVEN 路径、pool-IP 不变量、合同/走廊有效性、热启动字段）
-- 概念前置：列生成技术见 [../concepts/column-generation.md](../concepts/column-generation.md)；SP 终闸见 [../concepts/set-partitioning-final-gate.md](../concepts/set-partitioning-final-gate.md)
+Pool["Column Pool"]
 
+SP["Contract-SP"]
+
+CG["Column Generation"]
+
+BP["Branch-and-Price"]
+
+Certificate["Optimality Certificate"]
+
+IR --> Producer
+Producer --> Pool
+Pool --> SP
+SP --> CG
+CG --> BP
+BP --> Certificate
+```
+
+职责：
+
+| 模块              | 负责         |
+|-------------------|--------------|
+| ALNS/HGS/R2′-ALNS | 产生候选     |
+| SP                | 选择候选     |
+| CG                | 发现缺失变量 |
+| B&P               | 证明整数最优 |
+
+------------------------------------------------------------------------
+
+# 2. 为什么需要 Branch-and-Price
+
+普通 SP + CG：
+
+可以得到：
+
+    当前 column pool 最优
+
+但不能自动证明：
+
+    所有可能 column 中最优
+
+原因：
+
+当前 pool：
+
+    有限变量空间
+
+完整问题：
+
+    巨大隐含变量空间
+
+Branch-and-Price 通过：
+
+    Branch-and-Bound
+    +
+    Column Generation
+
+逐步建立证明。
+
+------------------------------------------------------------------------
+
+# 3. 核心思想
+
+每个 branch node：
+
+执行：
+
+    Solve LP Relaxation
+
+            ↓
+
+    Column Generation
+
+            ↓
+
+    获得 node bound
+
+如果：
+
+- bound 不优于 incumbent；
+- 或节点不可行；
+
+则剪枝。
+
+否则继续分支。
+
+------------------------------------------------------------------------
+
+# 4. 本项目分支规则
+
+经典 Ryan-Foster：
+
+    两个客户是否在同一路线
+
+但本项目使用：
+
+> customer-date assignment branching
+
+即：
+
+定义：
+
+\[ y\_{cd} = \_{rR_d:cr}x_r \]
+
+表示：
+
+门店 c 是否安排在日期 d。
+
+------------------------------------------------------------------------
+
+## 分支
+
+如果：
+
+\[ 0\<y\_{cd}\<1 \]
+
+则：
+
+两子节点：
+
+### Forced
+
+    customer c 必须在 date d
+
+### Forbidden
+
+    customer c 禁止在 date d
+
+------------------------------------------------------------------------
+
+# 5. 下界语义（最重要）
+
+节点 LP 值只有满足：
+
+    精确定价
+
+    +
+
+    没有负 reduced cost column
+
+才是：
+
+    有效 node lower bound
+
+否则：
+
+它只是：
+
+    RMP LP value
+
+即：
+
+当前受限 column 空间最优。
+
+不能：
+
+- 剪枝；
+- 宣称 global gap；
+- 生成最优证书。
+
+------------------------------------------------------------------------
+
+# 6. Pricing Oracle：B&P 的生命线
+
+B&P 的关键不是 branch。
+
+而是：
+
+> 是否拥有精确定价 oracle。
+
+三种模式：
+
+------------------------------------------------------------------------
+
+## 1. Heuristic Pricing
+
+例如：
+
+- top-m dual reward；
+- 贪心插入。
+
+用途：
+
+快速发现好列。
+
+不能证明：
+
+无负列。
+
+------------------------------------------------------------------------
+
+## 2. Exact Pricing
+
+需要：
+
+完整搜索 column space。
+
+例如：
+
+ESPPRC：
+
+    Elementary Shortest Path Problem
+    with Resource Constraints
+
+只有：
+
+    exact pricing
+    +
+    无负 rc
+
+才能宣布：
+
+node LP optimal。
+
+------------------------------------------------------------------------
+
+## 3. Feasibility Recovery
+
+当 branch 产生：
+
+    forced constraint
+
+导致池中无列。
+
+需要补充：
+
+可行列。
+
+注意：
+
+可行恢复列不等于负 reduced cost 列。
+
+------------------------------------------------------------------------
+
+# 7. 状态诚实性
+
+| 状态            | 含义                 |
+|-----------------|----------------------|
+| PROVEN_OPTIMAL  | 完整证明链闭合       |
+| BOUND_HEURISTIC | 探索完成但证书不完整 |
+| TIME_LIMIT      | 预算限制             |
+
+不能：
+
+    树结束
+    =
+    最优
+
+------------------------------------------------------------------------
+
+# 8. 当前实现状态
+
+当前：
+
+    algos/branch_and_price.py
+
+实现：
+
+- branch framework；
+- node LP；
+- forced/forbidden propagation；
+- heuristic pricing。
+
+限制：
+
+真实规模：
+
+    exact pricing
+
+尚未完成。
+
+因此当前主要能力：
+
+    BOUND_HEURISTIC
+
+而不是完整 global proof。
+
+------------------------------------------------------------------------
+
+# 9. 工程不变量
+
+## Column 去重
+
+按：
+
+    (date, frozenset(store))
+
+去重。
+
+原因：
+
+同店集不同顺序：
+
+会造成：
+
+    x = 0.5 + 0.5
+
+节点空转。
+
+------------------------------------------------------------------------
+
+## z 定义域
+
+只允许：
+
+    f_cw > 0
+
+的星期槽。
+
+------------------------------------------------------------------------
+
+## incumbent
+
+只有：
+
+    y 全整数
+
+才能抽取。
+
+------------------------------------------------------------------------
+
+## 成本精度
+
+树内：
+
+必须保持：
+
+    raw floating cost
+
+不能：
+
+    round()
+
+否则：
+
+污染：
+
+- node bound；
+- pruning；
+- certificate。
+
+------------------------------------------------------------------------
+
+# 10. 热启动边界
+
+生产模式：
+
+允许：
+
+    initial_pool
+
+    +
+    external columns
+
+例如：
+
+R2′ 提供候选。
+
+但是：
+
+研究矩阵：
+
+    bp_solo
+
+禁止隐藏组合。
+
+原因：
+
+实验必须保持归因独立。
+
+------------------------------------------------------------------------
+
+# 11. 与其他模块关系
+
+``` text
+Candidate Generator
+
+        ↓
+
+Contract-SP
+
+        ↓
+
+Column Generation
+
+        ↓
+
+Branch-and-Price
+
+        ↓
+
+Optimality Certificate
+```
+
+完整链路：
+
+    发现方案
+
+    ↓
+
+    组合方案
+
+    ↓
+
+    扩展变量
+
+    ↓
+
+    证明方案
+
+------------------------------------------------------------------------
+
+# References
+
+- Barnhart et al. (1998), Branch-and-Price
+- Ryan & Foster (1981), Pairwise Branching
+- Lübbecke & Desrosiers (2005), Column Generation Review
+- Feillet et al. (2004), ESPPRC
+- Rothenbächer, Drexl, Irnich (2019), PVRP Branch-and-Price-and-Cut
+
+------------------------------------------------------------------------
+
+# Related Files
+
+- `algos/branch_and_price.py`
+- `tests/test_branch_and_price.py`
+- `Column Generation`
+- `Contract-SP Final Gate`
