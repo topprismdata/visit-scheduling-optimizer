@@ -150,7 +150,7 @@ Contract-SP 是本项目命名。
 
 目标：
 
-\[ \_r c_r x_r \]
+min Σ_r c_r x_r
 
 其中：
 
@@ -159,21 +159,21 @@ Contract-SP 是本项目命名。
 
 ## 每个工作日选择一条路线
 
-\[ \_{rR_d}x_r=1 \]
+Σ_{r∈R_d} x_r = 1
 
 ## 合同覆盖
 
-\[ *{rc}x_r=*w f*{cw}z*{cw} \]
+Σ_{r∋c} x_r = Σ_w f_cw z_cw
 
 ## R2′ 星期选择
 
-\[ *w z*{cw}=1 \]
+Σ_w z_cw = 1
 
 变量：
 
-\[ x_r{0,1} \]
+x_r ∈ {0,1}
 
-\[ 0z\_{cw} \]
+z_cw ∈ [0,1]
 
 ------------------------------------------------------------------------
 
@@ -314,7 +314,7 @@ Restricted Master Problem：
 
 当前：
 
-\[ x_r z\_{c,wd(r)} \]
+x_r ≤ z_{c, wd(r)}
 
 属于 column-dependent rows。
 
@@ -327,7 +327,7 @@ Restricted Master Problem：
 
 项目 vNext 选择：
 
-\[ y\_{cd}=\_{rR_d:cr}x_r \]
+y_cd = Σ_{r∈R_d: c∈r} x_r
 
 将合同和 R2′ 语义放入固定 row space。
 

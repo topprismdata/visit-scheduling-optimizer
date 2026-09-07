@@ -144,7 +144,7 @@ Branch-and-Price 通过：
 
 定义：
 
-\[ y\_{cd} = \_{rR_d:cr}x_r \]
+y_cd = Σ_{r∈R_d: c∈r} x_r
 
 表示：
 
@@ -156,7 +156,7 @@ Branch-and-Price 通过：
 
 如果：
 
-\[ 0\<y\_{cd}\<1 \]
+0 < y_cd < 1
 
 则：
 

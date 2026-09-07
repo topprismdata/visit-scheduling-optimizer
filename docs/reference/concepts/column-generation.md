@@ -392,7 +392,7 @@ Branch-and-Price：
 
 当前 Contract-SP formulation 存在：
 
-\[ x_r z\_{c,wd(r)} \]
+x_r ≤ z_{c, wd(r)}（见 FORMULATION_VNEXT_DESIGN_v0.3.md 的重构方案）
 
 这样的 column-dependent rows。
 
@@ -406,7 +406,7 @@ Branch-and-Price：
 
 引入：
 
-\[ y\_{cd} = \_{rR_d:cr}x_r \]
+y_cd = Σ_{r∈R_d: c∈r} x_r
 
 将合同语义放入固定 row space。
 
