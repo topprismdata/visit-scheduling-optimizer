@@ -12,9 +12,8 @@
 - 输出：候选列 `[(date, route, km)]` 入池 → Contract-SP 终闸（协议见 [../concepts/set-partitioning-final-gate.md](../concepts/set-partitioning-final-gate.md)）。
 
 ## 口径要点
-
+- 基线数值存 `output/cpsat_plan_baselines.json`（0.1km 精度；毫精度改进为已知待办，见 GitHub issue #5/#6 的可移植性与口径整改批次）。
 - 各日 CP-SAT 均**证完（OPTIMAL）**时 = "基线 A"（已证最优排序口径）；未证完 = 限时参照，禁止称已证最优。
-- 基线数值存 `output/cpsat_plan_baselines.json`（精度 0.1km——issue #5/#6 指出的精度改进已列入实施计划）。
 - 基线列在生产协议（v2）中是每格安全网；研究协议（v3）中 base 是独立参照格，不注入引擎格。
 
 ## 相关
