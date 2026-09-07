@@ -1,6 +1,6 @@
 # 三模块剥离设计（VisitIR / VisitModel / OptiCore 收口）
 
-> **状态**：草稿 · 2026-09-07（依据 2026-09-06/07 三遍设计评审，评审证据见本文各节引用）
+> **状态**：v0.1 · 2026-09-07（依据 2026-09-06/07 三遍设计评审，评审证据见本文各节引用）
 > **关系**：本设计是 `ALGORITHM_GUIDE.md` 附录 D"仓库三层抽离"裁定的**收口方案**——三层已立项（VisitIR / VisitModel / OptiCore 均已存在于 `/Users/ghb/` 且母仓经 editable install 消费），但抽离**未完成**：shim 残留、估计器双份维护、33k 行遗产在树、版本零钉住。本方案一次收口。
 > **实施计划**：`docs/superpowers/plans/2026-09-07-module-separation.md`
 
