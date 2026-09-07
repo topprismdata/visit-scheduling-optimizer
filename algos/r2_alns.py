@@ -55,7 +55,6 @@ class R2ALNS(Algorithm):
               keep_history=True, init_days=None, combo_mode="contract",
               iteration_budget=None, wall_time_budget=None, final_reroute=True):
         rng = random.Random(seed)
-        D = np.asarray(D)
         dates = list(data.dates)
         wd_g = defaultdict(list)
         for dd in dates:
