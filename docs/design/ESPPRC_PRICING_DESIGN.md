@@ -22,7 +22,7 @@ s.t. min_daily ≤ |route| ≤ max_daily
 ### 1.2 当前实现与失败原因
 
 `_price_exact`（`algos/branch_and_price.py`）用 CP-SAT `AddCircuit`：
-- 变量：n_d² 有向弧布尔 + n_d 自环 + 2·n_d dummy 弧 ≈ 1300-2800 vars（n_d = 91-176）
+- 变量：n_d² 有向弧布尔 + n_d 自环 + 2·n_d dummy 弧 ≈ 8300-31000 vars（n_d = 91-176）
 - 目标：min(路径 km − Σ 奖励)
 - `exact_tl = 1.0s` → **CP-SAT 无法在该时限内证明 OPTIMAL**
 - 结果：10/10 线 `converge_proven = 0` → `PROVEN_OPTIMAL` 不可达
@@ -61,9 +61,11 @@ s.t. min_daily ≤ |route| ≤ max_daily
 用**动态规划 + 支配剪枝**替代 CP-SAT 的全局搜索：
 
 ```
+用**动态规划 + 支配剪枝**替代 CP-SAT 的全局搜索：
+注意：支配仅在**同一末尾店**的标签间检查（不同末尾店的路径未来扩展方式不同，不可互相支配）。
 状态（Label）= (路径成本, 已访问店集, 当前末尾店)
 扩展 = 从末尾店延伸到下一个未访问店
-支配 = Label L1 支配 L2 当 cost(L1) ≤ cost(L2) 且 visited(L1) ⊆ visited(L2)
+支配 = 同一末尾店的标签 L1 支配 L2 当 cost(L1) ≤ cost(L2) 且 visited(L1) ⊆ visited(L2)
 ```
 
 目标：找到 min(cost − Σ rewards) 的完整路径。
@@ -98,8 +100,10 @@ Round k: 长度 k 的路径
 |---|---|---|
 | 支配 | cost ≤ 且 visited ⊆ | 指数级剪枝 |
 | 路径长度 | len(visited) ≤ max_daily | 硬截断 |
-| 下界剪枝 | cost + LB(剩余) ≥ 0 → 剪（不可能产生负 rc） | 需要预计算下界 |
+| 下界剪枝 | cost + LB(剩余) ≥ 0 → 剪 | 需要预计算下界 |
 | 奖励阈值 | 如果剩余可选店的 reward 总和 < 当前最优 | 需要维护全局 upper bound |
+
+**下界剪枝计算方式**：LB(剩余) 可用当前未访问店中 reward 最高的 (max_daily − len(visited)) 个 store 的 reward 之和（不计距离，这是下界因为忽略了绕行成本）。若 cost + LB(剩余) ≥ 0 则剪——该分支不可能产生负 rc。
 
 ### 3.4 与 CP-SAT 的比较
 
