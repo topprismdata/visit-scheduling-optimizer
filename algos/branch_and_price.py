@@ -79,7 +79,7 @@ class BranchAndPrice:
     def __init__(self, dates, k_c, D, contracts, days_orig, min_daily, max_daily,
                  time_budget=60.0, max_nodes=200, top_m=40,
                  exact_pricing=True, exact_tl=1.0, verbose=False,
-                 initial_days=None, initial_pool=None):
+                 initial_days=None, initial_pool=None, cg_max_iters=15):
         self.dates = list(dates)
         self.k_c = dict(k_c)
         self.D = D
@@ -90,6 +90,7 @@ class BranchAndPrice:
         self.time_budget = time_budget
         self.max_nodes = max_nodes
         self.top_m = top_m
+        self.cg_max_iters = cg_max_iters
         self.exact_pricing = exact_pricing
         self.exact_tl = exact_tl
         self.verbose = verbose
@@ -833,7 +834,7 @@ class BranchAndPrice:
                 status = "TIME_LIMIT"
                 break
             node = stack.pop()
-            lp = self._solve_node_cg(node)
+            lp = self._solve_node_cg(node, max_iters=self.cg_max_iters)
             if lp is None:
                 continue
             proven = lp.get("pricing_proven", False)

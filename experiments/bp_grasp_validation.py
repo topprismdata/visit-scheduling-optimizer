@@ -35,7 +35,7 @@ BP_SOLO_BASELINE = {
 }
 
 
-def run_line(line_id, time_budget):
+def run_line(line_id, time_budget, cg_max_iters=15):
     plan = load_plan()
     data = load_line(plan, line_id)
     D = [[float(v) for v in row] for row in np.load(ROOT / "output" / f"road_dist_{line_id}.npy")]
@@ -45,7 +45,8 @@ def run_line(line_id, time_budget):
     bp = BranchAndPrice(dates, k_c, D, contracts, data.days_orig,
                         data.min_daily_capacity, data.max_daily_capacity,
                         time_budget=time_budget, max_nodes=20000,
-                        exact_pricing=True, exact_tl=1.0, initial_days=None)
+                        exact_pricing=True, exact_tl=1.0, initial_days=None,
+                        cg_max_iters=cg_max_iters)
     t0 = time.perf_counter()
     res = bp.solve()
     wall = time.perf_counter() - t0
@@ -67,7 +68,7 @@ def run_line(line_id, time_budget):
         "cg_iters": bp.cg_iters_total, "pool": len(bp.pool),
         "stalled": bp.pricing_stalled,
         "converge": f"{bp.converge_proven}/{bp.converge_attempts}",
-        "warm_cols": bp.warm_start_columns,
+        "warm_cols": bp.warm_start_columns, "cg_max_iters": cg_max_iters,
     }
 
 
@@ -75,11 +76,12 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--lines", default="02,03,04,05,06,07,08,09,10,11")
     ap.add_argument("--time-budget", type=float, default=600.0)
+    ap.add_argument("--cg-max-iters", type=int, default=15)
     args = ap.parse_args()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for lid in args.lines.split(","):
         t0 = time.perf_counter()
-        r = run_line(lid, args.time_budget)
+        r = run_line(lid, args.time_budget, args.cg_max_iters)
         (OUT_DIR / f"{lid}.json").write_text(json.dumps(r, ensure_ascii=False, indent=1))
         print(f"[{lid}] km={r['km']} base={r['baseline_bp_solo']} delta={r['delta_pct']}% "
               f"status={r['status']} cg={r['cg_iters']} pool={r['pool']} "
