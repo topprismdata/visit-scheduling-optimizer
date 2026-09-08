@@ -481,3 +481,16 @@ Runner: `experiments/pricing_benchmark.py`；对偶源 = bp 根节点 LP（`outp
 
 工程注记：GRASP 的预算闸复用全程 `time_budget`（含 warm-start 消耗）——与 exact 定价闸一致，
 生产 time_budget=600 下 warm start ~300s 后 CG 仍有 ~300s 余量。
+
+### 12.8 GRASP 全量生产验证（2026-09-08）
+
+`experiments/bp_grasp_validation.py`（口径 = research_matrix/v1: incumbent days 过共同 CP-SAT 重排）。
+对照 bp_solo 基线（exact_tl=1.0, max_nodes=20000, budget 600）:
+
+- 10 线合计 **3,917.5 km vs 4,144.2（−5.47%）**; 08 线 −16.5%, 06 线 −10.8%, 04 线 −9.9%, 03 线 −9.2%
+- 零回退（02/07 +0.1% 内，09/10 打平）; 全部 stalled=0; 墙钟 9-63s/线（远未用满预算）
+- 勘误过程: 首测 "+7%" 系 `km_internal`（内部路径和）与 pipeline km（重排后）口径错位——
+  跨引擎比较必须走共同重排口径（协议 §5.3 再次被验证）
+
+定位升级: bp 从"纯证书层"变为有实质方案贡献的引擎（3,917.5 vs r2_alns 3,603.8 仍有差距，
+但 GRASP 后 CG 15 轮上限未收敛即已大幅改善——提高 max_iters/预算是明确的下一步）。
