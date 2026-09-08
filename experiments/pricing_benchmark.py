@@ -48,13 +48,52 @@ def get_duals(line_id):
         dates, k_c, D, contracts, data.days_orig,
         data.min_daily_capacity, data.max_daily_capacity,
         time_budget=60.0, max_nodes=1, exact_pricing=False,
-        initial_days=data.days_orig)
+        initial_days=None)   # None 才会触发日历搜索+伪对偶扰动 (真实 CG 环境)
     lp = bp._solve_node_lp(_BPNode())
     if lp is None:
         raise RuntimeError(f"line {line_id}: root LP failed")
     legal = legal_date_map(contracts, dates)
     stores = sorted(k_c.keys())
     return data, D, dates, legal, stores, lp["duals"]
+
+
+def get_mid_cg_duals(line_id, rounds=4):
+    """v2 对偶源: 真实 CG 迭代中段的对偶 (根 warm-start LP 对偶在多线上退化为零).
+
+    逐轮 solve_lp → price_heuristic → add_columns, 捕获每轮对偶;
+    返回 link-dual 质量最大的一轮 (非退化且具代表性).
+    """
+    plan = load_plan()
+    data = load_line(plan, line_id)
+    Dm = np.load(ROOT / "output" / f"road_dist_{line_id}.npy")
+    D = [[float(v) for v in row] for row in Dm]
+    dates = sorted(data.days_orig.keys())
+    contracts = contract_of(data.days_orig, dates)
+    k_c = dict(Counter(c for dd in dates for c in data.days_orig[dd]))
+    bp = BranchAndPrice(
+        dates, k_c, D, contracts, data.days_orig,
+        data.min_daily_capacity, data.max_daily_capacity,
+        time_budget=120.0, max_nodes=1, exact_pricing=False,
+        initial_days=None)   # None 才会触发日历搜索+伪对偶扰动
+    node = _BPNode()
+    best = None
+    for r in range(rounds):
+        lp = bp._solve_node_lp(node)
+        if lp is None:
+            break
+        duals = lp["duals"]
+        mass = sum(max(0.0, -v) for v in duals["link"].values())  # reward = -link_dual
+        if best is None or mass > best[0]:
+            best = (mass, r, duals)
+        cols = bp._price_heuristic(node, duals)
+        if not cols or bp.add_columns(cols, source="HEURISTIC") == 0:
+            break
+    if best is None:
+        raise RuntimeError(f"line {line_id}: mid-CG duals failed")
+    legal = legal_date_map(contracts, dates)
+    stores = sorted(k_c.keys())
+    print(f"  [duals] line {line_id}: round {best[1]}, link mass {best[0]:.1f}")
+    return data, D, dates, legal, stores, best[2]
 
 
 # ---------------------------------------------------------------------------
@@ -173,7 +212,7 @@ def oracle_cpsat(elig, u, D, min_daily, max_daily, wdd, tl=60.0):
 # ---------------------------------------------------------------------------
 
 def oracle_labeling(mode, elig, u, D, min_daily, max_daily, wdd,
-                    tl=180.0, max_labels=1_500_000, ng_delta=8, bucket_cap=4000):
+                    tl=180.0, max_labels=500_000, ng_delta=8, bucket_cap=1000):
     t0 = time.perf_counter()
     n = len(elig)
     if n < max(2, min_daily):
@@ -274,8 +313,8 @@ def oracle_labeling(mode, elig, u, D, min_daily, max_daily, wdd,
 # 主流程
 # ---------------------------------------------------------------------------
 
-def run_line(line_id, cpsat_tl, label_tl):
-    data, D, dates, legal, stores, duals = get_duals(line_id)
+def run_line(line_id, cpsat_tl, label_tl, getf=None):
+    data, D, dates, legal, stores, duals = (getf or get_duals)(line_id)
     worst = pick_worst_dates(stores, dates, legal, duals, k=3)
     results = {"schema": SCHEMA, "line": line_id,
                "dates": [{"date": str(dd), "n_eligible": n, "dual_mass": m, "dual_entropy": e}
@@ -305,11 +344,14 @@ def main():
     ap.add_argument("--lines", default="09,02,11")
     ap.add_argument("--cpsat-tl", type=float, default=60.0)
     ap.add_argument("--label-tl", type=float, default=180.0)
+    ap.add_argument("--mid-cg", action="store_true",
+                    help="v2: 用真实 CG 中段对偶 (根 LP 对偶退化时必需)")
     args = ap.parse_args()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for lid in args.lines.split(","):
         print(f"=== line {lid} ===", flush=True)
-        r = run_line(lid, args.cpsat_tl, args.label_tl)
+        getf = get_mid_cg_duals if args.mid_cg else get_duals
+        r = run_line(lid, args.cpsat_tl, args.label_tl, getf)
         (OUT_DIR / f"{lid}.json").write_text(json.dumps(r, ensure_ascii=False, indent=1, default=str))
         print(f"  saved {OUT_DIR / (lid + '.json')}", flush=True)
 
