@@ -1,6 +1,6 @@
 # ESPPRC Pricing Oracle 与 Column Contract 设计
 
-> **状态**：草稿 v0.3 · 2026-09-08（待评审；v0.2→v0.3 修订依据：独立 B&P/CG 架构评审全部融入）
+> **状态**：已批复进入 Benchmark · v0.4 · 2026-09-08（v0.3→v0.4 修订依据：独立 B&P/CG 架构复审；生产实现前置条件 = §3.4 CandidateNormalizer + §4.2a PricingCertificate / CG 终止契约 + §4.5 Column Lineage 全部落地）
 > **缘起**：bp 全线路 BOUND_HEURISTIC / root_lb=None——根因是精确定价 oracle（`_price_exact`）在真实规模（91-176 店/日，max_daily 21-37）下无法在 `exact_tl=1.0s` 内证明"无负 rc 列"。
 > **归属**：`OptiCore` 仓（新模块 `opticore.pricing`）+ 母仓 `algos/branch_and_price.py` 接入
 > **参照**：Feillet et al. (2004)；Baldacci et al. (2011) ng-route relaxation；Muter et al. (2013) column-and-row generation。
@@ -97,25 +97,23 @@ s.t. min_daily ≤ |route| ≤ max_daily
 
 ---
 
-## 3. Column Contract 层（评审 P0 新增）
+## 3. Column Contract 层（评审 P0 新增；v0.4 补 Normalizer/Certificate/终止契约）
 
 ### 3.1 问题
 
 定价 oracle 的输出 ≠ master problem 的变量。ng-route 松弛可能产生**非 elementary 路径**（含重复访问或子回路）——这些如果直接进入 RMP，会改变 master 的可行域，导致后续对偶与最优性证书失效。
 
 ### 3.2 流水线
-
 ```
 PricingResult
        │
        ▼
-ColumnCandidate          ← 定价原始产出（可能非 elementary）
+ColumnCandidate ──► CandidateNormalizer   ← 去重 / elementary repair / 简化（新增 v0.4）
        │
        ▼
 ColumnValidator          ← 检查：elementary？合法域？走廊？
        │
-       ├── pass ──→ MasterColumn    ← 合法列，可进 RMP
-       │
+       ├── pass ──→ MasterColumn    ← 合法列（含 lineage，§4.5），可进 RMP
        └── fail ──→ discard（记录 rejection reason）
 ```
 
@@ -139,14 +137,23 @@ class MasterColumn:
 
 **禁止** pricing oracle 直接写 RMP——必须经过 ColumnValidator。
 
-### 3.4 ColumnValidator 检查项
+### 3.4 ColumnValidator 检查项与 Normalizer
+
+**discard 不是唯一处置**（评审 P0 修正）：非法候选包含大量定价信息，直接丢弃浪费。流水线在 Validator 前增加 **CandidateNormalizer**：
+
+| Normalizer 操作 | 说明 |
+|---|---|
+| duplicate removal | 与既有列去重 |
+| elementary repair | 去除重复访问店（如 A-B-C-B-D → 投影/重优化） |
+| route simplification | 子路径合并 |
+
+Validator 仅对 Normalizer 后仍非法的候选 discard：
 
 | 检查 | 失败处置 |
 |---|---|
-| elementary（无重复店） | discard |
+| elementary（repair 后仍重复） | discard |
 | 每店在该日期合同合法 | discard |
 | 走廊 | discard |
-| 无重复日期 | 不会发生（定价按日期独立） |
 
 ---
 
@@ -181,9 +188,28 @@ class PricingResult:
     solve_time_sec: float
 ```
 
+### 4.2a PricingCertificate 与 CG 终止契约（v0.4 新增，评审 P0）
+
+**核心风险**：生产 CG 用 relaxed/heuristic pricing 时，"没有 accepted 负列" ≠ "没有负 rc 列"——ng-route 漏掉 rc=-2 的列而 validator 丢弃了 rc=-10 的非法候选时，CG 会**假收敛（false convergence）**。
+
+```python
+@dataclass
+class PricingCertificate:
+    has_negative_column: bool
+    proof_level: str   # EXACT / RELAXED / HEURISTIC / UNKNOWN
+
+class CGTerminationStatus(Enum):
+    RELAXED_NO_CANDIDATE = "relaxed_pricing_found_no_candidate_not_a_proof"
+    RELAXED_ONLY_INVALID = "relaxed_candidates_all_invalidated_by_validator"
+    EXACT_NO_NEGATIVE_RC = "exact_pricing_proven_no_negative_rc"
+    TIMEOUT_UNKNOWN = "timed_out_convergence_state_unknown"
+```
+
+**终止契约**：CG 仅允许在 `proof_level == EXACT 且 has_negative_column == False` 时声明收敛；否则只能以 `RELAXED_*` / `TIMEOUT_UNKNOWN` 状态退出——下游据此决定是否触发 exact_pricer 认证（root node 或按需审计）。
+
 ### 4.3 双重语义（评审 P0 修正）
 
-**ng-route 的输出是 Candidate Column（候选列），不是 Master Column。** 必须经 ColumnValidator 验证 elementary 合法性后才可进 RMP。禁止直接回灌。
+**ng-route 的输出是 Candidate Column（候选列），不是 Master Column。** 必须经 CandidateNormalizer → ColumnValidator 验证后才可进 RMP。禁止直接回灌。
 
 ### 4.4 证书字段语义（与协议 research_matrix/v1 §8.2 对齐）
 
@@ -195,6 +221,20 @@ class PricingResult:
 | `global_gap_pct` | UB 与 certified_global_lb 的 gap | 同上 |
 
 `certified_global_lb = null` 表示"未证明全局下界"，不是 0。
+
+### 4.5 Column Lineage（v0.4 新增，评审 P1）
+
+```python
+@dataclass
+class ColumnLineage:
+    column_id: str
+    source_oracle: str        # EXACT / NG / HEURISTIC
+    candidate_rc: float       # 定价时 rc
+    validated_at: str         # ISO 时间戳
+    validator_result: str     # PASS / NORMALIZED / DISCARD
+```
+
+每个 MasterColumn 携带 lineage——支撑治理问题"这个优化结果为什么可信？"的证据链。
 
 ---
 
@@ -217,7 +257,6 @@ opticore.pricing
 ---
 
 ## 6. Exact Labeling Algorithm 设计（仅 benchmark 确认需要后实施）
-
 ### 6.1 精确性条件（评审修正）
 
 精确性来自以下三个条件的**同时满足**，缺一不可：
@@ -293,7 +332,9 @@ Exact ESPPRC 的 visited_set 指数爆炸在 n > 100 时不可避免。ng-route�
 ## 9. 守卫测试
 
 | 测试 | 钉死什么 |
-|---|---|
+| **CG 终止契约** | relaxed pricing 无候选时终止状态为 RELAXED_*，绝不签发 PROVEN_OPTIMAL |
+| **Normalizer repair** | A-B-C-B-D 型重复访问候选经 repair 后合法且不丢高价值列 |
+| **Lineage 完整性** | 每个 MasterColumn 可回溯 source/validator_result |
 | 微型全枚举 | n=4 店全排列，labeling 最优 == 枚举最优 |
 | 支配正确性 | 同 last_store、cost ≤、visited ⊆ → 被支配标签不产生更优解 |
 | 合法域 | 非法店不进路径 |
