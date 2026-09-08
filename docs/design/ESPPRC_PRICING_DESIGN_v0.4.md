@@ -385,3 +385,39 @@ Exact ESPPRC 的 visited_set 指数爆炸在 n > 100 时不可避免。ng-route�
 6. reward 符号 → §3.3 改为标准 rc = distance − Σ duals
 7. P2 无效反例替换 → §3.4
 8. P2 历史证书审计措辞 → §1.2
+
+---
+
+## 12. Pricing Benchmark v1 实测结果（2026-09-08）
+
+Runner: `experiments/pricing_benchmark.py`；对偶源 = bp 根节点 LP（`output/pricing_benchmark/v1/*.json`）。
+
+### 12.1 实例有效性警示
+
+| 线 | 根 LP link dual | 实例有效性 |
+|---|---|---|
+| 09 | 非零（质量 ~39） | **有效**（唯一真实例） |
+| 02/11 | 全为 ~0（退化） | 平凡：raw=km≥0 恒无负列，"PROVEN"无信息量 |
+
+**教训**：warm-start 根池的 LP 对偶在多线上退化。benchmark v2 必须取**真实 CG 迭代中段**的对偶（bp `_solve_node_cg` 若干轮后捕获）。另:OSM 距离矩阵含 1e9 不可达哨兵值，oracle 实现需过滤。
+
+### 12.2 09 线真实实例结果（n=150，min_len=23，max_daily=35）
+
+| Oracle | min rc（60s/120s） | 证明 | 标签数 | 耗时 |
+|---|---|---|---|---|
+| 贪心 | 无负列发现 | - | - | <1s |
+| CP-SAT 60s | **−9.4 ~ −15.5**（发现负列） | FEASIBLE 未证 | - | 60s |
+| exact labeling 120s | 未达深度 23 | TIMEOUT_CAPPED | 3.3-3.7×10⁵ | 120s |
+| ng-route Δ=8/16 | 未达深度 23 | TIMEOUT_CAPPED | 1.5×10⁶（2-7s 即触顶） | - |
+| 2-cycle | 未达深度 23 | TIMEOUT_CAPPED | 3.3-3.7×10⁵ | 120s |
+
+### 12.3 正确性勘误（重大，已修复）
+
+**跨深度支配在 min_len>1 时不 sound**：单店标签 (cnt=1) 支配 2-标签 (cnt=2) 时，复制相同后缀总店数少 1，可跌破 min_len——v1 首版因此假收敛（0.05s "PROVEN"）。修复：支配仅在同 `(last, cnt)` 桶内进行。微型全枚举守卫 60/60 通过。这正是评审 §6.1 "sound dominance" 条款的具体化。
+
+### 12.4 Benchmark v1 决策
+
+1. **精确定价认证在 n≥150/深度 23 上不可行**（朴素 labeling）——评审的不确定性 #2 得到实证答案
+2. **生产定价 = CP-SAT**（发现负列能力最强），时限需 ≥60s 或配合贪心做首轮
+3. **ng-route BFS 不可用**：广度优先在深度 23 前爆炸，需改 best-first + 完成下界（后续工作）
+4. **认证模式开放**：需要更强的支配（ng-深度双桶 + 强完成下界）或分解，列为 v2 研究项
