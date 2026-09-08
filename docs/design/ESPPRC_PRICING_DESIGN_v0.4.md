@@ -438,8 +438,11 @@ Runner: `experiments/pricing_benchmark.py`；对偶源 = bp 根节点 LP（`outp
    exact labeling 500k 标签仍未枚举到 min_len=23 的深度——**认证问题在当前算法栈下无解**。
 2. 生产定价 = CP-SAT（发现能力最强、单调更好）+ 贪心兜底; 终止按 CG 终止契约签 RELAXED_*
    （诚实非证明），B&P 树不剪枝、只做 incumbent 改进。
-3. line 11 中段对偶仍退化为零——该线 CG 从不产生链接对偶压力，与其历史行为一致
-   （"11 线 lkh3 略优"反常的根源候选），列为独立研究项。
+3. ~~line 11 中段对偶仍退化为零~~ **v3.1 勘误（2026-09-08）**：该结论是 `initial_days` bug
+   + 并发写 JSON 的混合来源假象。正确 warm-start（initial_days=None）下 line 11 完全健康：
+   link mass 11k-13k，每轮 CG 稳定产出 20+ 列（4 轮池 230→313）。真正的非对称在 **line 09**:
+   其启发式定价在真实对偶下找不到任何负列（priced=0 → CG 第 0 轮即停滞），
+   必须依赖 CP-SAT——与 v2 基准"greedy 发现不了负列"完全一致。
 4. 工程教训: 后台长跑必须避免并发写同一 JSON/log（v2 期间两进程并发导致 11 线结果混合来源）。
 
 ### 12.6 Benchmark v3：best-first labeling 对照（2026-09-08）
