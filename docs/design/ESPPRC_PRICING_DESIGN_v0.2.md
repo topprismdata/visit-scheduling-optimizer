@@ -1,6 +1,6 @@
 # ESPPRC 精确定价 Oracle 设计
 
-> **状态**：草稿 v0.2 · 2026-09-08（待评审；v0.1→v0.2 修订依据：独立 OR + 架构评审 8 项建议全部融入）
+> **状态**：已批复（v0.2）· 2026-09-08。v0.1→v0.2 修订依据：独立 OR + 架构评审 8 项建议全部融入。下一步：Pricing Benchmark 实施。
 > **缘起**：bp 全线路 BOUND_HEURISTIC / root_lb=None——根因是精确定价 oracle（`_price_exact`）在真实规模（91-176 店/日，max_daily 21-37）下无法在 `exact_tl=1.0s` 内证明"无负 rc 列"。
 > **归属**：`OptiCore` 仓（新模块 `opticore.pricing`）+ 母仓 `algos/branch_and_price.py` 接入
 > **参照**：Feillet et al. (2004)；Baldacci et al. (2011) ng-route relaxation；Muter et al. (2013) column-and-row generation。
