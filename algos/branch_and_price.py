@@ -38,6 +38,7 @@ TSP 因子口径与 ALNS/HGS 一致: 树内代价为插入序 km (raw 口径), �
 from __future__ import annotations
 
 import time
+from datetime import datetime
 from collections import Counter
 
 from algos.registry import register
@@ -48,6 +49,9 @@ from core.contract import (
 from core.metric import check_capacity, day_km
 from opticore.heuristics import nn2opt_open as _nn2opt_open
 from visitmodel.sp.formulation import _fw_table, _wd, weekday_dates
+from algos.pricing_contract import (
+    CGTerminationStatus, ColumnCandidate, ColumnLineage,
+    ColumnValidator, PricingCertificate, ProofLevel)
 
 _EPS = 1e-6      # 数值零 (对偶/约简成本)
 _FRAC = 1e-6     # 分数判定阈
@@ -99,6 +103,9 @@ class BranchAndPrice:
                        for c in self.k_c}            # 正频次星期域 (v2)
         self.pool = []            # [(date, route, km_internal)] 树内共享, 节点按分支过滤
         self.pool_keys = set()
+        self.validator = ColumnValidator(self.legal, self.min_daily, self.max_daily)
+        self.lineage = []                 # ColumnLineage (契约层 v0.4)
+        self._next_col_id = 0
         self.incumbent = None     # (km_internal, {date: route})
         self.root_lb = None
         self.nodes_explored = 0
@@ -115,14 +122,25 @@ class BranchAndPrice:
         self._warm_start()
 
     # ---------------- 池管理 ----------------
-    def add_columns(self, cols):
+    def add_columns(self, cols, source="HEURISTIC"):
+        """契约层: 定价产出禁止直接入池 — Normalizer/Validator 验证后成 MasterColumn."""
         added = 0
         for dd, route, km in cols:
-            key = (dd, frozenset(route))   # 同店集不同顺序 = 同一列 (x 劈裂防护)
+            cand = ColumnCandidate(route=list(route), reduced_cost=float(km),
+                                   source=source)
+            vroute, vresult = self.validator.validate(cand, dd)
+            if vroute is None:
+                continue
+            key = (dd, frozenset(vroute))   # 同店集不同顺序 = 同一列 (x 劈裂防护)
             if key in self.pool_keys:
                 continue
             self.pool_keys.add(key)
-            self.pool.append((dd, list(route), km))
+            self.pool.append((dd, list(vroute), km))
+            self.lineage.append(ColumnLineage(
+                column_id=self._next_col_id, source_oracle=source,
+                candidate_rc=float(km), validated_at=datetime.now().isoformat(),
+                validator_result=vresult))
+            self._next_col_id += 1
             added += 1
         return added
 
@@ -631,19 +649,30 @@ class BranchAndPrice:
                 self.cg_nonconverged_nodes += 1
                 return None
             cols = self._price_heuristic(node, lp["duals"])
+            col_source = "HEURISTIC"
             if not cols and self.exact_pricing and \
                     time.perf_counter() - self.t0 < self.time_budget:
                 cols = self._price_exact(node, lp["duals"])
+                col_source = "EXACT"
             if not cols:
                 self.converge_attempts += 1
                 if self._exact_all_proven:
                     self.converge_proven += 1
-                    lp["pricing_proven"] = True   # 完整精确定价证明无负 rc 列 → LP 值为子树有效下界
+                    lp["pricing_proven"] = True   # 完整精确定价证明无负 rc 列 → 子树有效下界
+                    lp["cg_termination"] = CGTerminationStatus.EXACT_NO_NEGATIVE_RC
+                    lp["pricing_certificate"] = PricingCertificate(False, ProofLevel.EXACT)
+                else:
+                    # relaxed 无候选 ≠ 证明 (CG 终止契约 v0.4)
+                    lp["cg_termination"] = CGTerminationStatus.RELAXED_NO_CANDIDATE
+                    lp["pricing_certificate"] = PricingCertificate(False, ProofLevel.RELAXED)
                 return lp                          # 未证明时 lp 无 pricing_proven: 值仅作观测, 不可剪枝
-            if self.add_columns(cols) == 0:
+            if self.add_columns(cols, source=col_source) == 0:
                 self.pricing_stalled += 1
+                lp["cg_termination"] = CGTerminationStatus.RELAXED_ONLY_INVALID
+                lp["pricing_certificate"] = PricingCertificate(True, ProofLevel.HEURISTIC)
                 return lp
-        self.cg_nonconverged_nodes += 1
+        lp["cg_termination"] = CGTerminationStatus.TIMEOUT_UNKNOWN
+        lp["pricing_certificate"] = PricingCertificate(True, ProofLevel.UNKNOWN)
         return None                                # 迭代上限未收敛: 丢弃节点 (不计界)
 
     # ---------------- incumbent 抽取与 LP 下潜 ----------------
