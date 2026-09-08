@@ -309,6 +309,104 @@ def oracle_labeling(mode, elig, u, D, min_daily, max_daily, wdd,
             "sec": round(sec, 2), "labels": n_gen, "dom_pruned": n_dom}
 
 
+def oracle_labeling_bf(mode, elig, u, D, min_daily, max_daily, wdd,
+                       tl=120.0, max_labels=500_000, ng_delta=8, bucket_cap=1000):
+    """best-first labeling (生产候选): 按 cost 升序出栈, 快速到达深负列.
+
+    与 BFS 版同一支配规则 (同 (last,cnt) 桶内, mask⊆ 且 cost≤).
+    记录: 首负列时间 / tl 内 min_rc / 标签数.
+    """
+    import heapq
+    t0 = time.perf_counter()
+    n = len(elig)
+    if n < max(2, min_daily):
+        return {"status": "SKIP", "min_rc_raw": None, "sec": 0.0, "labels": 0,
+                "first_neg_sec": None}
+    uarr = [u[c] for c in elig]
+    Dl = [[D[elig[i]][elig[j]] for j in range(n)] for i in range(n)]
+    ng_masks = None
+    if mode == "ng":
+        ng_masks = []
+        for i in range(n):
+            order = sorted((j for j in range(n) if j != i), key=lambda j: Dl[i][j])
+            mask = 0
+            for j in order[:ng_delta]:
+                mask |= 1 << j
+            ng_masks.append(mask)
+    min_len = max(2, min_daily)
+    buckets = {}
+    heap = []
+    for i in range(n):
+        lab = (-uarr[i], 1 << i, -1)
+        buckets[(i, 1)] = [lab]
+        heapq.heappush(heap, (lab[0], i, 1, lab))
+    best_rc = float("inf")
+    first_neg = None
+    n_gen = n
+    n_dom = 0
+    truncated = False
+    deadline = t0 + tl
+    while heap and not truncated:
+        if time.perf_counter() > deadline or n_gen > max_labels:
+            truncated = True
+            break
+        cost, last, cnt, (c_, mask, prev) = heapq.heappop(heap)
+        # 出栈时再验支配 (标签可能已被更优者支配)
+        cur = buckets.get((last, cnt))
+        if cur is None:
+            continue
+        dominated = any(c2 <= cost and (m2 & mask) == m2 for (c2, m2, _p2) in cur
+                        if (c2, m2) != (cost, mask))
+        if dominated and (cost, mask, prev) not in cur:
+            continue
+        for j in range(n):
+            if mode == "2cycle":
+                if j == prev:
+                    continue
+            else:
+                if mask >> j & 1:
+                    continue
+            ncost = cost + Dl[last][j] - uarr[j]
+            if mode == "ng":
+                nmask = (mask & ng_masks[j]) | (1 << j)
+                cnt2 = cnt + 1
+            else:
+                nmask = mask | (1 << j)
+                cnt2 = cnt + 1
+            if cnt2 > max_daily:
+                continue
+            n_gen += 1
+            if cnt2 >= min_len and ncost < best_rc:
+                best_rc = ncost
+                if first_neg is None and ncost < wdd:
+                    first_neg = time.perf_counter() - t0
+            bucket = buckets.setdefault((j, cnt2), [])
+            dom = False
+            for (c2, m2, _p2) in bucket:
+                if c2 <= ncost and (m2 & nmask) == m2:
+                    dom = True
+                    break
+            if dom:
+                n_dom += 1
+                continue
+            keep = [(c2, m2, p2) for (c2, m2, p2) in bucket
+                    if not (ncost <= c2 and (nmask & m2) == nmask)]
+            lab = (ncost, nmask, last if mode == "2cycle" else -1)
+            keep.append(lab)
+            if len(keep) > bucket_cap:
+                keep.sort()
+                keep = keep[:bucket_cap // 2]
+            buckets[(j, cnt2)] = keep
+            heapq.heappush(heap, (ncost, j, cnt2, lab))
+    sec = time.perf_counter() - t0
+    status = "TIMEOUT_CAPPED" if truncated else "PROVEN"
+    return {"status": status, "min_rc_raw": round(best_rc, 4) if math.isfinite(best_rc) else None,
+            "min_rc": round(best_rc - wdd, 4) if math.isfinite(best_rc) and best_rc < wdd else None,
+            "has_negative": bool(math.isfinite(best_rc) and best_rc < wdd - 1e-6),
+            "first_neg_sec": round(first_neg, 2) if first_neg else None,
+            "sec": round(sec, 2), "labels": n_gen, "dom_pruned": n_dom}
+
+
 # ---------------------------------------------------------------------------
 # 主流程
 # ---------------------------------------------------------------------------
@@ -332,6 +430,12 @@ def run_line(line_id, cpsat_tl, label_tl, getf=None):
             key = f"{mode}{delta}"
             cell[key] = oracle_labeling(mode, elig, u, D, data.min_daily_capacity,
                                         data.max_daily_capacity, wd, tl=label_tl, ng_delta=delta or 8)
+        for mode, delta in (("bf_exact", 0), ("bf_ng", 8), ("bf_ng", 16)):
+            key = f"{mode}{delta}"
+            base = "exact" if "exact" in mode else "ng"
+            cell[key] = oracle_labeling_bf(base, elig, u, D, data.min_daily_capacity,
+                                           data.max_daily_capacity, wd, tl=label_tl,
+                                           ng_delta=delta or 8)
         results["cells"][str(dd)] = cell
         summ = {k: (v.get("min_rc"), v.get("status")) for k, v in cell.items()
                 if isinstance(v, dict)}

@@ -441,3 +441,26 @@ Runner: `experiments/pricing_benchmark.py`；对偶源 = bp 根节点 LP（`outp
 3. line 11 中段对偶仍退化为零——该线 CG 从不产生链接对偶压力，与其历史行为一致
    （"11 线 lkh3 略优"反常的根源候选），列为独立研究项。
 4. 工程教训: 后台长跑必须避免并发写同一 JSON/log（v2 期间两进程并发导致 11 线结果混合来源）。
+
+### 12.6 Benchmark v3：best-first labeling 对照（2026-09-08）
+
+新增 `oracle_labeling_bf`（cost 升序优先队列出栈 + 同 (last,cnt) 桶支配，微型守卫 40/40 与全枚举一致），
+对照 BFS 版与 CP-SAT（mid-CG 对偶，09 线 3 日期 / 02 线 3 日期）：
+
+| Oracle | 09 min rc | 02 min rc | elementary | 备注 |
+|---|---|---|---|---|
+| CP-SAT 60s | −74.1~−74.5 | −52.5~−55.6 | ✓ | **生产发现冠军** |
+| bf_exact 120s | −58.9 | 未发现 | ✓ | 深探强于 BFS（BFS 500k 未达深度 23） |
+| BFS ng/exact | 未达深度 23 | 未达深度 23 | - | 顺序缺陷实证 |
+| **bf_ng8/16** | **−335.8** | **−306.9** | **✗（松弛列）** | 多日同值=奖励环收集；经 ColumnValidator 拒绝/修复 |
+
+**v3 结论**:
+1. **best-first 修复了 BFS 的搜索顺序缺陷**——同标签预算下能到达深度 23+ 并发现深负列；
+   BFS 版在真实规模上不可用，生产若走 labeling 路线必须 best-first。
+2. **bf_ng 的深负值是合法松弛下界**（min_rc(ng) ≤ min_rc(exact)），但作为列会被
+   ColumnValidator 拦截（非 elementary）——契约层语义（v0.4 §3）在实践中得到验证。
+3. **生产定价最终格局**: CP-SAT（发现 elementary 负列，60s）为主，
+   bf_exact 作快速补充；bf_ng 仅作下界参考。认证（证明无负列）在所有路线下仍不可达，
+   维持 RELAXED_* 诚实终止。
+4. 运维: 后台 nohup 进程在本环境约 10 分钟后被 SIGKILL（前台不受影响）——
+   长跑一律前台分线执行。
