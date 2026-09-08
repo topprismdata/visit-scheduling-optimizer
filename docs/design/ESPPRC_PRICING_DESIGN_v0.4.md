@@ -467,3 +467,17 @@ Runner: `experiments/pricing_benchmark.py`；对偶源 = bp 根节点 LP（`outp
    维持 RELAXED_* 诚实终止。
 4. 运维: 后台 nohup 进程在本环境约 10 分钟后被 SIGKILL（前台不受影响）——
    长跑一律前台分线执行。
+
+### 12.7 GRASP 定价落地（2026-09-08，line 09 启发式失效修复）
+
+`_price_heuristic` 新增 GRASP 阶段（贪心插入全空时触发）：随机化贪心构造（k_greedy=8）
++ 开放路径 2-opt + 单日首负列早停 + 按 date 索引播种（确定性）。60 iters/日 ≈ 1s/轮。
+
+实验（09 线最差日，mass 97.9）：GRASP 500 iters → rc **−75.68**（超 CP-SAT 60s 的 −74.5），
+首负列 0.13s。
+
+生产验收（`bp.solve()`，exact_pricing=False，09 线）: CG **15 轮全速列生成**
+（修复前第 0 轮即停滞），池 207→493，stalled=0，每轮 ~1s。回归 16/16。
+
+工程注记：GRASP 的预算闸复用全程 `time_budget`（含 warm-start 消耗）——与 exact 定价闸一致，
+生产 time_budget=600 下 warm start ~300s 后 CG 仍有 ~300s 余量。

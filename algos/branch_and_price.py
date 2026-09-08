@@ -496,7 +496,96 @@ class BranchAndPrice:
                 if rc < -1e-6:
                     out.append((rc, dd, list(route), km_exact))
         out.sort(key=lambda t: t[0])
+        if not out:
+            # GRASP 阶段 (v0.4): 贪心插入在强对偶下失效 (line 09 实测 priced=0),
+            # 随机化贪心 + 2-opt 可发现 rc −75 级负列 (0.1s 首列).
+            out = self._price_grasp(node, duals)
+        out.sort(key=lambda t: t[0])
         return [(dd, route, km) for _rc, dd, route, km in out[:60]]
+
+    def _price_grasp(self, node: _BPNode, duals, iters_per_date=60,
+                     k_greedy=8, seed=1234):
+        """GRASP 定价: 随机化贪心构造 + 2-opt 改进 (确定性: 按 date 索引播种)."""
+        import random
+        link_dual, wd_dual = duals["link"], duals["date"]
+        forced_by_date = {}
+        for (c, dd) in node.forced:
+            forced_by_date.setdefault(dd, []).append(c)
+        out = []
+        for di, dd in enumerate(self.dates):
+            if time.perf_counter() - self.t0 > self.time_budget:
+                break
+            wdd = wd_dual.get(dd, 0.0)
+            u = {c: -link_dual.get((c, dd), 0.0) for c in self.k_c}
+            order = [c for c in self.k_c
+                     if dd in self.legal.get(c, ()) and (c, dd) not in node.forbidden]
+            if len(order) < max(2, self.min_daily):
+                continue
+            forced_set = set(forced_by_date.get(dd, ()))
+            rng = random.Random(seed + di)
+            best_rc, best_route = 0.0, None
+            for _it in range(iters_per_date):
+                start = rng.choice(order)
+                route = [start]
+                in_day = {start}
+                while len(route) < self.max_daily:
+                    cands = []
+                    for c in order:
+                        if c in in_day:
+                            continue
+                        bd, bpos = self.D[c][route[0]], 0
+                        for k in range(len(route) - 1):
+                            dlt = (self.D[route[k]][c] + self.D[c][route[k + 1]]
+                                   - self.D[route[k]][route[k + 1]])
+                            if dlt < bd:
+                                bd, bpos = dlt, k + 1
+                        if self.D[route[-1]][c] < bd:
+                            bd, bpos = self.D[route[-1]][c], len(route)
+                        cands.append((u[c] - bd, c, bpos))
+                    if not cands:
+                        break
+                    cands.sort(reverse=True)
+                    pool = [t for t in cands[:k_greedy] if t[0] > 0] or cands[:1]
+                    _m, c, bpos = rng.choice(pool)
+                    route.insert(bpos, c)
+                    in_day.add(c)
+                if len(route) < max(2, self.min_daily):
+                    continue
+                route = self._two_opt_open(route)
+                km = day_km(route, self.D)
+                rc = km - sum(u[c] for c in route) - wdd
+                if rc < best_rc:
+                    best_rc, best_route = rc, list(route)
+                if best_rc < -1e-6:
+                    break   # CG 只需负列回灌, 首列即止 (实验: 首列 ~0.1s)
+                    in_day.add(c)
+                if len(route) < max(2, self.min_daily):
+                    continue
+                if any(c in forced_set for c in route) or not forced_set:
+                    pass
+                route = self._two_opt_open(route)
+                km = day_km(route, self.D)
+                rc = km - sum(u[c] for c in route) - wdd
+                if rc < best_rc:
+                    best_rc, best_route = rc, list(route)
+            if best_route is not None and best_rc < -1e-6:
+                if not forced_set or any(c in forced_set for c in best_route):
+                    out.append((best_rc, dd, best_route, day_km(best_route, self.D)))
+        return out
+
+    def _two_opt_open(self, route):
+        """开放路径 2-opt (距离下降, 不改店集)."""
+        route = list(route)
+        improved = True
+        while improved:
+            improved = False
+            for i in range(len(route) - 1):
+                for j in range(i + 1, len(route)):
+                    new = route[:i] + route[i:j + 1][::-1] + route[j + 1:]
+                    if day_km(new, self.D) < day_km(route, self.D) - 1e-9:
+                        route = new
+                        improved = True
+        return route
 
     # ---------------- 定价: CP-SAT 精确兜底 ----------------
     def _price_exact(self, node: _BPNode, duals):
