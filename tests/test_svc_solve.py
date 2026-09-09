@@ -62,13 +62,11 @@ def test_structure_gate_sentinel_arc_fails():
     """哨兵弧 (不可达对) 出现在路线中 -> structure_ok=False -> FAILED."""
     from svc.stages.solve import _compute_gates
     import datetime as _dt
-    from core.contract import contract_of
     spec, D = make_spec()
     D2 = D.copy()
     D2[0][1] = D2[1][0] = 1e9   # 店 0-1 之间不可达
     dates = [_dt.date(2000, 1, 1), _dt.date(2000, 1, 2)]
     days_orig = {dates[0]: [0, 1], dates[1]: [2, 3]}
-    gates = _compute_gates({1: [0, 1], 2: [2, 3]}, dates, spec,
-                            contract_of(days_orig, dates), D2, True)
+    gates = _compute_gates({1: [0, 1], 2: [2, 3]}, dates, spec, D2, True)
     assert gates["structure_ok"] is False
     assert gates["capacity_ok"] is True

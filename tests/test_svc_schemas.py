@@ -3,7 +3,7 @@ import pytest
 from svc.schemas.validate import validate_obj, SchemaError
 
 MIN_PROBLEM = {
-    "schema": "visitflow/problem", "version": "2.1",
+    "schema": "visitflow/problem", "version": "2.2",
     "inputs_hash": "sha256:ab", "line_id": "09",
     "cycle": {"n_days": 1},
     "stores": [{"id": 0, "code": "C001", "lon": 113.25, "lat": 23.05,
@@ -48,9 +48,9 @@ def test_problem_spec_valid():
     validate_obj(copy.deepcopy(MIN_PROBLEM), "problem")
 
 
-def test_problem_spec_rejects_bad_pattern():
+def test_problem_spec_rejects_bad_horizon():
     bad = copy.deepcopy(MIN_PROBLEM)
-    bad["stores"][0]["frequency"]["pattern"] = "2"
+    bad["stores"][0]["frequency"]["horizon"] = 0
     with pytest.raises(SchemaError):
         validate_obj(bad, "problem")
 

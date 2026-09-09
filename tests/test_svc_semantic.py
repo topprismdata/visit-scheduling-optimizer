@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 from svc.schemas.validate import validate_obj
 from svc.stages.semantic import (build_calendar_map, build_spec_from_df,
-                                  _derive_frequency_pattern)
+                                  _derive_frequency)
 
 DATES = [pd.Timestamp("2026-07-01").date(), pd.Timestamp("2026-07-02").date()]
 
@@ -22,24 +22,26 @@ def make_line_df():
     return pd.DataFrame(rows)
 
 
-def test_frequency_pattern_derivation_pvrp():
-    # 周访: 工作日 1,6,11,16,21 / 23天 -> T=5, 每 5 日 1 次, pattern "10000"
-    f = _derive_frequency_pattern([1, 6, 11, 16, 21], 23)
-    assert (f["horizon"], f["visits"], f["pattern"], f["ambiguous"]) == \
-        (5, 5, "10000", False)
-    # 双周: 4,14 / 23天 -> T=5? 4 与 14 残差 4,4 -> T=5: 残差 {4:2}, 但 r=4>rem? 
-    # rem/商: 23=4*5+3; r=4<=3? 否 -> 期望 4 次; 实际 2 -> T=5 不合 -> T=10 合
-    f = _derive_frequency_pattern([4, 14], 23)
-    assert (f["horizon"], f["visits"], f["ambiguous"]) == (10, 2, False)
-    assert f["pattern"] == "0001000000"
-    # 月访(次/4周): 13 / 23天 -> T=20 (4工作周), pattern 第13位为 1
-    f = _derive_frequency_pattern([13], 23)
-    assert f["horizon"] == 20 and f["visits"] == 1
-    assert f["pattern"][12] == "1" and f["pattern"].count("1") == 1
-    assert f["ambiguous"] is False
-    # 节奏断裂: 1,8,22 (缺15) -> ambiguous
-    f = _derive_frequency_pattern([1, 8, 22], 23)
-    assert f["ambiguous"] is True
+def test_frequency_derivation_classes():
+    # ~5 次/23天 -> 周1次 (次/周, horizon 5)
+    f = _derive_frequency([1, 6, 11, 16, 21], 23)
+    assert (f["horizon"], f["visits"], f["ambiguous"]) == (5, 1, False)
+    # ~2 次/23天 -> 次/2周 (horizon 10)
+    f = _derive_frequency([4, 14], 23)
+    assert (f["horizon"], f["visits"], f["ambiguous"]) == (10, 1, False)
+    # 1 次/23天 -> 次/4周 (horizon 20)
+    f = _derive_frequency([13], 23)
+    assert (f["horizon"], f["visits"], f["ambiguous"]) == (20, 1, False)
+    # 7 次/23天 -> 每周1.5次不成档 -> 次/2周 3 次 (预测 6.96 ≈ 7)
+    f = _derive_frequency(list(range(1, 8)), 23)
+    assert f["horizon"] == 10 and f["visits"] == 3 and f["ambiguous"] is False
+    # 无 pattern 字段: pattern 属于求解器决策变量
+    assert "pattern" not in f
+
+
+def _derive_frequency(*a, **k):
+    from svc.stages.semantic import _derive_frequency as _f
+    return _f(*a, **k)
 
 
 def test_build_spec_v2_no_calendar_fields():
@@ -50,10 +52,8 @@ def test_build_spec_v2_no_calendar_fields():
     # 日历无关: 全文不允许出现 ISO 日期
     assert "2026-07" not in str(spec)
     assert spec["cycle"]["n_days"] == 2
-    assert spec["stores"][0]["frequency"]["pattern"] == "11"
     assert spec["stores"][0]["frequency"]["visits"] == 2
-    # 微型周期(2天)无法归入业务节奏档(5/10/20) -> 诚实标歧义
-    assert spec["stores"][0]["frequency"]["ambiguous"] is True
+    assert spec["stores"][0]["frequency"]["horizon"] == 2   # 兜底 = 周期长
     # 分配键 = 拜访日序号
     assert spec["original_assignment_idx"]["1"] == [0, 1, 2]   # 店0/1/2
     assert spec["original_assignment_idx"]["2"] == [3, 0, 1]   # 按拜访顺序: 店3先(顺序1)

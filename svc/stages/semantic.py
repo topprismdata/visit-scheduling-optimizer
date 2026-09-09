@@ -20,31 +20,22 @@ def _iso(d) -> str:
     return d.isoformat() if hasattr(d, "isoformat") else str(d)
 
 
-def _derive_frequency_pattern(day_idxs: list, n_days: int) -> dict:
-    """PVRP 语义: 服务频率 + 拜访组合模式 (bitmask over 工作日周期).
+def _derive_frequency(day_idxs: list, n_days: int) -> dict:
+    """从拜访记录反推频次需求 (业务含义: 每 horizon 个工作日来 visits 次).
 
-    周期 T 从业务周期候选 (5/10/15/20 个工作周序日) 中选最小的、使全店
-    拜访模式可 T-周期化的值. pattern 为长度 T 的 bitmask 字符串.
-    返回 {horizon, visits, pattern, ambiguous, source}.
+    兜底逻辑 —— 业务系统里的合同频次才是第一来源 (source=explicit).
+    规则: 取最小的业务周期 T∈{5,10,20}, 使 round(k*T/n) 次能再现观察值
+    (|k − v*n/T| < 0.5); 都不合 -> 节奏断裂, ambiguous=True.
     """
-    v = sorted(day_idxs)
-    # 业务节奏候选: 周访5 / 双周10 / 月访20 (工作日). 都不合 -> ambiguous
-    candidates = [t for t in (5, 10, 20) if t <= n_days]
-    for T in sorted(set(candidates)):
-        n_full, rem = divmod(n_days, T)
-        residues = Counter(((x - 1) % T) + 1 for x in v)
-        ok = all(
-            cnt == (n_full + 1 if r <= rem else n_full)
-            for r, cnt in residues.items())
-        if ok and sum(residues.values()) == len(v):
-            pattern = "".join("1" if residues.get(r, 0) else "0"
-                              for r in range(1, T + 1))
-            return {"horizon": T, "visits": len(v), "pattern": pattern,
+    k = len(day_idxs)
+    for T in (5, 10, 20):
+        if T > n_days:
+            continue
+        v = round(k * T / n_days)
+        if v >= 1 and abs(k - v * n_days / T) < 0.5:
+            return {"horizon": T, "visits": v, "observed_visits": k,
                      "ambiguous": False, "source": "derived"}
-    # 不可周期化: 节奏断裂 (新签/流失/漏访) — 取全周期, 标 ambiguous
-    T = n_days
-    pattern = "".join("1" if r in v else "0" for r in range(1, T + 1))
-    return {"horizon": T, "visits": len(v), "pattern": pattern,
+    return {"horizon": n_days, "visits": k, "observed_visits": k,
              "ambiguous": True, "source": "derived"}
 
 
@@ -75,7 +66,7 @@ def build_spec_from_df(line_df, line_id: str, D: np.ndarray) -> dict:
     stores = []
     for c in codes:
         sid = idx[c]
-        f = _derive_frequency_pattern(visits_by_store[c], n_days)
+        f = _derive_frequency(visits_by_store[c], n_days)
         stores.append({
             "id": sid, "code": c,
             "lon": float(pts.loc[c, "经度"]), "lat": float(pts.loc[c, "纬度"]),
@@ -83,7 +74,7 @@ def build_spec_from_df(line_df, line_id: str, D: np.ndarray) -> dict:
         })
 
     spec = {
-        "schema": "visitflow/problem", "version": "2.1",
+        "schema": "visitflow/problem", "version": "2.2",
         "inputs_hash": "PENDING", "line_id": line_id,
         "cycle": {"n_days": n_days},
         "stores": stores,
@@ -139,7 +130,7 @@ def build_spec_from_line(line, line_id: str, D, matrix_ref: str) -> dict:
 
     stores = []
     for i in range(len(codes_orig)):
-        f = _derive_frequency_pattern(visits_by_store[i], len(line.dates))
+        f = _derive_frequency(visits_by_store[i], len(line.dates))
         stores.append({
             "id": i, "code": codes_str[i],
             "lon": float(line.lon[i]), "lat": float(line.lat[i]),
@@ -147,7 +138,7 @@ def build_spec_from_line(line, line_id: str, D, matrix_ref: str) -> dict:
         })
 
     spec = {
-        "schema": "visitflow/problem", "version": "2.1",
+        "schema": "visitflow/problem", "version": "2.2",
         "inputs_hash": "PENDING", "line_id": line_id,
         "cycle": {"n_days": len(line.dates)},
         "stores": stores,

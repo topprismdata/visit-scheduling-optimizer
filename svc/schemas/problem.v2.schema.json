@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "visitflow/problem v2.1 — PVRP 频率+模式 (日历无关)",
+  "title": "visitflow/problem v2.2 — 频次需求 (日历无关)",
   "type": "object",
   "required": ["schema", "version", "inputs_hash", "line_id", "cycle",
                 "stores", "corridor", "original_assignment_idx", "distance",
                 "meta"],
   "properties": {
     "schema": {"const": "visitflow/problem"},
-    "version": {"const": "2.1"},
+    "version": {"const": "2.2"},
     "inputs_hash": {"type": "string", "pattern": "^sha256:"},
     "line_id": {"type": "string"},
     "cycle": {
@@ -26,12 +26,11 @@
           "lon": {"type": "number"}, "lat": {"type": "number"},
           "frequency": {
             "type": "object",
-            "required": ["horizon", "visits", "pattern", "ambiguous",
-                          "source"],
+            "required": ["horizon", "visits", "ambiguous", "source"],
             "properties": {
               "horizon": {"type": "integer", "minimum": 1},
               "visits": {"type": "integer", "minimum": 1},
-              "pattern": {"type": "string", "pattern": "^[01]+$"},
+              "observed_visits": {"type": "integer", "minimum": 0},
               "ambiguous": {"type": "boolean"},
               "source": {"enum": ["explicit", "derived"]}
             }
