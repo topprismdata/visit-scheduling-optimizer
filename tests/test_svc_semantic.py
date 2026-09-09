@@ -35,7 +35,9 @@ def test_build_spec_schema_valid_and_hashes():
     assert spec["stores"][2]["contract"]["kind"] in ("W", "B")
     # legal_date_map 实测语义: 微型日历下 W 店合法域 = 全日期 (union over weekdays)
     assert spec["stores"][2]["legal_dates_idx"] == [0, 1]
-    assert spec["original_assignment"]["2026-07-01"] == [0, 2]
+    # 店 0/1 两天都拜访, 店 2 仅 07-01
+    assert spec["original_assignment"]["2026-07-01"] == [0, 1, 2]
+    assert spec["original_assignment"]["2026-07-02"] == [0, 1, 3]
     assert spec["distance"]["n"] == 4
     spec2 = build_spec_from_df(make_line_df(), "09", D)
     assert spec["inputs_hash"] == spec2["inputs_hash"]
