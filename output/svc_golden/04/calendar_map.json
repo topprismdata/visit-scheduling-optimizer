@@ -1,0 +1,122 @@
+{
+ "schema": "visitflow/calendar-map",
+ "version": "1.0",
+ "line_id": "04",
+ "mapping": [
+  {
+   "day": 1,
+   "date": "2026-07-01",
+   "weekday": "Wed"
+  },
+  {
+   "day": 2,
+   "date": "2026-07-02",
+   "weekday": "Thu"
+  },
+  {
+   "day": 3,
+   "date": "2026-07-03",
+   "weekday": "Fri"
+  },
+  {
+   "day": 4,
+   "date": "2026-07-06",
+   "weekday": "Mon"
+  },
+  {
+   "day": 5,
+   "date": "2026-07-07",
+   "weekday": "Tue"
+  },
+  {
+   "day": 6,
+   "date": "2026-07-08",
+   "weekday": "Wed"
+  },
+  {
+   "day": 7,
+   "date": "2026-07-09",
+   "weekday": "Thu"
+  },
+  {
+   "day": 8,
+   "date": "2026-07-10",
+   "weekday": "Fri"
+  },
+  {
+   "day": 9,
+   "date": "2026-07-13",
+   "weekday": "Mon"
+  },
+  {
+   "day": 10,
+   "date": "2026-07-14",
+   "weekday": "Tue"
+  },
+  {
+   "day": 11,
+   "date": "2026-07-15",
+   "weekday": "Wed"
+  },
+  {
+   "day": 12,
+   "date": "2026-07-16",
+   "weekday": "Thu"
+  },
+  {
+   "day": 13,
+   "date": "2026-07-17",
+   "weekday": "Fri"
+  },
+  {
+   "day": 14,
+   "date": "2026-07-20",
+   "weekday": "Mon"
+  },
+  {
+   "day": 15,
+   "date": "2026-07-21",
+   "weekday": "Tue"
+  },
+  {
+   "day": 16,
+   "date": "2026-07-22",
+   "weekday": "Wed"
+  },
+  {
+   "day": 17,
+   "date": "2026-07-23",
+   "weekday": "Thu"
+  },
+  {
+   "day": 18,
+   "date": "2026-07-24",
+   "weekday": "Fri"
+  },
+  {
+   "day": 19,
+   "date": "2026-07-27",
+   "weekday": "Mon"
+  },
+  {
+   "day": 20,
+   "date": "2026-07-28",
+   "weekday": "Tue"
+  },
+  {
+   "day": 21,
+   "date": "2026-07-29",
+   "weekday": "Wed"
+  },
+  {
+   "day": 22,
+   "date": "2026-07-30",
+   "weekday": "Thu"
+  },
+  {
+   "day": 23,
+   "date": "2026-07-31",
+   "weekday": "Fri"
+  }
+ ]
+}

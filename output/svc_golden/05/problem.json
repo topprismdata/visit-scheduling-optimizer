@@ -1,34 +1,9 @@
 {
  "schema": "visitflow/problem",
- "version": "1.0",
- "inputs_hash": "sha256:029678e8412371240c053f9a192a4772c013501a3ebfc7a0c8e333b92d509467",
+ "version": "2.1",
+ "inputs_hash": "sha256:f1a7530c658abb73c806cfabc37622c027ef75f6def1b4d5dbec501811a21e51",
  "line_id": "05",
- "calendar": {
-  "dates": [
-   "2026-07-01",
-   "2026-07-02",
-   "2026-07-03",
-   "2026-07-06",
-   "2026-07-07",
-   "2026-07-08",
-   "2026-07-09",
-   "2026-07-10",
-   "2026-07-13",
-   "2026-07-14",
-   "2026-07-15",
-   "2026-07-16",
-   "2026-07-17",
-   "2026-07-20",
-   "2026-07-21",
-   "2026-07-22",
-   "2026-07-23",
-   "2026-07-24",
-   "2026-07-27",
-   "2026-07-28",
-   "2026-07-29",
-   "2026-07-30",
-   "2026-07-31"
-  ],
+ "cycle": {
   "n_days": 23
  },
  "stores": [
@@ -37,5876 +12,2127 @@
    "code": "30000663985",
    "lon": 113.270763,
    "lat": 23.100368,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 1,
    "code": "30000665845",
    "lon": 113.285461,
    "lat": 23.102396,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 2,
    "code": "30000666105",
    "lon": 113.269886,
    "lat": 23.098956,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 3,
    "code": "30000666402",
    "lon": 113.269902,
    "lat": 23.093359,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 4,
    "code": "30000666908",
    "lon": 113.27587,
    "lat": 23.094875,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 5,
    "code": "30000698054",
    "lon": 113.272986,
    "lat": 23.103276,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 6,
    "code": "30000429547",
    "lon": 113.283662,
    "lat": 23.094069,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 7,
    "code": "20000261632",
    "lon": 113.270268,
    "lat": 23.092928,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 8,
    "code": "20000284198",
    "lon": 113.275244,
    "lat": 23.10457,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 9,
    "code": "20000284200",
    "lon": 113.276312,
    "lat": 23.103977,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 10,
    "code": "20000786253",
    "lon": 113.270387,
    "lat": 23.097637,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 11,
    "code": "30000036776",
    "lon": 113.268993,
    "lat": 23.101819,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 12,
    "code": "30000037381",
    "lon": 113.274658,
    "lat": 23.096616,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 13,
    "code": "30000252036",
    "lon": 113.267518,
    "lat": 23.092336,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 14,
    "code": "30000665787",
    "lon": 113.285859,
    "lat": 23.106319,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 15,
    "code": "30000666023",
    "lon": 113.286404,
    "lat": 23.099804,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 16,
    "code": "30000666051",
    "lon": 113.27015,
    "lat": 23.098719,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 17,
    "code": "30000666414",
    "lon": 113.270414,
    "lat": 23.092995,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 18,
    "code": "30000666462",
    "lon": 113.268042,
    "lat": 23.094142,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 19,
    "code": "30000666516",
    "lon": 113.269315,
    "lat": 23.094962,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 20,
    "code": "30000666609",
    "lon": 113.2667,
    "lat": 23.093669,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 21,
    "code": "30000666711",
    "lon": 113.268501,
    "lat": 23.090161,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 22,
    "code": "30000698229",
    "lon": 113.261847,
    "lat": 23.098396,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 23,
    "code": "30000698762",
    "lon": 113.275202,
    "lat": 23.096933,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 24,
    "code": "30000715424",
    "lon": 113.28524,
    "lat": 23.098803,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 25,
    "code": "30000721717",
    "lon": 113.253741,
    "lat": 23.093918,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 26,
    "code": "30000748477",
    "lon": 113.28481,
    "lat": 23.099823,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 27,
    "code": "30001101790",
    "lon": 113.280784,
    "lat": 23.102459,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00010",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 28,
    "code": "20000714419",
    "lon": 113.270022,
    "lat": 23.102494,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 29,
    "code": "20000742635",
    "lon": 113.252232,
    "lat": 23.103332,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 30,
    "code": "20000748559",
    "lon": 113.267705,
    "lat": 23.104352,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 31,
    "code": "20000908910",
    "lon": 113.270776,
    "lat": 23.093213,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 32,
    "code": "30000219615",
    "lon": 113.265578,
    "lat": 23.106944,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 33,
    "code": "30000220288",
    "lon": 113.2533,
    "lat": 23.102937,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 34,
    "code": "30000223112",
    "lon": 113.271519,
    "lat": 23.103797,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 35,
    "code": "30000225110",
    "lon": 113.258876,
    "lat": 23.107847,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 36,
    "code": "30000241107",
    "lon": 113.251904,
    "lat": 23.104841,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 37,
    "code": "600001425",
    "lon": 113.252687,
    "lat": 23.097441,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 38,
    "code": "600004035",
    "lon": 113.251131,
    "lat": 23.103346,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 39,
    "code": "700119810",
    "lon": 113.261449,
    "lat": 23.09767,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 40,
    "code": "710325995",
    "lon": 113.261566,
    "lat": 23.10112,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 41,
    "code": "710351934",
    "lon": 113.259521,
    "lat": 23.099041,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 42,
    "code": "990054563",
    "lon": 113.270629,
    "lat": 23.104156,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 43,
    "code": "990054568",
    "lon": 113.268887,
    "lat": 23.100915,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 44,
    "code": "990054569",
    "lon": 113.268409,
    "lat": 23.100896,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 45,
    "code": "990054585",
    "lon": 113.263415,
    "lat": 23.10196,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 46,
    "code": "999127669",
    "lon": 113.263749,
    "lat": 23.102294,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 47,
    "code": "30000290711",
    "lon": 113.267999,
    "lat": 23.104003,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 48,
    "code": "30000292248",
    "lon": 113.25143,
    "lat": 23.099402,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 49,
    "code": "30000491286",
    "lon": 113.271423,
    "lat": 23.090592,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 50,
    "code": "30000681605",
    "lon": 113.264186,
    "lat": 23.10058,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 51,
    "code": "30000838571",
    "lon": 113.260856,
    "lat": 23.108721,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 52,
    "code": "30001138331",
    "lon": 113.268274,
    "lat": 23.103435,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 53,
    "code": "30000999996",
    "lon": 113.258681,
    "lat": 23.107443,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 54,
    "code": "30000729418",
    "lon": 113.263257,
    "lat": 23.101285,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 55,
    "code": "30000892511",
    "lon": 113.256967,
    "lat": 23.106585,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 56,
    "code": "20000712983",
    "lon": 113.254494,
    "lat": 23.105328,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 57,
    "code": "30000654876",
    "lon": 113.268037,
    "lat": 23.103897,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 58,
    "code": "30000707379",
    "lon": 113.25214,
    "lat": 23.103566,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 59,
    "code": "30001481565",
    "lon": 113.269662,
    "lat": 23.100829,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 60,
    "code": "600053143",
    "lon": 113.276242,
    "lat": 23.096771,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 61,
    "code": "600099598",
    "lon": 113.278102,
    "lat": 23.100679,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 62,
    "code": "710200590",
    "lon": 113.278598,
    "lat": 23.100087,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 63,
    "code": "999127668",
    "lon": 113.276461,
    "lat": 23.102968,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 64,
    "code": "999373559",
    "lon": 113.283271,
    "lat": 23.101714,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 65,
    "code": "999503297",
    "lon": 113.272487,
    "lat": 23.110789,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 66,
    "code": "20000922327",
    "lon": 113.275499,
    "lat": 23.094867,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 67,
    "code": "30000223224",
    "lon": 113.281454,
    "lat": 23.100691,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 68,
    "code": "30000772271",
    "lon": 113.274654,
    "lat": 23.109147,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 69,
    "code": "30000887825",
    "lon": 113.280941,
    "lat": 23.10247,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 70,
    "code": "30000967469",
    "lon": 113.273806,
    "lat": 23.109714,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 71,
    "code": "30001017000",
    "lon": 113.268245,
    "lat": 23.111982,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 72,
    "code": "30001209255",
    "lon": 113.268927,
    "lat": 23.10567,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 73,
    "code": "30001250542",
    "lon": 113.26865,
    "lat": 23.105524,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 74,
    "code": "30001250546",
    "lon": 113.26865,
    "lat": 23.105524,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 75,
    "code": "30001374112",
    "lon": 113.267816,
    "lat": 23.111648,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 76,
    "code": "30001381866",
    "lon": 113.269344,
    "lat": 23.105539,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 77,
    "code": "990054809",
    "lon": 113.269637,
    "lat": 23.112316,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 78,
    "code": "30000251851",
    "lon": 113.268285,
    "lat": 23.100242,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 79,
    "code": "990054633",
    "lon": 113.271838,
    "lat": 23.112442,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 80,
    "code": "990054655",
    "lon": 113.281472,
    "lat": 23.104812,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 81,
    "code": "990054905",
    "lon": 113.278844,
    "lat": 23.098226,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 82,
    "code": "20000606790",
    "lon": 113.278396,
    "lat": 23.10667,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 83,
    "code": "20000609909",
    "lon": 113.277684,
    "lat": 23.097411,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 84,
    "code": "20000748918",
    "lon": 113.273384,
    "lat": 23.108711,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 85,
    "code": "20000791751",
    "lon": 113.270634,
    "lat": 23.105986,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 86,
    "code": "30000223330",
    "lon": 113.280688,
    "lat": 23.105636,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 87,
    "code": "30000224016",
    "lon": 113.267007,
    "lat": 23.090778,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 88,
    "code": "30000665827",
    "lon": 113.280425,
    "lat": 23.102481,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 89,
    "code": "30000711811",
    "lon": 113.279825,
    "lat": 23.100177,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 90,
    "code": "30000825263",
    "lon": 113.260177,
    "lat": 23.108481,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 91,
    "code": "30001168102",
    "lon": 113.282509,
    "lat": 23.099886,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 92,
    "code": "990054635",
    "lon": 113.277218,
    "lat": 23.106512,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 93,
    "code": "999378628",
    "lon": 113.274898,
    "lat": 23.09646,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "10000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 94,
    "code": "999326630",
    "lon": 113.262149,
    "lat": 23.089728,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 95,
    "code": "710241512",
    "lon": 113.263242,
    "lat": 23.090856,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 96,
    "code": "660240494",
    "lon": 113.26175,
    "lat": 23.092194,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 97,
    "code": "700119820",
    "lon": 113.255252,
    "lat": 23.095336,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 98,
    "code": "710148617",
    "lon": 113.268917,
    "lat": 23.09842,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 99,
    "code": "710191878",
    "lon": 113.267019,
    "lat": 23.091379,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 100,
    "code": "710207210",
    "lon": 113.253486,
    "lat": 23.092642,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 101,
    "code": "990055706",
    "lon": 113.274064,
    "lat": 23.100472,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 102,
    "code": "20000711400",
    "lon": 113.26413,
    "lat": 23.09362,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 103,
    "code": "30000220927",
    "lon": 113.273273,
    "lat": 23.098681,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 104,
    "code": "30000253023",
    "lon": 113.268517,
    "lat": 23.098336,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 105,
    "code": "30000577712",
    "lon": 113.262389,
    "lat": 23.086499,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 106,
    "code": "30000659051",
    "lon": 113.255365,
    "lat": 23.088715,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 107,
    "code": "30000668185",
    "lon": 113.251433,
    "lat": 23.102249,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 108,
    "code": "30000668357",
    "lon": 113.24999,
    "lat": 23.102076,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 109,
    "code": "30000669928",
    "lon": 113.253428,
    "lat": 23.093101,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 110,
    "code": "30000859744",
    "lon": 113.257822,
    "lat": 23.094789,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 111,
    "code": "30000959907",
    "lon": 113.265134,
    "lat": 23.09704,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 112,
    "code": "20000707324",
    "lon": 113.253808,
    "lat": 23.093881,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 113,
    "code": "30000223122",
    "lon": 113.271511,
    "lat": 23.103944,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 114,
    "code": "30000223795",
    "lon": 113.260578,
    "lat": 23.091057,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 115,
    "code": "30000670536",
    "lon": 113.252647,
    "lat": 23.097486,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 116,
    "code": "30000709177",
    "lon": 113.253661,
    "lat": 23.092271,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 117,
    "code": "30000710820",
    "lon": 113.263309,
    "lat": 23.087155,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 118,
    "code": "30000722617",
    "lon": 113.262047,
    "lat": 23.087027,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 119,
    "code": "30000821510",
    "lon": 113.252279,
    "lat": 23.100733,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 120,
    "code": "30000877721",
    "lon": 113.256617,
    "lat": 23.090181,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 121,
    "code": "30001504259",
    "lon": 113.251379,
    "lat": 23.103667,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 122,
    "code": "30001506186",
    "lon": 113.273173,
    "lat": 23.098661,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 123,
    "code": "660582789",
    "lon": 113.262934,
    "lat": 23.094436,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 124,
    "code": "710121094",
    "lon": 113.258017,
    "lat": 23.092198,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 125,
    "code": "990055927",
    "lon": 113.259679,
    "lat": 23.092379,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 126,
    "code": "30000027796",
    "lon": 113.27742,
    "lat": 23.111701,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 127,
    "code": "30000223096",
    "lon": 113.271535,
    "lat": 23.104985,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 128,
    "code": "30000656114",
    "lon": 113.254972,
    "lat": 23.103007,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 129,
    "code": "30000671786",
    "lon": 113.285289,
    "lat": 23.098231,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 130,
    "code": "30000675280",
    "lon": 113.271031,
    "lat": 23.08786,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 131,
    "code": "30000678705",
    "lon": 113.281545,
    "lat": 23.099115,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 132,
    "code": "30000701107",
    "lon": 113.256445,
    "lat": 23.097507,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 133,
    "code": "30000703899",
    "lon": 113.272672,
    "lat": 23.097509,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 134,
    "code": "30000972248",
    "lon": 113.255351,
    "lat": 23.088487,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 135,
    "code": "30001016112",
    "lon": 113.271995,
    "lat": 23.097214,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 136,
    "code": "30001093879",
    "lon": 113.283952,
    "lat": 23.107533,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 137,
    "code": "30001093887",
    "lon": 113.284425,
    "lat": 23.10578,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 138,
    "code": "30000003412",
    "lon": 113.281,
    "lat": 23.097568,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 139,
    "code": "30000249279",
    "lon": 113.259146,
    "lat": 23.106445,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 140,
    "code": "30000251976",
    "lon": 113.265145,
    "lat": 23.106522,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 141,
    "code": "30000663928",
    "lon": 113.265382,
    "lat": 23.109895,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 142,
    "code": "30000664202",
    "lon": 113.258343,
    "lat": 23.099212,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 143,
    "code": "30000675709",
    "lon": 113.272502,
    "lat": 23.10526,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 144,
    "code": "30000694460",
    "lon": 113.25924,
    "lat": 23.099308,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 145,
    "code": "30000695977",
    "lon": 113.265289,
    "lat": 23.109839,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 146,
    "code": "30000698159",
    "lon": 113.268531,
    "lat": 23.094048,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 147,
    "code": "30000698212",
    "lon": 113.253059,
    "lat": 23.094228,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 148,
    "code": "30000703332",
    "lon": 113.276076,
    "lat": 23.111397,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 149,
    "code": "30000728809",
    "lon": 113.254664,
    "lat": 23.098271,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 150,
    "code": "30000733331",
    "lon": 113.254561,
    "lat": 23.097983,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 151,
    "code": "30000734442",
    "lon": 113.259349,
    "lat": 23.103054,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 152,
    "code": "30000755630",
    "lon": 113.286966,
    "lat": 23.098772,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 153,
    "code": "30000768590",
    "lon": 113.258744,
    "lat": 23.087798,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 154,
    "code": "30000797129",
    "lon": 113.265022,
    "lat": 23.101109,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 155,
    "code": "30000811160",
    "lon": 113.255131,
    "lat": 23.096143,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 156,
    "code": "30000811220",
    "lon": 113.255462,
    "lat": 23.099,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 157,
    "code": "30000857763",
    "lon": 113.259936,
    "lat": 23.089772,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 158,
    "code": "30000876363",
    "lon": 113.259581,
    "lat": 23.099213,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 159,
    "code": "30001467595",
    "lon": 113.277705,
    "lat": 23.097522,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 160,
    "code": "30001443069",
    "lon": 113.251717,
    "lat": 23.102275,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 4
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 4,
+    "pattern": "00001",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 161,
    "code": "30001455137",
    "lon": 113.255376,
    "lat": 23.095961,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "01000",
+    "ambiguous": false,
+    "source": "derived"
+   }
   },
   {
    "id": 162,
    "code": "30001331328",
    "lon": 113.270504,
    "lat": 23.111081,
-   "contract": {
-    "kind": "W",
-    "phase": 0,
-    "required_visits": 5
-   },
-   "legal_dates_idx": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22
-   ]
+   "frequency": {
+    "horizon": 5,
+    "visits": 5,
+    "pattern": "00100",
+    "ambiguous": false,
+    "source": "derived"
+   }
   }
  ],
  "corridor": {
   "min_daily": 28,
   "max_daily": 35
  },
- "original_assignment": {
-  "2026-07-01": [
+ "original_assignment_idx": {
+  "1": [
    60,
    61,
    62,
@@ -5942,7 +2168,7 @@
    92,
    93
   ],
-  "2026-07-02": [
+  "2": [
    94,
    95,
    96,
@@ -5977,7 +2203,7 @@
    125,
    161
   ],
-  "2026-07-03": [
+  "3": [
    126,
    127,
    128,
@@ -6014,7 +2240,7 @@
    159,
    162
   ],
-  "2026-07-06": [
+  "4": [
    0,
    1,
    2,
@@ -6044,7 +2270,7 @@
    26,
    27
   ],
-  "2026-07-07": [
+  "5": [
    28,
    29,
    30,
@@ -6079,7 +2305,7 @@
    59,
    160
   ],
-  "2026-07-08": [
+  "6": [
    60,
    61,
    62,
@@ -6115,7 +2341,7 @@
    92,
    93
   ],
-  "2026-07-09": [
+  "7": [
    94,
    95,
    96,
@@ -6150,7 +2376,7 @@
    125,
    161
   ],
-  "2026-07-10": [
+  "8": [
    126,
    127,
    128,
@@ -6187,7 +2413,7 @@
    159,
    162
   ],
-  "2026-07-13": [
+  "9": [
    0,
    1,
    2,
@@ -6217,7 +2443,7 @@
    26,
    27
   ],
-  "2026-07-14": [
+  "10": [
    28,
    29,
    30,
@@ -6252,7 +2478,7 @@
    59,
    160
   ],
-  "2026-07-15": [
+  "11": [
    60,
    61,
    62,
@@ -6288,7 +2514,7 @@
    92,
    93
   ],
-  "2026-07-16": [
+  "12": [
    94,
    95,
    96,
@@ -6323,7 +2549,7 @@
    125,
    161
   ],
-  "2026-07-17": [
+  "13": [
    126,
    127,
    128,
@@ -6360,7 +2586,7 @@
    159,
    162
   ],
-  "2026-07-20": [
+  "14": [
    0,
    1,
    2,
@@ -6390,7 +2616,7 @@
    26,
    27
   ],
-  "2026-07-21": [
+  "15": [
    28,
    29,
    30,
@@ -6425,7 +2651,7 @@
    59,
    160
   ],
-  "2026-07-22": [
+  "16": [
    60,
    61,
    62,
@@ -6461,7 +2687,7 @@
    92,
    93
   ],
-  "2026-07-23": [
+  "17": [
    94,
    95,
    96,
@@ -6496,7 +2722,7 @@
    125,
    161
   ],
-  "2026-07-24": [
+  "18": [
    126,
    127,
    128,
@@ -6533,7 +2759,7 @@
    159,
    162
   ],
-  "2026-07-27": [
+  "19": [
    0,
    1,
    2,
@@ -6563,7 +2789,7 @@
    26,
    27
   ],
-  "2026-07-28": [
+  "20": [
    28,
    29,
    30,
@@ -6598,7 +2824,7 @@
    59,
    160
   ],
-  "2026-07-29": [
+  "21": [
    60,
    61,
    62,
@@ -6634,7 +2860,7 @@
    92,
    93
   ],
-  "2026-07-30": [
+  "22": [
    94,
    95,
    96,
@@ -6669,7 +2895,7 @@
    125,
    161
   ],
-  "2026-07-31": [
+  "23": [
    126,
    127,
    128,

@@ -1,12 +1,11 @@
 {
  "schema": "visitflow/model",
  "version": "1.0",
- "problem_hash": "sha256:75af5e398f2ead14d3b4afc2d03692f5dd0002be966af6c132677f8ff80b00a7",
+ "problem_hash": "sha256:9476d0d02460e97b928ed2bbc5d4b9f4660e444753928a0436141114b0a2e555",
  "formulation": {
   "kind": "fixed-row-v2",
   "vars": {
-   "y_pairs": 3956,
-   "y_pairs_legal": 3956
+   "y_pairs": 3956
   }
  },
  "legal_domain": {
@@ -20,6 +19,7 @@
   "corridor_ok": true
  },
  "meta": {
-  "compile_ms": 0
+  "compile_ms": 0,
+  "ambiguous_stores": 0
  }
 }
