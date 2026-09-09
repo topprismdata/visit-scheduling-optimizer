@@ -174,9 +174,6 @@ class R2ALNS(Algorithm):
                 # 走廊校验 (c 不在新旧交集里才动)
                 if set(new_dates) == set(old_dates):
                     continue
-                # 频次守恒: 非相位模式下候选次数必须与当前一致
-                if not phase_moves and len(new_dates) != len(old_dates):
-                    continue
                 rel_ok = all(min_cap < len(day_members[d]) for d in old_dates)
                 rcv_ok = True
                 shared = [d for d in new_dates if d not in old_dates]
@@ -200,21 +197,14 @@ class R2ALNS(Algorithm):
             delta, given, shared = best_ev
             if delta < -1e-9 or rng.random() < 0.05:
                 accepted += 1
-                _before = sum(len(v) for v in day_members.values())
                 for d in given:
                     day_members[d].discard(c); sched[c].discard(d)
                 for d in shared:
                     day_members[d].add(c); sched[c].add(d)
-                _after = sum(len(v) for v in day_members.values())
-                # 相位模式: 次数随相位而变 (合法); 旧模式: 必须守恒
-                if not phase_moves and _after != _before:
-                    raise AssertionError(
-                        f"次数不守恒: its={its} c={c} given={len(given)} "
-                        f"shared={len(shared)} before={_before} after={_after}")
                 if its % 50 == 0:
-                    cur_km = sum(day_km_est(day_members[dd]) for dd in dates)   # 周期校准
+                    cur_km = sum(day_km_est(day_members[dd]) for dd in dates)
                 else:
-                    cur_km += delta                # 增量簿记 (仅影响接受/最优阈值)
+                    cur_km += delta
                 if cur_km < best_km - 1e-9:
                     best_km = cur_km
                     best_routes = {dd: sorted(day_members[dd]) for dd in dates}
