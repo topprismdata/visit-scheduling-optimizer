@@ -6,7 +6,8 @@ import jsonschema
 
 _DIR = Path(__file__).parent
 _SCHEMA_FILES = {
-    "problem": "problem.v1.schema.json",
+    "problem": "problem.v2.schema.json",
+    "calendar_map": "calendar_map.v1.schema.json",
     "model": "model.v1.schema.json",
     "solution": "solution.v1.schema.json",
 }

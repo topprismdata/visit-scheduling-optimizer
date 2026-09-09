@@ -3,14 +3,14 @@ import pytest
 from svc.schemas.validate import validate_obj, SchemaError
 
 MIN_PROBLEM = {
-    "schema": "visitflow/problem", "version": "1.0",
+    "schema": "visitflow/problem", "version": "2.0",
     "inputs_hash": "sha256:ab", "line_id": "09",
-    "calendar": {"dates": ["2026-07-01"], "n_days": 1},
+    "cycle": {"n_days": 1},
     "stores": [{"id": 0, "code": "C001", "lon": 113.25, "lat": 23.05,
-                 "contract": {"kind": "W", "phase": 0, "required_visits": 3},
-                 "legal_dates_idx": [0]}],
+                 "rhythm": {"period": 1, "phase": 1, "visits_per_period": 1,
+                             "ambiguous": False, "source": "derived"}}],
     "corridor": {"min_daily": 2, "max_daily": 3},
-    "original_assignment": {"2026-07-01": [0]},
+    "original_assignment_idx": {"1": [0]},
     "distance": {"kind": "osm_cycling", "scope": "per-line",
                   "matrix_ref": "sha256:cd", "format": "npz", "n": 1,
                   "unreachable_sentinel": 1e9},
@@ -48,9 +48,9 @@ def test_problem_spec_valid():
     validate_obj(copy.deepcopy(MIN_PROBLEM), "problem")
 
 
-def test_problem_spec_rejects_bad_contract_kind():
+def test_problem_spec_rejects_bad_rhythm_period():
     bad = copy.deepcopy(MIN_PROBLEM)
-    bad["stores"][0]["contract"]["kind"] = "X"
+    bad["stores"][0]["rhythm"]["period"] = 0
     with pytest.raises(SchemaError):
         validate_obj(bad, "problem")
 

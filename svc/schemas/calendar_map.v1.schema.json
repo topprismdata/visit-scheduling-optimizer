@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "visitflow/calendar-map v1 — 拜访日序号到真实日历的独立映射",
+  "type": "object",
+  "required": ["schema", "version", "line_id", "mapping"],
+  "properties": {
+    "schema": {"const": "visitflow/calendar-map"},
+    "version": {"const": "1.0"},
+    "line_id": {"type": "string"},
+    "mapping": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["day", "date", "weekday"],
+        "properties": {
+          "day": {"type": "integer", "minimum": 1},
+          "date": {"type": "string"},
+          "weekday": {"type": "string"}
+        }
+      }
+    }
+  }
+}
