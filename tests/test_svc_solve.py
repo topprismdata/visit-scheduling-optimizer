@@ -39,7 +39,7 @@ def test_solve_end_to_end_mini():
     assert bundle["problem_hash"] == sha256_of(spec)
     assert bundle["model_hash"] == sha256_of(model)
     # 双出: 索引 + 编码
-    day0 = bundle["assignment"]["2026-07-01"]
+    day0 = bundle["assignment"]["1"]
     assert len(day0["route_idx"]) == len(day0["route_codes"])
     assert day0["route_codes"] == [f"C00{i}" for i in day0["route_idx"]]
     # 五道闸全过才允许 FEASIBLE
@@ -66,11 +66,9 @@ def test_structure_gate_sentinel_arc_fails():
     spec, D = make_spec()
     D2 = D.copy()
     D2[0][1] = D2[1][0] = 1e9   # 店 0-1 之间不可达
-    dates = [_dt.date.fromisoformat(x) for x in spec["calendar"]["dates"]]
-    days_orig = {_dt.date.fromisoformat(k): v
-                  for k, v in spec["original_assignment"].items()}
-    contracts = contract_of(days_orig, dates)
-    gates = _compute_gates({dates[0]: [0, 1], dates[1]: [2, 3]},
-                            dates, spec, contracts, D2, True)
+    dates = [_dt.date(2000, 1, 1), _dt.date(2000, 1, 2)]
+    days_orig = {dates[0]: [0, 1], dates[1]: [2, 3]}
+    gates = _compute_gates({1: [0, 1], 2: [2, 3]}, dates, spec,
+                            contract_of(days_orig, dates), D2, True)
     assert gates["structure_ok"] is False
     assert gates["capacity_ok"] is True

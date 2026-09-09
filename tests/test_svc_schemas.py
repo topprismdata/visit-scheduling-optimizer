@@ -3,12 +3,12 @@ import pytest
 from svc.schemas.validate import validate_obj, SchemaError
 
 MIN_PROBLEM = {
-    "schema": "visitflow/problem", "version": "2.0",
+    "schema": "visitflow/problem", "version": "2.1",
     "inputs_hash": "sha256:ab", "line_id": "09",
     "cycle": {"n_days": 1},
     "stores": [{"id": 0, "code": "C001", "lon": 113.25, "lat": 23.05,
-                 "rhythm": {"period": 1, "phase": 1, "visits_per_period": 1,
-                             "ambiguous": False, "source": "derived"}}],
+     "frequency": {"horizon": 1, "visits": 1, "pattern": "1",
+                    "ambiguous": False, "source": "derived"}}],
     "corridor": {"min_daily": 2, "max_daily": 3},
     "original_assignment_idx": {"1": [0]},
     "distance": {"kind": "osm_cycling", "scope": "per-line",
@@ -48,9 +48,9 @@ def test_problem_spec_valid():
     validate_obj(copy.deepcopy(MIN_PROBLEM), "problem")
 
 
-def test_problem_spec_rejects_bad_rhythm_period():
+def test_problem_spec_rejects_bad_pattern():
     bad = copy.deepcopy(MIN_PROBLEM)
-    bad["stores"][0]["rhythm"]["period"] = 0
+    bad["stores"][0]["frequency"]["pattern"] = "2"
     with pytest.raises(SchemaError):
         validate_obj(bad, "problem")
 

@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "visitflow/problem v2 — 日历无关的节奏式问题定义",
+  "title": "visitflow/problem v2.1 — PVRP 频率+模式 (日历无关)",
   "type": "object",
   "required": ["schema", "version", "inputs_hash", "line_id", "cycle",
                 "stores", "corridor", "original_assignment_idx", "distance",
                 "meta"],
   "properties": {
     "schema": {"const": "visitflow/problem"},
-    "version": {"const": "2.0"},
+    "version": {"const": "2.1"},
     "inputs_hash": {"type": "string", "pattern": "^sha256:"},
     "line_id": {"type": "string"},
     "cycle": {
@@ -19,19 +19,19 @@
       "type": "array", "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["id", "code", "lon", "lat", "rhythm"],
+        "required": ["id", "code", "lon", "lat", "frequency"],
         "properties": {
           "id": {"type": "integer", "minimum": 0},
           "code": {"type": "string"},
           "lon": {"type": "number"}, "lat": {"type": "number"},
-          "rhythm": {
+          "frequency": {
             "type": "object",
-            "required": ["period", "phase", "visits_per_period", "ambiguous",
+            "required": ["horizon", "visits", "pattern", "ambiguous",
                           "source"],
             "properties": {
-              "period": {"type": "integer", "minimum": 1},
-              "phase": {"type": "integer", "minimum": 1},
-              "visits_per_period": {"type": "integer", "minimum": 1},
+              "horizon": {"type": "integer", "minimum": 1},
+              "visits": {"type": "integer", "minimum": 1},
+              "pattern": {"type": "string", "pattern": "^[01]+$"},
               "ambiguous": {"type": "boolean"},
               "source": {"enum": ["explicit", "derived"]}
             }

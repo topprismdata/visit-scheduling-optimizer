@@ -20,25 +20,32 @@ def _iso(d) -> str:
     return d.isoformat() if hasattr(d, "isoformat") else str(d)
 
 
-def _derive_rhythm(day_idxs: list, n_days: int) -> dict:
-    """从拜访日序号反推节奏: period / phase / visits_per_period.
+def _derive_frequency_pattern(day_idxs: list, n_days: int) -> dict:
+    """PVRP 语义: 服务频率 + 拜访组合模式 (bitmask over 工作日周期).
 
-    day_idxs: 1-based 升序拜访日序号. phase = 首次拜访日序号.
-    ambiguous=True 表示节奏断裂 (缺访/新签/流失), 不硬猜.
+    周期 T 从业务周期候选 (5/10/15/20 个工作周序日) 中选最小的、使全店
+    拜访模式可 T-周期化的值. pattern 为长度 T 的 bitmask 字符串.
+    返回 {horizon, visits, pattern, ambiguous, source}.
     """
     v = sorted(day_idxs)
-    if len(v) == 1:
-        # 全周期仅 1 次 = 月访 (次/周期)
-        return {"period": n_days, "phase": v[0], "visits_per_period": 1,
-                 "ambiguous": False, "source": "derived"}
-    diffs = [b - a for a, b in zip(v, v[1:])]
-    period = diffs[0]
-    for d in diffs[1:]:
-        period = gcd(period, d)
-    phase = v[0]
-    expected = len(range(phase, n_days + 1, period))
-    return {"period": period, "phase": phase, "visits_per_period": 1,
-             "ambiguous": expected != len(v), "source": "derived"}
+    # 业务节奏候选: 周访5 / 双周10 / 月访20 (工作日). 都不合 -> ambiguous
+    candidates = [t for t in (5, 10, 20) if t <= n_days]
+    for T in sorted(set(candidates)):
+        n_full, rem = divmod(n_days, T)
+        residues = Counter(((x - 1) % T) + 1 for x in v)
+        ok = all(
+            cnt == (n_full + 1 if r <= rem else n_full)
+            for r, cnt in residues.items())
+        if ok and sum(residues.values()) == len(v):
+            pattern = "".join("1" if residues.get(r, 0) else "0"
+                              for r in range(1, T + 1))
+            return {"horizon": T, "visits": len(v), "pattern": pattern,
+                     "ambiguous": False, "source": "derived"}
+    # 不可周期化: 节奏断裂 (新签/流失/漏访) — 取全周期, 标 ambiguous
+    T = n_days
+    pattern = "".join("1" if r in v else "0" for r in range(1, T + 1))
+    return {"horizon": T, "visits": len(v), "pattern": pattern,
+             "ambiguous": True, "source": "derived"}
 
 
 def build_spec_from_df(line_df, line_id: str, D: np.ndarray) -> dict:
@@ -68,15 +75,15 @@ def build_spec_from_df(line_df, line_id: str, D: np.ndarray) -> dict:
     stores = []
     for c in codes:
         sid = idx[c]
-        r = _derive_rhythm(visits_by_store[c], n_days)
+        f = _derive_frequency_pattern(visits_by_store[c], n_days)
         stores.append({
             "id": sid, "code": c,
             "lon": float(pts.loc[c, "经度"]), "lat": float(pts.loc[c, "纬度"]),
-            "rhythm": r,
+            "frequency": f,
         })
 
     spec = {
-        "schema": "visitflow/problem", "version": "2.0",
+        "schema": "visitflow/problem", "version": "2.1",
         "inputs_hash": "PENDING", "line_id": line_id,
         "cycle": {"n_days": n_days},
         "stores": stores,
@@ -122,7 +129,7 @@ def build_spec_from_line(line, line_id: str, D, matrix_ref: str) -> dict:
     codes_orig = list(line.codes)
     codes_str = [str(c) for c in codes_orig]
 
-    assignment_idx = {i + 1: [int(c) for c in line.days_orig[dd]]
+    assignment_idx = {str(i + 1): [int(c) for c in line.days_orig[dd]]
                        for i, dd in enumerate(line.dates)}
 
     visits_by_store = {i: [] for i in range(len(codes_orig))}
@@ -132,15 +139,15 @@ def build_spec_from_line(line, line_id: str, D, matrix_ref: str) -> dict:
 
     stores = []
     for i in range(len(codes_orig)):
-        r = _derive_rhythm(visits_by_store[i], len(line.dates))
+        f = _derive_frequency_pattern(visits_by_store[i], len(line.dates))
         stores.append({
             "id": i, "code": codes_str[i],
             "lon": float(line.lon[i]), "lat": float(line.lat[i]),
-            "rhythm": r,
+            "frequency": f,
         })
 
     spec = {
-        "schema": "visitflow/problem", "version": "2.0",
+        "schema": "visitflow/problem", "version": "2.1",
         "inputs_hash": "PENDING", "line_id": line_id,
         "cycle": {"n_days": len(line.dates)},
         "stores": stores,

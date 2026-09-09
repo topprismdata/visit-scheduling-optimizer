@@ -9,34 +9,31 @@ from svc.hashing import sha256_of
 
 def build_manifest(spec: dict) -> dict:
     n_stores = spec["meta"]["n_stores"]
-    n_days = spec["calendar"]["n_days"]
+    n_days = spec["cycle"]["n_days"]
     pairs_total = n_stores * n_days
-    pairs_legal = sum(len(s["legal_dates_idx"]) for s in spec["stores"])
+    pairs_legal = pairs_total   # v2: 合法域由 rhythm 隐式定义, 无逐对禁用
 
     corridor_ok = spec["corridor"]["min_daily"] <= spec["corridor"]["max_daily"]
-    capacity_ok = True
-    for s in spec["stores"]:
-        if s["contract"]["required_visits"] > len(s["legal_dates_idx"]):
-            corridor_ok = False       # required visits 超出该店合法天数
-            capacity_ok = False
 
     manifest = {
         "schema": "visitflow/model", "version": "1.0",
         "problem_hash": sha256_of(spec),
         "formulation": {
             "kind": "fixed-row-v2",
-            "vars": {"y_pairs": pairs_total, "y_pairs_legal": pairs_legal},
+            "vars": {"y_pairs": pairs_total},
         },
         "legal_domain": {
             "pairs_total": pairs_total, "pairs_legal": pairs_legal,
             "fixed": pairs_total - pairs_legal,
         },
         "feasibility_precheck": {
-            "capacity_ok": capacity_ok,
-            "contract_ok": all(s["contract"]["kind"] in ("W", "B")
+            "capacity_ok": True,
+            "contract_ok": all(not s["frequency"]["ambiguous"]
                                 for s in spec["stores"]),
             "corridor_ok": corridor_ok,
         },
-        "meta": {"compile_ms": 0},
+        "meta": {"compile_ms": 0,
+                  "ambiguous_stores": sum(1 for s in spec["stores"]
+                                           if s["frequency"]["ambiguous"])},
     }
     return manifest
