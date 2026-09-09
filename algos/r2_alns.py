@@ -53,7 +53,10 @@ class R2ALNS(Algorithm):
 
     def solve(self, data, D, time_budget=300, seed=42, collect_every=25,
               keep_history=True, init_days=None, combo_mode="contract",
-              iteration_budget=None, wall_time_budget=None, final_reroute=True):
+              iteration_budget=None, wall_time_budget=None, final_reroute=True,
+              phase_moves=None):
+        """phase_moves: {store: [候选日期集]} — 抽象相位空间 R2' 移动
+        (每店拜访日 = 等差集合, 换相位 = 换星期几); 提供时取代日历星期几候选."""
         rng = random.Random(seed)
         dates = list(data.dates)
         wd_g = defaultdict(list)
@@ -163,10 +166,16 @@ class R2ALNS(Algorithm):
             c = rng.choice(stores)
             old_dates = sorted(sched[c], key=str)
             best_ev = None
-            for w2, new_ds in move_candidates(c, sched[c], wd_g, contracts, combo_mode, rng):
+            _cands = ([(None, set(ds)) for ds in phase_moves[c]]
+                       if phase_moves and c in phase_moves else
+                       move_candidates(c, sched[c], wd_g, contracts, combo_mode, rng))
+            for w2, new_ds in _cands:
                 new_dates = sorted(new_ds, key=str)
                 # 走廊校验 (c 不在新旧交集里才动)
                 if set(new_dates) == set(old_dates):
+                    continue
+                # 频次守恒: 非相位模式下候选次数必须与当前一致
+                if not phase_moves and len(new_dates) != len(old_dates):
                     continue
                 rel_ok = all(min_cap < len(day_members[d]) for d in old_dates)
                 rcv_ok = True
@@ -191,10 +200,17 @@ class R2ALNS(Algorithm):
             delta, given, shared = best_ev
             if delta < -1e-9 or rng.random() < 0.05:
                 accepted += 1
+                _before = sum(len(v) for v in day_members.values())
                 for d in given:
                     day_members[d].discard(c); sched[c].discard(d)
                 for d in shared:
                     day_members[d].add(c); sched[c].add(d)
+                _after = sum(len(v) for v in day_members.values())
+                # 相位模式: 次数随相位而变 (合法); 旧模式: 必须守恒
+                if not phase_moves and _after != _before:
+                    raise AssertionError(
+                        f"次数不守恒: its={its} c={c} given={len(given)} "
+                        f"shared={len(shared)} before={_before} after={_after}")
                 if its % 50 == 0:
                     cur_km = sum(day_km_est(day_members[dd]) for dd in dates)   # 周期校准
                 else:
