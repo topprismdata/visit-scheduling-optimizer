@@ -1,0 +1,25 @@
+{
+ "schema": "visitflow/model",
+ "version": "1.0",
+ "problem_hash": "sha256:56f7a9a8e359af451e50a923a3bf531f57105becc9342dd308034fe1a3ee574d",
+ "formulation": {
+  "kind": "fixed-row-v2",
+  "vars": {
+   "y_pairs": 2093,
+   "y_pairs_legal": 2041
+  }
+ },
+ "legal_domain": {
+  "pairs_total": 2093,
+  "pairs_legal": 2041,
+  "fixed": 52
+ },
+ "feasibility_precheck": {
+  "capacity_ok": true,
+  "contract_ok": true,
+  "corridor_ok": true
+ },
+ "meta": {
+  "compile_ms": 0
+ }
+}

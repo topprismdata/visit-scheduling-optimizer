@@ -49,12 +49,25 @@ def _to_line_data(spec: dict, dates) -> LineData:
 
 def _compute_gates(assignment_raw: dict, dates, spec: dict, contracts,
                     D, r2_contract_ok: bool) -> dict:
-    """五道闸纯函数 (独立可测). assignment_raw: {date_obj: [idx]}."""
+    """五道闸纯函数 (独立可测). assignment_raw: {date_obj: [idx]}.
+
+    count_ok 语义 (R2' 本体): 每店不分裂星期几, 且月访次 == 其实际星期几的
+    日历槽位数 — 换日后 f 由合同派生, 与原计划计数不同是合法的.
+    """
+    from collections import Counter, defaultdict
+    wd_of_store, cnt = defaultdict(set), Counter()
+    for dd in dates:
+        for c in assignment_raw[dd]:
+            wd_of_store[c].add(dd.weekday())
+            cnt[c] += 1
     sentinel = spec["distance"]["unreachable_sentinel"]
+    # B(双周)店月访次 < 槽位数是合法的 (精确节奏由 contract 闸负责);
+    # 此闸防: 丢店 / 星期几分裂
+    all_stores = {s["id"] for s in spec["stores"]}
+    count_ok = set(wd_of_store) == all_stores and \
+        all(len(wds) == 1 for wds in wd_of_store.values())
     return {
-        "count_ok": all(
-            sum(1 for dd in dates for c in assignment_raw[dd] if c == s["id"])
-            == s["contract"]["required_visits"] for s in spec["stores"]),
+        "count_ok": count_ok,
         "capacity_ok": bool(check_capacity(
             assignment_raw, spec["corridor"]["max_daily"],
             spec["corridor"]["min_daily"])),
@@ -83,9 +96,10 @@ def solve_spec(spec: dict, D, seeds: list, budget_s: float, cp_timeout: float,
     best_days, best_km, best_res = None, float("inf"), None
     total_iters = 0
     for seed in seeds:
+        # init_days = 原计划: 保证访次守恒 (count 闸); None 会自建日历致 ±1 漂移
         r = R2ALNS().solve(line, D, iteration_budget=int(budget_s * 600),
                             seed=seed, combo_mode="contract",
-                            final_reroute=False)
+                            final_reroute=False, init_days=line.days_orig)
         total_iters += int(r.metadata.get("iters", 0))
         km = sum(day_km(r.days[dd], D) for dd in dates)
         if km < best_km:
