@@ -549,9 +549,9 @@ def _iso(d) -> str:
 
 
 def build_spec_from_df(line_df, line_id: str, D: np.ndarray) -> dict:
-    dates = sorted(line_df["date"].unique())
+    dates_raw = sorted(line_df["date"].unique())   # 原始值 (Timestamp) 用于过滤
     dates = [d.date() if hasattr(d, "date") and callable(d.date) else d
-             for d in dates]
+             for d in dates_raw]                    # date 对象用于输出/引擎
     date_strs = [_iso(d) for d in dates]
     codes = sorted(line_df["客户编码"].unique())
     idx = {c: i for i, c in enumerate(codes)}
@@ -560,8 +560,8 @@ def build_spec_from_df(line_df, line_id: str, D: np.ndarray) -> dict:
            .drop_duplicates("客户编码", keep="first")
            .set_index("客户编码"))
     days_orig = {}
-    for di, dd in enumerate(dates):
-        rows = line_df[line_df["date"] == dd].sort_values("拜访顺序")
+    for di, dd_raw in enumerate(dates_raw):   # 用原始值过滤 (Timestamp==date 恒 False!)
+        rows = line_df[line_df["date"] == dd_raw].sort_values("拜访顺序")
         days_orig[date_strs[di]] = [idx[c] for c in rows["客户编码"]
                                      if c in idx]
 
@@ -610,13 +610,20 @@ def _contracts_from_days(days_orig: dict, dates) -> dict:
     stores = sorted({c for v in days_orig.values() for c in v})
     out = {}
     for sid in stores:
-        kind, phase = contracts[sid]
+        kind, phase = _kind_phase(contracts[sid])
         req = sum(1 for v in days_orig.values() if sid in v)
         legal_idx = sorted(date_strs_i for date_strs_i, dd_set in
                             _legal_index_map(legal, dates).get(sid, {}).items())
         out[sid] = {"kind": kind, "phase": phase, "required_visits": req,
                      "_legal_idx": legal_idx}
     return out
+
+
+def _kind_phase(c):
+    """contract_of 每店返回结构归一化 -> (kind, phase) (tuple/dict 双兼容)."""
+    if isinstance(c, dict):
+        return c["kind"], c.get("phase", 0)
+    return c[0], c[1] if len(c) > 1 else 0
 
 
 def _legal_index_map(legal, dates):
@@ -841,6 +848,33 @@ def test_solve_end_to_end_mini():
                sum(d["km"] for d in bundle["assignment"].values())) < 1e-6
 
 
+def test_structure_gate_sentinel_arc_fails():
+    """哨兵弧 (不可达对) 出现在路线中 -> structure_ok=False -> FAILED."""
+    spec, D = make_spec()
+    D2 = D.copy()
+    D2[0][1] = D2[1][0] = 1e9   # 店 0-1 之间不可达
+    bundle = solve_spec(spec, D2, seeds=[42], budget_s=1, cp_timeout=5,
+                         engine_version="git:test")
+    # mini 实例无法强迫 ALNS 走哨兵弧; 直接单测 _compute_gates:
+    from svc.stages.solve import _compute_gates
+    import datetime as _dt
+    d0 = _dt.date.fromisoformat(spec["calendar"]["dates"][0])
+    contracts = _contracts_for_test(spec)
+    gates = _compute_gates({d0: [0, 1]}, [d0], spec, contracts, D2, True)
+    assert gates["structure_ok"] is False
+
+
+def _contracts_for_test(spec):
+    from svc.stages.semantic import _kind_phase
+    # 从 days_orig 重建 contracts (与 solve_spec 同源)
+    import datetime as _dt
+    dates = [_dt.date.fromisoformat(x) for x in spec["calendar"]["dates"]]
+    from core.contract import contract_of
+    days_orig = {_dt.date.fromisoformat(k): v
+                  for k, v in spec["original_assignment"].items()}
+    return contract_of(days_orig, dates)
+
+
 def test_solve_deterministic_same_seed():
     spec, D = make_spec()
     a = solve_spec(spec, D, seeds=[42], budget_s=1, cp_timeout=5,
@@ -880,9 +914,10 @@ from svc.hashing import sha256_of
 
 def _engine_version() -> str:
     try:
+        from pathlib import Path as _P
         head = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
                                capture_output=True, text=True, timeout=5,
-                               cwd=__file__).stdout.strip()
+                               cwd=str(_P(__file__).parent)).stdout.strip()
         return f"git:{head}" if head else "git:unknown"
     except Exception:
         return "git:unknown"
@@ -913,15 +948,14 @@ def solve_spec(spec: dict, D, seeds: list, budget_s: float, cp_timeout: float,
     from visitmodel.tsp.open_chain import _exact_open_tsp_status
 
     engine_version = engine_version or _engine_version()
-    dates = [pd_date if not isinstance(pd_date, str) else pd_date
-             for pd_date in _dates_from_spec(spec)]
+    dates = _dates_from_spec(spec)      # date 对象 (引擎/闸的键域)
     date_strs = spec["calendar"]["dates"]
     t0 = time.perf_counter()
 
     line = _to_line_data(spec, dates)
     contracts = contract_of(line.days_orig, dates)
 
-    best_days, best_km, best_meta = None, float("inf"), {}
+    best_days, best_km, best_meta, best_res = None, float("inf"), {}, None
     total_iters = 0
     for seed in seeds:
         r = R2ALNS().solve(line, D, iteration_budget=int(budget_s * 600),
@@ -930,42 +964,34 @@ def solve_spec(spec: dict, D, seeds: list, budget_s: float, cp_timeout: float,
         total_iters += int(r.metadata.get("iters", 0))
         km = sum(day_km(r.days[dd], D) for dd in dates)
         if km < best_km:
-            best_days, best_km, best_meta = {dd: list(r.days[dd]) for dd in dates}, km, r.metadata
+            best_days = {dd: list(r.days[dd]) for dd in dates}
+            best_km, best_meta, best_res = km, r.metadata, r
+    best_contract_ok = bool(getattr(best_res, "contract_ok", True))
 
     # 共同 CP-SAT 重排 (协议 §5.3)
+    # 内部键域 = date 对象 (闸函数需要); JSON 输出才转 ISO 字符串 (v0.2 自审修正)
     codes = [s["code"] for s in spec["stores"]]
-    assignment, total_km, moved = {}, 0.0, 0
+    assignment_raw, total_km, moved = {}, 0.0, 0
     for di, dd in enumerate(dates):
         route, _st, _ms = _exact_open_tsp_status(list(best_days[dd]), D, cp_timeout)
         km = round(day_km(route, D), 3)
         total_km += km
         orig = set(spec["original_assignment"][date_strs[di]])
         moved += sum(1 for c in route if c not in orig)
-        assignment[date_strs[di]] = {
-            "route_idx": [int(c) for c in route],
-            "route_codes": [codes[c] for c in route],
-            "km": km,
-        }
+        assignment_raw[dd] = [int(c) for c in route]
 
     orig_km = sum(day_km(spec["original_assignment"][s], D)
                    for s in date_strs)
-    gates = {
-        "count_ok": all(
-            sum(1 for d in assignment.values() for c in d["route_idx"] if c == s["id"])
-            == s["contract"]["required_visits"] for s in spec["stores"]),
-        "capacity_ok": bool(check_capacity(
-            {dd: v["route_idx"] for dd, v in assignment.items()},
-            spec["corridor"]["max_daily"], spec["corridor"]["min_daily"])),
-        "r2_ok": True,   # GRASP/合同搜索全月一致由 R2ALNS combo_mode=contract 保证
-        "contract_ok": not check_contract(
-            {dd: v["route_idx"] for dd, v in assignment.items()},
-            contracts, dates),
-        "structure_ok": all(
-            D[a][b] < spec["distance"]["unreachable_sentinel"]
-            for v in assignment.values()
-            for a, b in zip(v["route_idx"], v["route_idx"][1:])),
-    }
+    gates = _compute_gates(assignment_raw, dates, spec, contracts, D,
+                            best_contract_ok)
     status = "FEASIBLE" if all(gates.values()) else "FAILED"
+
+    assignment = {date_strs[di]: {
+        "route_idx": route,
+        "route_codes": [codes[c] for c in route],
+        "km": round(day_km(route, D), 3),
+    } for di, dd in enumerate(dates)
+        for route in [assignment_raw[dd]]}
     vs_orig = round((total_km - orig_km) / orig_km * 100, 3) if orig_km > 0 else 0.0
 
     bundle = {
@@ -995,6 +1021,27 @@ def solve_spec(spec: dict, D, seeds: list, budget_s: float, cp_timeout: float,
     bundle["output_hash"] = sha256_of(
         {k: v for k, v in bundle.items() if k != "output_hash"})
     return bundle
+
+
+def _compute_gates(assignment_raw: dict, dates, spec: dict, contracts,
+                    D, r2_contract_ok: bool) -> dict:
+    """五道闸纯函数 (独立可测). assignment_raw: {date_obj: [idx]}."""
+    sentinel = spec["distance"]["unreachable_sentinel"]
+    gates = {
+        "count_ok": all(
+            sum(1 for dd in dates for c in assignment_raw[dd] if c == s["id"])
+            == s["contract"]["required_visits"] for s in spec["stores"]),
+        "capacity_ok": bool(check_capacity(
+            assignment_raw, spec["corridor"]["max_daily"],
+            spec["corridor"]["min_daily"])),
+        "r2_ok": r2_contract_ok,   # R2ALNS combo_mode=contract 的 AlgoResult.contract_ok
+        "contract_ok": not check_contract(assignment_raw, contracts, dates),
+        "structure_ok": all(
+            D[a][b] < sentinel
+            for dd in dates
+            for a, b in zip(assignment_raw[dd], assignment_raw[dd][1:])),
+    }
+    return gates
 
 
 def _dates_from_spec(spec: dict):
@@ -1358,7 +1405,13 @@ git checkout main && git merge --no-ff feature/service-json-pipeline -m "merge: 
 
 ---
 
-## Self-Review 记录（已执行）
+## Self-Review 记录（第 2 次：3 轮修复后）
+
+1. **Spec 覆盖**：无缺口（同第 1 次）。
+2. **修复清单**：Task 3 日期过滤改用原始值（Timestamp==date 陷阱）；Task 5 assignment 内部 date 键域/输出 ISO；`_compute_gates` 抽取纯函数 + 哨兵弧 FAILED 单测；`subprocess cwd` 目录化；`_kind_phase` 归一化；`r2_ok` 接 AlgoResult.contract_ok。
+3. **类型一致性**：`_compute_gates(assignment_raw, dates, spec, contracts, D, r2_contract_ok)` 与两处调用一致；`build_spec_from_line` 在 Task 6 追加、Task 7 使用，签名一致。
+
+## Self-Review 记录（第 1 次，已执行）
 
 1. **Spec 覆盖**：spec v0.2 §1 编排（Task 6/7）、§2 ProblemSpec（Task 2/3）、§3 ModelManifest（Task 4）、§4 SolutionBundle+五道闸（Task 5）、§4 异步 job（Task 7）、§4 错误包络（SchemaError + api HTTPException；CLI 侧非零退出由异常自然传导）、§5 目录（File Structure）、哈希规范化（Task 1）、编码双出/阶段版本/哨兵（Task 5）——无缺口。
 2. **占位符扫描**：Task 3/5 各有"以源码为准核对签名"注记——这是**带明确核对对象与回退断言的指令**（测试不变），非 TBD。
