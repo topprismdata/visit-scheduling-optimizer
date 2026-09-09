@@ -33,7 +33,9 @@ SolutionBundle v1 ────────────────────�
 
 编排两种形态：
 - **CLI 管道**：`python -m svc.run --plan plan.xlsx --out outdir/`（三阶段串行落盘）
-- **HTTP 服务**：`POST /v1/solve`（multipart 上传计划 → 200 返回三 JSON 打包）；`POST /v1/stages/{semantic|model|solve}` 单阶段调用
+- **HTTP 服务（异步）**：`POST /v1/jobs`（multipart 上传 → **202** + `{job_id}`；R2-ALNS 600s 级，同步必超时）
+  → `GET /v1/jobs/{id}`（状态 + 三 JSON 打包）；`POST /v1/stages/{semantic|model|solve}` 单阶段（同步，均 <10s 语义/建模除外 solve 仍异步）
+- **统一错误包络**：`{"schema": "visitflow/error", "stage": "...", "code": "...", "message": "...", "detail": {...}}`（HTTP 4xx/5xx 与 CLI 非零退出同构）
 
 ---
 
@@ -51,20 +53,24 @@ SolutionBundle v1 ────────────────────�
   "calendar": {"dates": ["2026-07-01", "..."], "n_days": 23},
   "stores": [
     {"id": 0, "code": "C001", "lon": 113.25, "lat": 23.05,
-     "contract": {"kind": "W", "visits_per_week": 3, "phase": 0},
+     "contract": {"kind": "W", "phase": 0, "required_visits": 12},
+     "f_derived": {"2026-W27": 3, "2026-W28": 3},
      "legal_dates_idx": [0, 1, 2, "..."]}
   ],
   "corridor": {"min_daily": 23, "max_daily": 35},
   "original_assignment": {"0": [3, 7, "..."], "...": "..."},
-  "distance": {"kind": "osm_cycling", "matrix_ref": "sha256:...", "n": 1524},
+  "distance": {"kind": "osm_cycling", "scope": "per-line",
+                "matrix_ref": "sha256:...", "format": "npz", "n": 163,
+                "unreachable_sentinel": 1e9,
+                "note": "维度必须 == n_stores; 哨兵弧禁止出现在任何输出路线中"},
   "meta": {"line_id": "09", "n_stores": 163, "n_visits": 754}
 }
 ```
 
 **要点**：
-- 合同域 `{kind: W|B, phase: 0|1}`——`服务周 = ISO 周 mod 4`，f 派生，零例外（15 行核心逻辑迁入 `svc/semantic.py`，调 VisitIR）
-- 距离矩阵不内联（>1MB），以 `matrix_ref` 哈希引用 + 旁车文件 `.npy`
-- `inputs_hash` = 规范化输入的 sha256——同 hash 重放必同解
+- 合同域 `{kind: W|B, phase}`——f 由合同**派生**（零例外，禁手填）；`required_visits` 为 count 闸显式输入；f 表内联便于下游对账（VisitIR 15 行核心逻辑迁入 `svc/semantic.py`）
+- 距离矩阵按线作用域（维度 == n_stores），npz+sha256 旁车引用；不可达哨兵值显式声明（实测矩阵含 1e9 对），输出路线含哨兵弧 → 五道闸 structure_ok=false
+- `inputs_hash` = **规范化 JSON**（sorted keys / UTF-8 / 浮点 repr 截断 1e-9）的 sha256——规范化规则入 schema，否则重放保证无效
 
 ---
 
@@ -82,14 +88,12 @@ SolutionBundle v1 ────────────────────�
   "legal_domain": {"pairs_total": 3749, "pairs_legal": 1876, "fixed": 1873},
   "feasibility_precheck": {"capacity_ok": true, "contract_ok": true,
                             "corridor_ok": true},
-  "solver_hints": {"engine": "r2_alns", "combo_mode": "contract",
-                    "seeds": [42, 7, 123, 2026], "budget_s": 600},
   "meta": {"compile_ms": 830}
 }
 ```
 
 **要点**：
-- 建模层当前对 R2-ALNS 是"轻"的（ALNS 不需要显式约束矩阵）——但保留该阶段使**引擎可替换**（换 CP-SAT/直接 IP 时同一 manifest 生效），这是"相对通用"的关键
+- 建模层纯净：**不含引擎提示**（seeds/预算属 Stage 3 请求参数，v0.1 把 solver_hints 放这里是层次泄漏）。保留本阶段使引擎可替换（CP-SAT/直接 IP 同一 manifest 生效）
 - `feasibility_precheck` 三闸不通过直接终止管道，HTTP 422 返回
 
 ---
@@ -105,16 +109,19 @@ SolutionBundle v1 ────────────────────�
   "problem_hash": "sha256:...",
   "model_hash": "sha256:...",
   "status": "FEASIBLE",
-  "assignment": {"2026-07-01": {"route": [3, 7, "..."], "km": 16.6}, "...": "..."},
+  "assignment": {"2026-07-01": {"route_idx": [3, 7], "route_codes": ["C001", "..."],
+                                 "km": 16.6}, "...": "..."},
   "totals": {"km": 381.66, "vs_original_pct": -3.15, "moved_stores": 7},
   "gates": {"count_ok": true, "capacity_ok": true, "r2_ok": true,
              "contract_ok": true, "structure_ok": true},
   "runtime": {"engine": "r2_alns", "engine_version": "git:abc1234",
+               "stage_versions": {"semantic": "visitir@git:...", "model": "visitmodel@git:..."},
                "seeds": [42], "budget_s": 600, "iters": 414153,
                "wall_sec": 602.1},
   "certificates": {"pool_lp": 381.66, "certified_global_lb": null,
                     "global_gap_pct": null},
-  "meta": {"deterministic_replay": "seed=42 inputs_hash=sha256:..."}
+  "output_hash": "sha256:...",
+  "meta": {"deterministic_replay": "seed=42 + inputs_hash + engine_version => 逐位一致重放"}
 }
 ```
 
@@ -167,8 +174,11 @@ svc/
 
 ---
 
-## 8. 评审要点
+## 8. v0.2 自审拍板（三轮自审：正确性/工程一致性/产品使用）
 
-1. `certificates` 块现在只有 bp 能填——是否 v1 就带上（bp_solo 可选后处理），还是留 v2？
-2. HTTP 形态是否需要鉴权/多租户语义？（当前假设单租户内网工具）
-3. 距离矩阵旁车文件格式（.npy vs JSON 行序）——服务化后跨机传输建议 npz+hash
+1. **certificates 保留 v1**：bp_solo 可选后处理填入；null=未证明
+2. **单租户内网，无鉴权**（加租户 = schema v2）
+3. **npz + sha256**（跨机传输 + 完整性）
+4. v0.1→v0.2 修正清单：合同 f 改派生+required_visits 显式；矩阵按线作用域+哨兵声明；
+   solver_hints 移出建模层；同步 API 改异步 job（202）；哈希规范化规则入 schema；
+   统一错误包络；输出含 store 编码；各阶段组件版本入 runtime
