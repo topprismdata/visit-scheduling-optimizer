@@ -20,9 +20,10 @@ MIN_MODEL = {
     "schema": "visitflow/model", "version": "1.0",
     "problem_hash": "sha256:ab",
     "formulation": {"kind": "fixed-row-v2", "vars": {}},
-    "legal_domain": {"pairs_total": 1, "pairs_legal": 1, "fixed": 0},
-    "feasibility_precheck": {"capacity_ok": True, "contract_ok": True,
-                              "corridor_ok": True},
+    "legal_domain": {"pairs_total": 1, "pairs_legal": 1,
+                     "pairs_available": 1, "fixed": 0},
+    "feasibility_precheck": {"capacity_max_ok": True, "capacity_min_ok": True,
+                              "corridor_ok": True, "contract_ok": True},
     "meta": {"compile_ms": 1},
 }
 MIN_SOLUTION = {

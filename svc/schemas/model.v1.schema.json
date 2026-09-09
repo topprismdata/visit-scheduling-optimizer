@@ -6,7 +6,7 @@
                 "legal_domain", "feasibility_precheck", "meta"],
   "properties": {
     "schema": {"const": "visitflow/model"},
-    "version": {"const": "1.0"},
+    "version": {"enum": ["1.0", "1.1"]},
     "problem_hash": {"type": "string", "pattern": "^sha256:"},
     "formulation": {
       "type": "object",
@@ -15,15 +15,15 @@
     },
     "legal_domain": {
       "type": "object",
-      "required": ["pairs_total", "pairs_legal", "fixed"],
+      "required": ["pairs_total", "pairs_available", "fixed"],
       "properties": {"pairs_total": {"type": "integer"},
-                      "pairs_legal": {"type": "integer"},
+                      "pairs_legal": {"type": "integer"}, "pairs_available": {"type": "integer"},
                       "fixed": {"type": "integer"}}
     },
     "feasibility_precheck": {
       "type": "object",
-      "required": ["capacity_ok", "contract_ok", "corridor_ok"],
-      "additionalProperties": {"type": "boolean"}
+      "required": ["capacity_max_ok", "capacity_min_ok", "corridor_ok"],
+      "additionalProperties": {"type": ["boolean", "integer"]}
     },
     "meta": {"type": "object"}
   }
