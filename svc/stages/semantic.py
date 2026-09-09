@@ -16,6 +16,8 @@ def _iso(d) -> str:
 
 
 def build_spec_from_df(line_df, line_id: str, D: np.ndarray) -> dict:
+    line_df = line_df.copy()
+    line_df["客户编码"] = line_df["客户编码"].astype(str)   # Excel 数值编码统一为 str
     dates_raw = sorted(line_df["date"].unique())   # 原始值 (Timestamp) 用于过滤
     dates = [d.date() if hasattr(d, "date") and callable(d.date) else d
              for d in dates_raw]                    # date 对象用于输出/引擎
@@ -106,17 +108,51 @@ def _contracts_from_days(days_orig: dict, dates) -> dict:
 
 
 def build_spec_from_line(line, line_id: str, D, matrix_ref: str) -> dict:
-    """从 LineData (load_line 产物) 组装 ProblemSpec — 与 df 入口语义等价."""
-    import pandas as pd
-    rows = []
-    for di, dd in enumerate(line.dates):
-        for si, c in enumerate(line.days_orig[dd]):
-            rows.append({"客户编码": c, "销售名称": line.line_name,
-                          "经度": line.lon[c], "纬度": line.lat[c],
-                          "拜访顺序": si + 1, "date": dd,
-                          "拜访日期": dd.isoformat()})
-    df = pd.DataFrame(rows)
-    spec = build_spec_from_df(df, line_id, D)
-    spec["distance"]["matrix_ref"] = matrix_ref
+    """从 LineData 组装 ProblemSpec.
+
+    铁律: 店顺序保持 line.codes 原序 (与 road_dist_<line>.npy 行列一一对应),
+    禁止重排 — 排序错位曾致 km 326→395 假解. code 统一 str (Excel 数值编码).
+    """
+    codes_orig = list(line.codes)                    # 与 D 对齐的原始顺序
+    codes_str = [str(c) for c in codes_orig]         # 输出用编码
+    # line.days_orig 的值已是位置索引 (load_line 内部完成编码→位置)
+
+    days_orig_date = {dd: [int(c) for c in v] for dd, v in line.days_orig.items()}
+    date_strs = [dd.isoformat() for dd in line.dates]
+    days_orig = {date_strs[i]: days_orig_date[dd]
+                 for i, dd in enumerate(line.dates)}
+
+    from core.contract import contract_of, legal_date_map
+    contracts = contract_of(days_orig_date, line.dates)
+    legal = legal_date_map(contracts, line.dates)
+    idx_of = {_iso(d): i for i, d in enumerate(line.dates)}
+
+    stores = []
+    for i, c in enumerate(codes_orig):
+        kind, phase = _kind_phase(contracts[i])
+        req = sum(1 for v in days_orig_date.values() if i in v)
+        legal_idx = sorted(idx_of[_iso(dd)] for dd in legal.get(i, ()))
+        stores.append({
+            "id": i, "code": codes_str[i],
+            "lon": float(line.lon[i]), "lat": float(line.lat[i]),
+            "contract": {"kind": kind, "phase": phase, "required_visits": req},
+            "legal_dates_idx": legal_idx,
+        })
+
+    spec = {
+        "schema": "visitflow/problem", "version": "1.0",
+        "inputs_hash": "PENDING", "line_id": line_id,
+        "calendar": {"dates": date_strs, "n_days": len(line.dates)},
+        "stores": stores,
+        "corridor": {"min_daily": int(min(len(v) for v in days_orig.values())),
+                      "max_daily": int(max(len(v) for v in days_orig.values()))},
+        "original_assignment": days_orig,
+        "distance": {
+            "kind": "osm_cycling", "scope": "per-line",
+            "matrix_ref": matrix_ref, "format": "npz", "n": len(codes_orig),
+            "unreachable_sentinel": _SENTINEL,
+        },
+        "meta": {"n_stores": len(codes_orig), "n_visits": int(line.visits)},
+    }
     spec["inputs_hash"] = sha256_of(spec)
     return spec
