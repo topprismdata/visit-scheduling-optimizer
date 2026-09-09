@@ -67,12 +67,15 @@ def main():
                             args.budget, args.cp_timeout, xlsx=args.xlsx)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    _write(out / "problem.json", pack["problem"])
-    _write(out / "calendar_map.json", pack["calendar_map"])
-    _write(out / "model.json", pack["model"])
-    _write(out / "solution.json", pack["solution"])
+    # 文件名带版本号 (仓库规范): problem_v2.2 / model_v1 / solution_v1 ...
+    _write(out / f"problem_{pack['problem']['version']}.json", pack["problem"])
+    _write(out / f"calendar_map_{pack['calendar_map']['version']}.json",
+           pack["calendar_map"])
+    _write(out / f"model_{pack['model']['version']}.json", pack["model"])
+    _write(out / f"solution_{pack['solution']['version']}.json",
+           pack["solution"])
     sol = pack["solution"]
-    print(f"written: {out}/(problem|model|solution).json  "
+    print(f"written: {out}/  "
           f"km={sol['totals']['km']} gates={all(sol['gates'].values())} "
           f"status={sol['status']}")
 
