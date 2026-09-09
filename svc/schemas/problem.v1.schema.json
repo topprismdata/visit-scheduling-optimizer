@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "visitflow/problem v1",
+  "type": "object",
+  "required": ["schema", "version", "inputs_hash", "line_id", "calendar",
+                "stores", "corridor", "original_assignment", "distance", "meta"],
+  "properties": {
+    "schema": {"const": "visitflow/problem"},
+    "version": {"const": "1.0"},
+    "inputs_hash": {"type": "string", "pattern": "^sha256:"},
+    "line_id": {"type": "string"},
+    "calendar": {
+      "type": "object",
+      "required": ["dates", "n_days"],
+      "properties": {
+        "dates": {"type": "array", "items": {"type": "string"}},
+        "n_days": {"type": "integer", "minimum": 1}
+      }
+    },
+    "stores": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "code", "lon", "lat", "contract", "legal_dates_idx"],
+        "properties": {
+          "id": {"type": "integer", "minimum": 0},
+          "code": {"type": "string"},
+          "lon": {"type": "number"}, "lat": {"type": "number"},
+          "contract": {
+            "type": "object",
+            "required": ["kind", "phase", "required_visits"],
+            "properties": {
+              "kind": {"enum": ["W", "B"]},
+              "phase": {"enum": [0, 1]},
+              "required_visits": {"type": "integer", "minimum": 1}
+            }
+          },
+          "legal_dates_idx": {"type": "array", "items": {"type": "integer"}}
+        }
+      }
+    },
+    "corridor": {
+      "type": "object",
+      "required": ["min_daily", "max_daily"],
+      "properties": {"min_daily": {"type": "integer"},
+                      "max_daily": {"type": "integer"}}
+    },
+    "original_assignment": {
+      "type": "object",
+      "additionalProperties": {"type": "array", "items": {"type": "integer"}}
+    },
+    "distance": {
+      "type": "object",
+      "required": ["kind", "scope", "matrix_ref", "format", "n",
+                    "unreachable_sentinel"],
+      "properties": {
+        "kind": {"type": "string"},
+        "scope": {"const": "per-line"},
+        "matrix_ref": {"type": "string", "pattern": "^sha256:"},
+        "format": {"const": "npz"},
+        "n": {"type": "integer", "minimum": 1},
+        "unreachable_sentinel": {"type": "number"}
+      }
+    },
+    "meta": {"type": "object"}
+  }
+}
