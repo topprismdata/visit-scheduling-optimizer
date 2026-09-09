@@ -1,7 +1,7 @@
 {
  "schema": "visitflow/model",
  "version": "1.1",
- "problem_hash": "sha256:596b4ac754aa36d349bb03bf79f6a73045b09abfec48ef2e8b78a4ce6e4cfe93",
+ "problem_hash": "sha256:35e75aa17597a819742185d7aa9fd1795fd08e333058335345deb6da1b96b21b",
  "formulation": {
   "kind": "sliding-window-frequency",
   "vars": {
@@ -547,8 +547,9 @@
  },
  "objective": {
   "sense": "min",
+  "metric": "total_route_km",
   "expr": "Σ_{d∈D} route_km(D, {c ∈ C : y_cd = 1})",
-  "note": "route_km = 当日被服务客户集的精确最短开放路径 (内层 TSP, 共同重排口径); 距离取 OSM 路网矩阵"
+  "note": "目标声明转抄自语义层 problem.objective (单一事实源); route_km = 当日被服务客户集的精确最短开放路径 (内层 TSP, 共同重排口径); 距离取 OSM 路网矩阵"
  },
  "constraints": {
   "frequency_total": {

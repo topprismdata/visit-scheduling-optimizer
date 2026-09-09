@@ -10,7 +10,7 @@ import pytest
 
 pytestmark = [pytest.mark.slow]
 
-GOLDEN = Path("output/svc_golden/09/solution.json")
+GOLDEN = Path("output/svc_golden/09/solution_1.0.json")
 
 
 def test_golden_replay_09():

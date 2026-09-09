@@ -86,6 +86,9 @@ def build_spec_from_df(line_df, line_id: str, D: np.ndarray) -> dict:
         "stores": stores,
         "corridor": {"min_daily": int(min(len(v) for v in assignment_idx.values())),
                       "max_daily": int(max(len(v) for v in assignment_idx.values()))},
+        "objective": {"sense": "min",
+                       "metric": "total_route_km",
+                       "note": "目标: 最小化全周期总骑行里程 (业务级声明, 由模型层形式化)"},
         "original_assignment_idx": assignment_idx,
         "distance": {
             "kind": "osm_cycling", "scope": "per-line",
@@ -150,6 +153,9 @@ def build_spec_from_line(line, line_id: str, D, matrix_ref: str) -> dict:
         "stores": stores,
         "corridor": {"min_daily": int(min(len(v) for v in assignment_idx.values())),
                       "max_daily": int(max(len(v) for v in assignment_idx.values()))},
+        "objective": {"sense": "min",
+                       "metric": "total_route_km",
+                       "note": "目标: 最小化全周期总骑行里程 (业务级声明, 由模型层形式化)"},
         "original_assignment_idx": assignment_idx,
         "distance": {
             "kind": "osm_cycling", "scope": "per-line",

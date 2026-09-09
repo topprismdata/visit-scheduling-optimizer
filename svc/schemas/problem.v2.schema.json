@@ -45,6 +45,15 @@
       "properties": {"min_daily": {"type": "integer"},
                       "max_daily": {"type": "integer"}}
     },
+    "objective": {
+      "type": "object",
+      "required": ["sense", "metric"],
+      "properties": {
+        "sense": {"enum": ["min", "max"]},
+        "metric": {"enum": ["total_route_km"]},
+        "note": {"type": "string"}
+      }
+    },
     "original_assignment_idx": {
       "type": "object",
       "additionalProperties": {"type": "array", "items": {"type": "integer"}}

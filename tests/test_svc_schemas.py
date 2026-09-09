@@ -10,6 +10,7 @@ MIN_PROBLEM = {
      "frequency": {"horizon": 1, "visits": 1, "pattern": "1",
                     "ambiguous": False, "source": "derived"}}],
     "corridor": {"min_daily": 2, "max_daily": 3},
+    "objective": {"sense": "min", "metric": "total_route_km"},
     "original_assignment_idx": {"1": [0]},
     "distance": {"kind": "osm_cycling", "scope": "per-line",
                   "matrix_ref": "sha256:cd", "format": "npz", "n": 1,

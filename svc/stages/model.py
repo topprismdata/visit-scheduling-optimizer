@@ -88,9 +88,11 @@ def build_manifest(spec: dict) -> dict:
 
         # ---------- 目标 ----------
         "objective": {
-            "sense": "min",
+            "sense": spec["objective"]["sense"],
+            "metric": spec["objective"]["metric"],
             "expr": "Σ_{d∈D} route_km(D, {c ∈ C : y_cd = 1})",
-            "note": "route_km = 当日被服务客户集的精确最短开放路径 (内层 TSP, "
+            "note": "目标声明转抄自语义层 problem.objective (单一事实源); "
+                    "route_km = 当日被服务客户集的精确最短开放路径 (内层 TSP, "
                     "共同重排口径); 距离取 OSM 路网矩阵",
         },
 

@@ -1,7 +1,7 @@
 {
  "schema": "visitflow/problem",
  "version": "2.2",
- "inputs_hash": "sha256:77544507a4cf25bf7b58ca95b5c82ca3e5e8ca7eb422408ce68d5156481ca7aa",
+ "inputs_hash": "sha256:f571d52e9145da94c1f7e7a68aa60910873c0976d26aac05c1848763ba84c9b6",
  "line_id": "09",
  "cycle": {
   "n_days": 23
@@ -2619,6 +2619,11 @@
  "corridor": {
   "min_daily": 23,
   "max_daily": 35
+ },
+ "objective": {
+  "sense": "min",
+  "metric": "total_route_km",
+  "note": "目标: 最小化全周期总骑行里程 (业务级声明, 由模型层形式化)"
  },
  "original_assignment_idx": {
   "1": [
