@@ -1,6 +1,7 @@
 """Stage 1 语义编译: line_df → ProblemSpec v1 (visitflow/problem)."""
 from __future__ import annotations
 
+import datetime as _dt
 import hashlib
 from collections import Counter
 
@@ -49,7 +50,9 @@ def build_spec_from_df(line_df, line_id: str, D: np.ndarray) -> dict:
             "lon": float(pts.loc[c, "经度"]), "lat": float(pts.loc[c, "纬度"]),
             "contract": {"kind": contracts[sid]["kind"],
                           "phase": contracts[sid]["phase"],
-                          "required_visits": contracts[sid]["required_visits"]},
+                          "required_visits": contracts[sid]["required_visits"],
+                          "source": contracts[sid]["source"],
+                          "ambiguous": contracts[sid]["ambiguous"]},
             "legal_dates_idx": legal_idx,
         })
 
@@ -92,17 +95,30 @@ def _contracts_from_days(days_orig: dict, dates) -> dict:
 
     days_orig 键域 = date 对象 (contract_of 内部做 .weekday()).
     """
-    from core.contract import contract_of, legal_date_map
+    from core.contract import contract_of, legal_date_map, slots_per_weekday
     contracts = contract_of(days_orig, dates)
     legal = legal_date_map(contracts, dates)
     idx_of = {_iso(d): i for i, d in enumerate(dates)}
+    slots = slots_per_weekday(dates)
     stores = sorted({c for v in days_orig.values() for c in v})
     out = {}
     for sid in stores:
         kind, phase = _kind_phase(contracts[sid])
-        req = sum(1 for v in days_orig.values() if sid in v)
+        visits = sorted(_iso(dd) for dd, v in days_orig.items() if sid in v)
+        req = len(visits)
         legal_idx = sorted(idx_of[_iso(dd)] for dd in legal.get(sid, ()))
+        # 歧义评估: 反推合同与真实业务节奏可能不符 (通用服务必须显式标记)
+        ambiguous = False
+        if kind == "B" and len(visits) == 2:
+            w1, w2 = (_dt.date.fromisoformat(x).isocalendar()[1] for x in visits)
+            if w2 - w1 != 2:
+                ambiguous = True   # 连续周/跨3周 — 不是规整双周
+        if kind == "W":
+            wd = _dt.date.fromisoformat(visits[0]).weekday()
+            if req < slots[wd]:
+                ambiguous = True   # W 店漏访 — 疑似计划违约被误降为 W
         out[sid] = {"kind": kind, "phase": phase, "required_visits": req,
+                     "source": "derived", "ambiguous": ambiguous,
                      "_legal_idx": legal_idx}
     return out
 
@@ -122,21 +138,18 @@ def build_spec_from_line(line, line_id: str, D, matrix_ref: str) -> dict:
     days_orig = {date_strs[i]: days_orig_date[dd]
                  for i, dd in enumerate(line.dates)}
 
-    from core.contract import contract_of, legal_date_map
-    contracts = contract_of(days_orig_date, line.dates)
-    legal = legal_date_map(contracts, line.dates)
-    idx_of = {_iso(d): i for i, d in enumerate(line.dates)}
-
+    rich = _contracts_from_days(days_orig_date, line.dates)
     stores = []
     for i, c in enumerate(codes_orig):
-        kind, phase = _kind_phase(contracts[i])
-        req = sum(1 for v in days_orig_date.values() if i in v)
-        legal_idx = sorted(idx_of[_iso(dd)] for dd in legal.get(i, ()))
+        meta = rich[i]
         stores.append({
             "id": i, "code": codes_str[i],
             "lon": float(line.lon[i]), "lat": float(line.lat[i]),
-            "contract": {"kind": kind, "phase": phase, "required_visits": req},
-            "legal_dates_idx": legal_idx,
+            "contract": {"kind": meta["kind"], "phase": meta["phase"],
+                          "required_visits": meta["required_visits"],
+                          "source": meta["source"],
+                          "ambiguous": meta["ambiguous"]},
+            "legal_dates_idx": meta["_legal_idx"],
         })
 
     spec = {

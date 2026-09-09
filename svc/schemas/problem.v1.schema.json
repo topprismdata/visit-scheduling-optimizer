@@ -32,7 +32,9 @@
             "properties": {
               "kind": {"enum": ["W", "B"]},
               "phase": {"enum": [0, 1]},
-              "required_visits": {"type": "integer", "minimum": 1}
+              "required_visits": {"type": "integer", "minimum": 1},
+              "source": {"enum": ["explicit", "derived"]},
+              "ambiguous": {"type": "boolean"}
             }
           },
           "legal_dates_idx": {"type": "array", "items": {"type": "integer"}}
