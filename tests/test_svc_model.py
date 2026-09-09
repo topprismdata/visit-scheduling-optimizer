@@ -17,7 +17,7 @@ def min_problem():
         "inputs_hash": "sha256:ab", "line_id": "09",
         "calendar": {"dates": ["2026-07-01"], "n_days": 1},
         "stores": [{"id": 0, "code": "C001", "lon": 113.25, "lat": 23.05,
-                     "contract": {"kind": "W", "phase": 0, "required_visits": 3},
+                     "contract": {"kind": "W", "phase": 0, "required_visits": 1},
                      "legal_dates_idx": [0]}],
         "corridor": {"min_daily": 2, "max_daily": 3},
         "original_assignment": {"2026-07-01": [0]},
