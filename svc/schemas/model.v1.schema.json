@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "visitflow/model v1",
+  "type": "object",
+  "required": ["schema", "version", "problem_hash", "formulation",
+                "legal_domain", "feasibility_precheck", "meta"],
+  "properties": {
+    "schema": {"const": "visitflow/model"},
+    "version": {"const": "1.0"},
+    "problem_hash": {"type": "string", "pattern": "^sha256:"},
+    "formulation": {
+      "type": "object",
+      "required": ["kind", "vars"],
+      "properties": {"kind": {"type": "string"}, "vars": {"type": "object"}}
+    },
+    "legal_domain": {
+      "type": "object",
+      "required": ["pairs_total", "pairs_legal", "fixed"],
+      "properties": {"pairs_total": {"type": "integer"},
+                      "pairs_legal": {"type": "integer"},
+                      "fixed": {"type": "integer"}}
+    },
+    "feasibility_precheck": {
+      "type": "object",
+      "required": ["capacity_ok", "contract_ok", "corridor_ok"],
+      "additionalProperties": {"type": "boolean"}
+    },
+    "meta": {"type": "object"}
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "visitflow/solution v1",
+  "type": "object",
+  "required": ["schema", "version", "problem_hash", "model_hash", "status",
+                "assignment", "totals", "gates", "runtime", "certificates",
+                "output_hash", "meta"],
+  "properties": {
+    "schema": {"const": "visitflow/solution"},
+    "version": {"const": "1.0"},
+    "problem_hash": {"type": "string", "pattern": "^sha256:"},
+    "model_hash": {"type": "string", "pattern": "^sha256:"},
+    "status": {"enum": ["FEASIBLE", "INFEASIBLE", "FAILED"]},
+    "assignment": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["route_idx", "route_codes", "km"],
+        "properties": {
+          "route_idx": {"type": "array", "items": {"type": "integer"}},
+          "route_codes": {"type": "array", "items": {"type": "string"}},
+          "km": {"type": "number", "minimum": 0}
+        }
+      }
+    },
+    "totals": {
+      "type": "object",
+      "required": ["km", "vs_original_pct", "moved_stores"],
+      "properties": {"km": {"type": "number"},
+                      "vs_original_pct": {"type": "number"},
+                      "moved_stores": {"type": "integer"}}
+    },
+    "gates": {
+      "type": "object",
+      "required": ["count_ok", "capacity_ok", "r2_ok", "contract_ok",
+                    "structure_ok"],
+      "additionalProperties": {"type": "boolean"}
+    },
+    "runtime": {
+      "type": "object",
+      "required": ["engine", "engine_version", "stage_versions", "seeds",
+                    "budget_s", "iters", "wall_sec"],
+      "properties": {
+        "engine": {"type": "string"},
+        "engine_version": {"type": "string"},
+        "stage_versions": {"type": "object"},
+        "seeds": {"type": "array", "items": {"type": "integer"}},
+        "budget_s": {"type": "number"},
+        "iters": {"type": "integer"},
+        "wall_sec": {"type": "number"}
+      }
+    },
+    "certificates": {
+      "type": "object",
+      "required": ["pool_lp", "certified_global_lb", "global_gap_pct"],
+      "properties": {"pool_lp": {"type": ["number", "null"]},
+                      "certified_global_lb": {"type": ["number", "null"]},
+                      "global_gap_pct": {"type": ["number", "null"]}}
+    },
+    "output_hash": {"type": "string", "pattern": "^sha256:"},
+    "meta": {"type": "object"}
+  },
+  "allOf": [{
+    "if": {"properties": {"status": {"const": "FEASIBLE"}}},
+    "then": {"properties": {
+      "gates": {"properties": {
+        "count_ok": {"const": true}, "capacity_ok": {"const": true},
+        "r2_ok": {"const": true}, "contract_ok": {"const": true},
+        "structure_ok": {"const": true}}}
+    }}
+  }]
+}
