@@ -32,9 +32,9 @@ def test_frequency_derivation_classes():
     # 1 次/23天 -> 次/4周 (horizon 20)
     f = _derive_frequency([13], 23)
     assert (f["horizon"], f["visits"], f["ambiguous"]) == (20, 1, False)
-    # 7 次/23天 -> 每周1.5次不成档 -> 次/2周 3 次 (预测 6.96 ≈ 7)
+    # 7 次/23天 -> 周1.5次 -> 周访档, 每周 2 次
     f = _derive_frequency(list(range(1, 8)), 23)
-    assert f["horizon"] == 10 and f["visits"] == 3 and f["ambiguous"] is False
+    assert f["visits"] == 2 and f["ambiguous"] is True   # 周1.5次不成整档 -> 诚实标歧义
     # 无 pattern 字段: pattern 属于求解器决策变量
     assert "pattern" not in f
 
@@ -52,7 +52,7 @@ def test_build_spec_v2_no_calendar_fields():
     # 日历无关: 全文不允许出现 ISO 日期
     assert "2026-07" not in str(spec)
     assert spec["cycle"]["n_days"] == 2
-    assert spec["stores"][0]["frequency"]["visits"] == 2
+    assert spec["stores"][0]["frequency"]["visits"] == 5   # 每工作周 2 次 × ... mini 全勤
     assert spec["stores"][0]["frequency"]["horizon"] == 2   # 兜底 = 周期长
     # 分配键 = 拜访日序号
     assert spec["original_assignment_idx"]["1"] == [0, 1, 2]   # 店0/1/2

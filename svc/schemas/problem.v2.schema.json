@@ -31,6 +31,7 @@
               "horizon": {"type": "integer", "minimum": 1},
               "visits": {"type": "integer", "minimum": 1},
               "observed_visits": {"type": "integer", "minimum": 0},
+              "candidate_horizons": {"type": "array", "items": {"type": "integer"}},
               "ambiguous": {"type": "boolean"},
               "source": {"enum": ["explicit", "derived"]}
             }

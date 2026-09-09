@@ -21,22 +21,28 @@ def _iso(d) -> str:
 
 
 def _derive_frequency(day_idxs: list, n_days: int) -> dict:
-    """从拜访记录反推频次需求 (业务含义: 每 horizon 个工作日来 visits 次).
+    """从拜访记录反推频次档位 (兜底; 业务系统显式合同才是第一来源).
 
-    兜底逻辑 —— 业务系统里的合同频次才是第一来源 (source=explicit).
-    规则: 取最小的业务周期 T∈{5,10,20}, 使 round(k*T/n) 次能再现观察值
-    (|k − v*n/T| < 0.5); 都不合 -> 节奏断裂, ambiguous=True.
+    按每周拜访率 r = k*5/n_days 分档:
+      r >= 0.75 -> 周访 (次/周, horizon=5)
+      0.30 <= r < 0.75 -> 双周 (次/2周, horizon=10)
+      r < 0.30 -> 月访 (次/4周, horizon=20)
+    观察值偏离档位预测 >1 次 -> ambiguous.
     """
     k = len(day_idxs)
-    for T in (5, 10, 20):
-        if T > n_days:
-            continue
-        v = round(k * T / n_days)
-        if v >= 1 and abs(k - v * n_days / T) < 0.5:
-            return {"horizon": T, "visits": v, "observed_visits": k,
-                     "ambiguous": False, "source": "derived"}
-    return {"horizon": n_days, "visits": k, "observed_visits": k,
-             "ambiguous": True, "source": "derived"}
+    r = k * 5.0 / n_days                     # 每工作周拜访率
+    if r >= 0.75:
+        horizon, visits = 5, max(1, round(r))
+    elif r >= 0.30:
+        horizon, visits = 10, 1
+    else:
+        horizon, visits = 20, 1
+    horizon = min(horizon, n_days)           # 窗口小于周期时截断
+    expected_window = visits * n_days / horizon
+    ambiguous = abs(k - expected_window) > 1.0
+    return {"horizon": horizon, "visits": visits, "observed_visits": k,
+             "candidate_horizons": [horizon], "ambiguous": ambiguous,
+             "source": "derived"}
 
 
 def build_spec_from_df(line_df, line_id: str, D: np.ndarray) -> dict:
