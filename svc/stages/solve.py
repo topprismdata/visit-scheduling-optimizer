@@ -1,8 +1,7 @@
 """Stage 3 求解: ProblemSpec → SolutionBundle v1 (R2-ALNS + 五道闸 + 共同重排).
 
-口径铁律: totals.km 为共同 CP-SAT 重排后的 pipeline km (协议 §5.3),
-内部 route 和禁止直接出参 (与 km_internal 混用曾致 +7% 假回退).
-内部键域 = date 对象 (闸/引擎需要); JSON 输出才转 ISO 字符串.
+口径铁律: totals.km 与 vs_original_pct 的分子分母都走共同 CP-SAT 重排
+(SRP 打印序禁作分母). 内部键域 = date 对象; JSON 输出才转 ISO 字符串.
 """
 from __future__ import annotations
 
@@ -51,8 +50,8 @@ def _compute_gates(assignment_raw: dict, dates, spec: dict, contracts,
                     D, r2_contract_ok: bool) -> dict:
     """五道闸纯函数 (独立可测). assignment_raw: {date_obj: [idx]}.
 
-    count_ok 语义 (R2' 本体): 每店不分裂星期几, 且月访次 == 其实际星期几的
-    日历槽位数 — 换日后 f 由合同派生, 与原计划计数不同是合法的.
+    count_ok 语义 (R2' 本体): 每店不分裂星期几且不丢店 — 换日后 f 由合同
+    派生, 月访次与原计划不同是合法的; 精确节奏由 contract 闸负责.
     """
     from collections import Counter, defaultdict
     wd_of_store, cnt = defaultdict(set), Counter()
@@ -61,8 +60,6 @@ def _compute_gates(assignment_raw: dict, dates, spec: dict, contracts,
             wd_of_store[c].add(dd.weekday())
             cnt[c] += 1
     sentinel = spec["distance"]["unreachable_sentinel"]
-    # B(双周)店月访次 < 槽位数是合法的 (精确节奏由 contract 闸负责);
-    # 此闸防: 丢店 / 星期几分裂
     all_stores = {s["id"] for s in spec["stores"]}
     count_ok = set(wd_of_store) == all_stores and \
         all(len(wds) == 1 for wds in wd_of_store.values())
@@ -121,8 +118,14 @@ def solve_spec(spec: dict, D, seeds: list, budget_s: float, cp_timeout: float,
                             best_contract_ok)
     status = "FEASIBLE" if all(gates.values()) else "FAILED"
 
-    orig_km = sum(day_km(spec["original_assignment"][s], D) for s in date_strs)
+    # 口径铁律: 分母也走共同 CP-SAT 重排 (SRP 打印序禁作分母)
+    orig_km = 0.0
+    for di, dd in enumerate(dates):
+        orig_route, _st, _ms = _exact_open_tsp_status(
+            list(spec["original_assignment"][date_strs[di]]), D, cp_timeout)
+        orig_km += day_km(orig_route, D)
     vs_orig = round((total_km - orig_km) / orig_km * 100, 3) if orig_km > 0 else 0.0
+
     assignment = {date_strs[di]: {
         "route_idx": assignment_raw[dd],
         "route_codes": [codes[c] for c in assignment_raw[dd]],
