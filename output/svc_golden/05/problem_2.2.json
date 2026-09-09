@@ -1,7 +1,7 @@
 {
  "schema": "visitflow/problem",
- "version": "2.1",
- "inputs_hash": "sha256:f1a7530c658abb73c806cfabc37622c027ef75f6def1b4d5dbec501811a21e51",
+ "version": "2.2",
+ "inputs_hash": "sha256:f1c527335b69563d903c8d1644607b2dbfeaabcc27bb90cff7d642c81cfb759b",
  "line_id": "05",
  "cycle": {
   "n_days": 23
@@ -14,8 +14,11 @@
    "lat": 23.100368,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -27,8 +30,11 @@
    "lat": 23.102396,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -40,8 +46,11 @@
    "lat": 23.098956,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -53,8 +62,11 @@
    "lat": 23.093359,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -66,8 +78,11 @@
    "lat": 23.094875,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -79,8 +94,11 @@
    "lat": 23.103276,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -92,8 +110,11 @@
    "lat": 23.094069,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -105,8 +126,11 @@
    "lat": 23.092928,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -118,8 +142,11 @@
    "lat": 23.10457,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -131,8 +158,11 @@
    "lat": 23.103977,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -144,8 +174,11 @@
    "lat": 23.097637,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -157,8 +190,11 @@
    "lat": 23.101819,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -170,8 +206,11 @@
    "lat": 23.096616,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -183,8 +222,11 @@
    "lat": 23.092336,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -196,8 +238,11 @@
    "lat": 23.106319,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -209,8 +254,11 @@
    "lat": 23.099804,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -222,8 +270,11 @@
    "lat": 23.098719,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -235,8 +286,11 @@
    "lat": 23.092995,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -248,8 +302,11 @@
    "lat": 23.094142,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -261,8 +318,11 @@
    "lat": 23.094962,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -274,8 +334,11 @@
    "lat": 23.093669,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -287,8 +350,11 @@
    "lat": 23.090161,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -300,8 +366,11 @@
    "lat": 23.098396,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -313,8 +382,11 @@
    "lat": 23.096933,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -326,8 +398,11 @@
    "lat": 23.098803,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -339,8 +414,11 @@
    "lat": 23.093918,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -352,8 +430,11 @@
    "lat": 23.099823,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -365,8 +446,11 @@
    "lat": 23.102459,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00010",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -378,8 +462,11 @@
    "lat": 23.102494,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -391,8 +478,11 @@
    "lat": 23.103332,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -404,8 +494,11 @@
    "lat": 23.104352,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -417,8 +510,11 @@
    "lat": 23.093213,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -430,8 +526,11 @@
    "lat": 23.106944,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -443,8 +542,11 @@
    "lat": 23.102937,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -456,8 +558,11 @@
    "lat": 23.103797,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -469,8 +574,11 @@
    "lat": 23.107847,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -482,8 +590,11 @@
    "lat": 23.104841,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -495,8 +606,11 @@
    "lat": 23.097441,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -508,8 +622,11 @@
    "lat": 23.103346,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -521,8 +638,11 @@
    "lat": 23.09767,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -534,8 +654,11 @@
    "lat": 23.10112,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -547,8 +670,11 @@
    "lat": 23.099041,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -560,8 +686,11 @@
    "lat": 23.104156,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -573,8 +702,11 @@
    "lat": 23.100915,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -586,8 +718,11 @@
    "lat": 23.100896,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -599,8 +734,11 @@
    "lat": 23.10196,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -612,8 +750,11 @@
    "lat": 23.102294,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -625,8 +766,11 @@
    "lat": 23.104003,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -638,8 +782,11 @@
    "lat": 23.099402,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -651,8 +798,11 @@
    "lat": 23.090592,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -664,8 +814,11 @@
    "lat": 23.10058,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -677,8 +830,11 @@
    "lat": 23.108721,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -690,8 +846,11 @@
    "lat": 23.103435,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -703,8 +862,11 @@
    "lat": 23.107443,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -716,8 +878,11 @@
    "lat": 23.101285,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -729,8 +894,11 @@
    "lat": 23.106585,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -742,8 +910,11 @@
    "lat": 23.105328,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -755,8 +926,11 @@
    "lat": 23.103897,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -768,8 +942,11 @@
    "lat": 23.103566,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -781,8 +958,11 @@
    "lat": 23.100829,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -794,8 +974,11 @@
    "lat": 23.096771,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -807,8 +990,11 @@
    "lat": 23.100679,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -820,8 +1006,11 @@
    "lat": 23.100087,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -833,8 +1022,11 @@
    "lat": 23.102968,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -846,8 +1038,11 @@
    "lat": 23.101714,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -859,8 +1054,11 @@
    "lat": 23.110789,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -872,8 +1070,11 @@
    "lat": 23.094867,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -885,8 +1086,11 @@
    "lat": 23.100691,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -898,8 +1102,11 @@
    "lat": 23.109147,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -911,8 +1118,11 @@
    "lat": 23.10247,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -924,8 +1134,11 @@
    "lat": 23.109714,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -937,8 +1150,11 @@
    "lat": 23.111982,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -950,8 +1166,11 @@
    "lat": 23.10567,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -963,8 +1182,11 @@
    "lat": 23.105524,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -976,8 +1198,11 @@
    "lat": 23.105524,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -989,8 +1214,11 @@
    "lat": 23.111648,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1002,8 +1230,11 @@
    "lat": 23.105539,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1015,8 +1246,11 @@
    "lat": 23.112316,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1028,8 +1262,11 @@
    "lat": 23.100242,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1041,8 +1278,11 @@
    "lat": 23.112442,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1054,8 +1294,11 @@
    "lat": 23.104812,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1067,8 +1310,11 @@
    "lat": 23.098226,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1080,8 +1326,11 @@
    "lat": 23.10667,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1093,8 +1342,11 @@
    "lat": 23.097411,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1106,8 +1358,11 @@
    "lat": 23.108711,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1119,8 +1374,11 @@
    "lat": 23.105986,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1132,8 +1390,11 @@
    "lat": 23.105636,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1145,8 +1406,11 @@
    "lat": 23.090778,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1158,8 +1422,11 @@
    "lat": 23.102481,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1171,8 +1438,11 @@
    "lat": 23.100177,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1184,8 +1454,11 @@
    "lat": 23.108481,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1197,8 +1470,11 @@
    "lat": 23.099886,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1210,8 +1486,11 @@
    "lat": 23.106512,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1223,8 +1502,11 @@
    "lat": 23.09646,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "10000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1236,8 +1518,11 @@
    "lat": 23.089728,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1249,8 +1534,11 @@
    "lat": 23.090856,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1262,8 +1550,11 @@
    "lat": 23.092194,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1275,8 +1566,11 @@
    "lat": 23.095336,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1288,8 +1582,11 @@
    "lat": 23.09842,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1301,8 +1598,11 @@
    "lat": 23.091379,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1314,8 +1614,11 @@
    "lat": 23.092642,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1327,8 +1630,11 @@
    "lat": 23.100472,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1340,8 +1646,11 @@
    "lat": 23.09362,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1353,8 +1662,11 @@
    "lat": 23.098681,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1366,8 +1678,11 @@
    "lat": 23.098336,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1379,8 +1694,11 @@
    "lat": 23.086499,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1392,8 +1710,11 @@
    "lat": 23.088715,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1405,8 +1726,11 @@
    "lat": 23.102249,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1418,8 +1742,11 @@
    "lat": 23.102076,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1431,8 +1758,11 @@
    "lat": 23.093101,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1444,8 +1774,11 @@
    "lat": 23.094789,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1457,8 +1790,11 @@
    "lat": 23.09704,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1470,8 +1806,11 @@
    "lat": 23.093881,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1483,8 +1822,11 @@
    "lat": 23.103944,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1496,8 +1838,11 @@
    "lat": 23.091057,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1509,8 +1854,11 @@
    "lat": 23.097486,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1522,8 +1870,11 @@
    "lat": 23.092271,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1535,8 +1886,11 @@
    "lat": 23.087155,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1548,8 +1902,11 @@
    "lat": 23.087027,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1561,8 +1918,11 @@
    "lat": 23.100733,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1574,8 +1934,11 @@
    "lat": 23.090181,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1587,8 +1950,11 @@
    "lat": 23.103667,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1600,8 +1966,11 @@
    "lat": 23.098661,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1613,8 +1982,11 @@
    "lat": 23.094436,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1626,8 +1998,11 @@
    "lat": 23.092198,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1639,8 +2014,11 @@
    "lat": 23.092379,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1652,8 +2030,11 @@
    "lat": 23.111701,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1665,8 +2046,11 @@
    "lat": 23.104985,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1678,8 +2062,11 @@
    "lat": 23.103007,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1691,8 +2078,11 @@
    "lat": 23.098231,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1704,8 +2094,11 @@
    "lat": 23.08786,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1717,8 +2110,11 @@
    "lat": 23.099115,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1730,8 +2126,11 @@
    "lat": 23.097507,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1743,8 +2142,11 @@
    "lat": 23.097509,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1756,8 +2158,11 @@
    "lat": 23.088487,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1769,8 +2174,11 @@
    "lat": 23.097214,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1782,8 +2190,11 @@
    "lat": 23.107533,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1795,8 +2206,11 @@
    "lat": 23.10578,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1808,8 +2222,11 @@
    "lat": 23.097568,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1821,8 +2238,11 @@
    "lat": 23.106445,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1834,8 +2254,11 @@
    "lat": 23.106522,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1847,8 +2270,11 @@
    "lat": 23.109895,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1860,8 +2286,11 @@
    "lat": 23.099212,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1873,8 +2302,11 @@
    "lat": 23.10526,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1886,8 +2318,11 @@
    "lat": 23.099308,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1899,8 +2334,11 @@
    "lat": 23.109839,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1912,8 +2350,11 @@
    "lat": 23.094048,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1925,8 +2366,11 @@
    "lat": 23.094228,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1938,8 +2382,11 @@
    "lat": 23.111397,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1951,8 +2398,11 @@
    "lat": 23.098271,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1964,8 +2414,11 @@
    "lat": 23.097983,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1977,8 +2430,11 @@
    "lat": 23.103054,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -1990,8 +2446,11 @@
    "lat": 23.098772,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -2003,8 +2462,11 @@
    "lat": 23.087798,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -2016,8 +2478,11 @@
    "lat": 23.101109,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -2029,8 +2494,11 @@
    "lat": 23.096143,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -2042,8 +2510,11 @@
    "lat": 23.099,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -2055,8 +2526,11 @@
    "lat": 23.089772,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -2068,8 +2542,11 @@
    "lat": 23.099213,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -2081,8 +2558,11 @@
    "lat": 23.097522,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -2094,8 +2574,11 @@
    "lat": 23.102275,
    "frequency": {
     "horizon": 5,
-    "visits": 4,
-    "pattern": "00001",
+    "visits": 1,
+    "observed_visits": 4,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -2107,8 +2590,11 @@
    "lat": 23.095961,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "01000",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }
@@ -2120,8 +2606,11 @@
    "lat": 23.111081,
    "frequency": {
     "horizon": 5,
-    "visits": 5,
-    "pattern": "00100",
+    "visits": 1,
+    "observed_visits": 5,
+    "candidate_horizons": [
+     5
+    ],
     "ambiguous": false,
     "source": "derived"
    }

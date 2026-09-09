@@ -2,7 +2,7 @@
  "schema": "visitflow/solution",
  "version": "1.0",
  "problem_hash": "sha256:596b4ac754aa36d349bb03bf79f6a73045b09abfec48ef2e8b78a4ce6e4cfe93",
- "model_hash": "sha256:60dc0520f7847efd6b352a152c2c0be05d9d5715f903799e71ff65e0a86d4490",
+ "model_hash": "sha256:33bc328288881e97a8aaf5140843be771dc652c8b581085b01d825416bbdbc93",
  "status": "FAILED",
  "assignment": {
   "1": {
@@ -26,15 +26,15 @@
    "route_idx": [
     7,
     2,
-    17,
     12,
+    17,
     22
    ],
    "route_codes": [
     "990051448",
     "990051407",
-    "30000034183",
     "20000162042",
+    "30000034183",
     "30000651785"
    ],
    "km": 3.567
@@ -76,19 +76,19 @@
   "5": {
    "route_idx": [
     7,
+    2,
     17,
     12,
-    2,
     22
    ],
    "route_codes": [
     "990051448",
+    "990051407",
     "30000034183",
     "20000162042",
-    "990051407",
     "30000651785"
    ],
-   "km": 3.568
+   "km": 3.567
   },
   "6": {
    "route_idx": [
@@ -201,15 +201,15 @@
    "route_idx": [
     7,
     2,
-    17,
     12,
+    17,
     22
    ],
    "route_codes": [
     "990051448",
     "990051407",
-    "30000034183",
     "20000162042",
+    "30000034183",
     "30000651785"
    ],
    "km": 3.567
@@ -300,18 +300,18 @@
   },
   "20": {
    "route_idx": [
-    23,
-    8,
-    3,
+    13,
     18,
-    13
+    3,
+    8,
+    23
    ],
    "route_codes": [
-    "30000706391",
-    "20000047551",
-    "990051414",
+    "20000244849",
     "30000396877",
-    "20000244849"
+    "990051414",
+    "20000047551",
+    "30000706391"
    ],
    "km": 2.85
   },
@@ -369,20 +369,20 @@
  },
  "runtime": {
   "engine": "r2_alns",
-  "engine_version": "git:616e9ad",
+  "engine_version": "git:0e45f13",
   "stage_versions": {},
   "seeds": [
    42
   ],
-  "budget_s": 60.0,
-  "iters": 36000,
-  "wall_sec": 6.16
+  "budget_s": 30.0,
+  "iters": 18000,
+  "wall_sec": 3.63
  },
  "certificates": {
   "pool_lp": null,
   "certified_global_lb": null,
   "global_gap_pct": null
  },
- "output_hash": "sha256:6ef58221fb2a078d2f05fc80ee0b64ba9712d3cf63f105ecfc42adef9b63c37d",
+ "output_hash": "sha256:e1ba63b16103a593f9a21ea4e264569c3503b048bcec13da20ec90de2ce42941",
  "meta": {}
 }

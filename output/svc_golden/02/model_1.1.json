@@ -1,0 +1,2004 @@
+{
+ "schema": "visitflow/model",
+ "version": "1.1",
+ "problem_hash": "sha256:12d1f29882aed5e52fa457c0849c35f230de7298748c4440bef38f08c715faf6",
+ "formulation": {
+  "kind": "sliding-window-frequency",
+  "vars": {
+   "y_cd": 3956
+  }
+ },
+ "legal_domain": {
+  "pairs_total": 3956,
+  "pairs_legal": 3956,
+  "pairs_available": 3956,
+  "fixed": 0
+ },
+ "sets": {
+  "D": {
+   "size": 23,
+   "desc": "拜访日序号集合 {1, 2, ..., 23} (抽象日, 与日历无关)"
+  },
+  "C": {
+   "size": 172,
+   "desc": "客户集合"
+  }
+ },
+ "parameters": {
+  "distance_matrix": {
+   "desc": "骑行路网距离 D[i][j], 客户全序与矩阵行列一一对应",
+   "matrix_ref": "sha256:b41607265aa5ab054a66a61b640a7d068ce0acd313ad89d9817f88a2fc87f528",
+   "unreachable_sentinel": 1000000000.0
+  },
+  "horizon_c": {
+   "desc": "客户 c 的拜访周期 (工作日)",
+   "per_store": {
+    "0": 5,
+    "1": 5,
+    "2": 5,
+    "3": 5,
+    "4": 5,
+    "5": 5,
+    "6": 5,
+    "7": 5,
+    "8": 5,
+    "9": 5,
+    "10": 5,
+    "11": 5,
+    "12": 5,
+    "13": 5,
+    "14": 5,
+    "15": 5,
+    "16": 5,
+    "17": 5,
+    "18": 5,
+    "19": 5,
+    "20": 5,
+    "21": 5,
+    "22": 5,
+    "23": 5,
+    "24": 5,
+    "25": 5,
+    "26": 5,
+    "27": 5,
+    "28": 5,
+    "29": 5,
+    "30": 5,
+    "31": 5,
+    "32": 5,
+    "33": 5,
+    "34": 5,
+    "35": 5,
+    "36": 5,
+    "37": 5,
+    "38": 5,
+    "39": 5,
+    "40": 5,
+    "41": 5,
+    "42": 5,
+    "43": 5,
+    "44": 5,
+    "45": 5,
+    "46": 5,
+    "47": 5,
+    "48": 5,
+    "49": 5,
+    "50": 5,
+    "51": 5,
+    "52": 5,
+    "53": 5,
+    "54": 5,
+    "55": 5,
+    "56": 5,
+    "57": 5,
+    "58": 5,
+    "59": 5,
+    "60": 5,
+    "61": 5,
+    "62": 5,
+    "63": 5,
+    "64": 5,
+    "65": 5,
+    "66": 5,
+    "67": 5,
+    "68": 5,
+    "69": 5,
+    "70": 5,
+    "71": 5,
+    "72": 5,
+    "73": 5,
+    "74": 5,
+    "75": 5,
+    "76": 5,
+    "77": 5,
+    "78": 5,
+    "79": 5,
+    "80": 5,
+    "81": 5,
+    "82": 5,
+    "83": 5,
+    "84": 5,
+    "85": 5,
+    "86": 5,
+    "87": 5,
+    "88": 5,
+    "89": 5,
+    "90": 5,
+    "91": 5,
+    "92": 5,
+    "93": 5,
+    "94": 5,
+    "95": 5,
+    "96": 5,
+    "97": 5,
+    "98": 5,
+    "99": 5,
+    "100": 5,
+    "101": 5,
+    "102": 5,
+    "103": 5,
+    "104": 5,
+    "105": 5,
+    "106": 5,
+    "107": 5,
+    "108": 5,
+    "109": 5,
+    "110": 5,
+    "111": 5,
+    "112": 5,
+    "113": 5,
+    "114": 5,
+    "115": 5,
+    "116": 5,
+    "117": 5,
+    "118": 5,
+    "119": 5,
+    "120": 5,
+    "121": 5,
+    "122": 5,
+    "123": 5,
+    "124": 5,
+    "125": 5,
+    "126": 5,
+    "127": 5,
+    "128": 5,
+    "129": 5,
+    "130": 5,
+    "131": 5,
+    "132": 5,
+    "133": 5,
+    "134": 5,
+    "135": 5,
+    "136": 5,
+    "137": 5,
+    "138": 5,
+    "139": 5,
+    "140": 5,
+    "141": 5,
+    "142": 5,
+    "143": 5,
+    "144": 5,
+    "145": 5,
+    "146": 5,
+    "147": 5,
+    "148": 5,
+    "149": 5,
+    "150": 5,
+    "151": 5,
+    "152": 5,
+    "153": 5,
+    "154": 5,
+    "155": 5,
+    "156": 5,
+    "157": 5,
+    "158": 5,
+    "159": 5,
+    "160": 5,
+    "161": 5,
+    "162": 5,
+    "163": 5,
+    "164": 5,
+    "165": 5,
+    "166": 5,
+    "167": 5,
+    "168": 5,
+    "169": 5,
+    "170": 5,
+    "171": 5
+   }
+  },
+  "visits_c": {
+   "desc": "客户 c 每周期拜访次数",
+   "per_store": {
+    "0": 1,
+    "1": 1,
+    "2": 1,
+    "3": 1,
+    "4": 1,
+    "5": 1,
+    "6": 1,
+    "7": 1,
+    "8": 1,
+    "9": 1,
+    "10": 1,
+    "11": 1,
+    "12": 1,
+    "13": 1,
+    "14": 1,
+    "15": 1,
+    "16": 1,
+    "17": 1,
+    "18": 1,
+    "19": 1,
+    "20": 1,
+    "21": 1,
+    "22": 1,
+    "23": 1,
+    "24": 1,
+    "25": 1,
+    "26": 1,
+    "27": 1,
+    "28": 1,
+    "29": 1,
+    "30": 1,
+    "31": 1,
+    "32": 1,
+    "33": 1,
+    "34": 1,
+    "35": 1,
+    "36": 1,
+    "37": 1,
+    "38": 1,
+    "39": 1,
+    "40": 1,
+    "41": 1,
+    "42": 1,
+    "43": 1,
+    "44": 1,
+    "45": 1,
+    "46": 1,
+    "47": 1,
+    "48": 1,
+    "49": 1,
+    "50": 1,
+    "51": 1,
+    "52": 1,
+    "53": 1,
+    "54": 1,
+    "55": 1,
+    "56": 1,
+    "57": 1,
+    "58": 1,
+    "59": 1,
+    "60": 1,
+    "61": 1,
+    "62": 1,
+    "63": 1,
+    "64": 1,
+    "65": 1,
+    "66": 1,
+    "67": 1,
+    "68": 1,
+    "69": 1,
+    "70": 1,
+    "71": 1,
+    "72": 1,
+    "73": 1,
+    "74": 1,
+    "75": 1,
+    "76": 1,
+    "77": 1,
+    "78": 1,
+    "79": 1,
+    "80": 1,
+    "81": 1,
+    "82": 1,
+    "83": 1,
+    "84": 1,
+    "85": 1,
+    "86": 1,
+    "87": 1,
+    "88": 1,
+    "89": 1,
+    "90": 1,
+    "91": 1,
+    "92": 1,
+    "93": 1,
+    "94": 1,
+    "95": 1,
+    "96": 1,
+    "97": 1,
+    "98": 1,
+    "99": 1,
+    "100": 1,
+    "101": 1,
+    "102": 1,
+    "103": 1,
+    "104": 1,
+    "105": 1,
+    "106": 1,
+    "107": 1,
+    "108": 1,
+    "109": 1,
+    "110": 1,
+    "111": 1,
+    "112": 1,
+    "113": 1,
+    "114": 1,
+    "115": 1,
+    "116": 1,
+    "117": 1,
+    "118": 1,
+    "119": 1,
+    "120": 1,
+    "121": 1,
+    "122": 1,
+    "123": 1,
+    "124": 1,
+    "125": 1,
+    "126": 1,
+    "127": 1,
+    "128": 1,
+    "129": 1,
+    "130": 1,
+    "131": 1,
+    "132": 1,
+    "133": 1,
+    "134": 1,
+    "135": 1,
+    "136": 1,
+    "137": 1,
+    "138": 1,
+    "139": 1,
+    "140": 1,
+    "141": 1,
+    "142": 1,
+    "143": 1,
+    "144": 1,
+    "145": 1,
+    "146": 1,
+    "147": 1,
+    "148": 1,
+    "149": 1,
+    "150": 1,
+    "151": 1,
+    "152": 1,
+    "153": 1,
+    "154": 1,
+    "155": 1,
+    "156": 1,
+    "157": 1,
+    "158": 1,
+    "159": 1,
+    "160": 1,
+    "161": 1,
+    "162": 1,
+    "163": 1,
+    "164": 1,
+    "165": 1,
+    "166": 1,
+    "167": 1,
+    "168": 1,
+    "169": 1,
+    "170": 1,
+    "171": 1
+   }
+  },
+  "visits_total_c": {
+   "desc": "客户 c 在窗口内的总拜访次数目标",
+   "per_store": {
+    "0": 5,
+    "1": 5,
+    "2": 5,
+    "3": 5,
+    "4": 5,
+    "5": 5,
+    "6": 5,
+    "7": 5,
+    "8": 5,
+    "9": 5,
+    "10": 5,
+    "11": 5,
+    "12": 5,
+    "13": 5,
+    "14": 5,
+    "15": 5,
+    "16": 5,
+    "17": 5,
+    "18": 5,
+    "19": 5,
+    "20": 5,
+    "21": 5,
+    "22": 5,
+    "23": 5,
+    "24": 5,
+    "25": 5,
+    "26": 5,
+    "27": 5,
+    "28": 5,
+    "29": 5,
+    "30": 5,
+    "31": 5,
+    "32": 5,
+    "33": 5,
+    "34": 5,
+    "35": 5,
+    "36": 5,
+    "37": 5,
+    "38": 5,
+    "39": 5,
+    "40": 5,
+    "41": 5,
+    "42": 5,
+    "43": 5,
+    "44": 5,
+    "45": 5,
+    "46": 5,
+    "47": 5,
+    "48": 5,
+    "49": 5,
+    "50": 5,
+    "51": 5,
+    "52": 5,
+    "53": 5,
+    "54": 5,
+    "55": 5,
+    "56": 5,
+    "57": 5,
+    "58": 5,
+    "59": 5,
+    "60": 5,
+    "61": 5,
+    "62": 5,
+    "63": 5,
+    "64": 5,
+    "65": 5,
+    "66": 5,
+    "67": 5,
+    "68": 5,
+    "69": 5,
+    "70": 5,
+    "71": 5,
+    "72": 5,
+    "73": 5,
+    "74": 5,
+    "75": 5,
+    "76": 5,
+    "77": 5,
+    "78": 5,
+    "79": 5,
+    "80": 5,
+    "81": 5,
+    "82": 5,
+    "83": 5,
+    "84": 5,
+    "85": 5,
+    "86": 5,
+    "87": 5,
+    "88": 5,
+    "89": 5,
+    "90": 5,
+    "91": 5,
+    "92": 5,
+    "93": 5,
+    "94": 5,
+    "95": 5,
+    "96": 5,
+    "97": 5,
+    "98": 5,
+    "99": 5,
+    "100": 5,
+    "101": 5,
+    "102": 5,
+    "103": 5,
+    "104": 5,
+    "105": 5,
+    "106": 5,
+    "107": 5,
+    "108": 5,
+    "109": 5,
+    "110": 5,
+    "111": 5,
+    "112": 5,
+    "113": 5,
+    "114": 5,
+    "115": 5,
+    "116": 5,
+    "117": 5,
+    "118": 5,
+    "119": 5,
+    "120": 5,
+    "121": 5,
+    "122": 5,
+    "123": 5,
+    "124": 5,
+    "125": 5,
+    "126": 5,
+    "127": 5,
+    "128": 5,
+    "129": 5,
+    "130": 5,
+    "131": 5,
+    "132": 5,
+    "133": 5,
+    "134": 5,
+    "135": 5,
+    "136": 5,
+    "137": 5,
+    "138": 5,
+    "139": 5,
+    "140": 5,
+    "141": 5,
+    "142": 5,
+    "143": 5,
+    "144": 5,
+    "145": 5,
+    "146": 5,
+    "147": 5,
+    "148": 5,
+    "149": 5,
+    "150": 5,
+    "151": 5,
+    "152": 5,
+    "153": 5,
+    "154": 5,
+    "155": 5,
+    "156": 5,
+    "157": 5,
+    "158": 5,
+    "159": 5,
+    "160": 5,
+    "161": 5,
+    "162": 5,
+    "163": 5,
+    "164": 5,
+    "165": 5,
+    "166": 5,
+    "167": 5,
+    "168": 5,
+    "169": 5,
+    "170": 5,
+    "171": 5
+   }
+  },
+  "min_daily": 33,
+  "max_daily": 36
+ },
+ "decision_variables": {
+  "y_cd": {
+   "domain": "binary",
+   "index": "(c ∈ C, d ∈ D)",
+   "semantics": "客户 c 在拜访日 d 被服务 ⇔ y_cd = 1",
+   "count": 3956
+  }
+ },
+ "objective": {
+  "sense": "min",
+  "expr": "Σ_{d∈D} route_km(D, {c ∈ C : y_cd = 1})",
+  "note": "route_km = 当日被服务客户集的精确最短开放路径 (内层 TSP, 共同重排口径); 距离取 OSM 路网矩阵"
+ },
+ "constraints": {
+  "frequency_total": {
+   "expr": "Σ_{d∈D} y_cd == visits_total_c",
+   "forall": "c ∈ C",
+   "rows": 172,
+   "desc": "窗口内总拜访次数等于频次需求折算值"
+  },
+  "spacing": {
+   "expr": "∀窗口 s∈D: Σ_{d=s}^{s+horizon_c-1} y_cd ≤ visits_c",
+   "forall": "c ∈ C, 滑动窗口起点 s",
+   "rows": 3268,
+   "desc": "保证拜访间隔不小于周期 (隔周/隔月的'隔'字)"
+  },
+  "corridor_min": {
+   "expr": "Σ_{c∈C} y_cd ≥ min_daily",
+   "forall": "d ∈ D",
+   "rows": 23,
+   "desc": "每日最低拜访次数 (防闲置/出工不出力)"
+  },
+  "corridor_max": {
+   "expr": "Σ_{c∈C} y_cd ≤ max_daily",
+   "forall": "d ∈ D",
+   "rows": 23,
+   "desc": "每日最高拜访次数 (防过劳/物理不可行)"
+  },
+  "r2_single_phase": {
+   "expr": "∀c: 拜访日序列为等差数列, 公差 = horizon_c (相位唯一)",
+   "forall": "c ∈ C",
+   "desc": "整店换星期可以, 星期几分裂不可以"
+  },
+  "legality": {
+   "expr": "拜访日 d 必须与客户 c 的历史节奏相位一致",
+   "desc": "由频次反推, ambiguous 店不受此限"
+  }
+ },
+ "store_parameters": [
+  {
+   "id": 0,
+   "code": "660538491",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 1,
+   "code": "700231200",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 2,
+   "code": "710200805",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 3,
+   "code": "710245010",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 4,
+   "code": "990055293",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 5,
+   "code": "999293667",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 6,
+   "code": "999459575",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 7,
+   "code": "20000157849",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 8,
+   "code": "20000157865",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 9,
+   "code": "20000157873",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 10,
+   "code": "20000157901",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 11,
+   "code": "30000088322",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 12,
+   "code": "30000699403",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 13,
+   "code": "30000879562",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 14,
+   "code": "30000880659",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 15,
+   "code": "30000907040",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 16,
+   "code": "30000960082",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 17,
+   "code": "30001018099",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 18,
+   "code": "30001449356",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 19,
+   "code": "30001454924",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 20,
+   "code": "30000600787",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 21,
+   "code": "20000135902",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 22,
+   "code": "20000157830",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 23,
+   "code": "20000277140",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 24,
+   "code": "20000716784",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 25,
+   "code": "30000030950",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 26,
+   "code": "30000818210",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 27,
+   "code": "30000818214",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 28,
+   "code": "30000887672",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 29,
+   "code": "30000887690",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 30,
+   "code": "30001018112",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 31,
+   "code": "30001476239",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 32,
+   "code": "30001482428",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 33,
+   "code": "30001525879",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 34,
+   "code": "999504000",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 35,
+   "code": "999504002",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 36,
+   "code": "660332087",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 37,
+   "code": "660332091",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 38,
+   "code": "660540289",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 39,
+   "code": "660555217",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 40,
+   "code": "660555219",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 41,
+   "code": "700231197",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 42,
+   "code": "710150509",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 43,
+   "code": "710210320",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 44,
+   "code": "999050883",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 45,
+   "code": "999178196",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 46,
+   "code": "999376387",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 47,
+   "code": "999504011",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 48,
+   "code": "20000150456",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 49,
+   "code": "20000150497",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 50,
+   "code": "20000150538",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 51,
+   "code": "20000150784",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 52,
+   "code": "30000002181",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 53,
+   "code": "30000451699",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 54,
+   "code": "30000504217",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 55,
+   "code": "30000516623",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 56,
+   "code": "30000721914",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 57,
+   "code": "30000760459",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 58,
+   "code": "30000901352",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 59,
+   "code": "30000998563",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 60,
+   "code": "20000262546",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 61,
+   "code": "30001334672",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 62,
+   "code": "30001521927",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 63,
+   "code": "30001522420",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 64,
+   "code": "30001530997",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 65,
+   "code": "660339742",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 66,
+   "code": "660543050",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 67,
+   "code": "999178192",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 68,
+   "code": "999532924",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 69,
+   "code": "30001465647",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 70,
+   "code": "660332086",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 71,
+   "code": "990055327",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 72,
+   "code": "999178143",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 73,
+   "code": "999459572",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 74,
+   "code": "999459573",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 75,
+   "code": "20000157701",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 76,
+   "code": "20000157715",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 77,
+   "code": "20000157727",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 78,
+   "code": "20000275349",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 79,
+   "code": "20000288715",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 80,
+   "code": "30000455697",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 81,
+   "code": "30000506228",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 82,
+   "code": "30000506586",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 83,
+   "code": "30000510269",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 84,
+   "code": "30000748942",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 85,
+   "code": "20000157500",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 86,
+   "code": "20000157577",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 87,
+   "code": "20000157597",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 88,
+   "code": "20000157620",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 89,
+   "code": "20000157633",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 90,
+   "code": "20000157692",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 91,
+   "code": "20000288795",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 92,
+   "code": "20000709652",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 93,
+   "code": "30000035683",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 94,
+   "code": "30000035780",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 95,
+   "code": "30000035859",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 96,
+   "code": "30000286341",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 97,
+   "code": "30000992487",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 98,
+   "code": "700151561",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 99,
+   "code": "710150508",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 100,
+   "code": "990055326",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 101,
+   "code": "990055333",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 102,
+   "code": "999504008",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 103,
+   "code": "710199861",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 104,
+   "code": "999178148",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 105,
+   "code": "999178151",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 106,
+   "code": "999178155",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 107,
+   "code": "999178156",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 108,
+   "code": "999293606",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 109,
+   "code": "999293635",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 110,
+   "code": "999293675",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 111,
+   "code": "999532925",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 112,
+   "code": "20000155669",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 113,
+   "code": "20000155683",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 114,
+   "code": "20000155982",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 115,
+   "code": "20000285725",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 116,
+   "code": "20000791188",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 117,
+   "code": "20000791200",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 118,
+   "code": "30000038481",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 119,
+   "code": "30000507988",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 120,
+   "code": "30000535335",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 121,
+   "code": "30000647377",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 122,
+   "code": "30000714783",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 123,
+   "code": "30000772131",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 124,
+   "code": "30000950988",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 125,
+   "code": "30001392820",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 126,
+   "code": "20000262527",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 127,
+   "code": "30000187934",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 128,
+   "code": "30000188121",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 129,
+   "code": "30001508465",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 130,
+   "code": "30001508828",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 131,
+   "code": "30001508860",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 132,
+   "code": "660339746",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 133,
+   "code": "999293615",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 134,
+   "code": "999293619",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 135,
+   "code": "999293645",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 136,
+   "code": "999376389",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 137,
+   "code": "20000793148",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 138,
+   "code": "30000773887",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 139,
+   "code": "30001105081",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 140,
+   "code": "660332089",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 141,
+   "code": "660332090",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 142,
+   "code": "660339744",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 143,
+   "code": "999293588",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 144,
+   "code": "999293596",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 145,
+   "code": "999293597",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 146,
+   "code": "999293600",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 147,
+   "code": "999293602",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 148,
+   "code": "20000158082",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 149,
+   "code": "30000574761",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 150,
+   "code": "30000719641",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 151,
+   "code": "30000808877",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 152,
+   "code": "30000912918",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 153,
+   "code": "20000158054",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 154,
+   "code": "20000793140",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 155,
+   "code": "30000032598",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 156,
+   "code": "30000181544",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 157,
+   "code": "30000183170",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 158,
+   "code": "30000465086",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 159,
+   "code": "30000772222",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 160,
+   "code": "30001502858",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 161,
+   "code": "30001521971",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 162,
+   "code": "30001530219",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 163,
+   "code": "30001530679",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 164,
+   "code": "30001530781",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 165,
+   "code": "660239684",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 166,
+   "code": "660332085",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 167,
+   "code": "999293581",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 168,
+   "code": "999293582",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 169,
+   "code": "999293584",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 170,
+   "code": "999504012",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  },
+  {
+   "id": 171,
+   "code": "999459565",
+   "horizon": 5,
+   "visits_per_horizon": 1,
+   "visits_total_target": 5,
+   "ambiguous": false
+  }
+ ],
+ "feasibility_precheck": {
+  "capacity_max_ok": false,
+  "capacity_min_ok": true,
+  "corridor_ok": true,
+  "ambiguous_stores": 0
+ },
+ "meta": {
+  "total_visits_target": 860,
+  "ambiguous_stores": 0,
+  "compile_ms": 0
+ }
+}
