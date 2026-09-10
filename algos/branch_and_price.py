@@ -98,7 +98,9 @@ class BranchAndPrice:
         self.initial_pool = list(initial_pool or [])
 
         self.wd_groups = weekday_dates(self.dates)
-        self.legal = legal_date_map(contracts, self.dates)   # {c: set(date)}
+        # v2.2: 解除原计划星期几限制 — 所有 (店, 日) 对合法
+        # 频次约束 (cadence) 由 z_cw 变量控制, 不需要 legal 域来预限制
+        self.legal = {c: set(self.dates) for c in self.k_c}
         self.fw = _fw_table(contracts, self.wd_groups)       # {c: {w: f}}
         self.w_plus = {c: sorted(w for w, f in self.fw[c].items() if f > 0)
                        for c in self.k_c}            # 正频次星期域 (v2)

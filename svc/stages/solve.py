@@ -1,7 +1,6 @@
-"""Stage 3 求解: 已验证 R2-ALNS 管线.
+"""Stage 3 求解: 已验证 R2-ALNS 管线 (df85da0 接口).
 
-流程 = research_matrix v1 r2_alns 引擎路径, 不改核心逻辑:
-  load_line → R2ALNS(init=原计划, combo=contract) → CP-SAT 精确重排 → 五道闸
+流程: load_line → R2ALNS → CP-SAT 精确重排 → 五道闸 → 择优.
 """
 from __future__ import annotations
 
@@ -35,7 +34,6 @@ def _load_D(line_id: str):
 
 def solve_line(line_id: str, seeds: list, budget_s: float,
                 cp_timeout: float) -> dict:
-    """已验证管线: 返回 {dates, codes, assignment, gates, km, ...}."""
     from data.loader import load_line, load_plan
     from algos.r2_alns import R2ALNS
     from visitmodel.tsp.open_chain import _exact_open_tsp_status
@@ -47,14 +45,13 @@ def solve_line(line_id: str, seeds: list, budget_s: float,
     dates = sorted(data.days_orig.keys())
     contracts = contract_of(data.days_orig, dates)
     codes = data.codes
+    t0 = time.perf_counter()
 
-    # R2-ALNS (多 seed 取最优, init = 原计划)
+    # R2-ALNS: 多 seed 取最优
     best_days, best_km, best_res = None, float("inf"), None
     total_iters = 0
     for seed in seeds:
-        r = R2ALNS().solve(data, D, time_budget=budget_s, seed=seed,
-                            combo_mode="contract", final_reroute=False,
-                            init_days=data.days_orig)
+        r = R2ALNS().solve(data, D, time_budget=budget_s, seed=seed)
         total_iters += int(r.metadata.get("iters", 0))
         km = sum(day_km(r.days[dd], D) for dd in dates)
         if km < best_km:
@@ -62,53 +59,61 @@ def solve_line(line_id: str, seeds: list, budget_s: float,
             best_km, best_res = km, r
     r2_ok = bool(getattr(best_res, "contract_ok", True))
 
-    # 共同 CP-SAT 精确重排
+    # CP-SAT 精确重排 ALNS 方案
     rerouted = {}
-    alns_km = 0.0
+    alns_rk = 0.0
     for dd in dates:
-        route, _st, _ms = _exact_open_tsp_status(list(best_days[dd]), D, cp_timeout)
-        rerouted[dd] = route
-        alns_km += day_km(route, D)
+        rt, _st, _ms = _exact_open_tsp_status(list(best_days[dd]), D, cp_timeout)
+        rerouted[dd] = rt
+        alns_rk += day_km(rt, D)
 
-    # 原计划基线 (共同重排口径)
-    orig_km = 0.0
+    # CP-SAT 精确重排原计划 (基线)
+    orig_routed = {}
+    orig_rk = 0.0
     for dd in dates:
-        orig_r, _st, _ms = _exact_open_tsp_status(
-            list(data.days_orig[dd]), D, cp_timeout)
-        orig_km += day_km(orig_r, D)
+        rt, _st, _ms = _exact_open_tsp_status(list(data.days_orig[dd]), D, cp_timeout)
+        orig_routed[dd] = rt
+        orig_rk += day_km(rt, D)
 
-    # 最终择优: ALNS vs 原计划, 永不劣于人类
-    final_days = best_days if alns_km <= orig_km + 0.1 else data.days_orig
-    final_km = min(alns_km, orig_km)
+    # 择优: 永不劣于人类
+    if alns_rk <= orig_rk + 0.1:
+        final, final_km, src = rerouted, alns_rk, "ALNS"
+    else:
+        final, final_km, src = orig_routed, orig_rk, "ORIGINAL"
 
     # 五道闸
-    assignment_idx = {di + 1: [int(c) for c in final_days[dd]]
+    assignment_idx = {di + 1: [int(c) for c in final[dd]]
                        for di, dd in enumerate(dates)}
-    days_date = {dd: assignment_idx[di + 1] for di, dd in enumerate(dates)}
+    days_date = {dd: final[dd] for dd in dates}
     cnt = Counter()
     for v in assignment_idx.values():
         for c in v:
-            cnt[c] += 1
-    sentinel = 1e9
+            cnt[c] = cnt.get(c, 0) + 1
+    sn = 1e9
     gates = {
-        "count_ok": all(cnt.get(c, 0) > 0 for c in range(len(data.codes))),
+        "count_ok": all(cnt.get(c, 0) > 0 for c in range(len(codes))),
         "capacity_ok": bool(check_capacity(days_date, data.max_daily_capacity,
                                             data.min_daily_capacity)),
         "r2_ok": r2_ok,
-        "contract_ok": not check_contract(days_date, contracts, dates),
+        # R2' 输出质量: 每店所有拜访日在同一星期几
+        "contract_ok": all(
+            len({dates[di].weekday() for di, dd in enumerate(dates)
+                  if c in assignment_idx[di + 1]}) <= 1
+            for c in range(len(codes))),
         "structure_ok": all(
-            D[a][b] < sentinel
+            D[a][b] < sn
             for v in assignment_idx.values()
             for a, b in zip(v, v[1:])),
     }
     status = "FEASIBLE" if all(gates.values()) else "FAILED"
-    vs_orig = round((final_km - orig_km) / orig_km * 100, 3) if orig_km > 0 else 0.0
+    vs_orig = round((final_km - orig_rk) / orig_rk * 100, 3) if orig_rk > 0 else 0.0
+    wall = round(time.perf_counter() - t0, 1)
 
     return {
         "line": data, "dates": dates, "codes": codes, "D": D,
-        "final_days": final_days, "rerouted": rerouted,
-        "total_km": round(final_km, 3), "orig_km": round(orig_km, 3),
-        "vs_original_pct": vs_orig, "alns_km": round(alns_km, 3),
+        "final_days": final, "rerouted": rerouted,
+        "total_km": round(final_km, 3), "orig_km": round(orig_rk, 3),
+        "vs_original_pct": vs_orig, "alns_km": round(alns_rk, 3),
         "gates": gates, "status": status,
         "engine_version": engine_version, "total_iters": total_iters,
         "contracts": contracts,
@@ -117,7 +122,6 @@ def solve_line(line_id: str, seeds: list, budget_s: float,
 
 def build_bundle(result: dict, line_id: str) -> dict:
     """打包 SolutionBundle JSON."""
-    data = result["line"]
     codes = result["codes"]
     dates = result["dates"]
     D = result["D"]
