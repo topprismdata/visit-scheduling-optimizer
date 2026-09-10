@@ -1,0 +1,23 @@
+{
+ "line_id": "02",
+ "total_km": 261.192,
+ "orig_km": 263.289,
+ "vs_original_pct": -0.797,
+ "source": "ALNS",
+ "status": "FEASIBLE",
+ "gates": {
+  "count_ok": true,
+  "capacity_ok": true,
+  "r2_ok": true,
+  "contract_ok": true,
+  "structure_ok": true
+ },
+ "wall_sec": 2427.7,
+ "iters": 21399,
+ "alns_km_raw": 261.192,
+ "alns_reroute_km": 261.192,
+ "corridor": [
+  33,
+  36
+ ]
+}

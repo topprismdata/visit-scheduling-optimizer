@@ -1,0 +1,12 @@
+{
+ "total_km": 796.623,
+ "total_orig": 959.994,
+ "improvement_pct": -17.02,
+ "lines": {
+  "11": {
+   "km": 796.623,
+   "status": "FEASIBLE",
+   "gates_pass": true
+  }
+ }
+}
