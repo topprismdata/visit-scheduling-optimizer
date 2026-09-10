@@ -53,7 +53,9 @@ def _ins_cost(members, c, D):
 
 
 def _rem_gain(members, c, D):
-    """从 members 开放链移除 c 的里程增益 (正=变短). c 必须在 members 中."""
+    """从 members 开放链移除 c 的里程增益 (正=变短). 若 c 不在 members 则返回 0.0."""
+    if c not in members:
+        return 0.0
     i = members.index(c)
     if len(members) == 1:
         return 0.0
@@ -226,11 +228,14 @@ class HGSR2Optimizer(Algorithm):
             pot = self.potential.evaluate_day_assignment
 
             def delta(sigma_, c, w1, w2):
+                kappa, phi = contracts[c]
+                d2_set = contract_slot_dates(kappa, phi, wd_dates[w2])
+                d1_set = contract_slot_dates(kappa, phi, wd_dates[w1])
                 dv = 0.0
-                for d in wd_dates[w2]:
+                for d in d2_set:
                     m = sorted(days[d])
                     dv += pot(m + [c]) - pot(m)
-                for d in wd_dates[w1]:
+                for d in d1_set:
                     m = sorted(days[d])
                     dv += pot([x for x in m if x != c]) - pot(m)
                 return dv
@@ -242,8 +247,11 @@ class HGSR2Optimizer(Algorithm):
             days = {d: sorted(m) for d, m in decode(sigma).items()}
 
             def delta(sigma_, c, w1, w2):
-                return (sum(_ins_cost(days[d], c, D) for d in wd_dates[w2])
-                        - sum(_rem_gain(days[d], c, D) for d in wd_dates[w1]))
+                kappa, phi = contracts[c]
+                d2_set = contract_slot_dates(kappa, phi, wd_dates[w2])
+                d1_set = contract_slot_dates(kappa, phi, wd_dates[w1])
+                return (sum(_ins_cost(days[d], c, D) for d in d2_set)
+                        - sum(_rem_gain(days[d], c, D) for d in d1_set))
 
             return _best_weekday(sigma, delta)
 
