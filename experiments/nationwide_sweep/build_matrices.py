@@ -25,7 +25,7 @@ def table(coords):
     return None
 
 
-def full_matrix(coords, blk=85):
+def full_matrix(coords, blk=48):
     n = len(coords)
     if n <= 90:
         return table(coords)
