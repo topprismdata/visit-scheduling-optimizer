@@ -32,7 +32,7 @@ def solve_line(line, budget):
                     dates=dates, days_orig=days_orig, freq=freq,
                     stores=len(codes), visits=spec["meta"]["n_visits"])
     t0 = time.time()
-    algo = get("alns")()
+    algo = get("alns_v3")()
     res = algo.solve(data, D, time_budget=budget)
     opt = float(np.sum([day_km(d, D) for d in res.days.values()]))
     count_ok = bool(check_freq(res.days, data.codes, data.freq))
