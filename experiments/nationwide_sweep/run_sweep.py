@@ -48,33 +48,35 @@ def solve_line(line, budget):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--budget", type=int, default=600)
-    ap.add_argument("--workers", type=int, default=5)
     ap.add_argument("--limit", type=int, default=0)
     a = ap.parse_args()
+    # 分片进程模式（矩阵阶段同款）: NW_SHARD_N 个独立进程, 各串行跑 1/N 线。
+    # ProcessPoolExecutor 在 macOS spawn+ortools 下死锁, 弃用。
+    shard_n = int(os.environ.get("NW_SHARD_N", "1"))
+    shard_i = int(os.environ.get("NW_SHARD_IDX", "0"))
     R = f"{ROOT}/output/nationwide/results"
     os.makedirs(R, exist_ok=True)
     done = set(os.listdir(R))
     lines = sorted(f[:-5] for f in os.listdir(f"{ROOT}/output/nationwide/specs"))
+    lines = [l for si, l in enumerate(lines) if si % shard_n == shard_i]
     if a.limit:
         lines = lines[:a.limit]
     todo = [l for l in lines if f"{l}.json" not in done]
-    print(f"todo {len(todo)}/{len(lines)}", flush=True)
-    with open(f"{ROOT}/output/nationwide/progress.jsonl", "a") as hb, \
-         ProcessPoolExecutor(max_workers=a.workers) as ex:
-        futs = {ex.submit(solve_line, l, a.budget): l for l in todo}
-        for f in as_completed(futs):
-            line = futs[f]
-            try:
-                r = f.result()
-            except Exception as e:
-                r = dict(line=line, status=f"FAIL_crash:{type(e).__name__}",
-                         error=str(e)[:200])
-            json.dump(r, open(f"{R}/{line}.json", "w"), ensure_ascii=False)
-            hb.write(json.dumps({k: r.get(k) for k in
-                                 ("line", "status", "printed_km", "optimized_km",
-                                  "delta_pct", "sec")}, ensure_ascii=False) + "\n")
-            hb.flush()
-            print(f"{line}: {r.get('status')} {r.get('delta_pct')}%", flush=True)
+    print(f"shard {shard_i}/{shard_n} todo {len(todo)}/{len(lines)}", flush=True)
+    hb = open(f"{ROOT}/output/nationwide/progress_shard{shard_i}.jsonl", "a")
+    for l in todo:
+        try:
+            r = solve_line(l, a.budget)
+        except Exception as e:
+            r = dict(line=l, status=f"FAIL_crash:{type(e).__name__}",
+                     error=str(e)[:200])
+        json.dump(r, open(f"{R}/{l}.json", "w"), ensure_ascii=False)
+        hb.write(json.dumps({k: r.get(k) for k in
+                             ("line", "status", "printed_km", "optimized_km",
+                              "delta_pct", "sec")}, ensure_ascii=False) + "\n")
+        hb.flush()
+        print(f"{l}: {r.get('status')} {r.get('delta_pct')}% "
+              f"{r.get('sec')}s", flush=True)
 
 
 if __name__ == "__main__":
