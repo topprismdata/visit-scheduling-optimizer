@@ -40,9 +40,13 @@ def full_matrix(coords, blk=48):
 
 
 def main():
-    printed_path = os.path.join(ROOT, "output", "nationwide", "printed.json")
+    shard_n = int(os.environ.get("NW_SHARD_N", "1"))
+    shard_i = int(os.environ.get("NW_SHARD_IDX", "0"))
+    printed_path = os.path.join(ROOT, "output", "nationwide",
+                                f"printed_shard{shard_i}.json")
     printed = json.load(open(printed_path)) if os.path.exists(printed_path) else {}
     specs = sorted(os.listdir(SPEC))
+    specs = [f for si, f in enumerate(specs) if si % shard_n == shard_i]
     limit = int(os.environ.get("NW_LIMIT", "0"))
     if limit:
         specs = specs[:limit]
