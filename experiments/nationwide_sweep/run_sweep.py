@@ -18,8 +18,12 @@ def solve_line(line, budget):
 
     spec = json.load(open(f"{ROOT}/output/nationwide/specs/{line}.json"))
     D = np.load(f"{ROOT}/output/nationwide/matrices/{line}.npy")
-    pj = json.load(open(f"{ROOT}/output/nationwide/printed.json"))[line]
-    printed = pj["printed_km"] if isinstance(pj, dict) else pj
+    # printed: 分片构建器写 printed_shard*.json, 聚合视图容错读取; 缺则 None
+    printed = None
+    pj_path = f"{ROOT}/output/nationwide/printed.json"
+    if os.path.exists(pj_path):
+        pj = json.load(open(pj_path)).get(line)
+        printed = pj.get("printed_km") if isinstance(pj, dict) else pj
 
     dates = [date.fromisoformat(d) for d in spec["cycle"]["dates"]]
     days_orig = {date.fromisoformat(d): idx
