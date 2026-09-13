@@ -81,6 +81,9 @@ def main():
         if os.path.exists(out) and line in printed and "error" not in printed[line]:
             continue
         spec = json.load(open(os.path.join(SPEC, fn)))
+        max_n = int(os.environ.get("NW_MAX_N", "10**9"))
+        if len(spec["stores"]) > max_n:
+            continue
         coords = [gcj2wgs(s["lon"], s["lat"]) for s in spec["stores"]]
         M = full_matrix(coords)
         if M is None:
