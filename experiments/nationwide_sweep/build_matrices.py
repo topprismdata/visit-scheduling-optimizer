@@ -10,6 +10,30 @@ MAT = os.path.join(ROOT, "output", "nationwide", "matrices")
 os.makedirs(MAT, exist_ok=True)
 OSRM = os.environ.get("NW_OSRM", "http://192.168.31.16:5001")
 
+# GCJ02 -> WGS84: 全国 SRP 导出坐标系为 GCJ02, OSRM 需要 WGS84。
+# 未转换时每点偏移 ~500m, snap 到错误道路, 链长虚高实测 74% (NP0011547)。
+_A = 6378245.0; _EE = 0.00669342162296594
+def _tl(x, y):
+    r = -100 + 2*x + 3*y + 0.2*y*y + 0.1*x*y + 0.2*math.sqrt(abs(x))
+    r += (20*math.sin(6*x*math.pi) + 20*math.sin(2*x*math.pi)) * 2/3
+    r += (20*math.sin(y*math.pi) + 40*math.sin(y/3*math.pi)) * 2/3
+    r += (160*math.sin(y/12*math.pi) + 320*math.sin(y*math.pi/30)) * 2/3
+    return r
+def _tg(x, y):
+    r = 300 + x + 2*y + 0.1*x*x + 0.1*x*y + 0.1*math.sqrt(abs(x))
+    r += (20*math.sin(6*x*math.pi) + 20*math.sin(2*x*math.pi)) * 2/3
+    r += (20*math.sin(x*math.pi) + 40*math.sin(x/3*math.pi)) * 2/3
+    r += (150*math.sin(x/12*math.pi) + 300*math.sin(x/30*math.pi)) * 2/3
+    return r
+def gcj2wgs(lng, lat):
+    wlng, wlat = lng, lat
+    for _ in range(6):
+        rl = math.radians(wlat); mg = 1 - _EE*math.sin(rl)**2; sm = math.sqrt(mg)
+        dlat = (_tl(wlng-105, wlat-35)*180)/((_A*(1-_EE))/(mg*sm)*math.pi)
+        dlng = (_tg(wlng-105, wlat-35)*180)/(_A/sm*math.cos(rl)*math.pi)
+        wlng += lng - (wlng+dlng); wlat += lat - (wlat+dlat)
+    return wlng, wlat
+
 
 def table(coords):
     pts = ";".join(f"{c[0]},{c[1]}" for c in coords)
@@ -57,7 +81,7 @@ def main():
         if os.path.exists(out) and line in printed and "error" not in printed[line]:
             continue
         spec = json.load(open(os.path.join(SPEC, fn)))
-        coords = [(s["lon"], s["lat"]) for s in spec["stores"]]
+        coords = [gcj2wgs(s["lon"], s["lat"]) for s in spec["stores"]]
         M = full_matrix(coords)
         if M is None:
             printed[line] = dict(error="matrix-fail")
