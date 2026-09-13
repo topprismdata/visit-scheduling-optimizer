@@ -16,12 +16,19 @@ def main():
         except Exception:
             pass
     cen = json.load(open(os.path.join(R, "census.json")))
+    # results 的 line 是 hash 文件名; 映射回销售编码 (spec 内 line_id)
+    file2line = {}
+    for f in glob.glob(os.path.join(R, "specs", "*.json")):
+        try:
+            file2line[os.path.basename(f)[:-5]] = json.load(open(f)).get("line_id")
+        except Exception:
+            pass
     for r in rows:
-        c = cen.get(r["line"], {})
+        c = cen.get(file2line.get(r["line"], ""), {})
         r["province"] = c.get("province", "?")
         r["burned"] = c.get("burned", False)
-        spec_path = os.path.join(R, "specs", c.get("file", ""))
-        if os.path.exists(spec_path):
+        spec_path = os.path.join(R, "specs", c.get("file") or "none")
+        if os.path.isfile(spec_path):
             spec = json.load(open(spec_path))
             pts = np.array([(s["lon"], s["lat"]) for s in spec["stores"]])
             lat0 = pts[:, 1].mean()
