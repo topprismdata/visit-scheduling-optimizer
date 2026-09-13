@@ -82,7 +82,7 @@ def main():
             continue
         spec = json.load(open(os.path.join(SPEC, fn)))
         only = os.environ.get("NW_ONLY")
-        if only and key != only:
+        if only and line != only:
             continue
         max_n = int(os.environ.get("NW_MAX_N", "10**9"))
         if len(spec["stores"]) > max_n:
