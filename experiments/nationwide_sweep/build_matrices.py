@@ -84,7 +84,7 @@ def main():
         only = os.environ.get("NW_ONLY")
         if only and line != only:
             continue
-        max_n = int(os.environ.get("NW_MAX_N", "10**9"))
+        max_n = int(os.environ.get("NW_MAX_N", "1000000000"))
         if len(spec["stores"]) > max_n:
             continue
         coords = [gcj2wgs(s["lon"], s["lat"]) for s in spec["stores"]]
