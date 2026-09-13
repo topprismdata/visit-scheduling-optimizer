@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Nationwide ALNS-v3 sweep: 600s/line, 5 workers, resumable, JSONL heartbeat."""
-import os, sys, json, time, argparse
+import os, sys, json, time, argparse, glob
 from datetime import date, timedelta
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
@@ -18,12 +18,15 @@ def solve_line(line, budget):
 
     spec = json.load(open(f"{ROOT}/output/nationwide/specs/{line}.json"))
     D = np.load(f"{ROOT}/output/nationwide/matrices/{line}.npy")
-    # printed: 分片构建器写 printed_shard*.json, 聚合视图容错读取; 缺则 None
+    # printed: 分片构建器写 printed_shard*.json; 合并全部存在的视图, 缺则 None
     printed = None
-    pj_path = f"{ROOT}/output/nationwide/printed.json"
-    if os.path.exists(pj_path):
-        pj = json.load(open(pj_path)).get(line)
-        printed = pj.get("printed_km") if isinstance(pj, dict) else pj
+    for pj_name in ["printed.json"] + sorted(
+            glob.glob(f"{ROOT}/output/nationwide/printed_shard*.json")):
+        if not os.path.exists(pj_name):
+            continue
+        pj = json.load(open(pj_name)).get(line)
+        if isinstance(pj, dict) and "printed_km" in pj:
+            printed = pj["printed_km"]; break
 
     dates = [date.fromisoformat(d) for d in spec["cycle"]["dates"]]
     days_orig = {date.fromisoformat(d): idx
@@ -40,8 +43,9 @@ def solve_line(line, budget):
     res = algo.solve(data, D, time_budget=budget)
     opt = float(np.sum([day_km(d, D) for d in res.days.values()]))
     count_ok = bool(check_freq(res.days, data.codes, data.freq))
+    delta = round(100 * (opt / printed - 1), 2) if printed else None
     return dict(line=line, printed_km=printed, optimized_km=round(opt, 2),
-                delta_pct=round(100 * (opt / printed - 1), 2),
+                delta_pct=delta,
                 count_ok=count_ok, moves=getattr(res, "moves", 0),
                 status="OK" if count_ok else "FAIL_count",
                 sec=round(time.time() - t0, 1),
