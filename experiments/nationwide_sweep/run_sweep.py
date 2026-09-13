@@ -70,6 +70,16 @@ def main():
     if a.limit:
         lines = lines[:a.limit]
     todo = [l for l in lines if f"{l}.json" not in done]
+    prov_filter = os.environ.get("NW_PROV")
+    skip_prov = os.environ.get("NW_SKIP_PROV")
+    if prov_filter or skip_prov:
+        kept = []
+        for l in todo:
+            p = json.load(open(f"{ROOT}/output/nationwide/specs/{l}.json")).get("meta", {}).get("province", "")
+            if prov_filter and p != prov_filter: continue
+            if skip_prov and p == skip_prov: continue
+            kept.append(l)
+        todo = kept
     print(f"shard {shard_i}/{shard_n} todo {len(todo)}/{len(lines)}", flush=True)
     hb = open(f"{ROOT}/output/nationwide/progress_shard{shard_i}.jsonl", "a")
     for l in todo:
