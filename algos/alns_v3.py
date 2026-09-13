@@ -49,6 +49,7 @@ class ALNSv3(Algorithm):
 
         cur = total_km(tours, D)
         best = cur; best_t = {dd: list(tours[dd]) for dd in dates}
+        best_time = time.time() - t0
         # ---- 温度 ----
         edges = sum(max(0, len(tours[dd])-1) for dd in dates) or 1
         avg = cur / edges
@@ -115,13 +116,16 @@ class ALNSv3(Algorithm):
                 tours = trial; cur = new_obj
                 w[op] = min(6.0, w[op] + 0.15) if diff < 0 else w[op]
                 if new_obj < best - 1e-9:
-                    best = new_obj; best_t = {dd: list(tours[dd]) for dd in dates}; w[op] = min(6.0, w[op]+0.2)
+                    best = new_obj; best_t = {dd: list(tours[dd]) for dd in dates}
+                    best_time = time.time() - t0
+                    w[op] = min(6.0, w[op]+0.2)
             else:
                 w[op] = max(0.2, w[op]-0.01)
         final = {dd: two_opt(best_t[dd], D, 30) for dd in dates}
         cap_ok = check_capacity(final, max_daily, min_daily)
         return AlgoResult(name=self.name, days=final, km=total_km(final, D),
-                          capacity_ok=cap_ok, metadata={"iters": its, "min_daily": min_daily, "max_daily": max_daily})
+                          capacity_ok=cap_ok, metadata={"iters": its, "min_daily": min_daily,
+                          "max_daily": max_daily, "time_to_best": round(best_time, 1)})
 
 # --- 公开 API (Hyrum's law fix) ---
 __all__ = ["ALNSv3", "two_opt", "best_insert", "worst_edge"]

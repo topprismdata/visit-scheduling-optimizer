@@ -49,6 +49,7 @@ def solve_line(line, budget):
                 count_ok=count_ok, moves=getattr(res, "moves", 0),
                 status="OK" if count_ok else "FAIL_count",
                 sec=round(time.time() - t0, 1),
+                time_to_best=(res.metadata or {}).get("time_to_best"),
                 days={d.isoformat(): list(v) for d, v in res.days.items()},
                 meta=spec["meta"])
 
