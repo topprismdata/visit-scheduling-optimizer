@@ -81,6 +81,9 @@ def main():
         if os.path.exists(out) and line in printed and "error" not in printed[line]:
             continue
         spec = json.load(open(os.path.join(SPEC, fn)))
+        only = os.environ.get("NW_ONLY")
+        if only and key != only:
+            continue
         max_n = int(os.environ.get("NW_MAX_N", "10**9"))
         if len(spec["stores"]) > max_n:
             continue
@@ -94,7 +97,8 @@ def main():
         pk = sum(M[a, b]
                  for idx in spec["original_assignment_idx"].values()
                  for a, b in zip(idx[:-1], idx[1:]))
-        printed[line] = dict(printed_km=round(float(pk), 2))
+        if not os.environ.get("NW_ONLY"):
+            printed[line] = dict(printed_km=round(float(pk), 2))
         json.dump(printed, open(printed_path, "w"))
         if si % 25 == 0:
             print(f"[{si + 1}/{len(specs)}] {line} printed={pk:.1f}km", flush=True)
