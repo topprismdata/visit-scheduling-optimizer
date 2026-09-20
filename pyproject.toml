@@ -16,11 +16,15 @@ dependencies = [
     "openpyxl>=3.1",
     "visit-ir @ git+https://github.com/topprismdata/visit-ir.git",
     "visitmodel @ git+https://github.com/topprismdata/visitmodel.git",
+    "opticore @ git+https://github.com/topprismdata/opticore.git",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
+    "fastapi",
+    "httpx",
+    "jsonschema",
 ]
 
 [tool.setuptools]
