@@ -28,7 +28,7 @@ dev = [
 ]
 
 [tool.setuptools]
-packages = ["algos", "algos.pvrp_cg", "orchestration"]
+packages = ["algos", "algos.pvrp_cg", "orchestration", "orchestration.experience"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

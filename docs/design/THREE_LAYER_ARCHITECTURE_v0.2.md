@@ -2,6 +2,7 @@
 ## Semantic → Mathematical → Solver:接口定义、类型系统与层间契约
 
 > **Document Status**: Draft v0.2 (2026-09-20) — 落实 GPT 评审 3×P0 修正
+> **续篇**: EXPERIENCE_LAYER_v0.3.md (Experience Layer + 双工作台, 2026-09-21) — L1/L2/L3 以本文为准, 新层见 v0.3
 > **Author**: TopPrism Algorithm Engineering
 > **Prerequisite**: CONTRACT_CADENCE_MODEL.md (v3 合同-相位本体定稿) · SYSTEM_DESIGN_DOC.md v3.2 · AGENTS.md §五(三层设计红线)
 > **GPT Review**: Round 1 评分 8.2/10; Round 2 落实 P0 修正后进入 Phase A
