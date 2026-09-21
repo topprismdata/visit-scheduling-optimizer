@@ -143,6 +143,15 @@ def solve_line(line_id: str, seeds: list, budget_s: float,
         gates["violations"] = [f"{v.constraint_id}: {v.detail}" for v in report.violations[:10]]
     status = "FEASIBLE" if all(gates.values()) else "FAILED"
 
+    # ===== Layer Escalation (v0.2 §6.2): 违例沿 SourceMap 升级, L3 不自裁决 =====
+    escalation_note = None
+    if status != "FEASIBLE":
+        from orchestration import Level, escalate
+        esc = escalate(inst, _SolveRes(status=status, assignments={}, objective_vector=(),
+                                       termination_reason="gates_failed"), report)
+        escalation_note = {"level": esc.level.value, "action": esc.action,
+                           "rules": list(esc.violated_rule_ids)}
+
     # ===== 决策留痕 (G4): 结果与产生它的规格/实例/参数绑定入账 =====
     solve_result = _SolveRes(
         status=status,
@@ -164,6 +173,7 @@ def solve_line(line_id: str, seeds: list, budget_s: float,
         "orig_km": round(orig_km, 3), "vs_original_pct": vs_orig,
         "source": src, "status": status, "gates": gates,
         "episode_id": episode.episode_id, "episode_hash": episode_hash(episode),
+        "escalation": escalation_note,
         "wall_sec": wall, "total_iters": total_iters,
         "engine_version": engine_version,
         "alns_km": round(best_km_alns, 3), "bp_km": round(bp_km, 3) if bp_days is not None else None,

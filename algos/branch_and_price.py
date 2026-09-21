@@ -98,9 +98,19 @@ class BranchAndPrice:
         self.initial_pool = list(initial_pool or [])
 
         self.wd_groups = weekday_dates(self.dates)
-        # v2.2: 解除原计划星期几限制 — 所有 (店, 日) 对合法
-        # 频次约束 (cadence) 由 z_cw 变量控制, 不需要 legal 域来预限制
-        self.legal = {c: set(self.dates) for c in self.k_c}
+        # v2.3 (Phase D4): legal 域恢复相位过滤 — v2.2 曾放开为"所有 (店,日) 合法",
+        # 导致 B(φ) 店可坐错相位日期凑频次 ( incumbent 违反合同槽位精确性,
+        # 被 MathValidator C3 抓获)。周访仍全域; 双周限相位匹配日。
+        # v2.2 的核心收益保留: 星期几仍是决策变量 (z_cw), 换挡自由不受影响。
+        self.legal = {}
+        for c in self.k_c:
+            kappa, phi = contracts[c]
+            if kappa == "W":
+                self.legal[c] = set(self.dates)
+            else:
+                self.legal[c] = set(
+                    d for d in self.dates if d.isocalendar()[1] % 2 == phi
+                )
         self.fw = _fw_table(contracts, self.wd_groups)       # {c: {w: f}}
         self.w_plus = {c: sorted(w for w, f in self.fw[c].items() if f > 0)
                        for c in self.k_c}            # 正频次星期域 (v2)

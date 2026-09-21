@@ -132,3 +132,58 @@ def test_episode_rejects_unversioned_spec():
     result = _GreedyBackend().solve(inst, _Cfg(backend="greedy"))
     with pytest.raises(ValueError, match="不可复现"):
         emit_episode(bare, inst, result, _Cfg(backend="greedy"))
+
+
+def test_escalation_levels():
+    """状态机: 绿→NONE; 义务/走廊违例→L2 重编译; 合同语义违例→L1 授权."""
+    from datetime import date as _date
+
+    from orchestration import Level, escalate
+    from visit_math_api import SolveResult as _Res, SolverConfig as _Cfg
+
+    line = _line()
+    spec = compile_line_spec(line)
+    inst = MathCompiler().compile(spec)
+
+    # 绿: 无升级
+    good = _Res(status="OPTIMAL", assignments=_ideal_assignments(),
+                objective_vector=(0.0,))
+    assert escalate(inst, good, MathValidator().validate(
+        inst, _ideal_assignments())).level is Level.NONE
+
+    # 义务违例 (B2 缺访) → L2 重编译 (可滚动吸收)
+    broken = dict(_ideal_assignments())
+    del broken[D(2026, 3, 13)]
+    rep = MathValidator().validate(inst, broken)
+    bad = _Res(status="FEASIBLE", assignments=broken, objective_vector=(0.0,))
+    esc = escalate(inst, bad, rep)
+    assert esc.level is Level.L2_RECONCILE
+    assert "contract_obligation" in esc.violated_rule_ids
+
+    # 合同语义违例 (店坐在非法日期) → L1 授权 (solver 无权改合同)
+    broken2 = dict(_ideal_assignments())
+    broken2[D(2026, 3, 3)] = ("W2", "W1")  # W1 出现在周二 = 非法日期
+    rep2 = MathValidator().validate(inst, broken2)
+    esc2 = escalate(inst, _Res(status="FEASIBLE", assignments=broken2,
+                               objective_vector=(0.0,)), rep2)
+    assert esc2.level is Level.L1_AUTHORIZE
+    assert any("contract_legal_slots" in r for r in esc2.violated_rule_ids)
+    assert "ExceptionGrant" in esc2.action
+
+    # 求解器自报 INFEASIBLE (无明细) → L2 重编译
+    inf = _Res(status="INFEASIBLE", assignments={}, objective_vector=(),
+               termination_reason="no feasible column set")
+    assert escalate(inst, inf).level is Level.L2_RECONCILE
+
+
+def _ideal_assignments():
+    return {
+        D(2026, 3, 2): ["W1", "W1b"], D(2026, 3, 3): ["W2"], D(2026, 3, 4): ["W3"],
+        D(2026, 3, 5): ["W4"], D(2026, 3, 6): ["B1"], D(2026, 3, 9): ["W1", "W1b"],
+        D(2026, 3, 10): ["W2"], D(2026, 3, 11): ["W3"], D(2026, 3, 12): ["W4"],
+        D(2026, 3, 13): ["B2"],
+    }
+
+
+class _MappingProxyOf(dict):
+    pass

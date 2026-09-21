@@ -162,12 +162,8 @@ def test_mini_incumbent_equals_pool_ip_when_proven():
                           data.max_daily_capacity, data.min_daily_capacity)
 
 
-@pytest.mark.xfail(
-    reason="P0-1 (THREE_LAYER_ARCHITECTURE v0.2): BP 超时返回 incumbent 未过合同闸 — "
-           "L3 不可产出违约解, 须回退最优可行解或报 INFEASIBLE; 修复属 Phase D Layer Escalation",
-    strict=False,
-)
 def test_mid_returns_contract_valid_solution():
+    """v2.3 legal 域恢复相位过滤后, BP incumbent 槽位精确, 超时不再违约 (P0-1 关闭)."""
     data = _mid_line()
     D = _dist(data)
     res = BranchAndPriceAlg().solve(data, D, time_budget=90, max_nodes=400, exact_tl=1.0)
