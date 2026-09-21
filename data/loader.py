@@ -43,6 +43,12 @@ def load_line(pv, line_id: str) -> LineData:
 
     freq = g.groupby("客户编码").size().to_dict()
 
+    # 走廊显式推导 (Phase D5): 数值同旧 LineData.__post_init__ 静默推导,
+    # 但推导发生在适配层、可见可审; 语义所有者在 L1 SemanticCompiler。
+    lens = [len(days_orig[dd]) for dd in dates]
+    min_daily = min(lens) if lens else 0
+    max_daily = max(lens) if lens else 0
+
     return LineData(
         line_id=line_id,
         line_name=line_name,
@@ -54,4 +60,6 @@ def load_line(pv, line_id: str) -> LineData:
         freq=freq,
         stores=len(codes),
         visits=len(g),
+        min_daily_capacity=min_daily,
+        max_daily_capacity=max_daily,
     )

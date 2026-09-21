@@ -123,10 +123,15 @@ exception_grant_ids · decision_timestamp
 | `algos/sp_matheuristic.py` (column_generate, SPMatheuristic, SA 改进循环) | **L3** | ✓ 母项目 |
 | `algos/tsp_engine.py` → `visitmodel/tsp/open_chain.py` | L2(公式)+ L3(引擎选择) | ✓ 拆分完成 |
 
-**遗留违例 (Phase D 清单)**:
-1. `visitmodel/sp/formulation.py` 顶部 `from visit_ir.contract import legal_date_map` — L2 import L1 实现。应改为:`contract_view` 翻译在 L1 完成,`legal`/`fw` 作为 VisitPlanningInstance 附属传入;formulation 全签名去 `contract=` 化(被 `test_mathmodel_sp_contract` 钉死,属引擎手术)。
-2. `algos/sp_matheuristic.py` `from core.contract import legal_date_map, check_contract` — L3 import L1(棘轮已冻结)。应改为接收 instance 的 eligible_days 与 MathValidator 结论。
-3. `LineData.__post_init__` 走廊静默推导 — 新链路经 `orchestration.compile_line_spec` 已绕行;退役评估:待 Phase D 将 `svc`/`experiments` 调用面迁 `compile_line_spec` 后删除推导,LineData 保留为 L3 内部载体(索引空间)。
+**遗留违例 (Phase D 收尾状态, 2026-09-21)**:
+1. ~~`visitmodel/sp/formulation.py` 顶部 `from visit_ir.contract import legal_date_map`~~ — **已收口**:新增 `legal=/fw=` 编译视图入口 (D2),`orchestration.contract_view` 为 L1→L3 唯一转译点;legacy `contract=` 路径保留 (被 test_mathmodel_sp_contract 钉死),其内部 visit_ir 调用为迁移期残留,随 contract= 参数退役 (远期)。
+2. ~~`algos/sp_matheuristic.py` `from core.contract import ...`~~ — **已修复** (D2):改收 `view=`;棘轮出列。
+3. ~~`algos/alns_v4.py` / `algos/hgs_r2.py`~~ — **已修复** (D3):改收 `view=` + `slot_dates` 槽位日历;棘轮出列。
+4. ~~`LineData.__post_init__` 走廊静默推导~~ — **已退役** (D5):`load_line` 在适配层显式推导并传入,数值与 L1 SemanticCompiler 等价 (09 线 [23,35] 双向核验)。
+5. `algos/branch_and_price.py` — **保留 waiver** (合同原生设计,入口 contracts 字典为定价网络结构的一部分);BP 模型 v2.3 已恢复相位过滤,incumbent 槽位精确 (P0-1 关闭)。
+6. `algos/r2_alns_v2_backup.py` — 存档,永不豁免清理 (历史参照)。
+
+**确定性重放 (唯一剩余 xfail)**:R2ALNS 内层 exact TSP 用 CP-SAT 8 workers + 墙钟时限 → 同种子不可逐位复现。修复需 open_chain 支持 deterministic-time 模式 + ALNS 定迭代预算,将动金样本基线 (326.612),须单独立项并重跑基线对照。
 
 ---
 

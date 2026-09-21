@@ -33,10 +33,13 @@ def _make_line(line_id, x, dates, days_orig):
     for seq in days_orig.values():
         for c in seq:
             freq[c] = freq.get(c, 0) + 1
+    lens = [len(v) for v in days_orig.values()]
     return LineData(
         line_id=line_id, line_name="synthetic", codes=[str(i) for i in range(len(x))],
         lon=list(x), lat=[0.0] * len(x), dates=list(dates), days_orig=days_orig,
         freq=freq, stores=len(x), visits=sum(len(v) for v in days_orig.values()),
+        min_daily_capacity=min(lens) if lens else 0,
+        max_daily_capacity=max(lens) if lens else 0,
     )
 
 

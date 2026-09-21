@@ -7,7 +7,14 @@ from typing import Protocol, Optional
 
 @dataclass
 class LineData:
-    """Data for one sales line (线路)."""
+    """Data for one sales line (线路).
+
+    L3 内部载体 (索引空间)。走廊字段由适配层显式传入:
+    - data/loader.load_line: 历史基线 min/max(日店数) (可见推导);
+    - 语义所有者在 L1 SemanticCompiler → WorkloadCorridorPolicy
+      (THREE_LAYER_ARCHITECTURE v0.2 §3)。
+    Phase D5: __post_init__ 静默推导已移除 — 结构体不再发明业务政策。
+    """
     line_id: str          # e.g. "09"
     line_name: str        # e.g. "海珠荔湾09"
     codes: list[str]       # 客户编码, 索引=store_idx
@@ -18,16 +25,10 @@ class LineData:
     freq: dict[str, int]   # 每店月总次数 {编码: 次数}
     stores: int             # 店数
     visits: int             # 总拜访次数
-    min_daily_capacity: int = 0  # 单日门店数硬下限: min(|S_t^orig|) 防闲置/出工不出力
-    max_daily_capacity: int = 0  # 单日门店数硬上限: max(|S_t^orig|) 防过劳/物理不可行
+    min_daily_capacity: int = 0  # 单日门店数硬下限 (0=无界; 由适配层显式传入)
+    max_daily_capacity: int = 0  # 单日门店数硬上限 (0=无界; 由适配层显式传入)
 
-    def __post_init__(self):
-        if self.days_orig:
-            lens = [len(v) for v in self.days_orig.values()]
-            if self.min_daily_capacity <= 0:
-                self.min_daily_capacity = min(lens)
-            if self.max_daily_capacity <= 0:
-                self.max_daily_capacity = max(lens)
+
 @dataclass
 class AlgoResult:
     """One algorithm's output."""

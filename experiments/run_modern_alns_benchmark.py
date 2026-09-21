@@ -108,6 +108,7 @@ def _load_fangshan() -> tuple[LineData, np.ndarray]:
     for seq in days_orig.values():
         for c in seq:
             freq[codes[c]] += 1
+    lens = [len(v) for v in days_orig.values()]
     data = LineData(
         line_id="FS", line_name="房山线FS",
         codes=codes,
@@ -116,6 +117,8 @@ def _load_fangshan() -> tuple[LineData, np.ndarray]:
         dates=sorted(days_orig), days_orig=days_orig,
         freq=dict(freq), stores=len(codes),
         visits=sum(len(v) for v in days_orig.values()),
+        min_daily_capacity=min(lens) if lens else 0,
+        max_daily_capacity=max(lens) if lens else 0,
     )
     D = np.load(FANGSHAN_FILES["matrix"])
     return data, D
