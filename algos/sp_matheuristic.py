@@ -26,7 +26,6 @@ import time, random
 from collections import Counter
 from core.base import Algorithm, AlgoResult
 from core.metric import day_km, check_capacity
-from core.contract import legal_date_map, check_contract
 from algos.registry import register
 from visitmodel.sp.formulation import (_wd, weekday_dates, _z_open, _contract_pool_filter,
                                        _fw_table, sp_solve_lp, sp_solve_ip)
@@ -73,7 +72,7 @@ def dedupe_pool(pool, top_k=6, max_daily=None, min_daily=None):
 
 def column_generate(dates, k_c, pool, D, max_iter=12, verbose=False,
                     top_m=40, col_iter=60, max_daily=None, min_daily=None, r2_prime=False,
-                    contract=None):
+                    view=None):
     """列生成循环: LP -> 定价 -> 负约简成本列回灌 -> 收敛.
     收敛判据 (评审 P1-1 修正): 最小化问题加列后 rmp_lp 单调【下降】; 连续 3 轮无下降或无新列即停."""
     pool = list(pool)
@@ -83,15 +82,15 @@ def column_generate(dates, k_c, pool, D, max_iter=12, verbose=False,
     stall = 0
     for it in range(max_iter):
         iters = it + 1
-        rmp_lp_new, duals = sp_solve_lp(dates, k_c, pool, r2_prime=r2_prime, contract=contract)
+        rmp_lp_new, duals = sp_solve_lp(dates, k_c, pool, r2_prime=r2_prime,
+                                        legal=(view or {}).get("legal"), fw=(view or {}).get("fw"))
         if rmp_lp_new is None:
             break
         improved = (rmp_lp is None) or (rmp_lp - rmp_lp_new > 1e-3)
         rmp_lp = min(rmp_lp, rmp_lp_new) if rmp_lp is not None else rmp_lp_new
         new_cols = price_columns(dates, k_c, duals, D, top_m=top_m, col_iter=col_iter,
                                  max_daily=max_daily, min_daily=min_daily,
-                                 legal=(legal_date_map(contract, dates)
-                                        if contract is not None else None))
+                                 legal=(view or {}).get("legal"))
         before = len(pool)
         pool = dedupe_pool(pool + new_cols, max_daily=max_daily, min_daily=min_daily)
         added = len(pool) - before
@@ -111,7 +110,7 @@ class SPMatheuristic(Algorithm):
 
     def solve(self, data, D, time_budget=120, pool=None, rounds=2, sa_burst=6.0,
               top_m=40, col_iter=60, max_daily=None, min_daily=None, r2_prime=False,
-              contract=None):
+              view=None):
         assert pool, "SPMatheuristic 需要外部路线池"
         import numpy as np
         D = np.asarray(D)
@@ -126,11 +125,12 @@ class SPMatheuristic(Algorithm):
 
         rmp_lp, pool, cg_iters, converged = column_generate(
             dates, k_c, pool, D, max_iter=15, verbose=True, top_m=top_m, col_iter=col_iter,
-            max_daily=max_daily, min_daily=min_daily, r2_prime=r2_prime, contract=contract)
+            max_daily=max_daily, min_daily=min_daily, r2_prime=r2_prime, view=view)
 
         best_km, best_days = sp_solve_ip(dates, k_c, pool,
                                          timeout_s=max(10, (t0 + time_budget - time.time()) * 0.5),
-                                         r2_prime=r2_prime, contract=contract)
+                                         r2_prime=r2_prime,
+                                         legal=(view or {}).get("legal"), fw=(view or {}).get("fw"))
         if best_km is None:
             return AlgoResult(name=self.name, days={}, km=float("inf"), capacity_ok=False,
                               metadata={"error": "SP infeasible (走廊/R2' 下无可行组合)",
@@ -152,18 +152,23 @@ class SPMatheuristic(Algorithm):
                 pool = dedupe_pool(pool, max_daily=max_daily, min_daily=min_daily)
                 km2, days2 = sp_solve_ip(dates, k_c, pool,
                                          timeout_s=max(10, (t0 + time_budget - time.time())),
-                                         r2_prime=r2_prime, contract=contract)
+                                         r2_prime=r2_prime,
+                                         legal=(view or {}).get("legal"), fw=(view or {}).get("fw"))
                 if km2 is not None and km2 < best_km - 1e-9:
                     best_km, best_days = km2, days2
             history.append((best_km, f"sp-round{r+1}"))
 
-        rmp_lp2, _ = sp_solve_lp(dates, k_c, pool, r2_prime=r2_prime, contract=contract)
+        rmp_lp2, _ = sp_solve_lp(dates, k_c, pool, r2_prime=r2_prime,
+                                 legal=(view or {}).get("legal"), fw=(view or {}).get("fw"))
         if rmp_lp2 is not None and rmp_lp is not None:
             rmp_lp = min(rmp_lp, rmp_lp2)
 
         cap_ok = check_capacity(best_days, max_daily, min_daily)
         r2_ok = (not r2_prime) or (len(check_r2prime(best_days)) == 0)
-        contract_ok = (contract is None) or (len(check_contract(best_days, contract, dates)) == 0)
+        # 合同闸 = 视图合法成员关系 (L1 派生视图; 精确义务由 SP 等式保证)
+        contract_ok = (view is None) or all(
+            dd in view["legal"].get(ci, frozenset())
+            for dd, seq in best_days.items() for ci in seq)
         pool_gap = round((best_km - rmp_lp) / best_km * 100, 2) if rmp_lp else None
         return AlgoResult(name=self.name, days=best_days, km=best_km,
                           capacity_ok=cap_ok,

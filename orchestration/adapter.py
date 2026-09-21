@@ -39,3 +39,40 @@ def compile_line_spec(
         protected_codes=tuple(protected_codes),
     )
     return SemanticCompiler().compile(line_data_facts(line), p)
+
+
+def contract_view(line: LineData, spec: Optional[VisitSemanticSpec] = None) -> dict:
+    """语义规格 → 索引空间编译视图 (供 L3 SP/定价/闸使用).
+
+    输出:
+      legal    {store_idx: frozenset[date]}  σ 可换超集: W→全工作日, B(φ)→相位匹配日
+      fw       {store_idx: {weekday: f}}     星期 w 的合同槽位数 (z 覆盖 RHS)
+      contracts {store_idx: ("W",None)|("B",φ)}
+      k_c      {store_idx: obligation}
+
+    本函数是 L1 语义 → L3 数学参数的唯一转译点 (Phase D2): L3 收视图,
+    不再自行调用 contract_of / legal_date_map.
+    """
+    spec = spec or compile_line_spec(line)
+    code2idx = {c: i for i, c in enumerate(line.codes)}
+    wd_dates: dict[int, list] = {}
+    for dd in sorted(line.dates):
+        wd_dates.setdefault(dd.weekday(), []).append(dd)
+
+    legal, fw, contracts, k_c = {}, {}, {}, {}
+    for c in spec.contracts:
+        i = code2idx[c.customer_code]
+        if c.contract_type.value == "W":
+            sup = frozenset(line.dates)
+            kappa = ("W", None)
+        else:
+            sup = frozenset(
+                dd for dd in line.dates
+                if dd.isocalendar()[1] % 2 == c.phase
+            )
+            kappa = ("B", c.phase)
+        legal[i] = sup
+        fw[i] = {w: len(sup & frozenset(ds)) for w, ds in wd_dates.items()}
+        contracts[i] = kappa
+        k_c[i] = c.obligation
+    return {"legal": legal, "fw": fw, "contracts": contracts, "k_c": k_c}

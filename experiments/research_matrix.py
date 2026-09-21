@@ -97,10 +97,13 @@ def produce_calendar(engine_id, data, D, dates, contracts, budget_s, seeds, cp_t
         for dd in dates:
             route, _st = _cpsat_route(list(data.days_orig[dd]), D, cp_timeout)
             base_cols.append((dd, route, round(day_km(route, D), 3)))
+        from orchestration.adapter import compile_line_spec, contract_view
+        _spec = compile_line_spec(data)
+        view = contract_view(data, _spec)
         rmp_lp, generated, cg_iters, converged = column_generate(
             dates, k_c, base_cols, D, max_iter=6, verbose=False,
             top_m=40, col_iter=60, max_daily=data.max_daily_capacity,
-            min_daily=data.min_daily_capacity, r2_prime=True, contract=contracts)
+            min_daily=data.min_daily_capacity, r2_prime=True, view=view)
         for dd, route, km in generated:
             route2, _st = _cpsat_route(list(route), D, cp_timeout)
             raw.append((dd, route2, round(day_km(route2, D), 3), "sp_cg"))
@@ -171,7 +174,7 @@ def run_a_matrix(line_id, data, D, dates, contracts, k_c,
         if norm:
             best_km, selected, info = sp_solve_ip(
                 dates, k_c, [(dd, rt, km) for dd, rt, km in norm],
-                timeout_s=300, r2_prime=True, contract=contracts,
+                timeout_s=300, r2_prime=True, legal=view["legal"], fw=view["fw"],
                 return_diagnostics=True)
         else:
             best_km, selected, info = None, None, {"status": "EMPTY_POOL"}

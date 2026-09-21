@@ -22,13 +22,13 @@ REPO = Path(__file__).resolve().parents[1]
 
 _L3_FORBIDDEN = ("visit_ir", "core.contract", "visit_semantic_api", "visitmodel")
 
-# Phase A 冻结的既有违规 (file, module); 修复后应从此表删除
+# Phase D1/D2 已修复出列: sp_matheuristic.py (改收 contract_view)
+# 剩余豁免: 合同输入型解码器/精确求解器, 待 D3/D4 参数化
 _L3_WAIVERS = frozenset({
     ("alns_v4.py", "core.contract"),
     ("branch_and_price.py", "core.contract"),
     ("hgs_r2.py", "core.contract"),
     ("r2_alns_v2_backup.py", "core.contract"),
-    ("sp_matheuristic.py", "core.contract"),
 })
 
 # 这些包属于独立仓, 本仓出现同名目录 = 遮蔽 editable 安装 (shadow)

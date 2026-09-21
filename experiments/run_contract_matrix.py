@@ -178,6 +178,8 @@ def allocation_schedule(mode: str, data, D: np.ndarray, dates: list,
         k_c = dict(Counter(c for dd in dates for c in data.days_orig[dd]))
         max_daily = data.max_daily_capacity
         min_daily = data.min_daily_capacity
+        from orchestration.adapter import contract_view
+        _cv = contract_view(data)
         rmp_lp, generated, cg_iters, converged = column_generate(
             dates,
             k_c,
@@ -190,7 +192,7 @@ def allocation_schedule(mode: str, data, D: np.ndarray, dates: list,
             max_daily=max_daily,
             min_daily=min_daily,
             r2_prime=True,
-            contract=contracts,
+            view=_cv,
         )
         # Pricing uses insertion order internally. Re-route every generated
         # column so the TSP factor remains the cost actually passed to SP.
