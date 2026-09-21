@@ -139,7 +139,8 @@ class R2ALNS(Algorithm):
             snapshot()
         days = best_routes
         return AlgoResult(
-            name=self.name, days=days, km=round(best_km, 3),
+            name=self.name, days=days,
+            km=round(total_km(days, D), 3),  # 汇报口径: 返回解全量重算 (增量 cur_km 仅用于搜索接受阈值, 有漂移)
             capacity_ok=check_capacity(days, max_cap, min_cap),
             metadata={"iters": its, "accepted": accepted,
                       "r2_ok": len(check_r2prime(days)) == 0,

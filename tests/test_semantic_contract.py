@@ -5,6 +5,7 @@ import sys
 import datetime as dt
 from collections import Counter
 from datetime import date
+from pathlib import Path
 
 import pytest
 
@@ -82,6 +83,7 @@ def test_check_contract_rejects_all_counterexamples():
     assert 8 in check_contract(bad5, ct, dates)                                # 反例5 周访漏一天
 
 
+@pytest.mark.skipif(not Path(SRP).exists(), reason="真实 SRP 数据缺失 (CI 跳过)")
 def test_real_data_exact_reconstruction_all_lines():
     from data.loader import load_plan, load_line
     from core.contract import contract_of, contract_slot_dates, check_contract
@@ -111,6 +113,7 @@ def test_real_data_exact_reconstruction_all_lines():
     assert dict(f_dist) == {2: 125, 3: 62, 4: 557, 5: 780}
 
 
+@pytest.mark.skipif(not Path(SRP).exists(), reason="真实 SRP 数据缺失 (CI 跳过)")
 def test_service_week_field_is_iso_week_mod4():
     import pandas as pd
     df = pd.read_excel(SRP, sheet_name="Sheet1")

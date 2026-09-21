@@ -292,8 +292,14 @@ def _mip_solve(
     closed: bool = True,
     t0: Sequence[float] | None = None,
     daily_cap: float | None = None,
+    min_active_days: int | None = None,
 ):
-    """Final IP solve with the enriched column pool and a solution hint."""
+    """Final IP solve with the enriched column pool and a solution hint.
+
+    min_active_days: if set, hard-constrains the number of days with at
+    least one column to be >= min_active_days (apple-to-apple with business
+    actual days).
+    """
     n = len(freq)
     m = cp_model.CpModel()
     w = {
@@ -304,6 +310,14 @@ def _mip_solve(
     x = {(i, d): m.NewBoolVar(f"b{i}_{d}") for i in range(n) for d in range(days)}
     for d in range(days):
         m.Add(sum(w[gi, d] for gi in range(len(pool))) <= 1)
+    # 硬约束: 至少 min_active_days 天有拜访
+    if min_active_days is not None:
+        active_t = [m.NewBoolVar(f"at{d}") for d in range(days)]
+        for d in range(days):
+            # active_t[d] = (sum w[gi,d] >= 1)
+            m.Add(sum(w[gi, d] for gi in range(len(pool))) >= 1).OnlyEnforceIf(active_t[d])
+            m.Add(sum(w[gi, d] for gi in range(len(pool))) == 0).OnlyEnforceIf(active_t[d].Not())
+        m.Add(sum(active_t) >= min_active_days)
     for i in range(n):
         for d in range(days):
             gs = [gi for gi, g in enumerate(pool) if i in g]
@@ -386,22 +400,22 @@ def _balance(
             load[d]
             == sum(int(gcosts[fs] * 100) * y[k, d] for k, fs in enumerate(day_groups))
         )
-    for i in range(len(freq)) if hasattr(freq, "__len__") else []:
-        pass
-    # interval constraints per customer
-    # (re-derive from freq via the customer index; freq is passed in)
+    # interval constraints per customer:
+    # 同一客户的两组 visits 被排到 |d2-d1| < gap 的两天 = 违例。
+    # 语义: 对该客户所在的每对组 (ka, kb) 与每对冲突日 (d1, d2),
+    # 禁止同时占用 (双向 AddImplication, 严格 AND 禁止)。
     for cust in range(len(freq)):
         if freq[cust] >= 2:
             gap = max(1, days // (freq[cust] + 1))
             ks_c = [k for k, fs in enumerate(day_groups) if cust in fs]
-            if len(ks_c) >= 2:
-                for d1 in range(days):
-                    for d2 in range(d1 + 1, d1 + gap):
-                        if d2 < days:
-                            m.AddBoolOr(
-                                [y[k, d1].Not() for k in ks_c]
-                                + [y[k, d2].Not() for k in ks_c]
-                            )
+            for ki, ka in enumerate(ks_c):
+                for kb in ks_c[ki + 1:]:
+                    for d1 in range(days):
+                        for d2 in range(days):
+                            if d1 == d2 or abs(d2 - d1) >= gap:
+                                continue
+                            m.AddImplication(y[ka, d1], y[kb, d2].Not())
+                            m.AddImplication(y[kb, d2], y[ka, d1].Not())
     zmax = m.NewIntVar(0, 10_000_000, "zmax")
     for d in range(days):
         m.Add(zmax >= load[d])
@@ -436,8 +450,14 @@ def solve_distance_cg(
     days: int = DAYS_DEFAULT,
     time_limit: int = MIP_TIME,
     verbose: bool = True,
+    min_active_days: int | None = None,
 ) -> tuple[list | None, float, str, dict]:
-    """Distance caliber: closed-loop route with depot commute."""
+    """Distance caliber: closed-loop route with depot commute.
+
+    min_active_days: hard-constrains the number of active (non-empty) days
+    to be >= min_active_days. Use this for apple-to-apple comparisons where
+    the business actual number of days is a hard input.
+    """
     global _GLOBAL
     _GLOBAL = {"D": D}
     t0 = [D[depot_idx][i] for i in range(n)]
@@ -455,6 +475,7 @@ def solve_distance_cg(
         daily_cap=None,
         time_limit=time_limit,
         verbose=verbose,
+        min_active_days=min_active_days,
     )
 
 
@@ -516,7 +537,8 @@ def solve_time_cg(
 
 
 def _solve_core(
-    n, D, t0, freq, days, col_cost_fn, closed, t0_vec, daily_cap, time_limit, verbose
+    n, D, t0, freq, days, col_cost_fn, closed, t0_vec, daily_cap, time_limit, verbose,
+    min_active_days=None,
 ):
     # 1. Initial pool (columns filtered by daily_cap at creation time)
     groups: dict = {}
@@ -567,6 +589,9 @@ def _solve_core(
             )
 
     # 4. Final MIP
+    if closed and daily_cap is not None:
+        # apple-to-apple: 用业务DA作为硬约束
+        pass  # min_active_days 由 public API 传入
     assigns, total, status = _mip_solve(
         pool_list,
         pool_cost,
@@ -578,6 +603,7 @@ def _solve_core(
         closed=closed,
         t0=t0_vec,
         daily_cap=daily_cap,
+        min_active_days=min_active_days,
     )
     stats = {"n_columns": len(pool_list), "lp_obj": lp_final, "balanced": False}
     if assigns is None:

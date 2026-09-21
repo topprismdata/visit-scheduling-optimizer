@@ -5,6 +5,7 @@ import sys
 import itertools
 import json
 from datetime import date
+from pathlib import Path
 
 import pytest
 
@@ -203,6 +204,10 @@ def test_pricing_legal_and_rc_exact_under_random_duals():
     assert n_legal > 0, "oracle 未产生任何列, 测试无效"
 
 
+@pytest.mark.skipif(
+    not Path("/Users/ghb/Downloads/进离店内销售的SRP-7月拜访计划.xlsx").exists(),
+    reason="真实 SRP 数据缺失 (CI 跳过)",
+)
 def test_09_baseline_only_pool_structure_guarantee():
     import numpy as np
     from data.loader import load_plan, load_line

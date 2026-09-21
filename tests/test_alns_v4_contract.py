@@ -4,9 +4,16 @@
 背景: same_weekday_only 只保星期几; 双周店跨周同星期移动曾绕过相位合同.
 修复: shift/swap 候选过滤 legal.get(c) + 输出 contract_ok 闸."""
 import numpy as np
+import pytest
 
 from core.contract import check_contract, contract_of
-from data.loader import load_line, load_plan
+from data.loader import load_line, load_plan, SRP_PATH
+from pathlib import Path
+
+# 本文件用例全部依赖真实 SRP 数据; CI 无该文件 → 跳过
+pytestmark = pytest.mark.skipif(
+    not Path(SRP_PATH).exists(), reason=f"真实 SRP 数据缺失: {SRP_PATH} (CI 跳过)"
+)
 
 
 def test_alns_v4_never_breaks_contract_phase_on_09():
