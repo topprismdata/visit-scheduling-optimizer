@@ -7,5 +7,6 @@
 Phase B 落点: LineData(母项目 L3 内部结构) → 业务事实 → L1 SemanticCompiler.
 """
 from orchestration.adapter import compile_line_spec, line_data_facts
+from orchestration.episode import emit_episode
 
-__all__ = ["line_data_facts", "compile_line_spec"]
+__all__ = ["line_data_facts", "compile_line_spec", "emit_episode"]

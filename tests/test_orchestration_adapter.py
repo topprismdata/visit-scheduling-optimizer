@@ -74,3 +74,61 @@ def test_compile_line_spec_zero_exception_gate():
     )
     with pytest.raises(ValueError, match="零例外闸未过"):
         compile_line_spec(bad)
+
+
+class _GreedyBackend:
+    """最小协议后端 (与 VisitModel tests 内实现同思路): 按日装满欠义务的合法客户."""
+
+    def solve(self, instance, config):
+        from visit_math_api import SolveResult as _Res
+        remaining = dict(instance.required_visits)
+        assignments = {}
+        for d in instance.workdays:
+            day = []
+            for c in instance.customers:
+                if remaining.get(c, 0) > 0 and d in instance.eligible_days.get(c, frozenset()):
+                    day.append(c)
+                    remaining[c] -= 1
+            assignments[d] = tuple(day)
+        ok = all(v == 0 for v in remaining.values())
+        return _Res(
+            status="OPTIMAL" if ok else "INFEASIBLE",
+            assignments=assignments,
+            objective_vector=(0.0,) * len(instance.objective_terms),
+            termination_reason="exhaustive-deterministic",
+            instance_hash=dict(instance.metadata).get("content_hash", ""),
+        )
+
+
+def test_decision_episode_emitted_and_deterministic():
+    """G4: 留痕组装 + 同决策重放同 episode_hash."""
+    from orchestration import emit_episode
+    from visit_math_api import DecisionEpisode, episode_hash
+    from visit_math_api import SolverConfig as _Cfg
+
+    line = _line()
+    spec = compile_line_spec(line)
+    inst = MathCompiler().compile(spec)
+    result = _GreedyBackend().solve(inst, _Cfg(backend="greedy", seed=7))
+
+    ep = emit_episode(spec, inst, result, _Cfg(backend="greedy", seed=7), solver_version="t1")
+    assert isinstance(ep, DecisionEpisode)
+    assert ep.semantic_spec_hash == spec.metadata.content_hash
+    assert ep.status == "OPTIMAL" and ep.seed == 7
+
+    ep2 = emit_episode(spec, inst, result, _Cfg(backend="greedy", seed=7), solver_version="t1")
+    assert episode_hash(ep) == episode_hash(ep2), "同决策重放必须同指纹"
+
+
+def test_episode_rejects_unversioned_spec():
+    """metadata 缺失的 spec 拒绝留痕 (不可复现的求解不允许入账)."""
+    from orchestration import emit_episode
+    from visit_math_api import SolverConfig as _Cfg
+    from visit_semantic_api import VisitSemanticSpec as _S
+
+    spec = compile_line_spec(_line())
+    bare = _S(horizon=spec.horizon, contracts=spec.contracts, corridor=spec.corridor)
+    inst = MathCompiler().compile(spec)
+    result = _GreedyBackend().solve(inst, _Cfg(backend="greedy"))
+    with pytest.raises(ValueError, match="不可复现"):
+        emit_episode(bare, inst, result, _Cfg(backend="greedy"))
