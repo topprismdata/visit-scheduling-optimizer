@@ -10,13 +10,15 @@ pv = load_plan()
 data = load_line(pv, '03')
 D = load_cached('03').tolist()
 v4 = ALNSv4()
+from orchestration.adapter import contract_view
+_view = contract_view(data)
 
 # 03 线自适应 λ 范围: 0~5.1
 lams = [0.0, 0.5, 1.0, 2.0, 3.0, 5.0]
 results = []
 
 for lam in lams:
-    r = v4.solve(data, D, time_budget=12, lam=lam, mu=0.0, seed=42)
+    r = v4.solve(data, D, view=_view, time_budget=12, lam=lam, mu=0.0, seed=42)
     ok = check_freq(r.days, data.codes, data.freq)
     m = r.metadata
     results.append({

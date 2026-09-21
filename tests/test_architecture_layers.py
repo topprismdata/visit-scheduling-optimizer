@@ -22,12 +22,10 @@ REPO = Path(__file__).resolve().parents[1]
 
 _L3_FORBIDDEN = ("visit_ir", "core.contract", "visit_semantic_api", "visitmodel")
 
-# Phase D1/D2 已修复出列: sp_matheuristic.py (改收 contract_view)
-# 剩余豁免: 合同输入型解码器/精确求解器, 待 D3/D4 参数化
+# Phase D1-D3 已修复出列: sp_matheuristic / alns_v4 / hgs_r2 (改收 contract_view)
+# 剩余豁免: BP(合同原生入口, D4 转译) + backup 存档
 _L3_WAIVERS = frozenset({
-    ("alns_v4.py", "core.contract"),
     ("branch_and_price.py", "core.contract"),
-    ("hgs_r2.py", "core.contract"),
     ("r2_alns_v2_backup.py", "core.contract"),
 })
 

@@ -97,7 +97,9 @@ def D():
 
 
 def _run_hgs(line, D, **kw):
+    from orchestration.adapter import contract_view
     opt = HGSR2Optimizer(pop_size=8, n_gens=6, ls_iters=16)
+    kw.setdefault("view", contract_view(line))
     res = opt.solve(line, D, time_budget=30.0, seed=7, exact_tl=5.0, **kw)
     return opt, res
 

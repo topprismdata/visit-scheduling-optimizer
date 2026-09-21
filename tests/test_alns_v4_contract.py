@@ -8,6 +8,7 @@ import pytest
 
 from core.contract import check_contract, contract_of
 from data.loader import load_line, load_plan, SRP_PATH
+from orchestration.adapter import contract_view
 from pathlib import Path
 
 # 本文件用例全部依赖真实 SRP 数据; CI 无该文件 → 跳过
@@ -25,7 +26,8 @@ def test_alns_v4_never_breaks_contract_phase_on_09():
     dates = list(d.dates)
     contracts = contract_of(d.days_orig, dates)
 
-    r = ALNSv4().solve(d, D, time_budget=20, seed=42, lam=2.0, mu=0.5)
+    r = ALNSv4().solve(d, D, time_budget=20, seed=42, lam=2.0, mu=0.5,
+                       view=contract_view(d))
 
     assert r.days, "v4 应返回日历"
     assert len(check_contract(r.days, contracts, dates)) == 0
@@ -39,6 +41,8 @@ def test_alns_v4_move_candidates_respect_biweekly_phase_determinism():
 
     d = load_line(load_plan(), "09")
     D = np.load("output/road_dist_09.npy")
-    r1 = ALNSv4().solve(d, D, time_budget=10, seed=7, lam=2.0, mu=0.5)
-    r2 = ALNSv4().solve(d, D, time_budget=10, seed=7, lam=2.0, mu=0.5)
+    r1 = ALNSv4().solve(d, D, time_budget=10, seed=7, lam=2.0, mu=0.5,
+                        view=contract_view(d))
+    r2 = ALNSv4().solve(d, D, time_budget=10, seed=7, lam=2.0, mu=0.5,
+                        view=contract_view(d))
     assert r1.km == r2.km

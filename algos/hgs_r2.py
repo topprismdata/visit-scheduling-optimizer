@@ -11,8 +11,8 @@
   复用), 引导日分配保持紧致作业组团.
 
 染色体与解码:
-  σ: store → weekday (星期几指派)。解码经合同-相位本体 (visit_ir, 经
-  core.contract 消费) 派生每店日期集: 周访 = 目标星期几全部槽位, 双周访 =
+  σ: store → weekday (星期几指派)。解码经合同-相位槽位日历 (L1
+  orchestration.contract_view 编译视图携带 slot_dates) 派生每店日期集: 周访 = 目标星期几全部槽位, 双周访 =
   相位匹配槽位。每店全月只出现在单一星期几 → R2' 不变量由构造保证
   (星期几本身是决策变量, 换了就整店全月一致)。
 
@@ -34,7 +34,6 @@ from collections import Counter, defaultdict
 import numpy as np
 
 from core.base import Algorithm, AlgoResult
-from core.contract import contract_of, contract_slot_dates
 from core.metric import check_capacity, day_km
 from core.spatial_potential import SpatialPotentialField
 from algos.mab_selector import UCB1Selector
@@ -116,7 +115,7 @@ class HGSR2Optimizer(Algorithm):
         self.stats = {"created_feasible": 0, "created_infeasible": 0}
 
     # ------------------------------------------------------------------
-    def solve(self, data, D, time_budget=60.0, seed=42, exact_tl=5.0):
+    def solve(self, data, D, time_budget=60.0, seed=42, exact_tl=5.0, view=None):
         rng = random.Random(seed)
         D = np.asarray(D, dtype=float)
         t0 = time.time()
@@ -131,7 +130,11 @@ class HGSR2Optimizer(Algorithm):
         weekdays = sorted(wd_dates)
         if len(weekdays) < 2:
             raise ValueError("至少需要 2 个不同星期几才能换挡")
-        contracts = contract_of(data.days_orig, dates)
+        if view is None:
+            raise ValueError("hgs_r2 需要 contract_view — 合同语义只能来自 L1 "
+                             "(orchestration.contract_view)")
+        contracts = view["contracts"]
+        slot_dates = view["slot_dates"]
         if not contracts:
             raise ValueError("days_orig 无门店, 无法反解合同")
         stores = sorted(contracts)
@@ -150,8 +153,7 @@ class HGSR2Optimizer(Algorithm):
             """σ → {date: [store]} (合同槽位派生, R2' 由构造保证)."""
             days = defaultdict(list)
             for c in stores:
-                kappa, phi = contracts[c]
-                for d in contract_slot_dates(kappa, phi, wd_dates[sigma[c]]):
+                for d in slot_dates[c][sigma[c]]:
                     days[d].append(c)
             return days
 
@@ -228,9 +230,8 @@ class HGSR2Optimizer(Algorithm):
             pot = self.potential.evaluate_day_assignment
 
             def delta(sigma_, c, w1, w2):
-                kappa, phi = contracts[c]
-                d2_set = contract_slot_dates(kappa, phi, wd_dates[w2])
-                d1_set = contract_slot_dates(kappa, phi, wd_dates[w1])
+                d2_set = slot_dates[c][w2]
+                d1_set = slot_dates[c][w1]
                 dv = 0.0
                 for d in d2_set:
                     m = sorted(days[d])
@@ -247,9 +248,8 @@ class HGSR2Optimizer(Algorithm):
             days = {d: sorted(m) for d, m in decode(sigma).items()}
 
             def delta(sigma_, c, w1, w2):
-                kappa, phi = contracts[c]
-                d2_set = contract_slot_dates(kappa, phi, wd_dates[w2])
-                d1_set = contract_slot_dates(kappa, phi, wd_dates[w1])
+                d2_set = slot_dates[c][w2]
+                d1_set = slot_dates[c][w1]
                 return (sum(_ins_cost(days[d], c, D) for d in d2_set)
                         - sum(_rem_gain(days[d], c, D) for d in d1_set))
 

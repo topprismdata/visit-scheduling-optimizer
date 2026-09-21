@@ -60,6 +60,7 @@ def contract_view(line: LineData, spec: Optional[VisitSemanticSpec] = None) -> d
         wd_dates.setdefault(dd.weekday(), []).append(dd)
 
     legal, fw, contracts, k_c = {}, {}, {}, {}
+    slot_dates = {}  # {idx: {weekday: frozenset(dates)}} — (合同,φ,σ) 精确槽位集
     for c in spec.contracts:
         i = code2idx[c.customer_code]
         if c.contract_type.value == "W":
@@ -75,4 +76,8 @@ def contract_view(line: LineData, spec: Optional[VisitSemanticSpec] = None) -> d
         fw[i] = {w: len(sup & frozenset(ds)) for w, ds in wd_dates.items()}
         contracts[i] = kappa
         k_c[i] = c.obligation
-    return {"legal": legal, "fw": fw, "contracts": contracts, "k_c": k_c}
+        slot_dates[i] = {
+            w: frozenset(ds) & sup for w, ds in wd_dates.items()
+        }
+    return {"legal": legal, "fw": fw, "contracts": contracts, "k_c": k_c,
+            "slot_dates": slot_dates}

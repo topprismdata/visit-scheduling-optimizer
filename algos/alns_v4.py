@@ -21,7 +21,6 @@
 import time, math, random
 from core.base import Algorithm, AlgoResult
 from core.metric import day_km, total_km, check_freq
-from core.contract import contract_of, legal_date_map, check_contract
 from algos.registry import register
 from algos.alns_v3 import two_opt, best_insert, worst_edge
 
@@ -39,7 +38,8 @@ class ALNSv4(Algorithm):
               lam=5.0,
               mu=0.0,
               max_changes=None,
-              same_weekday_only=True):
+              same_weekday_only=True,
+              view=None):
         """
         参数:
           incumbent: 参照解 X⁰ {date: [store_indices]}, 默认 SRP 现计划 (data.days_orig)
@@ -102,10 +102,13 @@ class ALNSv4(Algorithm):
         wd_map = {}
         for dd in dates:
             wd_map.setdefault(get_wd(dd), []).append(dd)
-        # 合同合法域 (P0-3, 2026-09-07): 跨日移动只允许落到该店的合同合法日期上
+        # 合同合法域 (P0-3): 跨日移动只允许落到该店的合同合法日期上
         # —— same_weekday_only 只保星期几, 不保双周相位; 合法域才同时保住两者
-        contracts = contract_of(data.days_orig, dates)
-        legal = legal_date_map(contracts, dates)
+        # Phase D3: 合同语义只能来自 L1 (orchestration.contract_view 编译视图)
+        if view is None:
+            raise ValueError("alns_v4 需要 contract_view — 合同语义只能来自 L1 "
+                             "(orchestration.contract_view)")
+        legal = view["legal"]
 
         # 模拟退火参数设置
         t0 = time.time()
@@ -334,7 +337,17 @@ class ALNSv4(Algorithm):
             n_ds = sorted([d.isoformat() if hasattr(d, "isoformat") else str(d) for d in final_dates.get(s, set())])
             changes.append({"store": code, "inc_dates": i_ds, "new_dates": n_ds})
 
-        contract_viol = check_contract(final_tours, contracts, dates)
+        # 合同闸 (精确): 每店日期集 == 其 (合同,φ,σ) 槽位集 — 视图携带槽位日历
+        slot_dates = view["slot_dates"]
+        shop_dates = {}
+        for dd, seq in final_tours.items():
+            for s_ in seq:
+                shop_dates.setdefault(s_, set()).add(dd)
+        contract_viol = [
+            s_ for s_, ds in shop_dates.items()
+            if len({d.weekday() for d in ds}) != 1
+            or ds != slot_dates.get(s_, {}).get(next(iter(ds)).weekday(), frozenset())
+        ]
         return AlgoResult(
             name=self.name,
             days=final_tours,

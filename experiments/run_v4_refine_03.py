@@ -31,12 +31,14 @@ print(f"  v3 改动店数: {v3_moved} / {len(data.codes)} ({v3_moved/len(data.co
 # ===== Step 2: v4 精修（以 v3 为 start，原始计划为 incumbent）=====
 print("\nStep 2: V4 精修（v3 解 → 往回拉）")
 v4 = ALNSv4()
+from orchestration.adapter import contract_view
+_view = contract_view(data)
 
 # 混合策略: 把 v3 解中"不值得的改动"回退
 # 方法: 用 v4 以 v3 解为 start, 原始计划为 incumbent, 大 λ 促使回退
 results = []
 for lam in [0.0, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0]:
-    r = v4.solve(data, D,
+    r = v4.solve(data, D, view=_view,
                  incumbent=data.days_orig,      # 锚点 = 原始计划
                  start=r3.days,                  # 起点 = v3 激进解
                  time_budget=10, lam=lam, mu=0.0, seed=42)

@@ -25,6 +25,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from algos.hgs_r2 import HGSR2Optimizer
+from orchestration.adapter import contract_view
 from algos.mab_selector import UCB1Selector
 from algos.registry import get as registry_get
 from algos.sp_matheuristic import check_r2prime
@@ -91,8 +92,9 @@ def D():
 
 
 def _solve(line, D, **kw):
+    from orchestration.adapter import contract_view
     opt = HGSR2Optimizer(pop_size=8, n_gens=6, ls_iters=16)
-    res = opt.solve(line, D, time_budget=30.0, seed=7, **kw)
+    res = opt.solve(line, D, time_budget=30.0, seed=7, view=contract_view(line), **kw)
     return opt, res
 
 
@@ -222,9 +224,9 @@ def test_same_seed_reproducible(line, D):
     不在本优化器确定性契约内 — 故按 (总里程, 逐日成员集) 对账.
     """
     r1 = HGSR2Optimizer(pop_size=8, n_gens=4, ls_iters=8).solve(
-        line, D, time_budget=30.0, seed=11)
+        line, D, time_budget=30.0, seed=11, view=contract_view(line))
     r2 = HGSR2Optimizer(pop_size=8, n_gens=4, ls_iters=8).solve(
-        line, D, time_budget=30.0, seed=11)
+        line, D, time_budget=30.0, seed=11, view=contract_view(line))
     assert r1.km == r2.km
     assert {d: tuple(sorted(s)) for d, s in r1.days.items()} == \
            {d: tuple(sorted(s)) for d, s in r2.days.items()}

@@ -10,6 +10,8 @@ pv = load_plan()
 data = load_line(pv, '09')
 D = load_cached('09').tolist()
 v4 = ALNSv4()
+from orchestration.adapter import contract_view
+_view = contract_view(data)
 
 results = []
 
@@ -17,7 +19,7 @@ results = []
 lams = [0.0, 0.5, 1.0, 2.0, 5.0, 10.0]
 for lam in lams:
     t0 = time.time()
-    r = v4.solve(data, D, time_budget=15, lam=lam, mu=0.0, seed=42)
+    r = v4.solve(data, D, view=_view, time_budget=15, lam=lam, mu=0.0, seed=42)
     dur = round(time.time()-t0, 1)
     ok = check_freq(r.days, data.codes, data.freq)
     m = r.metadata
@@ -35,7 +37,7 @@ for lam in lams:
 mus = [0.0, 0.5, 1.0, 2.0, 5.0]
 for mu in mus:
     t0 = time.time()
-    r = v4.solve(data, D, time_budget=15, lam=0.0, mu=mu, seed=42)
+    r = v4.solve(data, D, view=_view, time_budget=15, lam=0.0, mu=mu, seed=42)
     dur = round(time.time()-t0, 1)
     ok = check_freq(r.days, data.codes, data.freq)
     m = r.metadata
@@ -53,7 +55,7 @@ for mu in mus:
 combos = [(0.5, 0.5), (1.0, 1.0), (2.0, 1.0), (0.5, 2.0)]
 for lam, mu in combos:
     t0 = time.time()
-    r = v4.solve(data, D, time_budget=15, lam=lam, mu=mu, seed=42)
+    r = v4.solve(data, D, view=_view, time_budget=15, lam=lam, mu=mu, seed=42)
     dur = round(time.time()-t0, 1)
     ok = check_freq(r.days, data.codes, data.freq)
     m = r.metadata

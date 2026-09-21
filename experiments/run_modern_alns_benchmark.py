@@ -161,8 +161,9 @@ def run_benchmark(data: LineData, D, *, pop_size=10, generations=30,
     t1 = time.time()
     opt = HGSR2Optimizer(pop_size=pop_size, n_gens=generations,
                          ls_iters=ls_iters)
+    from orchestration.adapter import contract_view
     r_hgs = opt.solve(data, D, time_budget=budget, seed=seed,
-                      exact_tl=exact_tl)
+                      exact_tl=exact_tl, view=contract_view(data))
     hgs_sec = time.time() - t1
 
     def _blk(days, iters, sec):
