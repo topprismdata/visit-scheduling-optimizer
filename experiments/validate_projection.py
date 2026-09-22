@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -27,7 +28,8 @@ sys.path.insert(0, str(ROOT))
 
 UFS = Path("/Users/ghb/UFS-demo")
 KPI_F = UFS / "采纳执行-8月.xlsx"
-PLAN_F = UFS / "8月规划结果-调整.xlsx"
+PLAN_XLSX = os.environ.get("PLAN_XLSX", str(UFS / "更新后的8月规划.xlsx"))  # 默认=业代真正执行的那一版
+PLAN_F = Path(PLAN_XLSX)
 ACT_F = UFS / "8月实际走访数据-了解实际情况.csv"
 
 

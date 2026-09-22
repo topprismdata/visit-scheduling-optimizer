@@ -19,6 +19,7 @@ import h3
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
+PLAN_XLSX = "/Users/ghb/UFS-demo/更新后的8月规划.xlsx"  # 业代真正执行的那一版(同店同日全国中位 77.5% vs 调整版 41.2%)
 sys.path.insert(0, str(ROOT))
 
 WD_LABEL = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
@@ -54,7 +55,7 @@ def components(cells):
 
 
 def build():
-    plan = pd.read_excel("/Users/ghb/UFS-demo/8月规划结果-调整.xlsx")
+    plan = pd.read_excel(PLAN_XLSX)
     act = pd.read_csv("/Users/ghb/UFS-demo/8月实际走访数据-了解实际情况.csv", encoding="gbk",
                       usecols=["call_date", "customer_code", "salesperson_code"])
     plan["customer_code"] = plan["customer_code"].astype(str)
@@ -160,6 +161,7 @@ HTML = """<!DOCTYPE html>
 </style></head><body>
 <header>
  <h1>TOP5（采纳率最高）地盘图 · 同一人左右对比</h1>
+ <div class="sub" style="color:#fbbf24"><b>计划侧版本＝《更新后的8月规划》</b>（业代实际执行的那一版：同店同日全国中位 77.5%；此前误用《8月规划结果-调整》为 41.2%）</div>
  <div class="sub">
   <b>左＝计划安排</b>（面按计划星期、点按计划星期）；<b>右＝实际走访</b>（面按实际主力星期、点按实际主力星期，点大小＝到访次数）。<br>
   两侧视野联动（拖一边另一边跟着走），同一范围对位比较；<b>红虚线空心圈</b>＝本月未到访；<b>金色描边点</b>＝计划星期未被执行到的店（星期错位）。<br>

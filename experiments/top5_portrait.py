@@ -165,7 +165,7 @@ def portrait(lid, plan, act, names):
 
 def main():
     names = load_names()
-    plan = pd.read_excel("/Users/ghb/UFS-demo/8月规划结果-调整.xlsx")
+    plan = pd.read_excel("/Users/ghb/UFS-demo/更新后的8月规划.xlsx")  # 业代真正执行的版本
     plan["customer_code"] = plan["customer_code"].astype(str)
     act = pd.read_csv("/Users/ghb/UFS-demo/8月实际走访数据-了解实际情况.csv", encoding="gbk",
                       usecols=["call_date", "customer_code", "salesperson_code"])
