@@ -105,11 +105,15 @@ def main():
     plan["lat"] = pd.to_numeric(plan["lat"], errors="coerce")
     plan["lng"] = pd.to_numeric(plan["lng"], errors="coerce")
     act = pd.read_csv(UFS / "8月实际走访数据-了解实际情况.csv", encoding="gbk",
-                      usecols=["call_date", "customer_code", "salesperson_code"])
+                      usecols=["call_date", "customer_code", "salesperson_code", "start_time",
+                               "longitude", "latitude"])
     act["customer_code"] = act["customer_code"].astype(str)
     act["call_date"] = pd.to_datetime(act["call_date"]).dt.normalize()
     act["wk"] = act["call_date"].apply(wk)
     act["wd"] = act["call_date"].dt.dayofweek
+    act["start_time"] = pd.to_datetime(act["start_time"], errors="coerce")
+    act["lat_a"] = pd.to_numeric(act["latitude"], errors="coerce")
+    act["lng_a"] = pd.to_numeric(act["longitude"], errors="coerce")
     A = {l: g for l, g in act.groupby("salesperson_code")}
     doss = {}
     dp = ROOT / "output/rep_behavior/dossier.json"
@@ -168,6 +172,30 @@ def main():
                     ac_corr[k] = ac_corr.get(k, 0) + 1
                     ac_s.setdefault(k, []).append(idx_of.get(c, -1))
             common = set(pc_corr) & set(ac_corr)
+            # ---- 每天一条连续线: 左=计划(NN序) 右=实际(打卡时间序) ----
+            def nn_order(pts):
+                pts = list(pts)
+                if len(pts) < 2:
+                    return pts
+                out = [pts.pop(0)]
+                while pts:
+                    last = out[-1]
+                    j = min(range(len(pts)), key=lambda i: (pts[i][0]-last[0])**2 + (pts[i][1]-last[1])**2)
+                    out.append(pts.pop(j))
+                return out
+            daysP, daysA = [], []
+            if len(pw):
+                for d, g in pw.groupby(pw["plan_day"]):
+                    pts = [(float(r.lat), float(r.lng)) for r in g.itertuples() if r.lat == r.lat]
+                    if len(pts) >= 2:
+                        daysP.append([int(pd.Timestamp(d).dayofweek), [[round(a,5), round(b,5)] for a, b in nn_order(pts)]])
+            if len(aw):
+                for d, g in aw.groupby(aw["call_date"]):
+                    g2 = g.dropna(subset=["lat_a", "lng_a"])
+                    pts = [(float(r.lat_a), float(r.lng_a)) for r in g2.itertuples()]
+                    if len(pts) >= 2:
+                        daysA.append([int(pd.Timestamp(d).dayofweek), [[round(a,5), round(b,5)] for a, b in nn_order(pts)]])
+            m["daysP"], m["daysA"] = daysP, daysA
             m["geom_p"] = [[k, [i for i in pc_s.get(k, []) if i >= 0]] for k, _ in sorted(pc_corr.items(), key=lambda kv: -kv[1])]
             m["geom_a"] = [[k, [i for i in ac_s.get(k, []) if i >= 0]] for k, _ in sorted(ac_corr.items(), key=lambda kv: -kv[1])]
             m["corridors_plan"] = sorted(pc_corr.items(), key=lambda kv: -kv[1])[:40]
@@ -287,9 +315,8 @@ function draw(){
   document.getElementById('corrPair').style.display = 'none';    // 不再用文字清单
   if (corrMode) {
     document.getElementById('stat').innerHTML +=
-      `　｜<b>道路走廊</b>：计划 <b>${m.n_corr_plan}</b> 条（蓝线）/ 实际 <b>${m.n_corr_act}</b> 条（橙线）　一致度 ` +
-      `<b style="color:${m.corr_match>=0.8?'#86efac':'#fbbf24'}">${(m.corr_match*100).toFixed(0)}%</b>` +
-      `　<span style="color:#fca5a5">红线 = 计划里有、实际没走的走廊</span>`;
+      `　｜<b>走廊线</b>：计划 <b>${(m.daysP||[]).length}</b> 天、实际 <b>${(m.daysA||[]).length}</b> 天` +
+      `　<span style="color:#8b93a7">左=计划线、右=实际线（都按"当天门店最近邻串联"），颜色=周几</span>`;
     renderCorridor(d, m); return;
   }
   if(mL){mL.remove(); mR.remove();}
@@ -322,30 +349,28 @@ function orderAlong(xy, ids){            // 按"沿路方向"排序(主轴投影
   return P.slice().sort((a,b)=>((a[0]-mx)*ux+(a[1]-my)*uy)-((b[0]-mx)*ux+(b[1]-my)*uy));
 }
 function renderCorridor(d, m){
-  const xy=d.xy||[], pl=m.geom_p||[], ac=m.geom_a||[];
-  const actSet=new Set(ac.map(x=>x[0]));
-  const planSet=new Set(pl.map(x=>x[0]));
+  // 每天一条连续线: 左=计划(最近邻序) 右=实际(打卡时间序)
   if(mL){mL.remove(); mR.remove();}
   mL=L.map('mL',{zoomControl:true,attributionControl:false});
   mR=L.map('mR',{zoomControl:false,attributionControl:false});
   const tile=x=>L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{subdomains:'1234',maxZoom:18}).addTo(x);
   tile(mL); tile(mR);
   const b=[];
-  const draw=(layer, items, other, color)=>{ items.forEach(([name, ids])=>{
-    if(!ids.length) return;
-    const pts=orderAlong(xy, ids);
-    const miss=!other.has(name);
-    const col=miss?'#ef4444':color;
-    if(pts.length>=2) L.polyline(pts,{color:col,weight:miss?3:2,opacity:.9}).addTo(layer);
-    pts.forEach(p=>{ L.circleMarker(p,{radius:2.6,color:'#0b0d12',weight:.4,fillColor:col,fillOpacity:.9}).addTo(layer); b.push(p); });
-  }); };
-  draw(mL, pl, actSet, '#60a5fa');   // 左: 计划走廊 (蓝; 红=计划有实际没走)
-  draw(mR, ac, planSet, '#fbbf24');  // 右: 实际走廊 (橙; 红=计划里有但他没走的那条)
+  const drawDays=(layer, days)=>{
+    days.forEach(([dow, pts])=>{
+      const col=C[dow]||C[6];
+      L.polyline(pts,{color:col,weight:2.5,opacity:.9}).addTo(layer);
+      pts.forEach(p=>{ L.circleMarker(p,{radius:2.4,color:'#0b0d12',weight:.4,fillColor:col,fillOpacity:.9}).addTo(layer); b.push(p); });
+    });
+  };
+  drawDays(mL, m.daysP||[]);
+  drawDays(mR, m.daysA||[]);
+  if(!b.length){ L.polyline([[0,0],[0,0]]).addTo(mL); }
   const bb=L.latLngBounds(b); mL.fitBounds(bb,{padding:[10,10]}); mR.fitBounds(bb,{padding:[10,10]});
   mL.setView(mR.getCenter(),mR.getZoom(),{animate:false});
   let lock=false;
   mL.on('move zoom',()=>{if(lock)return;lock=true;mR.setView(mL.getCenter(),mL.getZoom(),{animate:false});lock=false;});
-  mR.on('move zoom',()=>{if(lock)return;lock=true;mL.setView(mR.getCenter(),mL.getZoom(),{animate:false});lock=false;});
+  mR.on('move zoom',()=>{if(lock)return;lock=true;mL.setView(mR.getCenter(),mR.getZoom(),{animate:false});lock=false;});
 }
 sel.onchange=()=>{i0=+sel.value; draw();};
 modef.onchange=draw; weekf.onchange=fill; kindf.onchange=fill; verdictf.onchange=fill; cpf.onchange=fill; q.oninput=fill;
