@@ -14,6 +14,7 @@
 用法: python experiments/validate_bayes_routine.py [--lam 0.9] [--a0 5.0]
 """
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -75,7 +76,7 @@ def prequential(act: pd.DataFrame, plan_coords: dict, lam=0.9, a0=5.0, min_visit
                 preds["dirichlet"] = al / al.sum()
                 for m, p in preds.items():
                     out[m].append(-float(np.sum(x * np.log(np.clip(p, 1e-9, 1))) / x.sum()))
-    return n, {m: float(np.mean(v)) for m, v in out.items()}
+    return n, {m: float(np.mean(v)) for m, v in out.items()}, len(out["uniform"])
 
 
 if __name__ == "__main__":
@@ -85,7 +86,7 @@ if __name__ == "__main__":
     a = ap.parse_args()
     KPI = pd.read_excel(UFS / "采纳执行-8月.xlsx")
     ok = set(KPI[KPI["销售计划数"] >= 100]["sales_line_code"])
-    PLAN = pd.read_excel(UFS / "8月规划结果-调整.xlsx")
+    PLAN = pd.read_excel(Path(os.environ.get("PLAN_XLSX", str(UFS / "更新后的8月规划.xlsx"))))
     PLAN["customer_code"] = PLAN["customer_code"].astype(str)
     crd = PLAN.dropna(subset=["lat", "lng"]).drop_duplicates("customer_code")
     coords = {r.customer_code: h3.latlng_to_cell(float(r.lat), float(r.lng), 7)
@@ -94,7 +95,7 @@ if __name__ == "__main__":
                       usecols=["call_date", "customer_code", "salesperson_code"])
     ACT["customer_code"] = ACT["customer_code"].astype(str)
     ACT = ACT[ACT["salesperson_code"].isin(ok)]
-    n, res = prequential(ACT, coords, a.lam, a.a0)
-    print(f"线数 {n} | 预测样本 {len(list(res.values())[0])}")
+    n, res, ns = prequential(ACT, coords, a.lam, a.a0)
+    print(f"线数 {n} | 预测样本 {ns}")
     for m, v in res.items():
         print(f"  {m:10s} {v:.4f}")
