@@ -436,9 +436,9 @@ git add experiments/nationwide_sweep/aggregate.py output/nationwide/ledger_p1.md
 
 ---
 
-### Task 7: 日报归档
+### Task 7: 日报归档（已取消 2026-09-22）
 
-- [ ] 写 `~/Library/Mobile Documents/com~apple~CloudDocs/AI团队/zcode/logs/<当日>.md`（做了什么/产出路径/卡点/明日），并将 ledger_p1.md 关键行贴入。
+- [x] ~~写 iCloud 日报~~ → **已取消**：不再使用 iCloud 协作目录。当日记录直接写在仓库内（`docs/reports/`），或将 `ledger_p1.md` 关键行留在本仓库。
 
 ---
 
