@@ -38,6 +38,11 @@ def main():
     act["call_date"] = pd.to_datetime(act["call_date"]).dt.normalize()
     act["wd"] = act["call_date"].dt.dayofweek
     A = {l: g for l, g in act.groupby("salesperson_code")}
+    attrib = {}
+    ap = ROOT / "docs/reports/2026-09-22-attribution.csv"
+    if ap.exists():
+        ad = pd.read_csv(ap)
+        attrib = {str(r["line"]): (r["verdict"], r["习惯规律性"], r["计划周几不同占比"]) for _, r in ad.iterrows()}
     dossier = {}
     dp = ROOT / "output/rep_behavior/dossier.json"
     if dp.exists():
@@ -76,7 +81,9 @@ def main():
         wdm = (sum(1 for c, w in plan_cells if c in inter and any(a[0] == c and a[1] == w for a in act_cells))
                / max(len(inter), 1)) if inter else 0.0
         kind3 = "①基本一样" if (shape >= 0.8 and wdm >= 0.7) else ("②区块基本一样·星期几不一样" if shape >= 0.8 else "③都不一样")
+        vd, hb, mm = attrib.get(str(lid), ("", 0, 0))
         recs.append({"line": lid, "city": dossier.get(lid, {}).get("city", ""), "bd": bd,
+                     "verdict": vd, "habit": hb, "mism": mm,
                      "shape": round(shape, 3), "wdm": round(wdm, 3), "kind3": kind3,
                      "plan": plan_cells, "act": act_cells,
                      "np": len(plan_cells), "na": len(act_cells)})
@@ -139,7 +146,9 @@ let mL=null,mR=null;
 function draw(){
   const d=D[i0];
   document.getElementById('stat').innerHTML =
-    `<b>${d.line}</b> · ${d.city} · <span style="color:#7dd3fc">${d.kind3}</span>　形状重合 <b>${(d.shape*100).toFixed(0)}%</b>　周一一致 <b>${(d.wdm*100).toFixed(0)}%</b>`;
+    `<b>${d.line}</b> · ${d.city}　<span style="color:#7dd3fc">${d.kind3}</span>　` +
+    (d.verdict ? `<span style="color:${d.verdict.startsWith('计划不够好')?'#fbbf24':(d.verdict.startsWith('执行有问题')?'#fca5a5':'#86efac')}">归因：${d.verdict}</span>` +
+      `　他的规律性 <b>${(d.habit*100).toFixed(0)}%</b>　计划周几不同 <b>${(d.mism*100).toFixed(0)}%</b>` : '');
   if(mL){mL.remove(); mR.remove();}
   mL=L.map('mL',{zoomControl:true,attributionControl:false,zoomSnap:.5});
   mR=L.map('mR',{zoomControl:false,attributionControl:false,zoomSnap:.5});
