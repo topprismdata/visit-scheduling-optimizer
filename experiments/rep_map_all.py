@@ -215,10 +215,9 @@ HTML = """<!DOCTYPE html>
   <span class="chip" id="cnt"></span>
   <span class="chip"><a href="#" id="sortdiff">按差异排序</a></span>
   <span class="chip"><a href="#" id="nextdiff">下一位差异最大 →</a></span>
-  <span class="chip">面：<a href="#" id="fm">星期</a>/<a href="#" id="fz">片区</a></span>
-  <span class="chip">点：<a href="#" id="pm">实际</a>/<a href="#" id="pp">计划</a></span>
+  <span class="chip">左图着色：<a href="#" id="fm">星期</a>/<a href="#" id="fz">块</a></span>
+  <span class="chip"><a href="#" id="pm">门店点</a></span>
   <span class="chip"><a href="#" id="on">只看差异</a></span>
-  <span class="chip"><a href="#" id="om">高亮星期错位</a></span>
  </div>
 </header>
 <div class="wrap">
@@ -237,8 +236,11 @@ HTML = """<!DOCTYPE html>
 const D = __DATA__, WDL = __WDL__, WDC = __WDC__, ZC = __ZC__;
 const sel = document.getElementById('pick'), q = document.getElementById('q');
 sel.innerHTML = D.map((d,i)=>`<option value="${i}">${d.line} · ${d.city} · ${d.kind}</option>`).join('');
-let idx = +(new URLSearchParams(location.search).get('i') || 0);
-let faceMode='wd', ptMode='act', onlyNever=false, showMismatch=true, mL=null, mR=null, layers=null;
+let idx = +(() => { const p = new URLSearchParams(location.search).get('i');
+  if (p !== null) return p;
+  let best = 0; D.forEach((d,i) => { if ((d.diff && d.diff.score || 0) > (D[best].diff.score || 0)) best = i; });
+  return best; })();
+let faceMode='wd', showPoints=true, onlyNever=false, mL=null, mR=null;
 function filterOptions(){
   const s = q.value.trim().toLowerCase();
   const keep = D.map((d,i)=>[d,i]).filter(([d])=>(d.line+' '+d.city+' '+d.kind).toLowerCase().includes(s));
@@ -259,10 +261,9 @@ document.getElementById('next').onclick = () => { const o=sel.options; const k=s
 const setLink=(id,on)=>{ const e=document.getElementById(id); e.style.color = on ? '#60a5fa':'#9aa4b8'; };
 document.getElementById('fm').onclick = e => { e.preventDefault(); faceMode='wd'; render(); };
 document.getElementById('fz').onclick = e => { e.preventDefault(); faceMode='zone'; render(); };
-document.getElementById('pm').onclick = e => { e.preventDefault(); ptMode='act'; render(); };
-document.getElementById('pp').onclick = e => { e.preventDefault(); ptMode='plan'; render(); };
+document.getElementById('pm').onclick = e => { e.preventDefault(); showPoints=!showPoints; render(); };
 document.getElementById('on').onclick = e => { e.preventDefault(); onlyNever=!onlyNever; render(); };
-document.getElementById('om').onclick = e => { e.preventDefault(); showMismatch=!showMismatch; render(); };
+
 function mkMap(el, label){
   const m = L.map(el, {zoomControl:true, attributionControl:false});
   let ok=false; const tl=L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{subdomains:'1234',maxZoom:18});
@@ -275,7 +276,7 @@ function render(){
   location.hash = 'i='+idx;
   sel.value = idx;
   setLink('fm', faceMode==='wd'); setLink('fz', faceMode==='zone');
-  setLink('pm', ptMode==='act'); setLink('pp', ptMode==='plan'); setLink('on', onlyNever); setLink('om', showMismatch);
+  setLink('pm', showPoints); setLink('on', onlyNever);
   const s = d.stats;
   document.getElementById('head').innerHTML =
     `<b>${d.line} · ${d.city}</b> · <span style="color:#7dd3fc">${d.kind}</span><br>${d.story}`;
@@ -292,32 +293,20 @@ function render(){
   let lock=false; const sync=(a,b)=>a.on('move zoom',()=>{ if(lock) return; lock=true; b.setView(a.getCenter(),a.getZoom(),{animate:false}); lock=false; });
   sync(mL,mR); sync(mR,mL);
   const bounds=[]; const pop = st => `<b>${st[6]}</b><br>计划星期 ${st[2]>=0?WDL[st[2]]:'—'} · 实际主力 ${st[3]>=0?WDL[st[3]]:'—'} · 到访 ${st[4]} 次`;
-  d.stores.forEach((st,i) => {
-    if (onlyNever && st[4] > 0 && st[5] === 0) return;
+  if (showPoints) d.stores.forEach(st => {
     const nev = st[4] === 0, off = st[5] === 1;
-    const mk = (color, rad, fill, dash, stroke, sw) => L.circleMarker([st[0], st[1]],
-      {radius:rad, color:stroke, weight:sw, dashArray:dash, fillColor:color, fillOpacity:fill}).bindPopup(pop(st));
-    if (ptMode==='plan' || true) {
-      // 左图: 计划口径
-      const colL = nev ? '#f87171' : WDC[Math.max(st[2],0)];
-      // 右图: 实际口径
-      const colR = nev ? '#f87171' : WDC[Math.max(st[3],0)];
-      d.__mk = d.__mk || {};
-    }
-    // 左图
-    L.circleMarker([st[0],st[1]], {radius: nev?3:(off&&showMismatch?6.5:4.5), color: nev?'#f87171':(off&&showMismatch?'#fbbf24':'#0b0d12'),
-      weight: nev?1.5:(off&&showMismatch?3:.5), dashArray: nev?'2,2':null,
-      fillColor: nev?'#f87171':WDC[Math.max(st[2],0)], fillOpacity: nev?.12:.85}).bindPopup(pop(st)).addTo(mL);
-    // 右图(点大小=到访次数; 只看未访时仅未访点)
-    if (!onlyNever || nev || st[5]===1) {
-      L.circleMarker([st[0],st[1]], {radius: nev?3:2.6+Math.min(st[4],6)*1.1, color: nev?'#f87171':(off&&showMismatch?'#fbbf24':'#0b0d12'),
-        weight: nev?1.5:(off&&showMismatch?3:.5), dashArray: nev?'2,2':null,
-        fillColor: nev?'#f87171':WDC[Math.max(st[3],0)], fillOpacity: nev?.12:.95}).bindPopup(pop(st)).addTo(mR);
-    } else if (nev) {
-      L.circleMarker([st[0],st[1]], {radius:3, color:'#f87171', weight:1.5, dashArray:'2,2', fillColor:'#f87171', fillOpacity:.12}).bindPopup(pop(st)).addTo(mR).addTo(mL);
-    }
-    if (!onlyNever || nev) bounds.push([st[0], st[1]]);
+    if (onlyNever && !nev && !off) return;
+    // 左图: 计划服务日色的点(小、无描边), 未访=红虚, 星期错位=金圈
+    L.circleMarker([st[0],st[1]], {radius: nev?3:(off?6:3.4),
+      color: nev?'#f87171':(off?'#fbbf24':'#0b0d12'), weight: nev?1.2:(off?2.5:.4), dashArray: nev?'2,2':null,
+      fillColor: nev?'#f87171':WDC[Math.max(st[2],0)], fillOpacity: nev?.10:.75}).bindPopup(pop(st)).addTo(mL);
+    // 右图: 点大小=到访次数, 颜色=实际星期; 未访=红虚
+    L.circleMarker([st[0],st[1]], {radius: nev?3:2.4+Math.min(st[4],6)*1.0,
+      color: nev?'#f87171':(off?'#b45309':'#3f2a10'), weight: nev?1.2:(off?2.5:.4), dashArray: nev?'2,2':null,
+      fillColor: nev?'#f87171':WDC[Math.max(st[3],0)], fillOpacity: nev?.10:.9}).bindPopup(pop(st)).addTo(mR);
+    if (!onlyNever || nev || off) bounds.push([st[0], st[1]]);
   });
+
   // ---- 左图: 计划地块 (计划门店的 H3 格, 按服务日/块着色) ----
   const H3 = (typeof h3 !== 'undefined') ? h3 : null;
   const visited_cells = new Set((d.h3act || []).map(x => x[0]));
@@ -327,9 +316,9 @@ function render(){
       const ring = H3.cellToBoundary(cid).map(p => [p[0], p[1]]);
       const missed = !visited_cells.has(cid);
       const col = faceMode==='zone' ? ZC[z % ZC.length] : WDC[Math.max(wp,0)];
-      L.polygon(ring, {color: missed ? '#ef4444' : col, weight: missed ? 2 : 0.8, opacity:.95,
+      L.polygon(ring, {color: missed ? '#ef4444' : '#0b0d12', weight: missed ? 2 : 0.4, opacity:.9,
                        dashArray: missed ? '3,3' : null,
-                       fillColor: missed ? '#ef4444' : col, fillOpacity: missed ? .10 : .20}).addTo(mL);
+                       fillColor: missed ? '#ef4444' : col, fillOpacity: missed ? .12 : .45}).addTo(mL);
       ring.forEach(p=>bounds.push(p));
     });
   }
@@ -340,30 +329,23 @@ function render(){
       const cid = hc[0];
       if (visited_cells.has(cid)) return;
       const ring = H3.cellToBoundary(cid).map(p => [p[0], p[1]]);
-      L.polygon(ring, {color:'#ef4444', weight:2, opacity:.95, dashArray:'3,3', fillColor:'#ef4444', fillOpacity:.10}).addTo(mR);
+      L.polygon(ring, {color:'#ef4444', weight:2, opacity:.95, dashArray:'3,3', fillColor:'#ef4444', fillOpacity:.10}).addTo(mR);  // 缺格
     });
   }
+  const RAMP = ['#fde68a','#fcd34d','#fbbf24','#f59e0b','#d97706','#b45309'];
+  let vmax = 1; (d.h3act||[]).forEach(hc=>{ if (hc[3] > vmax) vmax = hc[3]; });
   if (H3 && d.h3act) {
     d.h3act.forEach(hc => {
       const [cid, z, wa, v] = hc;
       const ring = H3.cellToBoundary(cid).map(p => [p[0], p[1]]);
-      const col = faceMode==='zone' ? ZC[z % ZC.length] : WDC[Math.max(wa,0)];
-      L.polygon(ring, {color: col, weight: 0.9, opacity:.95, fillColor: col, fillOpacity: .20}).addTo(mR);
+      const k = Math.min(RAMP.length-1, Math.floor((v / vmax) * RAMP.length));
+      L.polygon(ring, {color:'#78350f', weight:0.6, opacity:.7, fillColor: RAMP[k], fillOpacity:.55}).addTo(mR);
       ring.forEach(p=>bounds.push(p));
     });
   }
-  d.blocks.forEach((b,k) => {
-    const col = faceMode==='zone' ? ZC[k % ZC.length] : (ptMode==='plan' ? WDC[Math.max(b.wp,0)] : WDC[Math.max(b.wa,0)]);
-    const colL = faceMode==='zone' ? ZC[k % ZC.length] : WDC[Math.max(b.wp,0)];
-    const colR = faceMode==='zone' ? ZC[k % ZC.length] : WDC[Math.max(b.wa,0)];
-    const mismBlock = (b.wp>=0 && b.wa>=0 && b.wp!==b.wa);
-    // 块凸包仅作淡描(区块分组), 主视觉用 H3 六边形
+  d.blocks.forEach(b => {   // 块只画虚线轮廓, 不放文字(信息在下方表格)
     L.polygon(b.pts, {color:'#94a3b8', weight:1, opacity:.35, dashArray:'4,4', fill:false}).addTo(mL);
     L.polygon(b.pts, {color:'#94a3b8', weight:1, opacity:.35, dashArray:'4,4', fill:false}).addTo(mR);
-    const lbl = `${k+1}. ${WDL[Math.max(b.wp,0)]||'—'}→${WDL[Math.max(b.wa,0)]||'未开工'}${mismBlock?' ⚠':''} · ${b.done}/${b.n}`;
-    const ico = L.divIcon({className:'blklbl', html:`<span style="${mismBlock?'color:#fbbf24':''}">${lbl}</span>`, iconSize:[0,0]});
-    L.marker(b.c, {icon: ico, interactive:false}).addTo(mL);
-    L.marker(b.c, {icon: ico, interactive:false}).addTo(mR);
     b.pts.forEach(p=>bounds.push(p));
   });
   const c = bounds.length ? L.latLngBounds(bounds) : null;
