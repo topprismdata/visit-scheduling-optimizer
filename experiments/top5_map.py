@@ -84,7 +84,7 @@ def build():
             stores.append({"c": r.customer_code, "n": str(r.customer_name),
                            "ad": str(r.customer_address)[:60],
                            "la": round(float(r.lat), 6), "lo": round(float(r.lng), 6),
-                           "v": n, "w": (wd if wd is not None else 0),
+                           "v": n, "w": (wd if wd is not None else -1),
                            "plan_wd": (pwd.get(r.customer_code) if pwd.get(r.customer_code) is not None else -1),
                            "z": zidx[zone_of[r.customer_code]]})
         panels.append({"code": code, "city": city, "kind": kind, "blurb": blurb,
@@ -140,13 +140,24 @@ DATA.forEach((p, i) => {
     L.polygon(h, {color:ZC[k%ZC.length], weight:1, opacity:.85, fillColor:ZC[k%ZC.length], fillOpacity:.10}).addTo(map);
     h.forEach(c => bounds.push(c));
   }));
+  const layers = {act: L.layerGroup(), plan: L.layerGroup()};
+  const pop = s => `<b>${s.n}</b><br>${s.ad}<br>客户码 ${s.c}<br>${s.v>0?`实际到访 <b>${s.v}</b> 次 · 实际主力星期 <b>${WDL[s.w]}</b>`:'<b>本月未到访</b>'}${s.plan_wd>=0?` · 计划星期 ${WDL[s.plan_wd]}`:''}<br>片区 ${s.z+1}`;
   p.stores.forEach(s => {
-    L.circleMarker([s.la, s.lo], {radius: 2.6 + Math.min(s.v,6)*1.1, color:'#0b0d12', weight:.5,
-      fillColor: WDC[s.w], fillOpacity:.95})
-      .bindPopup(`<b>${s.n}</b><br>${s.ad}<br>客户码 ${s.c}<br>实际到访 ${s.v} 次 · 主力星期 ${WDL[s.w]}${s.plan_wd>=0?` · 计划星期 ${WDL[s.plan_wd]}`:''}<br>片区 ${s.z+1}`)
-      .addTo(map);
+    const never = s.v === 0;
+    const mk = (color, rad, fillOp, dash) => L.circleMarker([s.la, s.lo], {radius: rad, color: never? '#f87171' : '#0b0d12',
+      weight: never? 1.4 : .5, dashArray: dash, fillColor: color, fillOpacity: fillOp}).bindPopup(pop(s));
+    (never ? layers.act : layers.act).addLayer(mk(WDC[Math.max(s.w,0)], 2.6 + Math.min(s.v,6)*1.1, never? .15 : .95, never? '2,2' : null));
+    layers.plan.addLayer(mk(WDC[Math.max(s.plan_wd,0)], never? 3 : 4.5, never? .15 : .8, never? '2,2' : null));
     bounds.push([s.la, s.lo]);
   });
+  layers.act.addTo(map);
+  const btn = document.createElement('button');
+  btn.textContent = '染色口径：实际走访 ▾';
+  const modes = ['act','plan']; let mi = 0;
+  btn.style.cssText = 'margin:6px 12px;padding:3px 8px;font-size:12px;background:#1f2430;color:#cbd5e1;border:1px solid #2f3646;border-radius:6px;cursor:pointer';
+  btn.onclick = () => { map.removeLayer(layers[modes[mi]]); mi = (mi+1)%2; map.addLayer(layers[modes[mi]]);
+    btn.textContent = '染色口径：' + (modes[mi]==='act' ? '实际走访 ▾' : '计划安排 ▾'); };
+  card.querySelector('.lg').appendChild(btn);
   map.fitBounds(bounds, {padding:[12,12]});
 });
 </script></body></html>
