@@ -95,13 +95,13 @@ def part_C(ok, plan, act, cell):
         P3 = set(zip(pl[pl["wk"] >= 3]["customer_code"], pl[pl["wk"] >= 3]["wd"],
                      pl[pl["wk"] >= 3]["ph"]))
         pl_hit.append(len(P3 & V) / len(P3) if P3 else np.nan)
-        cover.append(len(set(v["customer_code"]) & set(t["customer_code"]))
-                     / len(set(v["customer_code"])))
+        cov.append(len(set(v["customer_code"]) & set(t["customer_code"]))
+                   / len(set(v["customer_code"])))
     print(f"C) 店级粒度诊断 | 线 {len(rr)}")
     print(f"   习惯槽位重复率(店,星期,相位) {np.nanmean(rr):.3f}")
     print(f"   只对齐星期(店,星期)          {np.nanmean(rr_wd):.3f}")
     print(f"   原计划 W3-W4 槽位命中率      {np.nanmean(pl_hit):.3f}")
-    print(f"   客户群稳定性(W3W4∩W1W2)     {np.nanmean(cover):.3f}")
+    print(f"   客户群稳定性(W3W4∩W1W2)     {np.nanmean(cov):.3f}")
     print("   → 店级槽位重复率低 = 月度轮访(多数店月访一次), 非业代乱; 正确粒度=片区级概率")
 
 
@@ -148,15 +148,56 @@ def part_D(ok, plan, act, cell):
     print(f"   → 后验投影 vs 原计划: {np.mean(post) - np.mean(plana):+.3f}")
 
 
+def part_E(ok, plan, act, cell):
+    """欠账恢复律: W1 未执行店后续如何处置 (定义适配的干预性质)."""
+    same_wd = other_wd = never = recovered = tot = 0
+    delays, base_wd = [], []
+    for lid in ok:
+        pl = plan[plan["sales_line_code"] == lid]
+        if len(pl) < 100:
+            continue
+        a = act[act["salesperson_code"] == lid]
+        w1 = pl[pl["wk"] == 1][["customer_code", "wd"]].drop_duplicates("customer_code")
+        done = set(a[a["wk"] == 1]["customer_code"])
+        miss = w1[~w1["customer_code"].isin(done)]
+        if len(miss) == 0:
+            continue
+        later = {r.customer_code: (int(r.wd), int(r.wk)) for r in a[a["wk"] >= 2].itertuples()}
+        wd_dist = a[a["wk"] >= 2]["wd"].value_counts(normalize=True).to_dict()
+        for r in miss.itertuples():
+            tot += 1
+            base_wd.append(wd_dist.get(r.wd, 0.0))
+            hit = later.get(r.customer_code)
+            if hit is None:
+                never += 1
+                continue
+            recovered += 1
+            delays.append(hit[1] - 1)
+            if hit[0] == r.wd:
+                same_wd += 1
+            else:
+                other_wd += 1
+    d = np.array(delays)
+    print(f"E) 欠账恢复律 | W1 计划未执行店 {tot}")
+    print(f"   月内恢复 {recovered} ({recovered/ max(tot,1)*100:.0f}%) | 月内未恢复 {never} ({never/max(tot,1)*100:.0f}%)")
+    print(f"   恢复中同星期 {same_wd/max(recovered,1)*100:.0f}% | 换星期 {other_wd/max(recovered,1)*100:.0f}%"
+          f" (随机星期基线 {np.mean(base_wd)*100:.0f}%)")
+    if len(d):
+        print(f"   延迟: 次周 {np.mean(d==1)*100:.0f}% | 2周后 {np.mean(d==2)*100:.0f}% | 3周后 {np.mean(d==3)*100:.0f}%")
+    print("   → 业代不追欠账 (71% 丢); 欠账插入是管理干预而非自然行为 → 因果效果需 A/B, 观测数据不可验证")
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--part", default="CD", choices=["A", "B", "C", "D", "all", "CD"])
+    ap.add_argument("--part", default="CD", choices=["A", "B", "C", "D", "E", "all", "CD"])
     a = ap.parse_args()
     ok, plan, act, cell = load()
     if a.part in ("C", "CD", "all"):
         part_C(ok, plan, act, cell)
     if a.part in ("D", "CD", "all"):
         part_D(ok, plan, act, cell)
+    if a.part in ("E", "all"):
+        part_E(ok, plan, act, cell)
 
 
 if __name__ == "__main__":
