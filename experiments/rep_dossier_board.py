@@ -42,6 +42,12 @@ HTML = """<!DOCTYPE html>
  .wkrow{display:flex;gap:3px;font-size:10px;color:#64748b;margin-top:2px}
  .wkrow span{width:12px;text-align:center}
  .foot{color:#64748b;font-size:11px;margin-top:6px}
+ details.blocks{margin-top:6px;font-size:11.5px;color:#aab3c5}
+ details.blocks summary{cursor:pointer;color:#93c5fd}
+ table.bt{width:100%;border-collapse:collapse;margin-top:5px}
+ table.bt th,table.bt td{padding:2px 4px;border-bottom:1px solid #232733;text-align:right;white-space:nowrap}
+ table.bt th:nth-child(1),table.bt td:nth-child(1),table.bt th:nth-child(2),table.bt td:nth-child(2){text-align:left}
+ .bad{color:#fca5a5} .ok{color:#86efac}
  .n{padding:6px 20px;color:#8b93a7;font-size:12px}
 </style></head><body>
 <header>
@@ -66,7 +72,7 @@ HTML = """<!DOCTYPE html>
 <script>
 const D = __DATA__, KC = __KC__;
 const qs = new URLSearchParams(location.search);
-let kindFilter = qs.get('kind') || '', sortK = qs.get('sort') || 'block_exec_median', limit = +(qs.get('limit')||400);
+let kindFilter = qs.get('kind') || '', sortK = qs.get('sort') || 'block_exec_median', limit = +(qs.get('limit')||1000);
 const kinds = {}; D.forEach(d => kinds[d.kind] = (kinds[d.kind]||0)+1);
 document.getElementById('kinds').innerHTML = Object.entries(kinds).sort((a,b)=>b[1]-a[1]).map(([k,v])=>
   `<span class="kindbadge${kindFilter===k?' on':''}" data-k="${k}"><i style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${KC[k]||'#999'};margin-right:5px"></i>${k} ${v}</span>`).join('');
@@ -97,6 +103,12 @@ function render(q=''){
       <div class="wk">${d.wd_visits.map(v=>`<div style="height:${Math.max(2,v/mx*26)}px" title="${v}"></div>`).join('')}</div>
       <div class="wkrow">${['一','二','三','四','五','六','日'].map(x=>`<span>${x}</span>`).join('')}</div>
       <div class="foot">区块 ${d.blocks_worked}/${d.blocks} 开工 · 计划 ${d.plan_stores} 店 → 实际 ${d.act_stores} 店 / ${d.act_visits} 次 · 工作日 ${d.workdays} 天 · 日均 ${d.daily_avg} 店 · 量比 ${d.qty}</div>
+      ${(d.block_detail&&d.block_detail.length)?`<details class="blocks"><summary>每块明细（${d.block_detail.length} 块，按规模降序）</summary>
+        <table class="bt"><thead><tr><th>块</th><th>中心(lat,lng)</th><th>计划店</th><th>跑到</th><th>执行率</th><th>计划星期</th><th>实际主力</th></tr></thead><tbody>
+        ${d.block_detail.slice(0,15).map(b=>`<tr><td>${b['块']}</td><td style="color:#64748b">${b['中心']}</td><td>${b['计划店']}</td><td>${b['跑到的计划店']}</td>
+          <td class="${b['执行率']>=0.85?'ok':'bad'}">${(b['执行率']*100).toFixed(0)}%</td><td>${b['计划星期']}</td>
+          <td>${b['实际主力星期']}${(b['计划星期']&&b['实际主力星期']&&b['计划星期']!==b['实际主力星期']&&b['实际主力星期']!=='未开工')?' ⚠':''}</td></tr>`).join('')}
+        </tbody></table></details>`:''}
     </div>`;}).join('');
 }
 document.getElementById('more').textContent = '数据: output/rep_behavior/dossier.json（experiments/rep_dossier.py 生成；可用 URL 参数 ?kind= / ?sort= / ?q= 过滤）';

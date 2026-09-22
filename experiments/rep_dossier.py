@@ -165,11 +165,14 @@ def dossier_for(lid, pl, a, names):
     a_in = a[a["customer_code"].isin(ps)].assign(blk=lambda d: d["customer_code"].map(blk_of))
     act_by_blk = a_in.groupby("blk")["customer_code"].apply(set).to_dict()
     act_wd_by_blk = {b: g["wd"].value_counts() for b, g in a_in.groupby("blk")}
-    blocks = sorted(plan_blk_stores)
+    blocks = sorted(plan_blk_stores, key=lambda x: -plan_blk_stores[x])
+    want_by_blk = pl_b.groupby("blk")["customer_code"].apply(set).to_dict()
+    cent_by_blk = sto2.groupby("blk")[["lat", "lng"]].mean().to_dict("index")
     exec_rates, wd_hits, worked = [], [], 0
     cold = []
-    for b in blocks:
-        want = {c for c in pl_b[pl_b["blk"] == b]["customer_code"]}
+    block_detail = []
+    for bi, b in enumerate(blocks):
+        want = want_by_blk.get(b, set())
         got = act_by_blk.get(b, set()) & want
         rate = len(got) / max(len(want), 1)
         exec_rates.append(rate)
@@ -181,8 +184,19 @@ def dossier_for(lid, pl, a, names):
             wd_hits.append(1.0 if ok else 0.0)
             if rate < 0.6:
                 cold.append((b, int(len(want)), round(rate * 100)))
+        pw = plan_blk_wd.get(b)
+        pw_top = int(pw.index[0]) if pw is not None and len(pw) else None
+        aw = act_wd_by_blk.get(b)
+        aw_top = int(aw.index[0]) if aw is not None and len(aw) else None
+        c = cent_by_blk.get(b, {})
+        block_detail.append({"块": f"块{bi+1}", "中心": f"{c.get('lat',0):.3f},{c.get('lng',0):.3f}",
+                             "计划店": len(want),
+                             "跑到的计划店": len(got), "执行率": round(rate, 3),
+                             "计划星期": WD[pw_top] if pw_top is not None else "",
+                             "实际主力星期": WD[aw_top] if aw_top is not None else "未开工"})
     r["blocks"] = len(blocks)
-    r["block_sizes"] = [int(plan_blk_stores[b]) for b in sorted(blocks, key=lambda x: -plan_blk_stores[x])][:5]
+    r["block_sizes"] = [int(plan_blk_stores[b]) for b in blocks][:5]
+    r["block_detail"] = block_detail
     r["blocks_worked"] = worked
     r["block_worked_rate"] = round(worked / max(len(blocks), 1), 3)
     r["block_exec_median"] = round(float(np.median(exec_rates)), 3) if exec_rates else 0.0
@@ -263,6 +277,12 @@ def main():
         md.append(f"\n## {city}（{len(g)} 条线）\n")
         for x in g.itertuples():
             md.append(f"### {x.line} · {x.kind}\n\n{x.story}\n")
+            det = next((r.get("block_detail") for r in recs if r["line"] == x.line), None)
+            if det:
+                md.append("| 块 | 中心 | 计划店 | 跑到 | 执行率 | 计划星期 | 实际主力星期 |\n|---|---|---|---|---|---|---|")
+                for d in det[:12]:
+                    md.append(f"| {d['块']} | {d['中心']} | {d['计划店']} | {d['跑到的计划店']} | {d['执行率']*100:.0f}% | {d['计划星期']} | {d['实际主力星期']} |")
+                md.append("")
     md_text = "\n".join(md)
     (ROOT / "docs/reports/2026-09-22-rep-dossier.md").write_text(md_text, encoding="utf-8")
     print(f"档案 {len(recs)} 人 | Markdown {len(md_text)/1024:.0f} KB")
