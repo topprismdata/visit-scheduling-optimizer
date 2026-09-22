@@ -102,7 +102,10 @@ def build():
             n = int(vc.get(r.customer_code, 0))
             wd = vwd.get(r.customer_code)
             pw = pwd.get(r.customer_code)
-            rec = {"c": r.customer_code, "n": str(r.customer_name), "ad": str(r.customer_address)[:60],
+            pww = pwd.get(r.customer_code)
+            mism = (wd is not None and pww is not None and pww == pww
+                    and int(pww) not in vset.get(r.customer_code, set()))
+            rec = {"c": r.customer_code, "n": str(r.customer_name), "ad": str(r.customer_address)[:60], "mismatch": bool(mism),
                    "la": round(float(r.lat), 6), "lo": round(float(r.lng), 6), "v": n,
                    "w": (wd if wd is not None else -1),
                    "pw": (int(pw) if pw is not None and pw == pw else -1),
@@ -130,125 +133,117 @@ def build():
 
 
 HTML = """<!DOCTYPE html>
-<html lang="zh-CN"><head><meta charset="utf-8"><title>TOP5 地盘图 · 2026-08</title>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>TOP5 地盘图 · 计划 vs 实际 · 2026-08</title>
 <style>__LEAFLET_CSS__</style>
 <style>
  body{margin:0;background:#0f1115;color:#e6e6e6;font:13px/1.55 -apple-system,"PingFang SC",sans-serif}
  header{padding:14px 18px;border-bottom:1px solid #232733}
- h1{font-size:17px;margin:0 0 4px} .sub{color:#8b93a7;font-size:12px;line-height:1.7}
- .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(560px,1fr));gap:12px;padding:12px}
- .card{background:#161a22;border:1px solid #232733;border-radius:10px;overflow:hidden}
- .hd{padding:10px 12px 0;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
- .hd b{font-size:14px} .kind{color:#7dd3fc;font-size:12px}
- .stat{color:#9aa4b8;font-size:12px;padding:2px 12px 8px}
- .stat b{color:#e6e6e6}
- .ctrl{padding:0 12px 8px;display:flex;flex-wrap:wrap;gap:6px}
+ h1{font-size:17px;margin:0 0 4px} .sub{color:#8b93a7;font-size:12px;line-height:1.75}
+ .row{border-top:1px solid #232733;padding:10px 12px 6px}
+ .rowhd{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+ .rowhd b{font-size:14px} .kind{color:#7dd3fc;font-size:12px}
+ .stat{color:#9aa4b8;font-size:12px} .stat b{color:#e6e6e6}
+ .pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+ .colhd{font-size:12px;padding:2px 0 4px;display:flex;justify-content:space-between}
+ .colL .colhd{color:#93c5fd} .colR .colhd{color:#fca5a5}
+ .map{height:430px;background:#0b0d12;border-radius:8px;overflow:hidden}
+ .ctrl{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
  .ctrl button{padding:3px 9px;font-size:12px;background:#1f2430;color:#cbd5e1;border:1px solid #2f3646;border-radius:6px;cursor:pointer}
  .ctrl button.on{background:#2b3a55;color:#fff;border-color:#3f5680}
- .map{height:440px;background:#0b0d12}
- .lg{padding:8px 12px;display:flex;flex-wrap:wrap;gap:9px;font-size:12px;color:#aab3c5;border-top:1px solid #232733;align-items:center}
+ .lg{display:flex;flex-wrap:wrap;gap:9px;font-size:12px;color:#aab3c5;align-items:center;padding-top:6px}
  .sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
- .zn{display:inline-block;width:10px;height:10px;margin-right:4px;vertical-align:-1px;opacity:.6}
- details{padding:0 12px 10px;font-size:12px;color:#aab3c5}
- summary{cursor:pointer;color:#fca5a5}
- .never{max-height:190px;overflow:auto;border:1px solid #232733;border-radius:6px;margin-top:6px;padding:6px 8px;background:#12151c}
+ details{font-size:12px;color:#aab3c5;padding:4px 0 8px} summary{cursor:pointer;color:#fca5a5}
+ .never{max-height:170px;overflow:auto;border:1px solid #232733;border-radius:6px;margin-top:6px;padding:6px 8px;background:#12151c}
  .never div{padding:2px 0;border-bottom:1px dashed #232733} .never div:last-child{border:0}
  .noTile{position:absolute;z-index:400;margin:6px 8px;padding:3px 7px;font-size:11px;background:#7c2d12cc;color:#fff;border-radius:5px}
- .note{padding:10px 18px 24px;color:#8b93a7;font-size:12px}
+ .note{padding:12px 18px 26px;color:#8b93a7;font-size:12px}
 </style></head><body>
 <header>
- <h1>TOP5（采纳率最高）地盘图 · 2026-08</h1>
+ <h1>TOP5（采纳率最高）地盘图 · 同一人左右对比</h1>
  <div class="sub">
-  坐标与底图同为 GCJ02（高德瓦片，不转换）；Leaflet 已内嵌，断网也能看几何。<br>
-  <b>六边形</b> = H3 res7 格，按<b>该格门店的实际主力星期</b>着色（可切"计划"或"片区"）→ 一眼看出"一天只耕一片"。<br>
-  <b>圆点</b> = 门店，大小 = 实际到访次数；<b>红虚线空心圈</b> = 本月未到访。点颜色可切"实际主力星期 / 计划星期"。
-  人数：采纳率 612 线中 188 条并列 100%，本页 5 人按 采纳率→含日期→编排量→线码 取。
+  <b>左＝计划安排</b>（面按计划星期、点按计划星期）；<b>右＝实际走访</b>（面按实际主力星期、点按实际主力星期，点大小＝到访次数）。<br>
+  两侧视野联动（拖一边另一边跟着走），同一范围对位比较；<b>红虚线空心圈</b>＝本月未到访；<b>金色描边点</b>＝计划星期未被执行到的店（星期错位）。<br>
+  坐标与底图同为 GCJ02（高德瓦片，不转换）；Leaflet 已内嵌，断网仍可看几何。人数：采纳率 612 线中 188 条并列 100%，5 人按 采纳率→含日期→编排量→线码 取。
  </div>
 </header>
-<div class="grid" id="g"></div>
-<div class="note">生成：<code>experiments/top5_map.py</code>（离线自包含，单文件可发）。</div>
+<div id="g"></div>
+<div class="note">生成：<code>experiments/top5_map.py</code>（离线自包含单文件）。</div>
 <script>__LEAFLET_JS__</script>
 <script>
 const DATA = __DATA__, WDL = __WDL__, WDC = __WDC__, ZC = __ZC__;
 const g = document.getElementById('g');
 DATA.forEach((p, i) => {
-  const card = document.createElement('div'); card.className = 'card';
-  card.innerHTML = `<div class="hd"><b>${p.code} · ${p.city}</b><span class="kind">${p.kind}</span></div>
-   <div class="stat">门店 <b>${p.n_store}</b> · 片区 <b>${p.n_zone}</b> · 实际到访 <b>${p.n_visit}</b> · 覆盖 <b>${p.cover}%</b>
-     · 日均 <b>${p.daily}</b> 店 · <span style="color:#fca5a5">未访 <b>${p.n_never}</b></span> · 星期错位 <b>${p.mismatch}</b></div>
-   <div class="ctrl"></div>
-   <div class="map" id="m${i}"></div>
-   <div class="lg"></div>
-   ${p.n_never ? `<details><summary>列出这 ${p.n_never} 家未到访门店</summary><div class="never">${p.never.map(x=>`<div>${x.n} · ${x.ad} <span style="color:#64748b">(${x.c})</span></div>`).join('')}</div></details>` : ''}`;
-  g.appendChild(card);
-  const map = L.map('m'+i, {zoomControl:true, attributionControl:false});
-  (window.__maps = window.__maps || []).push(map);   // 调试/自检钩子
-  let tileOk = false;
-  const tl = L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',
-      {subdomains:'1234', maxZoom:18});
-  tl.on('tileload', ()=>{ tileOk = true; });
-  tl.addTo(map);
-  setTimeout(()=>{ if(!tileOk){ const d=document.createElement('div'); d.className='noTile';
-      d.textContent='底图瓦片未加载（离线）—— 几何与门店照常显示'; card.querySelector('.map').appendChild(d); } }, 6000);
+  const row = document.createElement('div'); row.className = 'row';
+  row.innerHTML = `<div class="rowhd">
+      <b>${p.code} · ${p.city}</b><span class="kind">${p.kind}</span>
+      <span class="stat">门店 <b>${p.n_store}</b> · 片区 <b>${p.n_zone}</b> · 到访 <b>${p.n_visit}</b> · 覆盖 <b>${p.cover}%</b>
+        · 日均 <b>${p.daily}</b> 店 · <span style="color:#fca5a5">未访 <b>${p.n_never}</b></span>
+        · <span style="color:#fde68a">星期错位 <b>${p.mismatch}</b></span></span></div>
+    <div class="ctrl"></div>
+    <div class="pair">
+      <div class="colL"><div class="colhd"><span>计划安排</span><span>${p.n_store} 店</span></div><div class="map" id="L${i}"></div></div>
+      <div class="colR"><div class="colhd"><span>实际走访</span><span>${p.n_visit} 次到访</span></div><div class="map" id="R${i}"></div></div>
+    </div>
+    <div class="lg"></div>
+    ${p.n_never ? `<details><summary>列出这 ${p.n_never} 家未到访门店</summary><div class="never">${p.never.map(x=>`<div>${x.n} · ${x.ad} <span style="color:#64748b">(${x.c})</span></div>`).join('')}</div></details>` : ''}`;
+  g.appendChild(row);
+
+  const opt = {zoomControl:true, attributionControl:false};
+  const mL = L.map('L'+i, opt), mR = L.map('R'+i, opt);
+  [mL, mR].forEach(m => {
+    let ok=false; const tl = L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {subdomains:'1234', maxZoom:18});
+    tl.on('tileload', ()=>{ok=true;}); tl.addTo(m);
+    setTimeout(()=>{ if(!ok){ const d=document.createElement('div'); d.className='noTile'; d.textContent='底图未加载（离线）—— 几何照常'; m.getContainer().appendChild(d);} }, 6000);
+  });
+  (window.__maps = window.__maps || []).push(...[mL, mR]);
+  let lock = false;
+  const sync = (a, b) => a.on('move zoom', () => { if (lock) return; lock = true; b.setView(a.getCenter(), a.getZoom(), {animate:false}); lock = false; });
+  sync(mL, mR); sync(mR, mL);
+
   const bounds = [];
-  // 面: 三种口径
-  const face = {act: L.layerGroup(), plan: L.layerGroup(), zone: L.layerGroup()};
+  const faceL = {wd: L.layerGroup(), zone: L.layerGroup()}, faceR = {wd: L.layerGroup(), zone: L.layerGroup()};
   p.hexes.forEach(h => {
-    const mk = (col) => L.polygon(h.ring, {color:col, weight:1, opacity:.8, fillColor:col, fillOpacity:.16});
-    face.act.addLayer(mk(h.wa>=0 ? WDC[h.wa] : '#475569'));
-    face.plan.addLayer(mk(h.wp>=0 ? WDC[h.wp] : '#475569'));
-    face.zone.addLayer(mk(ZC[h.z % ZC.length]));
+    const mk = (col, target) => target.addLayer(L.polygon(h.ring, {color:col, weight:1, opacity:.8, fillColor:col, fillOpacity:.16}));
+    mk(h.wp>=0 ? WDC[h.wp] : '#475569', faceL.wd); mk(ZC[h.z % ZC.length], faceL.zone);
+    mk(h.wa>=0 ? WDC[h.wa] : '#475569', faceR.wd); mk(ZC[h.z % ZC.length], faceR.zone);
     h.ring.forEach(c=>bounds.push(c));
   });
-  // 点: 实际 / 计划 / 只未访
-  const pts = {act: L.layerGroup(), plan: L.layerGroup()};
+  const ptsL = L.layerGroup(), ptsR = L.layerGroup(), neverL = L.layerGroup(), neverR = L.layerGroup(), offR = L.layerGroup();
   const pop = s => `<b>${s.n}</b><br>${s.ad}<br>客户码 ${s.c}<br>` +
     (s.v>0 ? `实际到访 <b>${s.v}</b> 次 · 实际主力星期 <b>${WDL[s.w]}</b>` : '<b>本月未到访</b>') +
     (s.pw>=0 ? ` · 计划星期 ${WDL[s.pw]}` : '') + `<br>片区 ${s.z+1}`;
   p.stores.forEach(s => {
     const nev = s.v === 0;
-    const base = {color: nev ? '#f87171' : '#0b0d12', weight: nev ? 1.5 : .5, dashArray: nev ? '2,2' : null};
-    pts.act.addLayer(L.circleMarker([s.la,s.lo], {...base, radius: nev ? 3 : 2.6 + Math.min(s.v,6)*1.1,
-      fillColor: nev ? '#f87171' : WDC[Math.max(s.w,0)], fillOpacity: nev ? .12 : .95}).bindPopup(pop(s)));
-    pts.plan.addLayer(L.circleMarker([s.la,s.lo], {...base, radius: nev ? 3 : 4.5,
-      fillColor: nev ? '#f87171' : WDC[Math.max(s.pw,0)], fillOpacity: nev ? .12 : .85}).bindPopup(pop(s)));
+    const off = !nev && s.pw>=0 && s.mismatch;
+    const style = (col, rad, fillOp) => ({radius: rad, color: nev ? '#f87171' : (off ? '#fbbf24' : '#0b0d12'),
+      weight: nev ? 1.5 : (off ? 2 : .5), dashArray: nev ? '2,2' : null, fillColor: col, fillOpacity: nev ? .12 : fillOp});
+    const mkL = L.circleMarker([s.la,s.lo], style(WDC[Math.max(s.pw,0)], nev?3:4.5, nev?.12:.85)).bindPopup(pop(s));
+    (nev ? neverL : ptsL).addLayer(mkL);
+    const mkR = L.circleMarker([s.la,s.lo], style(WDC[Math.max(s.w,0)], nev?3:2.6+Math.min(s.v,6)*1.1, nev?.12:.95)).bindPopup(pop(s));
+    (nev ? neverR : (off ? offR : ptsR)).addLayer(mkR);
     bounds.push([s.la, s.lo]);
   });
-  let faceMode='act', ptMode='act', onlyNever=false;
-  const render = () => {
-    [face.act, face.plan, face.zone, pts.act, pts.plan].forEach(l => map.removeLayer(l));
-    face[faceMode].addTo(map);
-    const lay = pts[ptMode];
-    if (!onlyNever) lay.addTo(map);
-    else { const t = L.layerGroup(); t.addTo(map); lay.eachLayer(m => { if ((m.getPopup().getContent()||'').includes('本月未到访')) t.addLayer(m); }); layRef = t; }
-    map.eachLayer(m => { if (m instanceof L.CircleMarker) m.setStyle({}); });
+  let faceMode='wd', onlyNever=false, showOff=true;
+  const apply = () => {
+    [faceL.wd, faceL.zone, faceR.wd, faceR.zone, ptsL, ptsR, neverL, neverR, offR].forEach(l => { mL.removeLayer(l); mR.removeLayer(l); });
+    faceL[faceMode].addTo(mL); faceR[faceMode].addTo(mR);
+    if (!onlyNever) { ptsL.addTo(mL); ptsR.addTo(mR); neverL.addTo(mL); neverR.addTo(mR); if (showOff) offR.addTo(mR); }
+    else { neverL.addTo(mL); neverR.addTo(mR); }
+    btns.forEach(b => b.className = (b.dataset.k === faceMode) ? 'on' : '');
+    nb.className = onlyNever ? 'on' : ''; ob.className = showOff ? 'on' : '';
   };
-  let layRef = null;
-  const ctrl = card.querySelector('.ctrl');
-  const mkBtn = (txt, fn, on) => { const b=document.createElement('button'); b.textContent=txt; if(on) b.className='on'; b.onclick=fn; ctrl.appendChild(b); return b; };
-  const fBtns = [mkBtn('面：实际星期', ()=>{faceMode='act'; refresh();}, true),
-                 mkBtn('面：计划星期', ()=>{faceMode='plan'; refresh();}),
-                 mkBtn('面：片区',     ()=>{faceMode='zone'; refresh();})];
-  const pBtns = [mkBtn('点：实际星期', ()=>{ptMode='act'; refresh();}, true),
-                 mkBtn('点：计划星期', ()=>{ptMode='plan'; refresh();})];
-  const nBtn  = mkBtn('只看未访店', ()=>{onlyNever=!onlyNever; refresh();});
-  function refresh(){
-    [face.act, face.plan, face.zone].forEach(l=>map.removeLayer(l));
-    [pts.act, pts.plan].forEach(l=>map.removeLayer(l));
-    if (layRef) { map.removeLayer(layRef); layRef=null; }
-    face[faceMode].addTo(map);
-    if (!onlyNever) pts[ptMode].addTo(map);
-    else { const t=L.layerGroup(); pts[ptMode].eachLayer(m=>{ const c=m.getPopup() && m.getPopup().getContent(); if (String(c||'').includes('本月未到访')) t.addLayer(m); }); t.addTo(map); layRef=t; }
-    fBtns.forEach((b,k)=>b.className = (['act','plan','zone'][k]===faceMode)?'on':'');
-    pBtns.forEach((b,k)=>b.className = (['act','plan'][k]===ptMode)?'on':'');
-    nBtn.className = onlyNever ? 'on' : '';
-  }
-  map.fitBounds(bounds, {padding:[12,12]});
-  refresh();
-  card.querySelector('.lg').innerHTML =
+  const ctrl = row.querySelector('.ctrl');
+  const mkBtn = (txt, k, fn) => { const b=document.createElement('button'); b.textContent=txt; b.dataset.k=k; b.onclick=fn; ctrl.appendChild(b); return b; };
+  const btns = [mkBtn('面：星期', 'wd', ()=>{faceMode='wd'; apply();}), mkBtn('面：片区', 'zone', ()=>{faceMode='zone'; apply();})];
+  const nb = mkBtn('只看未访店', 'never', ()=>{onlyNever=!onlyNever; apply();});
+  const ob = mkBtn('高亮星期错位', 'off', ()=>{showOff=!showOff; apply();});
+  mL.fitBounds(bounds, {padding:[12,12]}); mR.fitBounds(bounds, {padding:[12,12]});
+  mL.setView(mR.getCenter(), mR.getZoom(), {animate:false}); mL.invalidateSize(); mR.invalidateSize();
+  apply();
+  row.querySelector('.lg').innerHTML =
     WDL.map((n,k)=>`<span><i class="sw" style="background:${WDC[k]}"></i>${n}</span>`).join('') +
-    `<span style="color:#64748b">|</span>` + p.hexes.slice(0,0).map(()=>'').join('') +
-    `<span><i class="sw" style="background:#f87171;border:1px dashed #f87171;background:transparent"></i>未到访</span>`;
+    `<span style="color:#64748b">|</span><span><i class="sw" style="background:transparent;border:1px dashed #f87171"></i>未到访</span>` +
+    `<span><i class="sw" style="background:#fbbf24;border:2px solid #fbbf24"></i>星期错位</span>`;
 });
 </script></body></html>
 """
