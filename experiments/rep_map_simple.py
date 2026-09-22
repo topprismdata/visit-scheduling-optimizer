@@ -17,12 +17,30 @@ from collections import Counter
 from pathlib import Path
 
 import h3
+import math
+import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 UFS = Path("/Users/ghb/UFS-demo")
 PLAN_XLSX = Path(os.environ.get("PLAN_XLSX", str(UFS / "更新后的8月规划.xlsx")))
 OUT = ROOT / "docs/reports/2026-09-22-rep-map-simple.html"
+
+
+def compactness(cells, centers):
+    """紧凑度 = 等效半径 / 平均半径  (1.5=完美圆; 越大越集中).
+    cells: H3 格集合; centers: {cell: (lat,lng)}"""
+    if not cells:
+        return 0.0, 0.0
+    pts = np.array([centers[c] for c in cells if c in centers])
+    if len(pts) < 2:
+        return 0.0, 0.0
+    lat0, lng0 = pts[:, 0].mean(), pts[:, 1].mean()
+    d = np.sqrt(((pts[:, 0] - lat0) * 111.0) ** 2 + ((pts[:, 1] - lng0) * 111.0 * math.cos(math.radians(lat0))) ** 2)
+    area = sum(h3.cell_area(c, unit="km^2") for c in cells)
+    r_eq = math.sqrt(area / math.pi)
+    mean_r = float(d.mean())
+    return (r_eq / mean_r if mean_r > 0 else 0.0), mean_r
 
 
 def main():
@@ -80,13 +98,27 @@ def main():
         shape = len(inter) / max(len(Pset | Aset), 1)   # 对称重合(Jaccard)
         wdm = (sum(1 for c, w in plan_cells if c in inter and any(a[0] == c and a[1] == w for a in act_cells))
                / max(len(inter), 1)) if inter else 0.0
+        # 紧凑度: 计划地块 vs 实际地块 (同一把尺子)
+        pc = {c: h3.cell_to_latlng(c) for c, _ in plan_cells}
+        ac = {c: h3.cell_to_latlng(c) for c, _ in act_cells}
+        cp_plan, r_plan = compactness(set(c for c, _ in plan_cells), pc)
+        cp_act, r_act = compactness(set(c for c, _ in act_cells), ac)
         kind3 = "①基本一样" if (shape >= 0.8 and wdm >= 0.7) else ("②区块基本一样·星期几不一样" if shape >= 0.8 else "③都不一样")
         vd, hb, mm = attrib.get(str(lid), ("", 0, 0))
         recs.append({"line": lid, "city": dossier.get(lid, {}).get("city", ""), "bd": bd,
                      "verdict": vd, "habit": hb, "mism": mm,
                      "shape": round(shape, 3), "wdm": round(wdm, 3), "kind3": kind3,
+                     "cp": round(cp_plan, 2), "ca": round(cp_act, 2),
+                     "rp": round(r_plan, 2), "ra": round(r_act, 2),
                      "plan": plan_cells, "act": act_cells,
                      "np": len(plan_cells), "na": len(act_cells)})
+    cp = [r["cp"] for r in recs]; ca = [r["ca"] for r in recs]
+    better = sum(1 for r in recs if r["ca"] > r["cp"] + 0.01)
+    worse = sum(1 for r in recs if r["cp"] > r["ca"] + 0.01)
+    same = len(recs) - better - worse
+    import statistics as _st
+    print(f"紧凑度(等效半径/平均半径, 1.5=完美圆): 计划中位 {_st.median(cp):.2f} | 实际中位 {_st.median(ca):.2f}")
+    print(f"  实际更紧凑 {better} 条 ({better/len(recs)*100:.0f}%) | 计划更紧凑 {worse} 条 ({worse/len(recs)*100:.0f}%) | 相当 {same} 条")
     print(f"线 {len(recs)} | 计划格合计 {sum(r['np'] for r in recs)} | 实际格合计 {sum(r['na'] for r in recs)}")
 
     css = Path('/tmp/leaflet.css').read_text() if Path('/tmp/leaflet.css').exists() else ''
@@ -168,7 +200,9 @@ function draw(){
   document.getElementById('stat').innerHTML =
     `<b>${d.line}</b> · ${d.city}　<span style="color:#7dd3fc">${d.kind3}</span>　` +
     (d.verdict ? `<span style="color:${d.verdict.startsWith('计划不够好')?'#fbbf24':(d.verdict.startsWith('执行有问题')?'#fca5a5':'#86efac')}">归因：${d.verdict}</span>` +
-      `　他的规律性 <b>${(d.habit*100).toFixed(0)}%</b>　计划周几不同 <b>${(d.mism*100).toFixed(0)}%</b>` : '');
+      `　他的规律性 <b>${(d.habit*100).toFixed(0)}%</b>　计划周几不同 <b>${(d.mism*100).toFixed(0)}%</b>` : '') +
+    `　｜紧凑度：计划 <b>${d.cp}</b>（均半径 ${d.rp} km）　实际 <b>${d.ca}</b>（均半径 ${d.ra} km）　` +
+    `<span style="color:${Math.abs(d.ca-d.cp)<0.01?'#94a3b8':(d.ca>d.cp?'#86efac':'#fca5a5')}">${Math.abs(d.ca-d.cp)<0.01?'两者相当':(d.ca>d.cp?'实际更紧凑':'计划更紧凑')}</span>`;
   if(mL){mL.remove(); mR.remove();}
   mL=L.map('mL',{zoomControl:true,attributionControl:false,zoomSnap:.5});
   mR=L.map('mR',{zoomControl:false,attributionControl:false,zoomSnap:.5});
