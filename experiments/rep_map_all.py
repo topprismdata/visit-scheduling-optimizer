@@ -86,6 +86,22 @@ def build():
             if pw0 is not None and pw0 == pw0:
                 sd = svc_day_of.get(r.customer_code)
             cell_plan.setdefault(c, Counter())[int(sd) - 1 if sd else (int(pw0) if pw0 == pw0 else 0)] += 1
+        # 实际口径地块: 实际到访门店的 H3 格 + 实际连通块
+        act_sto = sto[sto["customer_code"].isin(set(a["customer_code"]))]
+        act_cells_map = {r.customer_code: h3.latlng_to_cell(float(r.lat), float(r.lng), 7)
+                         for r in act_sto.itertuples()}
+        if act_cells_map:
+            comp_a = components(list(act_cells_map.values()))
+            ablk_idx = {b: i for i, b in enumerate(sorted(set(comp_a.values())))}
+            cell_awd = {}
+            for r in act_sto.itertuples():
+                w = awd.get(r.customer_code)
+                if w is not None:
+                    cell_awd.setdefault(act_cells_map[r.customer_code], Counter())[w] += int(cv.get(r.customer_code, 0))
+            h3_act = [[c, ablk_idx[comp_a[c]], int(cell_awd.get(c, Counter()).most_common(1)[0][0]) if cell_awd.get(c) else -1,
+                       sum(cell_awd.get(c, {}).values())] for c in sorted(set(act_cells_map.values()))]
+        else:
+            h3_act = []
         zidx = {b: i for i, b in enumerate(sorted(set(svc_blk.values()) | set(blk_of.values()), key=str))}
         h3cells = []
         for c in sorted(set(cells.values())):
@@ -135,7 +151,9 @@ def build():
                         "worked": d.get("blocks_worked", 0),
                         "exec": d.get("block_exec_median", 0), "wdrate": d.get("svc_wd_hit", 0),
                         "cover": d.get("cover", 0), "sameday": d.get("sameday", 0), "qty": d.get("qty", 0)},
-                    "blocks": blocks, "stores": stores, "h3": h3cells,
+                    "blocks": blocks, "stores": stores, "h3": h3cells, "h3act": h3_act,
+                    "cell_stats": {"plan_cells": len(h3cells), "act_cells": len(h3_act),
+                                   "miss_cells": len(set(x[0] for x in h3cells) - set(x[0] for x in h3_act))},
                     "bd": d.get("block_detail", [])})
     return out
 
@@ -262,6 +280,7 @@ function render(){
   document.getElementById('head').innerHTML =
     `<b>${d.line} · ${d.city}</b> · <span style="color:#7dd3fc">${d.kind}</span><br>${d.story}`;
   document.getElementById('diffbar').innerHTML =
+    `H3地块：计划 ${d.cell_stats.plan_cells} 格 → 实际跑到 ${d.cell_stats.act_cells} 格（<b style="color:#fca5a5">缺 ${d.cell_stats.miss_cells} 格</b>） · ` +
     `左右差异：<b style="color:#fca5a5">未到访 ${d.diff.never} 店</b> · <b style="color:#fbbf24">星期不一致 ${d.diff.mismatch} 店</b>` +
     ` · 计划 ${s.plan_rows} 次 → 实际 ${s.act_visits} 次（量比 ${s.qty}） · 覆盖 ${(s.cover*100).toFixed(0)}% · 同日 ${(s.sameday*100).toFixed(0)}%` +
     ` · 块：开工 ${s.worked}/${s.blocks}、块内执行 ${(s.exec*100).toFixed(0)}%、**服务日命中 ${(s.wdrate*100).toFixed(0)}%**`
@@ -299,17 +318,37 @@ function render(){
     }
     if (!onlyNever || nev) bounds.push([st[0], st[1]]);
   });
-  // ---- H3 res7 真六边形 (按面口径染色) ----
+  // ---- 左图: 计划地块 (计划门店的 H3 格, 按服务日/块着色) ----
   const H3 = (typeof h3 !== 'undefined') ? h3 : null;
+  const visited_cells = new Set((d.h3act || []).map(x => x[0]));
   if (H3 && d.h3) {
     d.h3.forEach(hc => {
       const [cid, z, wa, wp] = hc;
       const ring = H3.cellToBoundary(cid).map(p => [p[0], p[1]]);
-      const colL = faceMode==='zone' ? ZC[z % ZC.length] : WDC[Math.max(wp,0)];
-      const colR = faceMode==='zone' ? ZC[z % ZC.length] : WDC[Math.max(wa,0)];
-      const isMis = (wp>=0 && wa>=0 && wp!==wa);
-      L.polygon(ring, {color: isMis?'#fbbf24':colL, weight: isMis?2:0.8, opacity:.95, fillColor: colL, fillOpacity:.18}).addTo(mL);
-      L.polygon(ring, {color: isMis?'#fbbf24':colR, weight: isMis?2:0.8, opacity:.95, fillColor: colR, fillOpacity:.18}).addTo(mR);
+      const missed = !visited_cells.has(cid);
+      const col = faceMode==='zone' ? ZC[z % ZC.length] : WDC[Math.max(wp,0)];
+      L.polygon(ring, {color: missed ? '#ef4444' : col, weight: missed ? 2 : 0.8, opacity:.95,
+                       dashArray: missed ? '3,3' : null,
+                       fillColor: missed ? '#ef4444' : col, fillOpacity: missed ? .10 : .20}).addTo(mL);
+      ring.forEach(p=>bounds.push(p));
+    });
+  }
+  // ---- 右图: 实际地块 (实际到访门店的 H3 格, 按实际星期/块着色) ----
+  // 右图先补"计划有但实际没跑到"的格(红虚), 再画实际格
+  if (H3 && d.h3) {
+    d.h3.forEach(hc => {
+      const cid = hc[0];
+      if (visited_cells.has(cid)) return;
+      const ring = H3.cellToBoundary(cid).map(p => [p[0], p[1]]);
+      L.polygon(ring, {color:'#ef4444', weight:2, opacity:.95, dashArray:'3,3', fillColor:'#ef4444', fillOpacity:.10}).addTo(mR);
+    });
+  }
+  if (H3 && d.h3act) {
+    d.h3act.forEach(hc => {
+      const [cid, z, wa, v] = hc;
+      const ring = H3.cellToBoundary(cid).map(p => [p[0], p[1]]);
+      const col = faceMode==='zone' ? ZC[z % ZC.length] : WDC[Math.max(wa,0)];
+      L.polygon(ring, {color: col, weight: 0.9, opacity:.95, fillColor: col, fillOpacity: .20}).addTo(mR);
       ring.forEach(p=>bounds.push(p));
     });
   }
@@ -334,7 +373,7 @@ function render(){
     WDL.map((n,k)=>`<span><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${WDC[k]};margin-right:4px;vertical-align:-1px"></i>${n}</span>`).join('') +
     `<span style="color:#64748b">|</span><span><i style="display:inline-block;width:10px;height:10px;border:1px dashed #f87171;border-radius:50%;margin-right:4px;vertical-align:-1px"></i>未到访</span>` +
     `<span><i style="display:inline-block;width:10px;height:10px;border:2px solid #fbbf24;border-radius:50%;margin-right:4px;vertical-align:-1px"></i>星期错位</span>` +
-    `<span style="color:#64748b">| 面＝H3 res7 六边形（按${faceMode==='zone'?'片区':'星期'}染色，⚠ 黄边=该格计划/实际星期不同）；虚线轮廓=区块分组</span>`;
+    `<span style="color:#64748b">| 左＝计划地块、右＝实际地块（均为 H3 res7 六边形，按${faceMode==='zone'?'块':'星期'}染色）；<span style="color:#fca5a5">红虚格＝计划有、实际没跑到</span>；块虚线轮廓＋标签＝服务日块</span>`;
   const bd = d.bd || [];
   document.getElementById('blocks').innerHTML = bd.length ? `<table><thead><tr><th>块(服务日)</th><th>计划店</th><th>跑到</th><th>执行率</th><th>服务日</th><th>实际主力</th><th>星期命中</th><th>直径km</th><th>紧凑度</th></tr></thead><tbody>` +
     bd.map(b=>`<tr><td>${b['块']}</td><td>${b['计划店']}</td><td>${b['跑到的计划店']}</td>
