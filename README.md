@@ -425,3 +425,22 @@ Contributions are welcome, especially around exact pricing, stochastic
 planning, time-window extensions, rolling-horizon planning, and
 multi-representative optimization. Do not submit customer-identifiable
 data.
+
+### Running tests locally
+
+`python -m pytest tests/ -q` takes ~6 minutes on a laptop, because the
+solver suites run **real** time budgets rather than stubs:
+
+| file | local time | note |
+|---|---|---|
+| `test_algorithm_contract.py` | ~98 s | ALNS `time_budget=20` × N |
+| `test_alns_v4_contract.py` | ~47 s | 20 s + 10 s + 10 s solves |
+| `test_branch_and_price.py` | ~91 s | CP-SAT column generation |
+| `test_solver_adapter.py` | ~38 s | CP-SAT through the adapter |
+| `test_constraints.py` | ~36 s | — |
+
+Do **not** judge these files as hung from a short per-file timeout; give
+the suite ≥10 minutes. CI is faster, but `.github/workflows/ci.yml` runs with
+`--continue-on-collection-errors` and skips (data-dependent)
+`test_algorithm_contract.py` / `test_alns_v4_contract.py`, so a green CI is
+not proof that the solver paths ran.
