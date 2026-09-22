@@ -25,6 +25,30 @@ PLAN_XLSX = Path(os.environ.get("PLAN_XLSX", str(UFS / "更新后的8月规划.x
 OUT = ROOT / "docs/reports/2026-09-22-rep-map-simple.html"
 
 
+import re
+
+ADMIN_RE = re.compile(r"^([\u4e00-\u9fa5]{2,8}(?:省|自治区|市|区|县|镇|乡|街道|社区))")
+BAD = set("路巷弄号栋幢室楼")
+
+
+def corridor_of(addr):
+    """从地址抽"物理道路走廊"名(沿街走廊)。过度剥离已修: 含 路/巷/弄/号 的段不再当行政区剥掉。"""
+    a = re.sub(r"[（(][^）)]*[）)]", "", str(addr))
+    for _ in range(8):
+        m = ADMIN_RE.match(a)
+        if not m:
+            break
+        tok = m.group(1)
+        if any(ch in tok for ch in BAD):     # 不是纯行政区(带路/号) → 停
+            break
+        a = a[m.end():]
+    m = re.match(r"([\u4e00-\u9fa5A-Za-z0-9]{2,12}?(?:大道|大街|公路|路|街|道|巷|弄))", a)
+    if m:
+        return m.group(1)
+    m2 = re.match(r"([\u4e00-\u9fa5]{2,8}?(?:花园|广场|大厦|城|苑|小区|市场|商贸))", a)
+    return m2.group(1) if m2 else ""
+
+
 def wk(d):
     return (d.day - 1) // 7 + 1
 
@@ -103,6 +127,14 @@ def main():
             sd = getattr(r, "服务日")
             svc[r.customer_code] = int(sd) - 1 if sd == sd and int(sd) > 0 else pd.Timestamp(r.plan_day).dayofweek
         pos = {r.customer_code: (float(r.lat), float(r.lng)) for r in sto.itertuples()}
+        xy = []
+        idx_of = {}
+        for r in sto.itertuples():
+            idx_of[r.customer_code] = len(xy)
+            xy.append([round(float(r.lat), 5), round(float(r.lng), 5)])
+        corr_of = {}
+        for r in sto.itertuples():
+            corr_of[r.customer_code] = corridor_of(getattr(r, "customer_address", ""))
         act_in = al[al["customer_code"].isin(set(pos))]
         scopes = {}
         for w in ["all", 1, 2, 3, 4, 5]:
@@ -123,6 +155,26 @@ def main():
                 modal, cnt = vc.most_common(1)[0]
                 store_act_wd[c] = (int(modal), cnt, len(g))   # (主力周几, 该周几次数, 总次数)
             m = scope_metrics(pcell, acell, store_plan_wd, store_act_wd)
+            pc_corr, ac_corr = {}, {}
+            pc_s, ac_s = {}, {}
+            for r in pw.itertuples():
+                k = corr_of.get(r.customer_code, "")
+                if k:
+                    pc_corr[k] = pc_corr.get(k, 0) + 1
+                    pc_s.setdefault(k, []).append(idx_of.get(r.customer_code, -1))
+            for c in aw["customer_code"].unique():
+                k = corr_of.get(c, "")
+                if k:
+                    ac_corr[k] = ac_corr.get(k, 0) + 1
+                    ac_s.setdefault(k, []).append(idx_of.get(c, -1))
+            common = set(pc_corr) & set(ac_corr)
+            m["cp"] = [[k, [i for i in pc_s.get(k, []) if i >= 0]] for k, _ in sorted(pc_corr.items(), key=lambda kv: -kv[1])]
+            m["ca2"] = [[k, [i for i in ac_s.get(k, []) if i >= 0]] for k, _ in sorted(ac_corr.items(), key=lambda kv: -kv[1])]
+            m["corridors_plan"] = sorted(pc_corr.items(), key=lambda kv: -kv[1])[:40]
+            m["corridors_act"] = sorted(ac_corr.items(), key=lambda kv: -kv[1])[:40]
+            m["n_corr_plan"], m["n_corr_act"] = len(pc_corr), len(ac_corr)
+            m["corr_match"] = round(len(common) / max(len(pc_corr), 1), 3)
+            m["corr_missing"] = [k for k, _ in sorted(pc_corr.items(), key=lambda kv: -kv[1]) if k not in common][:12]
             pd_cnt = pw.groupby(pw["plan_day"].dt.day).size().to_dict()
             ad_cnt = aw.groupby(aw["call_date"].dt.day).size().to_dict()
             days = sorted(set(pd_cnt) | set(ad_cnt))
@@ -136,7 +188,7 @@ def main():
             scopes[str(w)] = m
         if "all" not in scopes:
             continue
-        recs.append({"line": lid, "city": doss.get(lid, {}).get("city", ""), "scopes": scopes})
+        recs.append({"line": lid, "city": doss.get(lid, {}).get("city", ""), "xy": xy, "scopes": scopes})
     print(f"线 {len(recs)} | 每线周数据: {sorted(set(k for r in recs for k in r['scopes']))}")
 
     css = Path('/tmp/leaflet.css').read_text() if Path('/tmp/leaflet.css').exists() else ''
@@ -233,12 +285,17 @@ function draw(){
     `<span style="color:${m.verdict.startsWith('计划不够好')?'#fbbf24':(m.verdict.startsWith('执行有问题')?'#fca5a5':'#86efac')}">${m.verdict}</span>` +
     `　规律性 <b>${(m.habit*100).toFixed(0)}%</b>　计划周几不同 <b>${(m.mism*100).toFixed(0)}%</b>` +
     `　｜计划 <b>${m.np}</b> 格（${m.rp}km）　实际 <b>${m.na}</b> 格（${m.ra}km）　紧凑度 计划 <b>${m.cp}</b> / 实际 <b>${m.ca}</b>` +
-    `　<span style="color:${Math.abs(m.ca-m.cp)<0.01?'#94a3b8':(m.ca>m.cp?'#86efac':'#fca5a5')}">${m.cpflag}</span>` +
-    `　｜走廊 ${m.corr[0]}~${m.corr[1]} 家/天　实际落在走廊内 <b>${(m.in_corr*100).toFixed(0)}%</b> 的天数`;
+    `　<span style="color:${Math.abs(m.ca-m.cp)<0.01?'#94a3b8':(m.ca>m.cp?'#86efac':'#fca5a5')}">${m.cpflag}</span>`;
   const corrMode = (modef.value==='corridor');
-  document.getElementById('mapPair').style.display = corrMode ? 'none' : 'grid';
-  document.getElementById('corrPair').style.display = corrMode ? 'grid' : 'none';
-  if (corrMode) { renderCorridor(m); return; }
+  document.getElementById('mapPair').style.display = 'grid';     // 两种模式都用地图
+  document.getElementById('corrPair').style.display = 'none';    // 不再用文字清单
+  if (corrMode) {
+    document.getElementById('stat').innerHTML +=
+      `　｜<b>道路走廊</b>：计划 <b>${m.n_corr_plan}</b> 条（蓝线）/ 实际 <b>${m.n_corr_act}</b> 条（橙线）　一致度 ` +
+      `<b style="color:${m.corr_match>=0.8?'#86efac':'#fbbf24'}">${(m.corr_match*100).toFixed(0)}%</b>` +
+      `　<span style="color:#fca5a5">红线 = 计划里有、实际没走的走廊</span>`;
+    renderCorridor(d, m); return;
+  }
   if(mL){mL.remove(); mR.remove();}
   mL=L.map('mL',{zoomControl:true,attributionControl:false});
   mR=L.map('mR',{zoomControl:false,attributionControl:false});
@@ -258,7 +315,7 @@ function draw(){
   document.getElementById('tbl').innerHTML =
     `<table><thead><tr><th>周几</th><th>计划格数</th><th>实际格数</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
-function renderCorridor(m){
+function renderCorridorOld(m){
   const days=m.days, P=m.dcnt_p, A=m.dcnt_a, [lo,hi]=m.corr;
   const maxV=Math.max(...P, ...A, 1);
   const W=Math.max(520, days.length*26), H=260, pad=28;
@@ -278,6 +335,42 @@ function renderCorridor(m){
   }
   document.getElementById('cL').innerHTML = chart(P, '#60a5fa');
   document.getElementById('cR').innerHTML = chart(A, '#f87171');
+}
+function orderAlong(xy, ids){            // 按"沿路方向"排序(主轴投影)
+  const P=ids.map(i=>xy[i]);
+  if(P.length<3) return P;
+  const mx=P.reduce((a,p)=>a+p[0],0)/P.length, my=P.reduce((a,p)=>a+p[1],0)/P.length;
+  let sxx=0,sxy=0,syy=0;
+  P.forEach(p=>{const dx=p[0]-mx, dy=p[1]-my; sxx+=dx*dx; sxy+=dx*dy; syy+=dy*dy;});
+  const th=0.5*Math.atan2(2*sxy, sxx-syy);
+  const ux=Math.cos(th), uy=Math.sin(th);
+  return P.slice().sort((a,b)=>((a[0]-mx)*ux+(a[1]-my)*uy)-((b[0]-mx)*ux+(b[1]-my)*uy));
+}
+function renderCorridor(d, m){
+  const xy=d.xy||[], pl=m.cp||[], ac=m.ca2||[];
+  const actSet=new Set(ac.map(x=>x[0]));
+  const planSet=new Set(pl.map(x=>x[0]));
+  if(mL){mL.remove(); mR.remove();}
+  mL=L.map('mL',{zoomControl:true,attributionControl:false});
+  mR=L.map('mR',{zoomControl:false,attributionControl:false});
+  const tile=x=>L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{subdomains:'1234',maxZoom:18}).addTo(x);
+  tile(mL); tile(mR);
+  const b=[];
+  const draw=(layer, items, other, color)=>{ items.forEach(([name, ids])=>{
+    if(!ids.length) return;
+    const pts=orderAlong(xy, ids);
+    const miss=!other.has(name);
+    const col=miss?'#ef4444':color;
+    if(pts.length>=2) L.polyline(pts,{color:col,weight:miss?3:2,opacity:.9}).addTo(layer);
+    pts.forEach(p=>{ L.circleMarker(p,{radius:2.6,color:'#0b0d12',weight:.4,fillColor:col,fillOpacity:.9}).addTo(layer); b.push(p); });
+  }); };
+  draw(mL, pl, actSet, '#60a5fa');   // 左: 计划走廊 (蓝; 红=计划有实际没走)
+  draw(mR, ac, planSet, '#fbbf24');  // 右: 实际走廊 (橙; 红=计划里有但他没走的那条)
+  const bb=L.latLngBounds(b); mL.fitBounds(bb,{padding:[10,10]}); mR.fitBounds(bb,{padding:[10,10]});
+  mL.setView(mR.getCenter(),mR.getZoom(),{animate:false});
+  let lock=false;
+  mL.on('move zoom',()=>{if(lock)return;lock=true;mR.setView(mL.getCenter(),mL.getZoom(),{animate:false});lock=false;});
+  mR.on('move zoom',()=>{if(lock)return;lock=true;mL.setView(mR.getCenter(),mL.getZoom(),{animate:false});lock=false;});
 }
 sel.onchange=()=>{i0=+sel.value; draw();};
 modef.onchange=draw; weekf.onchange=fill; kindf.onchange=fill; verdictf.onchange=fill; cpf.onchange=fill; q.oninput=fill;
