@@ -168,8 +168,8 @@ def main():
                     ac_corr[k] = ac_corr.get(k, 0) + 1
                     ac_s.setdefault(k, []).append(idx_of.get(c, -1))
             common = set(pc_corr) & set(ac_corr)
-            m["cp"] = [[k, [i for i in pc_s.get(k, []) if i >= 0]] for k, _ in sorted(pc_corr.items(), key=lambda kv: -kv[1])]
-            m["ca2"] = [[k, [i for i in ac_s.get(k, []) if i >= 0]] for k, _ in sorted(ac_corr.items(), key=lambda kv: -kv[1])]
+            m["geom_p"] = [[k, [i for i in pc_s.get(k, []) if i >= 0]] for k, _ in sorted(pc_corr.items(), key=lambda kv: -kv[1])]
+            m["geom_a"] = [[k, [i for i in ac_s.get(k, []) if i >= 0]] for k, _ in sorted(ac_corr.items(), key=lambda kv: -kv[1])]
             m["corridors_plan"] = sorted(pc_corr.items(), key=lambda kv: -kv[1])[:40]
             m["corridors_act"] = sorted(ac_corr.items(), key=lambda kv: -kv[1])[:40]
             m["n_corr_plan"], m["n_corr_act"] = len(pc_corr), len(ac_corr)
@@ -181,10 +181,6 @@ def main():
             m["days"] = days
             m["dcnt_p"] = [int(pd_cnt.get(d, 0)) for d in days]
             m["dcnt_a"] = [int(ad_cnt.get(d, 0)) for d in days]
-            nz = [c for c in m["dcnt_p"] if c > 0]
-            m["corr"] = [min(nz), max(nz)] if nz else [0, 0]
-            inside = [c for c in m["dcnt_a"] if c > 0]
-            m["in_corr"] = round(sum(1 for c in inside if m["corr"][0] <= c <= m["corr"][1]) / max(len(inside), 1), 3)
             scopes[str(w)] = m
         if "all" not in scopes:
             continue
@@ -203,7 +199,7 @@ def main():
     allsc = [r["scopes"]["all"] for r in recs]
     print(f"全月: 实际更紧凑 {sum(1 for s in allsc if s['cpflag']=='实际更紧凑')} | 计划更紧凑 {sum(1 for s in allsc if s['cpflag']=='计划更紧凑')} | 相当 {sum(1 for s in allsc if s['cpflag']=='相当')}")
     print(f"全月: ① {sum(1 for s in allsc if s['kind3'].startswith('①'))} | ② {sum(1 for s in allsc if s['kind3'].startswith('②'))} | ③ {sum(1 for s in allsc if s['kind3'].startswith('③'))}")
-    print(f"走廊: 实际落在计划走廊内的天数占比 中位 {np.median([s['in_corr'] for s in allsc])*100:.0f}%")
+    print(f"道路走廊一致度 中位 {np.median([s['corr_match'] for s in allsc])*100:.0f}%")
     print(f"全月: 计划不够好 {sum(1 for s in allsc if s['verdict'].startswith('计划不够好'))} | 执行有问题 {sum(1 for s in allsc if s['verdict'].startswith('执行有问题'))}")
 
 
@@ -315,27 +311,6 @@ function draw(){
   document.getElementById('tbl').innerHTML =
     `<table><thead><tr><th>周几</th><th>计划格数</th><th>实际格数</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
-function renderCorridorOld(m){
-  const days=m.days, P=m.dcnt_p, A=m.dcnt_a, [lo,hi]=m.corr;
-  const maxV=Math.max(...P, ...A, 1);
-  const W=Math.max(520, days.length*26), H=260, pad=28;
-  const y=v=>H-pad-(v/maxV)*(H-2*pad), x=k=>pad+k*(W-2*pad)/Math.max(days.length-1,1);
-  const bandTop=y(hi), bandBot=y(lo);
-  function chart(vals, color){
-    let s=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:280px;background:#0b0d12;border-radius:8px">`;
-    s+=`<rect x="${pad}" y="${bandTop}" width="${W-2*pad}" height="${Math.max(bandBot-bandTop,2)}" fill="#1d4ed8" fill-opacity=".22"/>`;
-    s+=`<text x="${pad+4}" y="${bandTop-4}" fill="#93c5fd" font-size="11">走廊 ${lo}~${hi} 家/天</text>`;
-    days.forEach((d,k)=>{ const v=vals[k]; if(v<=0) return;
-      const outside = !(lo<=v && v<=hi);
-      s+=`<rect x="${x(k)-8}" y="${y(v)}" width="16" height="${H-pad-y(v)}" fill="${outside?'#ef4444':color}" fill-opacity=".9" rx="2"/>`;
-      s+=`<text x="${x(k)}" y="${H-pad+13}" fill="#64748b" font-size="10" text-anchor="middle">${d}</text>`;});
-    s+=`<line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="#334155"/>`;
-    s+=`</svg>`;
-    return s;
-  }
-  document.getElementById('cL').innerHTML = chart(P, '#60a5fa');
-  document.getElementById('cR').innerHTML = chart(A, '#f87171');
-}
 function orderAlong(xy, ids){            // 按"沿路方向"排序(主轴投影)
   const P=ids.map(i=>xy[i]);
   if(P.length<3) return P;
@@ -347,7 +322,7 @@ function orderAlong(xy, ids){            // 按"沿路方向"排序(主轴投影
   return P.slice().sort((a,b)=>((a[0]-mx)*ux+(a[1]-my)*uy)-((b[0]-mx)*ux+(b[1]-my)*uy));
 }
 function renderCorridor(d, m){
-  const xy=d.xy||[], pl=m.cp||[], ac=m.ca2||[];
+  const xy=d.xy||[], pl=m.geom_p||[], ac=m.geom_a||[];
   const actSet=new Set(ac.map(x=>x[0]));
   const planSet=new Set(pl.map(x=>x[0]));
   if(mL){mL.remove(); mR.remove();}
