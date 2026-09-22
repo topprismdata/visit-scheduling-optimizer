@@ -152,8 +152,12 @@ def build():
                         "exec": d.get("block_exec_median", 0), "wdrate": d.get("svc_wd_hit", 0),
                         "cover": d.get("cover", 0), "sameday": d.get("sameday", 0), "qty": d.get("qty", 0)},
                     "blocks": blocks, "stores": stores, "h3": h3cells, "h3act": h3_act,
-                    "cell_stats": {"plan_cells": len(h3cells), "act_cells": len(h3_act),
-                                   "miss_cells": len(set(x[0] for x in h3cells) - set(x[0] for x in h3_act))},
+                    "cell_stats": (lambda: (lambda P, A: {
+                        "plan_cells": len(P), "act_cells": len(A),
+                        "miss_cells": len(set(P) - set(A)),
+                        "wd_diff_cells": sum(1 for c in (set(P) & set(A))
+                                             if P[c] >= 0 and A[c] >= 0 and P[c] != A[c]),
+                    })({x[0]: x[3] for x in h3cells}, {x[0]: x[2] for x in h3_act}))(),
                     "bd": d.get("block_detail", [])})
     return out
 
@@ -281,10 +285,10 @@ function render(){
   document.getElementById('head').innerHTML =
     `<b>${d.line} · ${d.city}</b> · <span style="color:#7dd3fc">${d.kind}</span><br>${d.story}`;
   document.getElementById('diffbar').innerHTML =
-    `H3地块：计划 ${d.cell_stats.plan_cells} 格 → 实际跑到 ${d.cell_stats.act_cells} 格（<b style="color:#fca5a5">缺 ${d.cell_stats.miss_cells} 格</b>） · ` +
-    `左右差异：<b style="color:#fca5a5">未到访 ${d.diff.never} 店</b> · <b style="color:#fbbf24">星期不一致 ${d.diff.mismatch} 店</b>` +
-    ` · 计划 ${s.plan_rows} 次 → 实际 ${s.act_visits} 次（量比 ${s.qty}） · 覆盖 ${(s.cover*100).toFixed(0)}% · 同日 ${(s.sameday*100).toFixed(0)}%` +
-    ` · 块：开工 ${s.worked}/${s.blocks}、块内执行 ${(s.exec*100).toFixed(0)}%、**服务日命中 ${(s.wdrate*100).toFixed(0)}%**`
+    `<b>地块一致度（唯一判定）</b>：计划 ${d.cell_stats.plan_cells} 格 → 实际覆盖 ${d.cell_stats.act_cells} 格` +
+    `　<span style="color:#fca5a5">没跑到 ${d.cell_stats.miss_cells} 格</span>　门店未访 ${d.diff.never} 家` +
+    `　块开工 ${s.worked}/${s.blocks}` +
+    `<br><span style="color:#8b93a7">参考（不计为差异）：周几不同 ${d.cell_stats.wd_diff_cells} 格、${d.diff.mismatch} 店 —— 同一块地换天跑，属业务习惯；计划 ${s.plan_rows} 次 → 实际 ${s.act_visits} 次；覆盖 ${(s.cover*100).toFixed(0)}%</span>`
     + (d.diff.score === 0 ? ' <span style="color:#86efac">（这位左右完全一致，属于"照做型"）</span>' : '');
   document.getElementById('lstat').textContent = `${s.plan_stores} 店 / ${s.plan_rows} 次（${s.blocks} 块）`;
   document.getElementById('rstat').textContent = `${s.act_visits} 次到访`;
@@ -294,7 +298,7 @@ function render(){
   sync(mL,mR); sync(mR,mL);
   const bounds=[]; const pop = st => `<b>${st[6]}</b><br>计划星期 ${st[2]>=0?WDL[st[2]]:'—'} · 实际主力 ${st[3]>=0?WDL[st[3]]:'—'} · 到访 ${st[4]} 次`;
   if (showPoints) d.stores.forEach(st => {
-    const nev = st[4] === 0, off = st[5] === 1;
+    const nev = st[4] === 0, off = false;   // 周几不同不再高亮(视为习惯)
     if (onlyNever && !nev && !off) return;
     // 左图: 计划服务日色的点(小、无描边), 未访=红虚, 星期错位=金圈
     L.circleMarker([st[0],st[1]], {radius: nev?3:(off?6:3.4),
@@ -354,7 +358,7 @@ function render(){
   document.getElementById('lg').innerHTML =
     WDL.map((n,k)=>`<span><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${WDC[k]};margin-right:4px;vertical-align:-1px"></i>${n}</span>`).join('') +
     `<span style="color:#64748b">|</span><span><i style="display:inline-block;width:10px;height:10px;border:1px dashed #f87171;border-radius:50%;margin-right:4px;vertical-align:-1px"></i>未到访</span>` +
-    `<span><i style="display:inline-block;width:10px;height:10px;border:2px solid #fbbf24;border-radius:50%;margin-right:4px;vertical-align:-1px"></i>星期错位</span>` +
+    `` +
     `<span style="color:#64748b">| 左＝计划地块、右＝实际地块（均为 H3 res7 六边形，按${faceMode==='zone'?'块':'星期'}染色）；<span style="color:#fca5a5">红虚格＝计划有、实际没跑到</span>；块虚线轮廓＋标签＝服务日块</span>`;
   const bd = d.bd || [];
   document.getElementById('blocks').innerHTML = bd.length ? `<table><thead><tr><th>块(服务日)</th><th>计划店</th><th>跑到</th><th>执行率</th><th>服务日</th><th>实际主力</th><th>星期命中</th><th>直径km</th><th>紧凑度</th></tr></thead><tbody>` +
