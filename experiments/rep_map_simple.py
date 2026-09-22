@@ -115,8 +115,21 @@ input{width:220px} select{max-width:380px} button{cursor:pointer}
 </style></head><body>
 <header>
   <input id="q" placeholder="搜线号/城市">
+  <select id="kindf">
+    <option value="">分类：全部</option>
+    <option value="①基本一样">①基本一样</option>
+    <option value="②区块基本一样·星期几不一样">②区块一样·星期几不一样</option>
+    <option value="③都不一样">③都不一样</option>
+  </select>
+  <select id="verdictf">
+    <option value="">归因：全部</option>
+    <option value="执行到位">执行到位（计划与实际一致）</option>
+    <option value="计划不够好">计划不够好（他有规律，计划写错天）</option>
+    <option value="执行有问题">执行有问题（他自己没规律）</option>
+  </select>
   <select id="pick"></select>
   <button id="prev">上一位</button><button id="next">下一位</button>
+  <span class="num" id="count"></span>
   <span class="num" id="stat"></span>
   <span class="legend">__LEGEND__</span>
 </header>
@@ -131,15 +144,22 @@ const D = __DATA__, WDL = __WDL__;
 const C = ['#e6194b','#1f77b4','#2ca02c','#ff7f0e','#9467bd','#8c564b','#64748b'];
 const MISS_FILL = '#334155', MISS_EDGE = '#ef4444';
 const sel=document.getElementById('pick'), q=document.getElementById('q');
+const kindf=document.getElementById('kindf'), verdictf=document.getElementById('verdictf');
+let i0 = +(new URLSearchParams(location.search).get('i')||0);   // 必须先于 fill() 调用
 function fill(){
   const s=q.value.trim().toLowerCase();
-  const keep=D.map((d,i)=>[d,i]).filter(([d])=>(d.line+' '+d.city).toLowerCase().includes(s));
-  sel.innerHTML=keep.map(([d,i])=>`<option value="${i}">${d.line} · ${d.city}</option>`).join('');
+  const keep=D.map((d,i)=>[d,i]).filter(([d])=>{
+    if (s && !(d.line+' '+d.city).toLowerCase().includes(s)) return false;
+    if (kindf.value && d.kind3!==kindf.value) return false;
+    if (verdictf.value && !(d.verdict||'').startsWith(verdictf.value)) return false;
+    return true;
+  });
+  sel.innerHTML=keep.map(([d,i])=>`<option value="${i}">${d.line} · ${d.city} · ${d.kind3}${d.verdict?' · '+d.verdict.split('（')[0]:''}</option>`).join('');
+  document.getElementById('count').textContent = `匹配 ${keep.length} / ${D.length} 条`;
   if(keep.length && !keep.find(([,i])=>i===+sel.value)) sel.value=keep[0][1];
+  if(keep.length) { i0=+sel.value; draw(); }
 }
-q.oninput=fill; fill();
-let i0 = +(new URLSearchParams(location.search).get('i')||0);
-sel.value=i0; sel.onchange=()=>{i0=+sel.value; draw();};
+sel.onchange=()=>{i0=+sel.value; draw();};
 document.getElementById('prev').onclick=()=>{if(sel.selectedIndex>0){sel.selectedIndex--; i0=+sel.value; draw();}};
 document.getElementById('next').onclick=()=>{if(sel.selectedIndex<sel.options.length-1){sel.selectedIndex++; i0=+sel.value; draw();}};
 let mL=null,mR=null;
@@ -185,7 +205,8 @@ function draw(){
       <td style="padding:3px 6px;border-top:1px solid #232733;text-align:center;color:${(b.a&&b.p&&b.a!==b.p)?'#fbbf24':'#a3e635'}">${b.a||''}</td></tr>`).join('') +
     `</tbody></table>` : '';
 }
-draw();
+q.oninput=fill; kindf.onchange=fill; verdictf.onchange=fill;
+fill();          // 首次筛选 + 绘制
 </script></body></html>
 """
 
