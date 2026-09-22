@@ -724,8 +724,9 @@ const sel = document.getElementById('pick'), q = document.getElementById('q');
 sel.innerHTML = D.map((d,i)=>`<option value="${i}">${d.line} · ${d.city} · ${d.kind}</option>`).join('');
 let idx = +(() => { const p = new URLSearchParams(location.search).get('i');
   if (p !== null) return p;
-  let best = 0; D.forEach((d,i) => { if ((d.diff && d.diff.score || 0) > (D[best].diff.score || 0)) best = i; });
-  return best; })();
+  // 默认打开"正常线"的第一条(排除换人/特殊: 覆盖<30% 或 服务日命中<20% 或 块开工=0)
+  const norm = D.findIndex(d => d.stats && d.stats.cover >= 0.3 && d.stats.wdrate >= 0.2 && d.stats.worked > 0);
+  return norm >= 0 ? norm : 0; })();
 let faceMode='wd', showPoints=true, onlyNever=false, mL=null, mR=null;
 function filterOptions(){
   const s = q.value.trim().toLowerCase();
