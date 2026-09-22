@@ -31,6 +31,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from experiments.top5_portrait import components, haversine_km, KM  # noqa: E402
+from experiments.blocks import build as build_blocks  # noqa: E402
 
 UFS = Path("/Users/ghb/UFS-demo")
 PLAN_XLSX = Path(os.environ.get("PLAN_XLSX", str(UFS / "更新后的8月规划.xlsx")))
@@ -51,10 +52,10 @@ def load_names():
     return {"district": dict(zip(d["district"], d["区县名称"])), "city": dict(zip(d["city"], d["城市名称"]))}
 
 
-def classify(r):
+def classify(r):  # noqa: D401  (服务日块口径)
     worked = r["block_worked_rate"]
     within = r["block_exec_median"]
-    wdok = r["block_wd_rate"]
+    wdok = r.get("svc_wd_hit", r.get("block_wd_rate", 0))
     if r["cover"] < 0.3:
         return "计划与实际几乎不相交"
     if worked < 0.6:
@@ -75,56 +76,54 @@ def classify(r):
 def story(r):
     s = []
     s.append(f"{r['city']}（{r['districts']}）：计划 {r['plan_stores']} 店 / {r['plan_rows']} 次，"
-             f"分成 {r['blocks']} 个区块（最大区块 {r['block_sizes'][0]} 店）。")
-    if r.get("east_km") is not None:
-        s.append(f"地盘东西 {r['east_km']} × 南北 {r['north_km']} km；区块内店距中位 {r.get('nn_median_m')} m。")
+             f"业务上分成 {r['blocks']} 个区块（服务日×空间连通；最大块 {r['block_sizes'][0] if r['block_sizes'] else 0} 店）。")
+    s.append(f"地盘东西 {r['east_km']} × 南北 {r['north_km']} km；块内店距中位 {r['nn_median_m']} m；"
+             f"块大小均衡度 CV {r['block_balance_cv']}、紧凑度 {r['block_compact']}。")
     wd = r.get("wd_visits") or []
     act_wd = "/".join(f"{WD[i]}{n}" for i, n in enumerate(wd) if n > 0)
     rest = [WD[i] for i, n in enumerate(wd) if n == 0]
-    s.append(f"节奏：{r['workdays']} 个工作日、平均每天 {r.get('daily_avg')} 家店、一天 {r.get('zones_per_day')} 个区块、"
-             f"当天作业半径中位 {r.get('day_radius_km')} km；出勤 {act_wd}"
-             + (f"；{'、'.join(rest)} 没跑" if rest else "") + "。")
-    s.append(f"① 区块开工：{r['blocks']} 块里他开工了 {r['blocks_worked']} 块；"
-             f"② 区块内执行率中位 {r['block_exec_median']*100:.0f}%（最弱一块 {r['block_exec_min']*100:.0f}%）；"
-             f"③ 区块星期一致 {r['block_wd_rate']*100:.0f}%。")
+    s.append(f"节奏：{r['workdays']} 个工作日、平均每天 {r['daily_avg']} 家店、一天 {r['zones_per_day']} 个区块、"
+             f"当天作业半径中位 {r['day_radius_km']} km；出勤 {act_wd}" + (f"；{'、'.join(rest)} 没跑" if rest else "") + "。")
+    s.append(f"① 区块开工：{r['blocks']} 块里开工 {r['blocks_worked']} 块；② 块内执行率中位 {r['block_exec_median']*100:.0f}%"
+             f"（最弱 {r['block_exec_min']*100:.0f}%）；③ **实际星期 == 服务日 命中 {r['svc_wd_hit']*100:.0f}%**（缺口 {r['wd_gap_stores']} 店）。")
+    if r.get("wd_gap_blocks"):
+        s.append(f"星期缺口最大的块：{r['wd_gap_blocks']}。")
     s.append(f"参考：覆盖 {r['cover']*100:.0f}%、同日 {r['sameday']*100:.0f}%、相位 {r['phase']*100:.0f}%、量比 {r['qty']}。")
     k = r["kind"]
     if k == "区块全开·星期照做":
-        s.append("结论：**计划怎么划他就怎么做**——区块全开工、区块内做全、星期按计划。")
+        s.append("结论：**计划怎么划他就怎么做**——区块全开工、块内做全、星期与服务日一致。")
     elif k == "区块全开·星期自己定":
-        s.append("结论：区块都开了但**星期由他自己排**，周内顺序不跟计划。")
+        s.append("结论：区块都开了，但**他按自己的星期跑**，服务日与实际主力星期不符。")
     elif k == "区块全开·区块内欠访":
-        s.append("结论：区块都开了、星期也守，但**区块内没做全**（存在欠访）。")
+        s.append("结论：区块都开了、星期也对，但**块内没做全**（存在欠访）。")
     elif k == "区块全开·店和星期都有欠":
-        s.append("结论：区块开了，但店没做全、星期也没守——属于执行力不足，要具体看到底缺在哪块。")
+        s.append("结论：区块开了，但店没做全、星期也没跟服务日——要具体看到底缺在哪块。")
     elif k == "区块缺了没开":
-        s.append("结论：**有 %d 个区块整块没开工**，但他开的那几块做得很好（执行率与星期都守）——先问为什么不去那几块。" % (r["blocks"] - r["blocks_worked"]))
+        s.append(f"结论：有 {r['blocks'] - r['blocks_worked']} 个区块整块没开工；开的那几块做得不错——先问为什么不去那几块。")
     elif k == "区块大面积没开工":
-        s.append("结论：**有区块整块没开工**（%d 块），先问为什么不去，而不是谈执行率。" % (r["blocks"] - r["blocks_worked"]))
+        s.append("结论：**有相当比例区块整块没开工**，先问为什么不去，而不是谈执行率。")
     elif k == "计划与实际几乎不相交":
         s.append("结论：计划与实际几乎不相交——先查这块地盘是不是搞错了（管辖/门店清单），再谈行为。")
     else:
         s.append("结论：需要人工看。")
-    if r.get("cold_blocks"):
-        s.append("最冷的区块（计划内执行率最低）：%s。" % r["cold_blocks"])
     return " ".join(s)
 
 
 def dossier_for(lid, pl, a, names):
+    """单条线档案: 业务口径区块(服务日 × H3连通) + 节奏 + 对计划偏差."""
     pl = pl.copy()
     pl["lat"] = pd.to_numeric(pl["lat"], errors="coerce")
     pl["lng"] = pd.to_numeric(pl["lng"], errors="coerce")
     pl["plan_day"] = pd.to_datetime(pl["plan_day"]).dt.normalize()
     pl["wd"] = pl["plan_day"].dt.dayofweek
     pl["ph"] = ((pl["plan_day"].dt.day - 1) // 7 + 1) % 2
-    sto = pl.dropna(subset=["lat", "lng"]).drop_duplicates("customer_code")
-    if not len(a) or not len(sto):
-        return None
     a = a.copy()
     a["call_date"] = pd.to_datetime(a["call_date"]).dt.normalize()
     a["wd"] = a["call_date"].dt.dayofweek
     a["ph"] = ((a["call_date"].dt.day - 1) // 7 + 1) % 2
-
+    sto = pl.dropna(subset=["lat", "lng"]).drop_duplicates("customer_code")
+    if not len(a) or not len(sto):
+        return None
     r = {"line": lid}
     r["city"] = names["city"].get(str(pl["city"].iloc[0]).zfill(6), str(pl["city"].iloc[0]))
     if names.get("line_districts", {}).get(lid):
@@ -136,85 +135,64 @@ def dossier_for(lid, pl, a, names):
     r["plan_rows"] = int(len(pl))
     r["act_visits"] = int(len(a))
     r["act_stores"] = int(a["customer_code"].nunique())
-
     ps, as_ = set(sto["customer_code"]), set(a["customer_code"])
-    pset = set(zip(pl["customer_code"], pl["plan_day"]))
-    aset = set(zip(a["customer_code"], a["call_date"]))
-    pwd = set(zip(pl["customer_code"], pl["wd"]))
-    awd = set(zip(a["customer_code"], a["wd"]))
+    pset = set(zip(pl["customer_code"], pl["plan_day"])); aset = set(zip(a["customer_code"], a["call_date"]))
+    pwd = set(zip(pl["customer_code"], pl["wd"])); awd = set(zip(a["customer_code"], a["wd"]))
     aph = a.groupby("customer_code")["ph"].apply(set).to_dict()
     pp = pl.drop_duplicates("customer_code").set_index("customer_code")["ph"].to_dict()
     r["cover"] = round(len(ps & as_) / max(len(ps), 1), 3)
-    r["purity"] = round(len(ps & as_) / max(len(as_), 1), 3)   # 仅供内部参考
+    r["purity"] = round(len(ps & as_) / max(len(as_), 1), 3)
     r["wd_match"] = round(len(pwd & awd) / max(len(pwd), 1), 3)
     r["sameday"] = round(len(pset & aset) / max(len(pset), 1), 3)
     r["phase"] = round(float(np.mean([pp[c] in aph.get(c, set()) for c in pp])), 3) if pp else 0.0
     r["qty"] = round(len(a) / max(len(pl), 1), 2)
     r["n_never"] = len(ps - as_)
 
-    # ---- 区块(计划门店的 H3 连通块) ----
-    cells = {x.customer_code: h3.latlng_to_cell(float(x.lat), float(x.lng), 7) for x in sto.itertuples()}
-    comp = components(list(cells.values()))
-    blk_of = {c: comp[cells[c]] for c in cells}
-    sto2 = sto.assign(blk=[blk_of[c] for c in sto["customer_code"]])
-    # 计划侧: 每区块的门店/星期分布
-    pl_b = pl.assign(blk=pl["customer_code"].map(blk_of))
-    plan_blk_stores = pl_b.groupby("blk")["customer_code"].nunique().to_dict()
-    plan_blk_wd = {b: g["wd"].value_counts() for b, g in pl_b.groupby("blk")}
-    # 实际侧: 只看计划内的店
-    a_in = a[a["customer_code"].isin(ps)].assign(blk=lambda d: d["customer_code"].map(blk_of))
-    act_by_blk = a_in.groupby("blk")["customer_code"].apply(set).to_dict()
-    act_wd_by_blk = {b: g["wd"].value_counts() for b, g in a_in.groupby("blk")}
-    blocks = sorted(plan_blk_stores, key=lambda x: -plan_blk_stores[x])
-    want_by_blk = pl_b.groupby("blk")["customer_code"].apply(set).to_dict()
-    cent_by_blk = sto2.groupby("blk")[["lat", "lng"]].mean().to_dict("index")
-    exec_rates, wd_hits, worked = [], [], 0
-    cold = []
-    block_detail = []
-    for bi, b in enumerate(blocks):
-        want = want_by_blk.get(b, set())
-        got = act_by_blk.get(b, set()) & want
-        rate = len(got) / max(len(want), 1)
-        exec_rates.append(rate)
-        if got:
-            worked += 1
-            top_wd = int(plan_blk_wd[b].index[0])
-            aw = act_wd_by_blk.get(b)
-            ok = bool(aw is not None and top_wd in set(aw.index))
-            wd_hits.append(1.0 if ok else 0.0)
-            if rate < 0.6:
-                cold.append((b, int(len(want)), round(rate * 100)))
-        pw = plan_blk_wd.get(b)
-        pw_top = int(pw.index[0]) if pw is not None and len(pw) else None
-        aw = act_wd_by_blk.get(b)
-        aw_top = int(aw.index[0]) if aw is not None and len(aw) else None
-        c = cent_by_blk.get(b, {})
-        block_detail.append({"块": f"块{bi+1}", "中心": f"{c.get('lat',0):.3f},{c.get('lng',0):.3f}",
-                             "计划店": len(want),
-                             "跑到的计划店": len(got), "执行率": round(rate, 3),
-                             "计划星期": WD[pw_top] if pw_top is not None else "",
-                             "实际主力星期": WD[aw_top] if aw_top is not None else "未开工"})
-    r["blocks"] = len(blocks)
-    r["block_sizes"] = [int(plan_blk_stores[b]) for b in blocks][:5]
-    r["block_detail"] = block_detail
-    r["blocks_worked"] = worked
-    r["block_worked_rate"] = round(worked / max(len(blocks), 1), 3)
-    r["block_exec_median"] = round(float(np.median(exec_rates)), 3) if exec_rates else 0.0
-    r["block_exec_min"] = round(float(np.min(exec_rates)), 3) if exec_rates else 0.0
-    r["block_wd_rate"] = round(float(np.mean(wd_hits)), 3) if wd_hits else 0.0
-    r["cold_blocks"] = "; ".join(f"区块×{n}店 仅执行 {p}%" for _, n, p in sorted(cold, key=lambda x: x[2])[:3])
+    # ---- 区块: 服务日 × H3 res7 连通 (文献三判据; 见 experiments/blocks.py) ----
+    blk = build_blocks(pl, a)
+    if blk is None:
+        return None
+    dt = blk["detail"]
+    got_by_blk = {}
+    for d in dt:
+        got_by_blk[d["blk"]] = len(set(d["codes"]) & as_)
+    detail = []
+    for d in dt:
+        got = got_by_blk.get(d["blk"], 0)
+        detail.append({"块": d["blk"], "计划店": d["n"], "跑到的计划店": got,
+                       "执行率": round(got / max(d["n"], 1), 3),
+                       "服务日": WD[d["svc_day"] - 1] if d["svc_day"] > 0 else "",
+                       "实际主力": WD[d["act_wd"]] if d["act_wd"] >= 0 else "未开工",
+                       "星期命中": round(d["wd_hit"], 3), "直径km": d["diam_km"], "紧凑度": d["compact"]})
+    r["blocks"] = len(detail)
+    r["block_detail"] = detail
+    r["blocks_worked"] = sum(1 for d in detail if d["跑到的计划店"] > 0)
+    r["block_worked_rate"] = round(r["blocks_worked"] / max(len(detail), 1), 3)
+    execv = [d["执行率"] for d in detail]
+    r["block_exec_median"] = round(float(np.median(execv)), 3) if execv else 0.0
+    r["block_exec_min"] = round(float(np.min(execv)), 3) if execv else 0.0
+    r["svc_wd_hit"] = round(float(np.mean([d["星期命中"] for d in detail])), 3) if detail else 0.0
+    r["block_balance_cv"] = blk["diag"]["svc_cv"]
+    r["block_compact"] = blk["diag"]["svc_compact"]
+    r["block_sizes"] = [d["计划店"] for d in detail][:5]
+    # 哪些块的"服务日"和实际主力不同(星期缺口, 就是"计划不贴实际"的位置)
+    gaps = [d for d in detail if d["服务日"] and d["星期命中"] < 0.999]
+    r["wd_gap_blocks"] = "; ".join(
+        f"{d['块']}(服务日{d['服务日']}·{d['计划店']}店·命中{d['星期命中']*100:.0f}%·实际主力{d['实际主力']})" for d in gaps[:5])
+    r["wd_gap_stores"] = int(round(sum(d["计划店"] * (1 - d["星期命中"]) for d in gaps)))
+
     # 形状
-    if len(sto2):
-        la = sto2["lat"].mean()
-        r["east_km"] = round(float((sto2["lng"].max() - sto2["lng"].min()) * KM * np.cos(np.radians(la))), 1)
-        r["north_km"] = round(float((sto2["lat"].max() - sto2["lat"].min()) * KM), 1)
-        nn = []
-        for b, g in sto2.groupby("blk"):
-            pts = list(zip(g["lat"], g["lng"]))
-            for i, p in enumerate(pts):
-                nn.append(min(haversine_km(p, q) * 1000 for j, q in enumerate(pts) if j != i)) if len(pts) > 1 else None
-        r["nn_median_m"] = int(np.nanmedian(nn)) if nn else None
-    # 节奏(实际全部到访; 含计划外, 因为要描述他"怎么干活")
+    la = sto["lat"].mean()
+    r["east_km"] = round(float((sto["lng"].max() - sto["lng"].min()) * KM * np.cos(np.radians(la))), 1)
+    r["north_km"] = round(float((sto["lat"].max() - sto["lat"].min()) * KM), 1)
+    nn = []
+    for b, g in sto.assign(blk=[blk["blocks"].get(c) for c in sto["customer_code"]]).groupby("blk"):
+        pts = list(zip(g["lat"], g["lng"]))
+        for i, pt in enumerate(pts):
+            if len(pts) > 1:
+                nn.append(min(haversine_km(pt, q) * 1000 for j, q in enumerate(pts) if j != i))
+    r["nn_median_m"] = int(np.nanmedian(nn)) if nn else None
+    # 节奏
     cmap = sto.set_index("customer_code")[["lat", "lng"]]
     ac = a.join(cmap, on="customer_code").dropna(subset=["lat", "lng"])
     per_day = ac.groupby("call_date").agg(店=("customer_code", "size"))
@@ -224,16 +202,17 @@ def dossier_for(lid, pl, a, names):
     wdc = a["wd"].value_counts().to_dict()
     r["wd_visits"] = [int(wdc.get(i, 0)) for i in range(7)]
     rad = []
-    for d, g in ac.groupby("call_date"):
+    for _, g in ac.groupby("call_date"):
         if len(g) < 2:
             continue
         c = (g["lat"].mean(), g["lng"].mean())
         rad.append(max(haversine_km(c, (x.lat, x.lng)) for x in g.itertuples()))
     r["day_radius_km"] = round(float(np.median(rad)), 2) if rad else None
-    zpd = ac.assign(blk=lambda d: d["customer_code"].map(blk_of)).dropna(subset=["blk"]).groupby("call_date")["blk"].nunique()
+    ac = ac.assign(blk=[blk["blocks"].get(c) for c in ac["customer_code"]])
+    zpd = ac.dropna(subset=["blk"]).groupby("call_date")["blk"].nunique()
     r["zones_per_day"] = round(float(zpd.median()), 1) if len(zpd) else None
-    r["freq_1"] = int((a.groupby("customer_code").size() == 1).sum())
-    r["freq_2p"] = int((a.groupby("customer_code").size() >= 2).sum())
+    freq = a.groupby("customer_code").size()
+    r["freq_1"] = int((freq == 1).sum()); r["freq_2p"] = int((freq >= 2).sum())
     r["kind"] = classify(r)
     r["story"] = story(r)
     return r
@@ -279,9 +258,9 @@ def main():
             md.append(f"### {x.line} · {x.kind}\n\n{x.story}\n")
             det = next((r.get("block_detail") for r in recs if r["line"] == x.line), None)
             if det:
-                md.append("| 块 | 中心 | 计划店 | 跑到 | 执行率 | 计划星期 | 实际主力星期 |\n|---|---|---|---|---|---|---|")
+                md.append("| 块(服务日) | 计划店 | 跑到 | 执行率 | 服务日 | 实际主力 | 星期命中 | 直径km | 紧凑度 |\n|---|---|---|---|---|---|---|---|---|")
                 for d in det[:12]:
-                    md.append(f"| {d['块']} | {d['中心']} | {d['计划店']} | {d['跑到的计划店']} | {d['执行率']*100:.0f}% | {d['计划星期']} | {d['实际主力星期']} |")
+                    md.append(f"| {d['块']} | {d['计划店']} | {d['跑到的计划店']} | {d['执行率']*100:.0f}% | {d['服务日']} | {d['实际主力']} | {d['星期命中']*100:.0f}% | {d['直径km']} | {d['紧凑度']} |")
                 md.append("")
     md_text = "\n".join(md)
     (ROOT / "docs/reports/2026-09-22-rep-dossier.md").write_text(md_text, encoding="utf-8")

@@ -25,6 +25,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from experiments.top5_portrait import components  # noqa: E402
+from experiments.blocks import build as build_blocks  # noqa: E402
 
 UFS = Path("/Users/ghb/UFS-demo")
 PLAN_XLSX = Path(os.environ.get("PLAN_XLSX", str(UFS / "更新后的8月规划.xlsx")))
@@ -66,16 +67,45 @@ def build():
         cells = {r.customer_code: h3.latlng_to_cell(float(r.lat), float(r.lng), 7) for r in sto.itertuples()}
         comp = components(list(cells.values()))
         blk_of = {c: comp[cells[c]] for c in cells}
+        blkres = build_blocks(pl, a)          # 业务口径: 服务日 × 连通
+        svc_blk = blkres["blocks"] if blkres else {}
+        svc_day_of = {c: None for c in cells}
+        if blkres:
+            for d in blkres["detail"]:
+                for c in d["codes"]:
+                    svc_day_of[c] = d["svc_day"]
         d = doss.get(lid, {})
+        # H3 res7 格: 计划门店落在哪些格; 每格的片区号/实际主力星期/计划主力星期
+        cell_act, cell_plan = {}, {}
+        for r in sto.itertuples():
+            c = cells[r.customer_code]
+            w = awd.get(r.customer_code)
+            if w is not None:
+                cell_act.setdefault(c, Counter())[w] += int(cv.get(r.customer_code, 0))
+            pw0 = pwd.get(r.customer_code)
+            if pw0 is not None and pw0 == pw0:
+                sd = svc_day_of.get(r.customer_code)
+            cell_plan.setdefault(c, Counter())[int(sd) - 1 if sd else (int(pw0) if pw0 == pw0 else 0)] += 1
+        zidx = {b: i for i, b in enumerate(sorted(set(svc_blk.values()) | set(blk_of.values()), key=str))}
+        h3cells = []
+        for c in sorted(set(cells.values())):
+            ca = cell_act.get(c); cp = cell_plan.get(c)
+            h3cells.append([c, zidx[svc_blk.get(next(k for k, v in cells.items() if v == c), blk_of[next(k for k, v in cells.items() if v == c)])],
+                            int(ca.most_common(1)[0][0]) if ca else -1,
+                            int(cp.most_common(1)[0][0]) if cp else -1])
         # 每块: 门店凸包 + 计划/实际主力星期 + 执行率
         blocks = []
         blk_centers = {}
-        for b, g in sto.assign(blk=[blk_of[c] for c in sto["customer_code"]]).groupby("blk"):
+        for b, g in sto.assign(blk=[svc_blk.get(c, blk_of.get(c)) for c in sto["customer_code"]]).groupby("blk"):
             pts = np.array([[float(r.lat), float(r.lng)] for r in g.itertuples()])
             blk_centers[b] = (pts[:, 0].mean(), pts[:, 1].mean())
             hull = convex_hull(pts)
-            bwd_plan = Counter(pl[pl["customer_code"].isin(set(g["customer_code"]))]["wd"]).most_common(1)
-            plan_wd = int(bwd_plan[0][0]) if bwd_plan else -1
+            _svc = Counter([svc_day_of.get(c) for c in g["customer_code"] if svc_day_of.get(c)])
+            if _svc:
+                plan_wd = int(_svc.most_common(1)[0][0]) - 1
+            else:
+                _bp = Counter(pl[pl["customer_code"].isin(set(g["customer_code"]))]["wd"]).most_common(1)
+                plan_wd = int(_bp[0][0]) if _bp else -1
             sub = a[a["customer_code"].isin(set(g["customer_code"]))]
             act_wd = int(Counter(sub["wd"]).most_common(1)[0][0]) if len(sub) else -1
             done = len(set(g["customer_code"]) & set(a["customer_code"]))
@@ -87,21 +117,25 @@ def build():
         stores = []
         for r in sto.itertuples():
             v = int(cv.get(r.customer_code, 0))
-            pw = pwd.get(r.customer_code)
+            sd = svc_day_of.get(r.customer_code)
+            pw = (int(sd) - 1) if sd else pwd.get(r.customer_code)
             w = awd.get(r.customer_code)
             mism = bool(v > 0 and pw is not None and pw == pw and int(pw) not in awset.get(r.customer_code, set()))
             stores.append([round(float(r.lat), 5), round(float(r.lng), 5),
                            int(pw) if pw is not None and pw == pw else -1,
                            int(w) if w is not None else -1, v, 1 if mism else 0,
                            str(r.customer_name)[:26]])
-        out.append({"line": lid, "city": d.get("city", ""), "kind": d.get("kind", "?"),
+        n_never = sum(1 for st in stores if st[4] == 0)
+        n_mism = sum(1 for st in stores if st[5] == 1)
+        diff = {"never": n_never, "mismatch": n_mism, "score": n_never + n_mism}
+        out.append({"line": lid, "city": d.get("city", ""), "kind": d.get("kind", "?"), "diff": diff,
                     "story": d.get("story", ""), "stats": {
                         "plan_stores": int(sto["customer_code"].nunique()), "plan_rows": int(len(pl)),
                         "act_visits": int(len(a)), "blocks": len(blocks),
                         "worked": d.get("blocks_worked", 0),
-                        "exec": d.get("block_exec_median", 0), "wdrate": d.get("block_wd_rate", 0),
+                        "exec": d.get("block_exec_median", 0), "wdrate": d.get("svc_wd_hit", 0),
                         "cover": d.get("cover", 0), "sameday": d.get("sameday", 0), "qty": d.get("qty", 0)},
-                    "blocks": blocks, "stores": stores,
+                    "blocks": blocks, "stores": stores, "h3": h3cells,
                     "bd": d.get("block_detail", [])})
     return out
 
@@ -151,6 +185,7 @@ HTML = """<!DOCTYPE html>
  th,td{padding:3px 6px;border-bottom:1px solid #232733;text-align:right;white-space:nowrap}
  th{color:#93a2b8;background:#161a22} td:nth-child(1),th:nth-child(1),td:nth-child(2),th:nth-child(2){text-align:left}
  .bad{color:#fca5a5} .ok{color:#86efac}
+ .blklbl span{font-size:11.5px;font-weight:600;color:#cbd5e1;text-shadow:0 0 4px #000,0 0 4px #000;white-space:nowrap;transform:translate(-50%,-50%);display:inline-block}
  .noTile{position:absolute;z-index:400;margin:6px 8px;padding:3px 7px;font-size:11px;background:#7c2d12cc;color:#fff;border-radius:5px}
 </style></head><body>
 <header>
@@ -160,14 +195,17 @@ HTML = """<!DOCTYPE html>
   <select id="pick"></select>
   <button id="prev">← 上一位</button><button id="next">下一位 →</button>
   <span class="chip" id="cnt"></span>
+  <span class="chip"><a href="#" id="sortdiff">按差异排序</a></span>
+  <span class="chip"><a href="#" id="nextdiff">下一位差异最大 →</a></span>
   <span class="chip">面：<a href="#" id="fm">星期</a>/<a href="#" id="fz">片区</a></span>
   <span class="chip">点：<a href="#" id="pm">实际</a>/<a href="#" id="pp">计划</a></span>
-  <span class="chip"><a href="#" id="on">只看未访</a></span>
+  <span class="chip"><a href="#" id="on">只看差异</a></span>
   <span class="chip"><a href="#" id="om">高亮星期错位</a></span>
  </div>
 </header>
 <div class="wrap">
  <div id="head" class="story"></div>
+ <div id="diffbar" class="story" style="border-color:#7c2d12;background:#1c1512"></div>
  <div class="pair">
   <div class="colL"><div class="colhd"><span>计划安排</span><span id="lstat"></span></div><div class="map" id="mL"></div></div>
   <div class="colR"><div class="colhd"><span>实际走访</span><span id="rstat"></span></div><div class="map" id="mR"></div></div>
@@ -176,6 +214,7 @@ HTML = """<!DOCTYPE html>
  <div id="blocks"></div>
 </div>
 <script>__JS__</script>
+<script>__H3JS__</script>
 <script>
 const D = __DATA__, WDL = __WDL__, WDC = __WDC__, ZC = __ZC__;
 const sel = document.getElementById('pick'), q = document.getElementById('q');
@@ -185,10 +224,16 @@ let faceMode='wd', ptMode='act', onlyNever=false, showMismatch=true, mL=null, mR
 function filterOptions(){
   const s = q.value.trim().toLowerCase();
   const keep = D.map((d,i)=>[d,i]).filter(([d])=>(d.line+' '+d.city+' '+d.kind).toLowerCase().includes(s));
-  sel.innerHTML = keep.map(([d,i])=>`<option value="${i}">${d.line} · ${d.city} · ${d.kind}</option>`).join('');
+  sel.innerHTML = keep.map(([d,i])=>`<option value="${i}">${d.line} · ${d.city} · ${d.kind} · 差异 ${d.diff.score}</option>`).join('');
   document.getElementById('cnt').textContent = `匹配 ${keep.length} / ${D.length} 人`;
   if (keep.length && !keep.find(([,i])=>i===idx)) sel.value = keep[0][1];
 }
+let sortByDiff = false;
+document.getElementById('sortdiff').onclick = e => { e.preventDefault(); sortByDiff = !sortByDiff;
+  D.sort((a,b)=> sortByDiff ? (b.diff.score - a.diff.score) : a.line.localeCompare(b.line)); filterOptions(); render(); };
+document.getElementById('nextdiff').onclick = e => { e.preventDefault();
+  let best=-1, bi=-1; D.forEach((d,i)=>{ if (i!==idx && d.diff.score>best){best=d.diff.score; bi=i;} });
+  if (bi>=0){ idx=bi; render(); } };
 q.oninput = filterOptions; filterOptions();
 sel.onchange = () => { idx = +sel.value; render(); };
 document.getElementById('prev').onclick = () => { const o=sel.options; const k=sel.selectedIndex; if(k>0){sel.selectedIndex=k-1; idx=+sel.value; render();} };
@@ -216,6 +261,11 @@ function render(){
   const s = d.stats;
   document.getElementById('head').innerHTML =
     `<b>${d.line} · ${d.city}</b> · <span style="color:#7dd3fc">${d.kind}</span><br>${d.story}`;
+  document.getElementById('diffbar').innerHTML =
+    `左右差异：<b style="color:#fca5a5">未到访 ${d.diff.never} 店</b> · <b style="color:#fbbf24">星期不一致 ${d.diff.mismatch} 店</b>` +
+    ` · 计划 ${s.plan_rows} 次 → 实际 ${s.act_visits} 次（量比 ${s.qty}） · 覆盖 ${(s.cover*100).toFixed(0)}% · 同日 ${(s.sameday*100).toFixed(0)}%` +
+    ` · 块：开工 ${s.worked}/${s.blocks}、块内执行 ${(s.exec*100).toFixed(0)}%、**服务日命中 ${(s.wdrate*100).toFixed(0)}%**`
+    + (d.diff.score === 0 ? ' <span style="color:#86efac">（这位左右完全一致，属于"照做型"）</span>' : '');
   document.getElementById('lstat').textContent = `${s.plan_stores} 店 / ${s.plan_rows} 次（${s.blocks} 块）`;
   document.getElementById('rstat').textContent = `${s.act_visits} 次到访`;
   if (mL) { mL.remove(); mR.remove(); }
@@ -224,7 +274,7 @@ function render(){
   sync(mL,mR); sync(mR,mL);
   const bounds=[]; const pop = st => `<b>${st[6]}</b><br>计划星期 ${st[2]>=0?WDL[st[2]]:'—'} · 实际主力 ${st[3]>=0?WDL[st[3]]:'—'} · 到访 ${st[4]} 次`;
   d.stores.forEach((st,i) => {
-    if (onlyNever && st[4] > 0) return;
+    if (onlyNever && st[4] > 0 && st[5] === 0) return;
     const nev = st[4] === 0, off = st[5] === 1;
     const mk = (color, rad, fill, dash, stroke, sw) => L.circleMarker([st[0], st[1]],
       {radius:rad, color:stroke, weight:sw, dashArray:dash, fillColor:color, fillOpacity:fill}).bindPopup(pop(st));
@@ -236,25 +286,45 @@ function render(){
       d.__mk = d.__mk || {};
     }
     // 左图
-    L.circleMarker([st[0],st[1]], {radius: nev?3:4.5, color: nev?'#f87171':(off&&showMismatch?'#fbbf24':'#0b0d12'),
-      weight: nev?1.5:(off&&showMismatch?2:.5), dashArray: nev?'2,2':null,
+    L.circleMarker([st[0],st[1]], {radius: nev?3:(off&&showMismatch?6.5:4.5), color: nev?'#f87171':(off&&showMismatch?'#fbbf24':'#0b0d12'),
+      weight: nev?1.5:(off&&showMismatch?3:.5), dashArray: nev?'2,2':null,
       fillColor: nev?'#f87171':WDC[Math.max(st[2],0)], fillOpacity: nev?.12:.85}).bindPopup(pop(st)).addTo(mL);
     // 右图(点大小=到访次数; 只看未访时仅未访点)
-    if (!onlyNever) {
+    if (!onlyNever || nev || st[5]===1) {
       L.circleMarker([st[0],st[1]], {radius: nev?3:2.6+Math.min(st[4],6)*1.1, color: nev?'#f87171':(off&&showMismatch?'#fbbf24':'#0b0d12'),
-        weight: nev?1.5:(off&&showMismatch?2:.5), dashArray: nev?'2,2':null,
+        weight: nev?1.5:(off&&showMismatch?3:.5), dashArray: nev?'2,2':null,
         fillColor: nev?'#f87171':WDC[Math.max(st[3],0)], fillOpacity: nev?.12:.95}).bindPopup(pop(st)).addTo(mR);
     } else if (nev) {
       L.circleMarker([st[0],st[1]], {radius:3, color:'#f87171', weight:1.5, dashArray:'2,2', fillColor:'#f87171', fillOpacity:.12}).bindPopup(pop(st)).addTo(mR).addTo(mL);
     }
     if (!onlyNever || nev) bounds.push([st[0], st[1]]);
   });
+  // ---- H3 res7 真六边形 (按面口径染色) ----
+  const H3 = (typeof h3 !== 'undefined') ? h3 : null;
+  if (H3 && d.h3) {
+    d.h3.forEach(hc => {
+      const [cid, z, wa, wp] = hc;
+      const ring = H3.cellToBoundary(cid).map(p => [p[0], p[1]]);
+      const colL = faceMode==='zone' ? ZC[z % ZC.length] : WDC[Math.max(wp,0)];
+      const colR = faceMode==='zone' ? ZC[z % ZC.length] : WDC[Math.max(wa,0)];
+      const isMis = (wp>=0 && wa>=0 && wp!==wa);
+      L.polygon(ring, {color: isMis?'#fbbf24':colL, weight: isMis?2:0.8, opacity:.95, fillColor: colL, fillOpacity:.18}).addTo(mL);
+      L.polygon(ring, {color: isMis?'#fbbf24':colR, weight: isMis?2:0.8, opacity:.95, fillColor: colR, fillOpacity:.18}).addTo(mR);
+      ring.forEach(p=>bounds.push(p));
+    });
+  }
   d.blocks.forEach((b,k) => {
     const col = faceMode==='zone' ? ZC[k % ZC.length] : (ptMode==='plan' ? WDC[Math.max(b.wp,0)] : WDC[Math.max(b.wa,0)]);
     const colL = faceMode==='zone' ? ZC[k % ZC.length] : WDC[Math.max(b.wp,0)];
     const colR = faceMode==='zone' ? ZC[k % ZC.length] : WDC[Math.max(b.wa,0)];
-    L.polygon(b.pts, {color:colL, weight:1.2, opacity:.9, fillColor:colL, fillOpacity:.14}).addTo(mL);
-    L.polygon(b.pts, {color:colR, weight:1.2, opacity:.9, fillColor:colR, fillOpacity:.14}).addTo(mR);
+    const mismBlock = (b.wp>=0 && b.wa>=0 && b.wp!==b.wa);
+    // 块凸包仅作淡描(区块分组), 主视觉用 H3 六边形
+    L.polygon(b.pts, {color:'#94a3b8', weight:1, opacity:.35, dashArray:'4,4', fill:false}).addTo(mL);
+    L.polygon(b.pts, {color:'#94a3b8', weight:1, opacity:.35, dashArray:'4,4', fill:false}).addTo(mR);
+    const lbl = `${k+1}. ${WDL[Math.max(b.wp,0)]||'—'}→${WDL[Math.max(b.wa,0)]||'未开工'}${mismBlock?' ⚠':''} · ${b.done}/${b.n}`;
+    const ico = L.divIcon({className:'blklbl', html:`<span style="${mismBlock?'color:#fbbf24':''}">${lbl}</span>`, iconSize:[0,0]});
+    L.marker(b.c, {icon: ico, interactive:false}).addTo(mL);
+    L.marker(b.c, {icon: ico, interactive:false}).addTo(mR);
     b.pts.forEach(p=>bounds.push(p));
   });
   const c = bounds.length ? L.latLngBounds(bounds) : null;
@@ -264,12 +334,13 @@ function render(){
     WDL.map((n,k)=>`<span><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${WDC[k]};margin-right:4px;vertical-align:-1px"></i>${n}</span>`).join('') +
     `<span style="color:#64748b">|</span><span><i style="display:inline-block;width:10px;height:10px;border:1px dashed #f87171;border-radius:50%;margin-right:4px;vertical-align:-1px"></i>未到访</span>` +
     `<span><i style="display:inline-block;width:10px;height:10px;border:2px solid #fbbf24;border-radius:50%;margin-right:4px;vertical-align:-1px"></i>星期错位</span>` +
-    `<span style="color:#64748b">| 面按${faceMode==='zone'?'片区':'星期'}、点按${ptMode==='plan'?'计划':'实际'}星期；块轮廓=该块门店凸包</span>`;
+    `<span style="color:#64748b">| 面＝H3 res7 六边形（按${faceMode==='zone'?'片区':'星期'}染色，⚠ 黄边=该格计划/实际星期不同）；虚线轮廓=区块分组</span>`;
   const bd = d.bd || [];
-  document.getElementById('blocks').innerHTML = bd.length ? `<table><thead><tr><th>块</th><th>中心</th><th>计划店</th><th>跑到</th><th>执行率</th><th>计划星期</th><th>实际主力</th></tr></thead><tbody>` +
-    bd.map(b=>`<tr><td>${b['块']}</td><td style="color:#64748b">${b['中心']}</td><td>${b['计划店']}</td><td>${b['跑到的计划店']}</td>
-      <td class="${b['执行率']>=0.85?'ok':'bad'}">${(b['执行率']*100).toFixed(0)}%</td><td>${b['计划星期']}</td>
-      <td>${b['实际主力星期']}${(b['计划星期']&&b['实际主力星期']&&b['计划星期']!==b['实际主力星期']&&b['实际主力星期']!=='未开工')?' ⚠':''}</td></tr>`).join('') + `</tbody></table>` : '';
+  document.getElementById('blocks').innerHTML = bd.length ? `<table><thead><tr><th>块(服务日)</th><th>计划店</th><th>跑到</th><th>执行率</th><th>服务日</th><th>实际主力</th><th>星期命中</th><th>直径km</th><th>紧凑度</th></tr></thead><tbody>` +
+    bd.map(b=>`<tr><td>${b['块']}</td><td>${b['计划店']}</td><td>${b['跑到的计划店']}</td>
+      <td class="${(b['执行率']||0)>=0.85?'ok':'bad'}">${((b['执行率']||0)*100).toFixed(0)}%</td><td>${b['服务日']||''}</td>
+      <td>${b['实际主力']||''}</td><td class="${(b['星期命中']||0)>=0.9?'ok':'bad'}">${((b['星期命中']||0)*100).toFixed(0)}%</td>
+      <td>${b['直径km']}</td><td>${b['紧凑度']}</td></tr>`).join('') + `</tbody></table>` : '';
 }
 const iv = +(location.hash.replace('#i=','') || location.search.match(/[?&]i=(\\d+)/)?.[1] || NaN);
 if (!isNaN(iv) && iv < D.length) idx = iv;
@@ -282,14 +353,16 @@ def main():
     recs = build()
     css = Path('/tmp/leaflet.css').read_text() if Path('/tmp/leaflet.css').exists() else ''
     js = Path('/tmp/leaflet.js').read_text() if Path('/tmp/leaflet.js').exists() else ''
-    html = (HTML.replace('__CSS__', css).replace('__JS__', js)
+    h3js = Path('/tmp/h3js.js').read_text() if Path('/tmp/h3js.js').exists() else ''
+    html = (HTML.replace('__CSS__', css).replace('__JS__', js).replace('__H3JS__', h3js)
                 .replace('__DATA__', json.dumps(recs, ensure_ascii=False, separators=(',', ':')))
                 .replace('__WDL__', json.dumps(WD, ensure_ascii=False))
                 .replace('__WDC__', json.dumps(["#e6194b", "#1f77b4", "#2ca02c", "#ff7f0e", "#9467bd", "#8c564b", "#7f7f7f"]))
                 .replace('__ZC__', json.dumps(["#2563eb", "#dc2626", "#16a34a", "#ca8a04", "#9333ea", "#0891b2", "#be185d", "#4d7c0f"])))
     OUT.write_text(html, encoding="utf-8")
     print(f"写出 {OUT} ({OUT.stat().st_size/1024/1024:.1f} MB) | 线 {len(recs)} | 门店点 {sum(len(r['stores']) for r in recs)}")
-    print(f"块总数 {sum(len(r['blocks']) for r in recs)}")
+    print(f"块总数 {sum(len(r['blocks']) for r in recs)} | H3格 {sum(len(r['h3']) for r in recs)}")
+    print(f"平均每线 {sum(len(r['h3']) for r in recs)/max(len(recs),1):.0f} 格")
 
 
 if __name__ == "__main__":
