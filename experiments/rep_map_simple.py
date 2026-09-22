@@ -109,13 +109,14 @@ def main():
                      "verdict": vd, "habit": hb, "mism": mm,
                      "shape": round(shape, 3), "wdm": round(wdm, 3), "kind3": kind3,
                      "cp": round(cp_plan, 2), "ca": round(cp_act, 2),
+                     "cpflag": ("相当" if abs(cp_act - cp_plan) < 0.01 else ("实际更紧凑" if cp_act > cp_plan else "计划更紧凑")),
                      "rp": round(r_plan, 2), "ra": round(r_act, 2),
                      "plan": plan_cells, "act": act_cells,
                      "np": len(plan_cells), "na": len(act_cells)})
     cp = [r["cp"] for r in recs]; ca = [r["ca"] for r in recs]
-    better = sum(1 for r in recs if r["ca"] > r["cp"] + 0.01)
-    worse = sum(1 for r in recs if r["cp"] > r["ca"] + 0.01)
-    same = len(recs) - better - worse
+    better = sum(1 for r in recs if r["cpflag"] == "实际更紧凑")
+    worse = sum(1 for r in recs if r["cpflag"] == "计划更紧凑")
+    same = sum(1 for r in recs if r["cpflag"] == "相当")
     import statistics as _st
     print(f"紧凑度(等效半径/平均半径, 1.5=完美圆): 计划中位 {_st.median(cp):.2f} | 实际中位 {_st.median(ca):.2f}")
     print(f"  实际更紧凑 {better} 条 ({better/len(recs)*100:.0f}%) | 计划更紧凑 {worse} 条 ({worse/len(recs)*100:.0f}%) | 相当 {same} 条")
@@ -159,6 +160,12 @@ input{width:220px} select{max-width:380px} button{cursor:pointer}
     <option value="计划不够好">计划不够好（他有规律，计划写错天）</option>
     <option value="执行有问题">执行有问题（他自己没规律）</option>
   </select>
+  <select id="cpf">
+    <option value="">紧凑度：全部</option>
+    <option value="实际更紧凑">实际更紧凑</option>
+    <option value="计划更紧凑">计划更紧凑</option>
+    <option value="相当">两者相当</option>
+  </select>
   <select id="pick"></select>
   <button id="prev">上一位</button><button id="next">下一位</button>
   <span class="num" id="count"></span>
@@ -176,7 +183,7 @@ const D = __DATA__, WDL = __WDL__;
 const C = ['#e6194b','#1f77b4','#2ca02c','#ff7f0e','#9467bd','#8c564b','#64748b'];
 const MISS_FILL = '#334155', MISS_EDGE = '#ef4444';
 const sel=document.getElementById('pick'), q=document.getElementById('q');
-const kindf=document.getElementById('kindf'), verdictf=document.getElementById('verdictf');
+const kindf=document.getElementById('kindf'), verdictf=document.getElementById('verdictf'), cpf=document.getElementById('cpf');
 let i0 = +(new URLSearchParams(location.search).get('i')||0);   // 必须先于 fill() 调用
 function fill(){
   const s=q.value.trim().toLowerCase();
@@ -184,9 +191,10 @@ function fill(){
     if (s && !(d.line+' '+d.city).toLowerCase().includes(s)) return false;
     if (kindf.value && d.kind3!==kindf.value) return false;
     if (verdictf.value && !(d.verdict||'').startsWith(verdictf.value)) return false;
+    if (cpf.value && d.cpflag !== cpf.value) return false;
     return true;
   });
-  sel.innerHTML=keep.map(([d,i])=>`<option value="${i}">${d.line} · ${d.city} · ${d.kind3}${d.verdict?' · '+d.verdict.split('（')[0]:''}</option>`).join('');
+  sel.innerHTML=keep.map(([d,i])=>`<option value="${i}">${d.line} · ${d.city} · ${d.kind3}${d.verdict?' · '+d.verdict.split('（')[0]:''} · ${d.cpflag}</option>`).join('');
   document.getElementById('count').textContent = `匹配 ${keep.length} / ${D.length} 条`;
   if(keep.length && !keep.find(([,i])=>i===+sel.value)) sel.value=keep[0][1];
   if(keep.length) { i0=+sel.value; draw(); }
@@ -239,7 +247,7 @@ function draw(){
       <td style="padding:3px 6px;border-top:1px solid #232733;text-align:center;color:${(b.a&&b.p&&b.a!==b.p)?'#fbbf24':'#a3e635'}">${b.a||''}</td></tr>`).join('') +
     `</tbody></table>` : '';
 }
-q.oninput=fill; kindf.onchange=fill; verdictf.onchange=fill;
+q.oninput=fill; kindf.onchange=fill; verdictf.onchange=fill; cpf.onchange=fill;
 fill();          // 首次筛选 + 绘制
 </script></body></html>
 """
