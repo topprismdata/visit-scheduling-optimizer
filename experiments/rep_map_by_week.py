@@ -236,13 +236,16 @@ th{color:#93a2b8}
   <button id="prev">上一位</button><button id="next">下一位</button>
   <span class="num" id="count"></span>
   <span class="num" id="tilestat"></span>
-  <span class="num" style="color:#64748b">版本 __BUILD__（底图默认腾讯）</span>
+  <span class="num" style="color:#64748b">版本 __BUILD__（底图默认高德 1~4）</span>
   <button id="tilebtn">底图：自动</button>
+  <button id="onlymap">只看地图</button>
+  <select id="dayf" title="走廊模式: 看哪一天"><option value="-1">走廊：全部天</option></select>
   <span class="legend">__LEGEND__</span>
 </header>
-<div class="num" id="stat" style="padding:6px 16px 0"></div>
-<div class="num" id="roadstat" style="padding:2px 16px 0;color:#8b93a7;font-size:13px"></div>
-<div class="num" style="padding:2px 16px 0;color:#8b93a7;font-size:12px">提示：单周对比受"月度轮访"影响——计划安排在某周的店，业代可能实际在别的周去；判断"计划 vs 实际"以<b>全月</b>为准，单周用来看节奏。</div>
+<div id="filewarn" style="display:none;margin:8px 16px;padding:8px 12px;background:#7f1d1d;border:1px solid #ef4444;border-radius:8px;color:#fff;font-size:13px">
+  ⚠ 你正用 <b>file://</b> 打开本页（浏览器把 file 当成独立源，可能显示空白/无法取路网）。<br>
+  请改用：<b><a href="http://127.0.0.1:8778/" style="color:#fde68a">http://127.0.0.1:8778/</a></b>（同一份内容，服务已禁缓存）
+</div>
 <div class="pair" id="mapPair">
   <div><div class="tag l">计 划</div><div class="map" id="mL"></div></div>
   <div><div class="tag r">实 际</div><div class="map" id="mR"></div></div>
@@ -251,12 +254,16 @@ th{color:#93a2b8}
   <div><div class="tag l">计 划 每日店数</div><div id="cL"></div></div>
   <div><div class="tag r">实 际 每日店数</div><div id="cR"></div></div>
 </div>
+<div class="num" id="stat" style="padding:6px 16px 0"></div>
+<div class="num" id="roadstat" style="padding:2px 16px 0;color:#8b93a7;font-size:13px"></div>
+<div class="num" style="padding:2px 16px 0;color:#8b93a7;font-size:12px">提示：单周对比受"月度轮访"影响——计划安排在某周的店，业代可能实际在别的周去；判断"计划 vs 实际"以<b>全月</b>为准，单周用来看节奏。</div>
 <div id="tbl" style="padding:0 12px 20px"></div>
 <script>__LEAFLET__</script><script>__H3__</script>
 <script>
 const TILE_PROVIDERS = [
-  {name:'腾讯', url:'https://rt{s}.map.gtimg.com/realtimerender?z={z}&x={x}&y={y}&type=vector&style=0', sub:'0123', maxZoom:18},
-  {name:'高德', url:'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', sub:'0123', maxZoom:18},
+  // 注意: 高德子域名只能 1~4(webd00 不存在→连接会 RESET)
+  {name:'高德路网', url:'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', sub:'1234', maxZoom:18},
+  {name:'高德矢量', url:'https://wprd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scl=1&style=7&x={x}&y={y}&z={z}', sub:'1234', maxZoom:18},
 ];
 let tilePref = 'auto';
 function addTiles(map, onStatus){
@@ -387,20 +394,34 @@ function renderCorridor(d, m){
   let sL='', sR='';
   addTiles(mL, t=>{sL=t; document.getElementById('tilestat').textContent=`底图 左:${sL} 右:${sR}`;});
   addTiles(mR, t=>{sR=t; document.getElementById('tilestat').textContent=`底图 左:${sL} 右:${sR}`;});
+  const pickDay = (days)=>{ const k=+(document.getElementById('dayf').value); return k < 0 ? days : (days[k] ? [days[k]] : []); };
+  const clearMap = m => m.eachLayer(l => { if (!(l instanceof L.TileLayer)) m.removeLayer(l); });
   const apply=(daysP, daysA, tag)=>{
-    const b=drawLines(mL, mR, daysP, daysA, tag);
+    clearMap(mL); clearMap(mR);                       // 先清旧图层(否则直线版与沿路版会叠加)
+    const b=drawLines(mL, mR, pickDay(daysP), pickDay(daysA), tag);
     if(!b.length) return;
     const bb=L.latLngBounds(b); mL.fitBounds(bb,{padding:[10,10]}); mR.fitBounds(bb,{padding:[10,10]});
     mL.setView(mR.getCenter(),mR.getZoom(),{animate:false});
   };
   const setTag=(txt)=>{ document.getElementById('roadstat').innerHTML = txt; };
+  const fillDays=(nP, nA)=>{
+    const n=Math.max(nP||0, nA||0); const el=document.getElementById('dayf');
+    const keep=el.value;
+    el.innerHTML='<option value="-1">走廊：全部天</option>' + Array.from({length:n},(_,i)=>`<option value="${i}">第 ${i+1} 天</option>`).join('');
+    // 默认看"第1天"(单天走廊最清楚); 若用户已选某天则保留
+    const k = +keep;
+    el.value = (keep==='' || k < 0 || k >= n) ? (n>0 ? '0' : '-1') : keep;
+  };
   // 先用直线版立即出图(用走廊分组+门店坐标现算)
   const straightDays=(geom)=> (geom||[]).map(([name, ids])=>[0, ids.map(i=>xy[i]).filter(Boolean)]).filter(x=>x[1].length>1);
   const xy = d.xy||[];
   apply(straightDays(m.geom_p), straightDays(m.geom_a), 'straight');
-  setTag(`走廊线：计划 ${(m.geom_p||[]).length} 条路 / 实际 ${(m.geom_a||[]).length} 条路　<span style="color:#fbbf24">正在取沿路几何…</span>`);
+  const nP0=(m.geom_p||[]).length, nA0=(m.geom_a||[]).length;
+  fillDays(nP0, nA0);
+  setTag(`走廊线：计划 ${nP0} 条路 / 实际 ${nA0} 条路　<span style="color:#fbbf24">正在取沿路几何…</span>`);
   const cachedRoad = roadCache[key];
   const use = r => {
+    fillDays((r.days_plan||[]).length, (r.days_act||[]).length);
     apply(r.days_plan||[], r.days_act||[], 'road');
     setTag(`<b>沿路走廊</b>（按道路走的几何·GCJ02）：计划 ${(r.days_plan||[]).length} 天 / 实际 ${(r.days_act||[]).length} 天　<span style="color:#86efac">已按道路走</span>`);
   };
@@ -417,6 +438,7 @@ sel.onchange=()=>{i0=+sel.value; draw();};
 modef.onchange=draw; weekf.onchange=fill; kindf.onchange=fill; verdictf.onchange=fill; cpf.onchange=fill; q.oninput=fill;
 document.getElementById('prev').onclick=()=>{if(sel.selectedIndex>0){sel.selectedIndex--;i0=+sel.value;draw();}};
 document.getElementById('next').onclick=()=>{if(sel.selectedIndex<sel.options.length-1){sel.selectedIndex++;i0=+sel.value;draw();}};
+if (location.protocol === 'file:') { document.getElementById('filewarn').style.display = 'block'; }
 fill();
 </script></body></html>
 """
