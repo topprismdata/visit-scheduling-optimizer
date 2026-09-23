@@ -172,43 +172,11 @@ def main():
                     ac_corr[k] = ac_corr.get(k, 0) + 1
                     ac_s.setdefault(k, []).append(idx_of.get(c, -1))
             common = set(pc_corr) & set(ac_corr)
-            # ---- 每天一条连续线: 左=计划(NN序) 右=实际(打卡时间序) ----
-            def nn_order(pts):
-                pts = list(pts)
-                if len(pts) < 2:
-                    return pts
-                out = [pts.pop(0)]
-                while pts:
-                    last = out[-1]
-                    j = min(range(len(pts)), key=lambda i: (pts[i][0]-last[0])**2 + (pts[i][1]-last[1])**2)
-                    out.append(pts.pop(j))
-                return out
-            daysP, daysA = [], []
-            if len(pw):
-                for d, g in pw.groupby(pw["plan_day"]):
-                    pts = [(float(r.lat), float(r.lng)) for r in g.itertuples() if r.lat == r.lat]
-                    if len(pts) >= 2:
-                        daysP.append([int(pd.Timestamp(d).dayofweek), [[round(a,5), round(b,5)] for a, b in nn_order(pts)]])
-            if len(aw):
-                for d, g in aw.groupby(aw["call_date"]):
-                    g2 = g.dropna(subset=["lat_a", "lng_a"])
-                    pts = [(float(r.lat_a), float(r.lng_a)) for r in g2.itertuples()]
-                    if len(pts) >= 2:
-                        daysA.append([int(pd.Timestamp(d).dayofweek), [[round(a,5), round(b,5)] for a, b in nn_order(pts)]])
-            m["daysP"], m["daysA"] = daysP, daysA
+            # (直线兜底不再内嵌: 页面用 geom_p/geom_a + xy 现算, 省体积)
             m["geom_p"] = [[k, [i for i in pc_s.get(k, []) if i >= 0]] for k, _ in sorted(pc_corr.items(), key=lambda kv: -kv[1])]
             m["geom_a"] = [[k, [i for i in ac_s.get(k, []) if i >= 0]] for k, _ in sorted(ac_corr.items(), key=lambda kv: -kv[1])]
-            m["corridors_plan"] = sorted(pc_corr.items(), key=lambda kv: -kv[1])[:40]
-            m["corridors_act"] = sorted(ac_corr.items(), key=lambda kv: -kv[1])[:40]
             m["n_corr_plan"], m["n_corr_act"] = len(pc_corr), len(ac_corr)
             m["corr_match"] = round(len(common) / max(len(pc_corr), 1), 3)
-            m["corr_missing"] = [k for k, _ in sorted(pc_corr.items(), key=lambda kv: -kv[1]) if k not in common][:12]
-            pd_cnt = pw.groupby(pw["plan_day"].dt.day).size().to_dict()
-            ad_cnt = aw.groupby(aw["call_date"].dt.day).size().to_dict()
-            days = sorted(set(pd_cnt) | set(ad_cnt))
-            m["days"] = days
-            m["dcnt_p"] = [int(pd_cnt.get(d, 0)) for d in days]
-            m["dcnt_a"] = [int(ad_cnt.get(d, 0)) for d in days]
             scopes[str(w)] = m
         if "all" not in scopes:
             continue
@@ -296,10 +264,17 @@ function fill(){
     if(cpf.value && m.cpflag!==cpf.value) return false;
     return true;
   });
-  sel.innerHTML=keep.map(([d,i])=>{const m=cur(d);return `<option value="${i}">${d.line} · ${d.city} · ${m.kind3.split('·')[0]} · ${(m.verdict||'').split('（')[0]} · ${m.cpflag}</option>`;}).join('');
+  const curIdx = i0;                                  // 保留当前选中的人
+  let opts = keep.map(([d,i])=>{const m=cur(d);return `<option value="${i}">${d.line} · ${d.city} · ${m.kind3.split('·')[0]} · ${(m.verdict||'').split('（')[0]} · ${m.cpflag}</option>`;});
+  if (!keep.some(([,i])=>i===curIdx)) {               // 当前人不在筛选结果里 → 也保留在选择框里
+    const d0=D[curIdx], m0=cur(d0)||{};
+    opts = [`<option value="${curIdx}">${d0.line} · ${d0.city} · （当前，不在筛选内）</option>`].concat(opts);
+  }
+  sel.innerHTML=opts.join('');
+  sel.value=curIdx;                                    // 关键: 恢复选中, 不跳到第一条
+  i0=curIdx;
   document.getElementById('count').textContent=`匹配 ${keep.length} / ${D.length} 条`;
-  if(keep.length && !keep.find(([,i])=>i===+sel.value)) sel.value=keep[0][1];
-  if(keep.length){ i0=+sel.value; draw(); }
+  if(keep.length || D[curIdx]) draw();                 // 只重画, 不换人
 }
 let mL=null,mR=null;
 function draw(){
@@ -387,9 +362,11 @@ function renderCorridor(d, m){
     mL.setView(mR.getCenter(),mR.getZoom(),{animate:false});
   };
   const setTag=(txt)=>{ document.getElementById('roadstat').innerHTML = txt; };
-  // 先用直线版立即出图
-  apply(m.daysP||[], m.daysA||[], 'straight');
-  setTag(`走廊线：计划 ${(m.daysP||[]).length} 天 / 实际 ${(m.daysA||[]).length} 天　<span style="color:#fbbf24">正在取沿路几何…</span>`);
+  // 先用直线版立即出图(用走廊分组+门店坐标现算)
+  const straightDays=(geom)=> (geom||[]).map(([name, ids])=>[0, ids.map(i=>xy[i]).filter(Boolean)]).filter(x=>x[1].length>1);
+  const xy = d.xy||[];
+  apply(straightDays(m.geom_p), straightDays(m.geom_a), 'straight');
+  setTag(`走廊线：计划 ${(m.geom_p||[]).length} 条路 / 实际 ${(m.geom_a||[]).length} 条路　<span style="color:#fbbf24">正在取沿路几何…</span>`);
   const cachedRoad = roadCache[key];
   const use = r => {
     apply(r.days_plan||[], r.days_act||[], 'road');
