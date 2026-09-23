@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import time
 from collections import Counter
 from pathlib import Path
 
@@ -189,7 +190,8 @@ def main():
     html = (TEMPLATE.replace("__CSS__", css).replace("__LEAFLET__", ljs).replace("__H3__", h3js)
             .replace("__DATA__", json.dumps(recs, ensure_ascii=False, separators=(",", ":")))
             .replace("__WDL__", json.dumps(["周一", "周二", "周三", "周四", "周五", "周六", "周日"], ensure_ascii=False))
-            .replace("__LEGEND__", legend_html()))
+            .replace("__LEGEND__", legend_html())
+            .replace("__BUILD__", time.strftime("%m-%d %H:%M")))
     OUT.write_text(html, encoding="utf-8")
     print(f"写出 {OUT} ({OUT.stat().st_size/1024/1024:.1f} MB)")
     allsc = [r["scopes"]["all"] for r in recs]
@@ -207,7 +209,8 @@ def legend_html():
 
 
 TEMPLATE = """<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
-<title>计划 vs 实际（H3 地块）· 按周</title><style>__CSS__</style><style>
+<title>计划 vs 实际（H3 地块）· 按周</title>
+<!-- BUILD __BUILD__ --><style>__CSS__</style><style>
 body{margin:0;background:#0f1115;color:#e6e6e6;font:14px/1.6 -apple-system,"PingFang SC",sans-serif}
 header{padding:10px 16px;border-bottom:1px solid #232733;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 input,select,button{background:#1b2029;border:1px solid #2f3646;color:#e6e6e6;border-radius:6px;padding:5px 9px;font-size:13px}
@@ -232,6 +235,9 @@ th{color:#93a2b8}
   <select id="pick"></select>
   <button id="prev">上一位</button><button id="next">下一位</button>
   <span class="num" id="count"></span>
+  <span class="num" id="tilestat"></span>
+  <span class="num" style="color:#64748b">版本 __BUILD__（底图默认腾讯）</span>
+  <button id="tilebtn">底图：自动</button>
   <span class="legend">__LEGEND__</span>
 </header>
 <div class="num" id="stat" style="padding:6px 16px 0"></div>
@@ -247,6 +253,30 @@ th{color:#93a2b8}
 </div>
 <div id="tbl" style="padding:0 12px 20px"></div>
 <script>__LEAFLET__</script><script>__H3__</script>
+<script>
+const TILE_PROVIDERS = [
+  {name:'腾讯', url:'https://rt{s}.map.gtimg.com/realtimerender?z={z}&x={x}&y={y}&type=vector&style=0', sub:'0123', maxZoom:18},
+  {name:'高德', url:'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', sub:'0123', maxZoom:18},
+];
+let tilePref = 'auto';
+function addTiles(map, onStatus){
+  const order = tilePref==='auto' ? [0,1] : [TILE_PROVIDERS.findIndex(p=>p.name===tilePref)];
+  let idx = 0, loaded = 0, layer = null;
+  const tryNext = () => {
+    if (idx >= order.length){ onStatus && onStatus('未加载'); return; }
+    const p = TILE_PROVIDERS[order[idx]];
+    loaded = 0;
+    layer = L.tileLayer(p.url, {subdomains:p.sub, maxZoom:p.maxZoom});
+    let errs = 0;
+    layer.on('tileload', ()=>{ loaded++; errs=0; onStatus && onStatus(`${p.name} ✔ ${loaded}`); });
+    layer.on('tileerror', ()=>{ errs++; if (errs >= 3 && loaded === 0){ map.removeLayer(layer); idx++; setTimeout(tryNext, 300); } });
+    layer.addTo(map);
+    setTimeout(()=>{ if (loaded === 0){ map.removeLayer(layer); idx++; tryNext(); } }, 5000);
+  };
+  tryNext();
+  return ()=>layer;
+}
+</script>
 <script>
 const D = __DATA__, WDL = __WDL__;
 const C = ['#e6194b','#1f77b4','#2ca02c','#ff7f0e','#9467bd','#8c564b','#64748b'];
@@ -299,8 +329,9 @@ function draw(){
   if(mL){mL.remove(); mR.remove();}
   mL=L.map('mL',{zoomControl:true,attributionControl:false});
   mR=L.map('mR',{zoomControl:false,attributionControl:false});
-  const tile=x=>L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{subdomains:'1234',maxZoom:18}).addTo(x);
-  tile(mL); tile(mR);
+  let sL='', sR='';
+  addTiles(mL, t=>{sL=t; document.getElementById('tilestat').textContent=`底图 左:${sL} 右:${sR}`;});
+  addTiles(mR, t=>{sR=t; document.getElementById('tilestat').textContent=`底图 左:${sL} 右:${sR}`;});
   const b=[];
   m.plan.forEach(([cid,wd])=>{const r=h3.cellToBoundary(cid).map(p=>[p[0],p[1]]);
     L.polygon(r,{color:'#0b0d12',weight:.6,fillColor:C[wd]||C[6],fillOpacity:.85}).addTo(mL); r.forEach(x=>b.push(x));});
@@ -353,8 +384,9 @@ function renderCorridor(d, m){
   if(mL){mL.remove(); mR.remove();}
   mL=L.map('mL',{zoomControl:true,attributionControl:false});
   mR=L.map('mR',{zoomControl:false,attributionControl:false});
-  const tile=x=>L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{subdomains:'1234',maxZoom:18}).addTo(x);
-  tile(mL); tile(mR);
+  let sL='', sR='';
+  addTiles(mL, t=>{sL=t; document.getElementById('tilestat').textContent=`底图 左:${sL} 右:${sR}`;});
+  addTiles(mR, t=>{sR=t; document.getElementById('tilestat').textContent=`底图 左:${sL} 右:${sR}`;});
   const apply=(daysP, daysA, tag)=>{
     const b=drawLines(mL, mR, daysP, daysA, tag);
     if(!b.length) return;

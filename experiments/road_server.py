@@ -245,9 +245,24 @@ class H(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(b)
 
+    def _send_html(self, path):
+        try:
+            b = Path(path).read_bytes()
+        except Exception as e:
+            return self._send({"error": f"{e}"}, 404)
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")
+        self.send_header("Pragma", "no-cache")
+        self.send_header("Content-Length", str(len(b)))
+        self.end_headers()
+        self.wfile.write(b)
+
     def do_GET(self):
         u = urlparse(self.path)
         q = parse_qs(u.query)
+        if u.path in ("/", "/page", "/index.html"):
+            return self._send_html(ROOT / "docs/reports/2026-09-22-rep-map-simple.html")
         if u.path == "/health":
             return self._send({"ok": True, "osrm": OSRM})
         if u.path == "/corridor":
