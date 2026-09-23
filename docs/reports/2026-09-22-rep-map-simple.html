@@ -688,6 +688,7 @@ th{color:#93a2b8}
   <span class="legend"><span><i style="display:inline-block;width:10px;height:10px;background:#e6194b;border-radius:2px;margin-right:4px"></i>周一</span><span><i style="display:inline-block;width:10px;height:10px;background:#1f77b4;border-radius:2px;margin-right:4px"></i>周二</span><span><i style="display:inline-block;width:10px;height:10px;background:#2ca02c;border-radius:2px;margin-right:4px"></i>周三</span><span><i style="display:inline-block;width:10px;height:10px;background:#ff7f0e;border-radius:2px;margin-right:4px"></i>周四</span><span><i style="display:inline-block;width:10px;height:10px;background:#9467bd;border-radius:2px;margin-right:4px"></i>周五</span><span><i style="display:inline-block;width:10px;height:10px;background:#8c564b;border-radius:2px;margin-right:4px"></i>周六</span><span><i style="display:inline-block;width:10px;height:10px;background:#64748b;border-radius:2px;margin-right:4px"></i>周日</span></span>
 </header>
 <div class="num" id="stat" style="padding:6px 16px 0"></div>
+<div class="num" id="roadstat" style="padding:2px 16px 0;color:#8b93a7;font-size:13px"></div>
 <div class="num" style="padding:2px 16px 0;color:#8b93a7;font-size:12px">提示：单周对比受"月度轮访"影响——计划安排在某周的店，业代可能实际在别的周去；判断"计划 vs 实际"以<b>全月</b>为准，单周用来看节奏。</div>
 <div class="pair" id="mapPair">
   <div><div class="tag l">计 划</div><div class="map" id="mL"></div></div>
@@ -741,10 +742,11 @@ function draw(){
   const corrMode = (modef.value==='corridor');
   document.getElementById('mapPair').style.display = 'grid';     // 两种模式都用地图
   document.getElementById('corrPair').style.display = 'none';    // 不再用文字清单
+  if (!corrMode) { const rs=document.getElementById('roadstat'); if(rs) rs.innerHTML=''; }
   if (corrMode) {
     document.getElementById('stat').innerHTML +=
       `　｜<b>走廊线</b>：计划 <b>${(m.daysP||[]).length}</b> 天、实际 <b>${(m.daysA||[]).length}</b> 天` +
-      `　<span style="color:#8b93a7">左=计划线、右=实际线（都按"当天门店最近邻串联"），颜色=周几</span>`;
+      ``;
     renderCorridor(d, m); return;
   }
   if(mL){mL.remove(); mR.remove();}
@@ -776,26 +778,56 @@ function orderAlong(xy, ids){            // 按"沿路方向"排序(主轴投影
   const ux=Math.cos(th), uy=Math.sin(th);
   return P.slice().sort((a,b)=>((a[0]-mx)*ux+(a[1]-my)*uy)-((b[0]-mx)*ux+(b[1]-my)*uy));
 }
+const ROAD_API = 'http://127.0.0.1:8778/corridor';
+const roadCache = {};
+function drawLines(mL, mR, daysP, daysA, tag){
+  const b=[];
+  const drawDays=(layer, days)=>{
+    days.forEach(([dow, pts])=>{
+      const col=C[dow]||C[6];
+      if (tag==='road'){
+        // 沿路几何: 只画线(不画顶点), 提高简化度, 保证底图看得见
+        L.polyline(pts,{color:col,weight:3,opacity:.85,smoothFactor:4}).addTo(layer);
+        const n=pts.length;
+        [0, Math.floor(n/2), n-1].forEach(k=>{ if(pts[k]) L.circleMarker(pts[k],{radius:3,color:'#0b0d12',weight:.6,fillColor:col,fillOpacity:1}).addTo(layer); });
+        pts.forEach(p=>b.push(p));
+      } else {
+        L.polyline(pts,{color:col,weight:2,opacity:.9,dashArray:'4,4'}).addTo(layer);
+        pts.forEach(p=>{ L.circleMarker(p,{radius:2.2,color:'#0b0d12',weight:.4,fillColor:col,fillOpacity:.9}).addTo(layer); b.push(p); });
+      }
+    });
+  };
+  drawDays(mL, daysP||[]); drawDays(mR, daysA||[]);
+  return b;
+}
 function renderCorridor(d, m){
-  // 每天一条连续线: 左=计划(最近邻序) 右=实际(打卡时间序)
+  const w = document.getElementById('weekf').value;
+  const line = d.line, key = line+'_'+w;
   if(mL){mL.remove(); mR.remove();}
   mL=L.map('mL',{zoomControl:true,attributionControl:false});
   mR=L.map('mR',{zoomControl:false,attributionControl:false});
   const tile=x=>L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{subdomains:'1234',maxZoom:18}).addTo(x);
   tile(mL); tile(mR);
-  const b=[];
-  const drawDays=(layer, days)=>{
-    days.forEach(([dow, pts])=>{
-      const col=C[dow]||C[6];
-      L.polyline(pts,{color:col,weight:2.5,opacity:.9}).addTo(layer);
-      pts.forEach(p=>{ L.circleMarker(p,{radius:2.4,color:'#0b0d12',weight:.4,fillColor:col,fillOpacity:.9}).addTo(layer); b.push(p); });
-    });
+  const apply=(daysP, daysA, tag)=>{
+    const b=drawLines(mL, mR, daysP, daysA, tag);
+    if(!b.length) return;
+    const bb=L.latLngBounds(b); mL.fitBounds(bb,{padding:[10,10]}); mR.fitBounds(bb,{padding:[10,10]});
+    mL.setView(mR.getCenter(),mR.getZoom(),{animate:false});
   };
-  drawDays(mL, m.daysP||[]);
-  drawDays(mR, m.daysA||[]);
-  if(!b.length){ L.polyline([[0,0],[0,0]]).addTo(mL); }
-  const bb=L.latLngBounds(b); mL.fitBounds(bb,{padding:[10,10]}); mR.fitBounds(bb,{padding:[10,10]});
-  mL.setView(mR.getCenter(),mR.getZoom(),{animate:false});
+  const setTag=(txt)=>{ document.getElementById('roadstat').innerHTML = txt; };
+  // 先用直线版立即出图
+  apply(m.daysP||[], m.daysA||[], 'straight');
+  setTag(`走廊线：计划 ${(m.daysP||[]).length} 天 / 实际 ${(m.daysA||[]).length} 天　<span style="color:#fbbf24">正在取沿路几何…</span>`);
+  const cachedRoad = roadCache[key];
+  const use = r => {
+    apply(r.days_plan||[], r.days_act||[], 'road');
+    setTag(`<b>沿路走廊</b>（按道路走的几何·GCJ02）：计划 ${(r.days_plan||[]).length} 天 / 实际 ${(r.days_act||[]).length} 天　<span style="color:#86efac">已按道路走</span>`);
+  };
+  if (cachedRoad) { use(cachedRoad); }
+  else fetch(`${ROAD_API}?line=${line}&scope=${w}`).then(r=>r.json()).then(j=>{
+    if (j && !j.error) { roadCache[key]=j; use(j); }
+    else setTag(`走廊线：<span style="color:#fca5a5">沿路几何获取失败，当前为直线版</span>`);
+  }).catch(()=> setTag(`走廊线：<span style="color:#fca5a5">路网服务未启动（直线版）</span>　<span style="color:#8b93a7">启动命令：python experiments/road_server.py</span>`));
   let lock=false;
   mL.on('move zoom',()=>{if(lock)return;lock=true;mR.setView(mL.getCenter(),mL.getZoom(),{animate:false});lock=false;});
   mR.on('move zoom',()=>{if(lock)return;lock=true;mL.setView(mR.getCenter(),mR.getZoom(),{animate:false});lock=false;});
